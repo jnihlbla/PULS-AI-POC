@@ -1,0 +1,99 @@
+                                                                                
+**********************************************************************          
+*                                                                    *          
+* PROGRAM ............ : W3714K                                      *          
+*                                                                    *          
+* SKRIVET AV ......... :     SKJELBRED    50654                      *          
+*                                                                    *          
+* DATUM .............. : 971016                                      *          
+*                                                                    *          
+* FUNKTION .. : PROGRAMET KOMPLETTERA UNDERLAGET FÖR BYTESUPPFÖLJNING*          
+*               -EN MED DESCRIPTION                                  *          
+*                                                                    *          
+*                                                                    *          
+* INDATA .... : W011.W01174(+0) EXTRACT WDD3                         *          
+*                                                                    *          
+* UTDATA..... : W3714K                                               *          
+*                                                                    *          
+**********************************************************************          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*****************************************************************               
+*                                                               *               
+* INFIL W011.W01174(+0) ARTIKEL EXTRAKTFIL WDK6                 *               
+*                                                               *               
+*****************************************************************               
+*                                                                               
+FILE W3714KD1                                                                   
+%W01174  'BEN-'                                                                 
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UNDERLAG TILL BYTESUPPFÖLJNING TILL BORN                      *               
+*                                                               *               
+*****************************************************************               
+                                                                                
+FILE W3714KD2                                                                   
+                                                                                
+%W3714J   'IN4J-'                                                               
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*  SORTERAT BUTESUNDERLAG I ARTIKELNUMMER ORDNING OCH DC        *               
+*****************************************************************               
+                                                                                
+FILE TPFIL1 FB(42 0)                                                            
+                                                                                
+%W3714J   'T4J-'                                                                
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UTFIL MED BYTESUNDERLAG MED FUNKTIONSGRUPP                    *               
+*                                                               *               
+*****************************************************************               
+                                                                                
+FILE W3714KD3 FB(42 0)                                                          
+                                                                                
+%W3714J   'UT4J-'                                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 2  SORTERA W3714J I IDARTNR OCH IDDC                     *               
+*                                                               *               
+*****************************************************************               
+                                                                                
+SORT W3714KD2 TO TPFIL1 USING (IN4J-IDARTNR IN4J-IDDC)                          
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 3  MATCHA TPFIL1 BYTESUNDERLAGET MOT                     *               
+*         EXTRAKT PÅ WDK6 (W01160)                              *               
+*                                                               *               
+*****************************************************************               
+                                                                                
+JOB INPUT(W3714KD1 KEY (BEN-IDARTNR )                  +                        
+          TPFIL1 KEY (T4J-IDARTNR))                                             
+                                                                                
+IF MATCHED                                                                      
+  IF BEN-BEART(10) NE '                         '                               
+     UT4J-BEART           = BEN-BEART(10)                                       
+  ELSE                                                                          
+     UT4J-BEART           = BEN-BEART(04)                                       
+  END-IF                                                                        
+  IF NOT DUPLICATE TPFIL1 OR DUPLICATE TPFIL1                                   
+     UT4J-IDARTNR         = T4J-IDARTNR                                         
+     UT4J-IDDC            = T4J-IDDC                                            
+     UT4J-IDDISTR         = T4J-IDDISTR                                         
+     UT4J-KVRETUR         = T4J-KVRETUR                                         
+     UT4J-IDFKNGRP        = T4J-IDFKNGRP                                        
+     PUT   W3714KD3                                                             
+  END-IF                                                                        
+END-IF                                                                          

@@ -1,0 +1,37 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LADDAR WDA7 MED - DAGENS FAKTURA TRANSAKTIONER                             
+//*                  - DAGENS KREDITNOTA TRANSAKTIONER                          
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W371D5                                           
+//*                                                                             
+//*  ÅTERSTART:    W37128    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P028 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN3=&W418..W371D5,                                            
+//             INDIN4=&W476..W371D5                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W37128   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W37128,W37128,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W37128D1 DD  DSN=&INDIN4..W4768M(+0),DISP=SHR                                 
+//************ DAILY INVOICE FILE                                               
+//*                                                                             
+//         DD  DSN=&INDIN3..W418AG(+0),DISP=SHR                                 
+//************ DAILY CREDIT FILE FROM W4183000 - RTN W418D2                     
+//*                                                                             

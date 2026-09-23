@@ -1,0 +1,691 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WXTR0700                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  LARS THELL                                            *        
+*                                                                      *        
+*  DATUM      :  950418                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET INGÅR I VCAS UPPFÖLJNINGSMILJÖ.            *        
+*                PROGRAMMET SKAPAR DAGFIL MED INKOMMET.                *        
+*                INKOMMET RÄKNAS UT GENOM ATT ADDERA DAGENS            *        
+*                FAKTURERAT MED DAGENS EFR OCH SUBTRAHERA              *        
+*                GÅRDAGENS EFR.                                        *        
+*                                                                      *        
+*                PROGRAMMET TAR IN FILERNA                             *        
+*                  W4795O(-1) 'GÅRDAGENS' EFRFIL                       *        
+*                  W4795O(+0) 'DAGENS' EFRFIL                          *        
+*                  WXTR03(+0)  DAGENS FAKTURERAT                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     970317      STEFANO GIOBBI           50654                       *        
+*                 INFIL ÄNDRAD, KOMPLETTERAD MED AVERAGE COST.         *        
+*                                                                      *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE WXTR07D1                                                                   
+*  GÅRDAGENS EFR                                                                
+%W4795O  'GEFR-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR07D2                                                                   
+*  DAGENS EFR                                                                   
+%W4795O 'DEFR-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR07D3                                                                   
+*  DAGFIL FAKTURERAT SDC + NDC                                                  
+   IN-IDDC          1  2  A                                                     
+   IN-IDPRC         *  4  A                                                     
+   IN-KDORDKL       *  1  P 0                                                   
+   IN-IDDISTR       *  3  P 0                                                   
+   IN-IDKUNDNR      *  4  P 0                                                   
+   IN-IDKUNDRF      * 10  A                                                     
+   IN-LINES         * 10  P 0                                                   
+   IN-VALUE-STD     * 10  P 2                                                   
+   IN-VALUE-NET     * 10  P 2                                                   
+   IN-VALUE-AVG     * 10  P 2                                                   
+   IN-VKARTNTO      * 10  P 3                                                   
+   IN-VLARTNTO      * 10  P 1                                                   
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR07D4   FB (74 0)                                                       
+   TMP-GEFR-IDDC           1    2  A                                            
+   TMP-GEFR-IDPRC          *    4  A                                            
+   TMP-GEFR-KDORDKL        *    1  P 0                                          
+   TMP-GEFR-IDDISTR        *    3  P 0                                          
+   TMP-GEFR-IDKUNDNR       *    4  P 0                                          
+   TMP-GEFR-IDKUNDRF       *   10  A                                            
+   TMP-GEFR-EFR-STD        *   10  P 2                                          
+   TMP-GEFR-EFR-AVG        *   10  P 2                                          
+   TMP-GEFR-EFR-LINES      *   10  P 0                                          
+   TMP-GEFR-EFR-VKARTNTO   *   10  P 3                                          
+   TMP-GEFR-EFR-VLARTNTO   *   10  P 1                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR07D5   FB (74 0)                                                       
+   TMP-DEFR-IDDC           1    2  A                                            
+   TMP-DEFR-IDPRC          *    4  A                                            
+   TMP-DEFR-KDORDKL        *    1  P 0                                          
+   TMP-DEFR-IDDISTR        *    3  P 0                                          
+   TMP-DEFR-IDKUNDNR       *    4  P 0                                          
+   TMP-DEFR-IDKUNDRF       *   10  A                                            
+   TMP-DEFR-EFR-STD        *   10  P 2                                          
+   TMP-DEFR-EFR-AVG        *   10  P 2                                          
+   TMP-DEFR-EFR-LINES      *   10  P 0                                          
+   TMP-DEFR-EFR-VKARTNTO   *   10  P 3                                          
+   TMP-DEFR-EFR-VLARTNTO   *   10  P 1                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR07D6   FB (74 0)                                                       
+   UT-IDDC                 1    2  A                                            
+   UT-IDPRC                *    4  A                                            
+   UT-KDORDKL              *    1  P 0                                          
+   UT-IDDISTR              *    3  P 0                                          
+   UT-IDKUNDNR             *    4  P 0                                          
+   UT-IDKUNDRF             *   10  A                                            
+   UT-INK-STD              *   10  P 2                                          
+   UT-INK-AVG              *   10  P 2                                          
+   UT-INK-LINES            *   10  P 0                                          
+   UT-INK-VKARTNTO         *   10  P 3                                          
+   UT-INK-VLARTNTO         *   10  P 1                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W    1  A   VALUE 'J'                               
+  NEJ                       W    1  A   VALUE 'N'                               
+*                                                                               
+  FL-TOM-INFIL              W    1  A   VALUE 'J'                               
+*                                                                               
+  W-EFR-STD                 W   10  P 2                                         
+  W-EFR-AVG                 W   10  P 2                                         
+  W-EFR-LINES               W   10  P 0                                         
+  W-EFR-VKARTNTO            W   10  P 3                                         
+  W-EFR-VLARTNTO            W   10  P 1                                         
+*                                                                               
+  SPAR-IDDC                 W    2  A   VALUE ' '                               
+  SPAR-IDPRC                W    4  A   VALUE ' '                               
+  SPAR-KDORDKL              W    1  P 0 VALUE  0                                
+  SPAR-IDDISTR              W    3  P 0 VALUE  0                                
+  SPAR-IDKUNDNR             W    4  P 0 VALUE  0                                
+  SPAR-IDKUNDRF             W   10  A   VALUE ' '                               
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT WXTR07D1     FINISH Z-SKRIV-SISTA-POST               +              
+                         NAME   STEG01                                          
+                                                                                
+     IF RECORD-COUNT =  1                                                       
+        SPAR-IDDC       = GEFR-IDDC                                             
+        SPAR-IDPRC      = GEFR-IDPRC                                            
+        SPAR-KDORDKL    = GEFR-KDORDKL                                          
+        SPAR-IDDISTR    = GEFR-IDDISTR                                          
+        SPAR-IDKUNDNR   = GEFR-IDKUNDNR                                         
+        SPAR-IDKUNDRF   = GEFR-IDKUNDRF                                         
+        FL-TOM-INFIL    = NEJ                                                   
+        W-EFR-STD       = 0                                                     
+        W-EFR-AVG       = 0                                                     
+        W-EFR-LINES     = 0                                                     
+        W-EFR-VKARTNTO  = 0                                                     
+        W-EFR-VLARTNTO  = 0                                                     
+     END-IF                                                                     
+                                                                                
+     IF  SPAR-IDDC       = GEFR-IDDC      AND                     +             
+         SPAR-IDPRC      = GEFR-IDPRC     AND                     +             
+         SPAR-KDORDKL    = GEFR-KDORDKL   AND                     +             
+         SPAR-IDDISTR    = GEFR-IDDISTR   AND                     +             
+         SPAR-IDKUNDNR   = GEFR-IDKUNDNR  AND                     +             
+         SPAR-IDKUNDRF   = GEFR-IDKUNDRF                                        
+         W-EFR-LINES     = W-EFR-LINES    + 1                                   
+         W-EFR-VKARTNTO  = W-EFR-VKARTNTO                         +             
+                       + (GEFR-KVBEART-Q    * GEFR-VKARTNTO)      +             
+                       + (GEFR-KVEFRS-OPACK * GEFR-VKARTNTO)      +             
+                       + (GEFR-KVEFRS-PACK  * GEFR-VKARTNTO)      +             
+                       + (GEFR-KVEFRS-SKEPP * GEFR-VKARTNTO)                    
+         W-EFR-VLARTNTO  = W-EFR-VLARTNTO                         +             
+                       + (GEFR-KVBEART-Q    * GEFR-VLARTNTO)      +             
+                       + (GEFR-KVEFRS-OPACK * GEFR-VLARTNTO)      +             
+                       + (GEFR-KVEFRS-PACK  * GEFR-VLARTNTO)      +             
+                       + (GEFR-KVEFRS-SKEPP * GEFR-VLARTNTO)                    
+         PERFORM S23-CHECK-SPAR-IDDC                                            
+         IF SPAR-IDDC = NDC-NA OR                                 +             
+            SPAR-IDDC = NDC-CN OR                                 +             
+            SPAR-IDDC = LDC-CN                                                  
+           W-EFR-STD =    0                                                     
+           W-EFR-AVG =    W-EFR-AVG                               +             
+                       + (GEFR-KVBEART-Q    * GEFR-PRAVCOST)      +             
+                       + (GEFR-KVEFRS-OPACK * GEFR-PRAVCOST)      +             
+                       + (GEFR-KVEFRS-PACK  * GEFR-PRAVCOST)      +             
+                       + (GEFR-KVEFRS-SKEPP * GEFR-PRAVCOST)                    
+         ELSE                                                                   
+           W-EFR-STD =    W-EFR-STD                               +             
+                       + (GEFR-KVBEART-Q    * GEFR-PRARTSTD)      +             
+                       + (GEFR-KVEFRS-OPACK * GEFR-PRARTSTD)      +             
+                       + (GEFR-KVEFRS-PACK  * GEFR-PRARTSTD)      +             
+                       + (GEFR-KVEFRS-SKEPP * GEFR-PRARTSTD)                    
+           W-EFR-AVG =    0                                                     
+         END-IF                                                                 
+     ELSE                                                                       
+                                                                                
+         PERFORM S01-SKRIV-FIL                                                  
+                                                                                
+         W-EFR-LINES     = 1                                                    
+         W-EFR-VKARTNTO  = 0                                      +             
+                       + (GEFR-KVBEART-Q    * GEFR-VKARTNTO)      +             
+                       + (GEFR-KVEFRS-OPACK * GEFR-VKARTNTO)      +             
+                       + (GEFR-KVEFRS-PACK  * GEFR-VKARTNTO)      +             
+                       + (GEFR-KVEFRS-SKEPP * GEFR-VKARTNTO)                    
+         W-EFR-VLARTNTO  = 0                                      +             
+                       + (GEFR-KVBEART-Q    * GEFR-VLARTNTO)      +             
+                       + (GEFR-KVEFRS-OPACK * GEFR-VLARTNTO)      +             
+                       + (GEFR-KVEFRS-PACK  * GEFR-VLARTNTO)      +             
+                       + (GEFR-KVEFRS-SKEPP * GEFR-VLARTNTO)                    
+                                                                                
+         SPAR-IDDC       = GEFR-IDDC                                            
+         SPAR-IDPRC      = GEFR-IDPRC                                           
+         SPAR-KDORDKL    = GEFR-KDORDKL                                         
+         SPAR-IDDISTR    = GEFR-IDDISTR                                         
+         SPAR-IDKUNDNR   = GEFR-IDKUNDNR                                        
+         SPAR-IDKUNDRF   = GEFR-IDKUNDRF                                        
+                                                                                
+         PERFORM S23-CHECK-SPAR-IDDC                                            
+         IF SPAR-IDDC = NDC-NA OR                                 +             
+            SPAR-IDDC = NDC-CN OR                                 +             
+            SPAR-IDDC = LDC-CN                                                  
+           W-EFR-STD =    0                                                     
+           W-EFR-AVG =   (GEFR-KVEFRS-OPACK * GEFR-PRAVCOST)      +             
+                       + (GEFR-KVBEART-Q    * GEFR-PRAVCOST)      +             
+                       + (GEFR-KVEFRS-PACK  * GEFR-PRAVCOST)      +             
+                       + (GEFR-KVEFRS-SKEPP * GEFR-PRAVCOST)                    
+         ELSE                                                                   
+           W-EFR-STD =   (GEFR-KVEFRS-OPACK * GEFR-PRARTSTD)      +             
+                       + (GEFR-KVBEART-Q    * GEFR-PRARTSTD)      +             
+                       + (GEFR-KVEFRS-PACK  * GEFR-PRARTSTD)      +             
+                       + (GEFR-KVEFRS-SKEPP * GEFR-PRARTSTD)                    
+           W-EFR-AVG =    0                                                     
+         END-IF                                                                 
+     END-IF                                                                     
+                                                                                
+  NEWPAGE                                                                       
+                                                                                
+  S01-SKRIV-FIL.  PROC                                                          
+                                                                                
+     TMP-GEFR-IDDC          = SPAR-IDDC                                         
+     TMP-GEFR-IDPRC         = SPAR-IDPRC                                        
+     TMP-GEFR-KDORDKL       = SPAR-KDORDKL                                      
+     TMP-GEFR-IDDISTR       = SPAR-IDDISTR                                      
+     TMP-GEFR-IDKUNDNR      = SPAR-IDKUNDNR                                     
+     TMP-GEFR-IDKUNDRF      = SPAR-IDKUNDRF                                     
+     TMP-GEFR-EFR-STD       = W-EFR-STD                                         
+     TMP-GEFR-EFR-AVG       = W-EFR-AVG                                         
+     TMP-GEFR-EFR-LINES     = W-EFR-LINES                                       
+     TMP-GEFR-EFR-VKARTNTO  = W-EFR-VKARTNTO                                    
+     TMP-GEFR-EFR-VLARTNTO  = W-EFR-VLARTNTO                                    
+                                                                                
+     PUT WXTR07D4                                                               
+                                                                                
+  END-PROC                                                                      
+                                                                                
+*    --- S23-CHECK-SPAR-IDDC (MACRO PROCEDURE)                                  
+%WWDC02 'SPAR-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+                                                                                
+  Z-SKRIV-SISTA-POST.  PROC                                                     
+                                                                                
+     TMP-GEFR-IDDC          = SPAR-IDDC                                         
+     TMP-GEFR-IDPRC         = SPAR-IDPRC                                        
+     TMP-GEFR-KDORDKL       = SPAR-KDORDKL                                      
+     TMP-GEFR-IDDISTR       = SPAR-IDDISTR                                      
+     TMP-GEFR-IDKUNDNR      = SPAR-IDKUNDNR                                     
+     TMP-GEFR-IDKUNDRF      = SPAR-IDKUNDRF                                     
+     TMP-GEFR-EFR-STD       = W-EFR-STD                                         
+     TMP-GEFR-EFR-AVG       = W-EFR-AVG                                         
+     TMP-GEFR-EFR-LINES     = W-EFR-LINES                                       
+     TMP-GEFR-EFR-VKARTNTO  = W-EFR-VKARTNTO                                    
+     TMP-GEFR-EFR-VLARTNTO  = W-EFR-VLARTNTO                                    
+                                                                                
+     IF FL-TOM-INFIL = NEJ                                                      
+       PUT WXTR07D4                                                             
+       FL-TOM-INFIL = JA                                                        
+     END-IF                                                                     
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  JOB INPUT WXTR07D2     FINISH Z-SKRIV-SISTA-POST               +              
+                         NAME   STEG02                                          
+                                                                                
+     IF RECORD-COUNT =  1                                                       
+       SPAR-IDDC       = DEFR-IDDC                                              
+       SPAR-IDPRC      = DEFR-IDPRC                                             
+       SPAR-KDORDKL    = DEFR-KDORDKL                                           
+       SPAR-IDDISTR    = DEFR-IDDISTR                                           
+       SPAR-IDKUNDNR   = DEFR-IDKUNDNR                                          
+       SPAR-IDKUNDRF   = DEFR-IDKUNDRF                                          
+       FL-TOM-INFIL    = NEJ                                                    
+       W-EFR-STD       = 0                                                      
+       W-EFR-AVG       = 0                                                      
+       W-EFR-LINES     = 0                                                      
+       W-EFR-VKARTNTO  = 0                                                      
+       W-EFR-VLARTNTO  = 0                                                      
+     END-IF                                                                     
+                                                                                
+     IF  SPAR-IDDC       = DEFR-IDDC      AND                     +             
+         SPAR-IDPRC      = DEFR-IDPRC     AND                     +             
+         SPAR-KDORDKL    = DEFR-KDORDKL   AND                     +             
+         SPAR-IDDISTR    = DEFR-IDDISTR   AND                     +             
+         SPAR-IDKUNDNR   = DEFR-IDKUNDNR  AND                     +             
+         SPAR-IDKUNDRF   = DEFR-IDKUNDRF                                        
+       W-EFR-LINES     = W-EFR-LINES    + 1                                     
+       W-EFR-VKARTNTO  = W-EFR-VKARTNTO                         +               
+                     + (DEFR-KVBEART-Q    * DEFR-VKARTNTO)      +               
+                     + (DEFR-KVEFRS-OPACK * DEFR-VKARTNTO)      +               
+                     + (DEFR-KVEFRS-PACK  * DEFR-VKARTNTO)      +               
+                     + (DEFR-KVEFRS-SKEPP * DEFR-VKARTNTO)                      
+       W-EFR-VLARTNTO  = W-EFR-VLARTNTO                         +               
+                     + (DEFR-KVBEART-Q    * DEFR-VLARTNTO)      +               
+                     + (DEFR-KVEFRS-OPACK * DEFR-VLARTNTO)      +               
+                     + (DEFR-KVEFRS-PACK  * DEFR-VLARTNTO)      +               
+                     + (DEFR-KVEFRS-SKEPP * DEFR-VLARTNTO)                      
+       PERFORM S23-CHECK-SPAR-IDDC                                              
+       IF SPAR-IDDC = NDC-NA OR                                 +               
+          SPAR-IDDC = NDC-CN OR                                 +               
+          SPAR-IDDC = LDC-CN                                                    
+         W-EFR-STD =    0                                                       
+         W-EFR-AVG =    W-EFR-AVG                               +               
+                     + (DEFR-KVBEART-Q    * DEFR-PRAVCOST)      +               
+                     + (DEFR-KVEFRS-OPACK * DEFR-PRAVCOST)      +               
+                     + (DEFR-KVEFRS-PACK  * DEFR-PRAVCOST)      +               
+                     + (DEFR-KVEFRS-SKEPP * DEFR-PRAVCOST)                      
+       ELSE                                                                     
+         W-EFR-STD =    W-EFR-STD                               +               
+                     + (DEFR-KVBEART-Q    * DEFR-PRARTSTD)      +               
+                     + (DEFR-KVEFRS-OPACK * DEFR-PRARTSTD)      +               
+                     + (DEFR-KVEFRS-PACK  * DEFR-PRARTSTD)      +               
+                     + (DEFR-KVEFRS-SKEPP * DEFR-PRARTSTD)                      
+         W-EFR-AVG =    0                                                       
+       END-IF                                                                   
+     ELSE                                                                       
+                                                                                
+       PERFORM S01-SKRIV-FIL                                                    
+                                                                                
+       W-EFR-LINES     = 1                                                      
+       W-EFR-VKARTNTO  = 0                                      +               
+                     + (DEFR-KVBEART-Q    * DEFR-VKARTNTO)      +               
+                     + (DEFR-KVEFRS-OPACK * DEFR-VKARTNTO)      +               
+                     + (DEFR-KVEFRS-PACK  * DEFR-VKARTNTO)      +               
+                     + (DEFR-KVEFRS-SKEPP * DEFR-VKARTNTO)                      
+       W-EFR-VLARTNTO  = 0                                      +               
+                     + (DEFR-KVBEART-Q    * DEFR-VLARTNTO)      +               
+                     + (DEFR-KVEFRS-OPACK * DEFR-VLARTNTO)      +               
+                     + (DEFR-KVEFRS-PACK  * DEFR-VLARTNTO)      +               
+                     + (DEFR-KVEFRS-SKEPP * DEFR-VLARTNTO)                      
+                                                                                
+       SPAR-IDDC       = DEFR-IDDC                                              
+       SPAR-IDPRC      = DEFR-IDPRC                                             
+       SPAR-KDORDKL    = DEFR-KDORDKL                                           
+       SPAR-IDDISTR    = DEFR-IDDISTR                                           
+       SPAR-IDKUNDNR   = DEFR-IDKUNDNR                                          
+       SPAR-IDKUNDRF   = DEFR-IDKUNDRF                                          
+                                                                                
+       PERFORM S23-CHECK-SPAR-IDDC                                              
+       IF SPAR-IDDC = NDC-NA OR                                 +               
+          SPAR-IDDC = NDC-CN OR                                 +               
+          SPAR-IDDC = LDC-CN                                                    
+         W-EFR-STD =    0                                                       
+         W-EFR-AVG =   (DEFR-KVEFRS-OPACK * DEFR-PRAVCOST)      +               
+                     + (DEFR-KVBEART-Q    * DEFR-PRAVCOST)      +               
+                     + (DEFR-KVEFRS-PACK  * DEFR-PRAVCOST)      +               
+                     + (DEFR-KVEFRS-SKEPP * DEFR-PRAVCOST)                      
+       ELSE                                                                     
+         W-EFR-STD =   (DEFR-KVEFRS-OPACK * DEFR-PRARTSTD)      +               
+                     + (DEFR-KVBEART-Q    * DEFR-PRARTSTD)      +               
+                     + (DEFR-KVEFRS-PACK  * DEFR-PRARTSTD)      +               
+                     + (DEFR-KVEFRS-SKEPP * DEFR-PRARTSTD)                      
+         W-EFR-AVG =    0                                                       
+       END-IF                                                                   
+     END-IF                                                                     
+                                                                                
+  NEWPAGE                                                                       
+                                                                                
+*    --- S23-CHECK-SPAR-IDDC (MACRO PROCEDURE)                                  
+%WWDC02 'SPAR-'                                                                 
+*                                                                               
+  S01-SKRIV-FIL.  PROC                                                          
+                                                                                
+     TMP-DEFR-IDDC          = SPAR-IDDC                                         
+     TMP-DEFR-IDPRC         = SPAR-IDPRC                                        
+     TMP-DEFR-KDORDKL       = SPAR-KDORDKL                                      
+     TMP-DEFR-IDDISTR       = SPAR-IDDISTR                                      
+     TMP-DEFR-IDKUNDNR      = SPAR-IDKUNDNR                                     
+     TMP-DEFR-IDKUNDRF      = SPAR-IDKUNDRF                                     
+     TMP-DEFR-EFR-STD       = W-EFR-STD                                         
+     TMP-DEFR-EFR-AVG       = W-EFR-AVG                                         
+     TMP-DEFR-EFR-LINES     = W-EFR-LINES                                       
+     TMP-DEFR-EFR-VKARTNTO  = W-EFR-VKARTNTO                                    
+     TMP-DEFR-EFR-VLARTNTO  = W-EFR-VLARTNTO                                    
+                                                                                
+     PUT WXTR07D5                                                               
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  Z-SKRIV-SISTA-POST.  PROC                                                     
+                                                                                
+     TMP-DEFR-IDDC          = SPAR-IDDC                                         
+     TMP-DEFR-IDPRC         = SPAR-IDPRC                                        
+     TMP-DEFR-KDORDKL       = SPAR-KDORDKL                                      
+     TMP-DEFR-IDDISTR       = SPAR-IDDISTR                                      
+     TMP-DEFR-IDKUNDNR      = SPAR-IDKUNDNR                                     
+     TMP-DEFR-IDKUNDRF      = SPAR-IDKUNDRF                                     
+     TMP-DEFR-EFR-STD       = W-EFR-STD                                         
+     TMP-DEFR-EFR-AVG       = W-EFR-AVG                                         
+     TMP-DEFR-EFR-LINES     = W-EFR-LINES                                       
+     TMP-DEFR-EFR-VKARTNTO  = W-EFR-VKARTNTO                                    
+     TMP-DEFR-EFR-VLARTNTO  = W-EFR-VLARTNTO                                    
+                                                                                
+     IF FL-TOM-INFIL = NEJ                                                      
+       PUT WXTR07D5                                                             
+       FL-TOM-INFIL = JA                                                        
+     END-IF                                                                     
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  JOB INPUT (WXTR07D3 KEY (      IN-IDDC                         +              
+                                 IN-IDPRC                        +              
+                                 IN-KDORDKL                      +              
+                                 IN-IDDISTR                      +              
+                                 IN-IDKUNDNR                     +              
+                                 IN-IDKUNDRF)                    +              
+             WXTR07D4 KEY (TMP-GEFR-IDDC                         +              
+                           TMP-GEFR-IDPRC                        +              
+                           TMP-GEFR-KDORDKL                      +              
+                           TMP-GEFR-IDDISTR                      +              
+                           TMP-GEFR-IDKUNDNR                     +              
+                           TMP-GEFR-IDKUNDRF)                    +              
+             WXTR07D5 KEY (TMP-DEFR-IDDC                         +              
+                           TMP-DEFR-IDPRC                        +              
+                           TMP-DEFR-KDORDKL                      +              
+                           TMP-DEFR-IDDISTR                      +              
+                           TMP-DEFR-IDKUNDNR                     +              
+                           TMP-DEFR-IDKUNDRF))                   +              
+                   NAME   STEG03                                                
+                                                                                
+    IF MATCHED WXTR07D3 WXTR07D4 WXTR07D5                                       
+      PERFORM A-MATCH                                                           
+    ELSE                                                                        
+      IF MATCHED WXTR07D3 WXTR07D5                                              
+        PERFORM B-FAKT-DAGENS-EFR                                               
+      ELSE                                                                      
+        IF MATCHED WXTR07D3 WXTR07D4                                            
+          PERFORM C-FAKT-GARDAGENS-EFR                                          
+        ELSE                                                                    
+          IF MATCHED WXTR07D4 WXTR07D5                                          
+            PERFORM D-DAGENS-GARDAGENS-EFR                                      
+          ELSE                                                                  
+            IF WXTR07D3                                                         
+              PERFORM E-ENBART-FAKT                                             
+            ELSE                                                                
+              IF WXTR07D5                                                       
+                PERFORM F-ENBART-DAGENS-EFR                                     
+              ELSE                                                              
+                IF WXTR07D4                                                     
+                  PERFORM G-ENBART-GARDAGENS-EFR                                
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+    IF UT-INK-STD       <  0                                                    
+       UT-INK-STD       =  0                                                    
+    END-IF                                                                      
+    IF UT-INK-AVG       <  0                                                    
+       UT-INK-AVG       =  0                                                    
+    END-IF                                                                      
+    IF UT-INK-LINES     <  0                                                    
+       UT-INK-LINES     =  0                                                    
+    END-IF                                                                      
+    IF UT-INK-VKARTNTO  <  0                                                    
+       UT-INK-VKARTNTO  =  0                                                    
+    END-IF                                                                      
+    IF UT-INK-VLARTNTO  <  0                                                    
+       UT-INK-VLARTNTO  =  0                                                    
+    END-IF                                                                      
+                                                                                
+    PUT WXTR07D6                                                                
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  A-MATCH.  PROC                                                                
+                                                                                
+    UT-IDDC             = IN-IDDC                                               
+    UT-IDPRC            = IN-IDPRC                                              
+    UT-KDORDKL          = IN-KDORDKL                                            
+    UT-IDDISTR          = IN-IDDISTR                                            
+    UT-IDKUNDNR         = IN-IDKUNDNR                                           
+    UT-IDKUNDRF         = IN-IDKUNDRF                                           
+    UT-INK-STD          =   IN-VALUE-STD                         +              
+                          - TMP-GEFR-EFR-STD                     +              
+                          + TMP-DEFR-EFR-STD                                    
+    UT-INK-AVG          =   IN-VALUE-AVG                         +              
+                          - TMP-GEFR-EFR-AVG                     +              
+                          + TMP-DEFR-EFR-AVG                                    
+    UT-INK-LINES        =   IN-LINES                             +              
+                          - TMP-GEFR-EFR-LINES                   +              
+                          + TMP-DEFR-EFR-LINES                                  
+    UT-INK-VKARTNTO     =   IN-VKARTNTO                          +              
+                          - TMP-GEFR-EFR-VKARTNTO                +              
+                          + TMP-DEFR-EFR-VKARTNTO                               
+    UT-INK-VLARTNTO     =   IN-VLARTNTO                          +              
+                          - TMP-GEFR-EFR-VLARTNTO                +              
+                          + TMP-DEFR-EFR-VLARTNTO                               
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  B-FAKT-DAGENS-EFR.  PROC                                                      
+                                                                                
+    UT-IDDC             = IN-IDDC                                               
+    UT-IDPRC            = IN-IDPRC                                              
+    UT-KDORDKL          = IN-KDORDKL                                            
+    UT-IDDISTR          = IN-IDDISTR                                            
+    UT-IDKUNDNR         = IN-IDKUNDNR                                           
+    UT-IDKUNDRF         = IN-IDKUNDRF                                           
+    UT-INK-STD          =   IN-VALUE-STD                         +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-STD                                    
+    UT-INK-AVG          =   IN-VALUE-AVG                         +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-AVG                                    
+    UT-INK-LINES        =   IN-LINES                             +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-LINES                                  
+    UT-INK-VKARTNTO     =   IN-VKARTNTO                          +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-VKARTNTO                               
+    UT-INK-VLARTNTO     =   IN-VLARTNTO                          +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-VLARTNTO                               
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  C-FAKT-GARDAGENS-EFR.  PROC                                                   
+                                                                                
+    UT-IDDC             = IN-IDDC                                               
+    UT-IDPRC            = IN-IDPRC                                              
+    UT-KDORDKL          = IN-KDORDKL                                            
+    UT-IDDISTR          = IN-IDDISTR                                            
+    UT-IDKUNDNR         = IN-IDKUNDNR                                           
+    UT-IDKUNDRF         = IN-IDKUNDRF                                           
+    UT-INK-STD          =   IN-VALUE-STD                         +              
+                          - TMP-GEFR-EFR-STD                     +              
+                          + 0                                                   
+    UT-INK-AVG          =   IN-VALUE-AVG                         +              
+                          - TMP-GEFR-EFR-AVG                     +              
+                          + 0                                                   
+    UT-INK-LINES        =   IN-LINES                             +              
+                          - TMP-GEFR-EFR-LINES                   +              
+                          + 0                                                   
+    UT-INK-VKARTNTO     =   IN-VKARTNTO                          +              
+                          - TMP-GEFR-EFR-VKARTNTO                +              
+                          + 0                                                   
+    UT-INK-VLARTNTO     =   IN-VLARTNTO                          +              
+                          - TMP-GEFR-EFR-VLARTNTO                +              
+                          + 0                                                   
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  D-DAGENS-GARDAGENS-EFR.  PROC                                                 
+                                                                                
+    UT-IDDC             = TMP-GEFR-IDDC                                         
+    UT-IDPRC            = TMP-GEFR-IDPRC                                        
+    UT-KDORDKL          = TMP-GEFR-KDORDKL                                      
+    UT-IDDISTR          = TMP-GEFR-IDDISTR                                      
+    UT-IDKUNDNR         = TMP-GEFR-IDKUNDNR                                     
+    UT-IDKUNDRF         = TMP-GEFR-IDKUNDRF                                     
+    UT-INK-STD          =   0                                    +              
+                          - TMP-GEFR-EFR-STD                     +              
+                          + TMP-DEFR-EFR-STD                                    
+    UT-INK-AVG          =   0                                    +              
+                          - TMP-GEFR-EFR-AVG                     +              
+                          + TMP-DEFR-EFR-AVG                                    
+    UT-INK-LINES        =   0                                    +              
+                          - TMP-GEFR-EFR-LINES                   +              
+                          + TMP-DEFR-EFR-LINES                                  
+    UT-INK-VKARTNTO     =   0                                    +              
+                          - TMP-GEFR-EFR-VKARTNTO                +              
+                          + TMP-DEFR-EFR-VKARTNTO                               
+    UT-INK-VLARTNTO     =   0                                    +              
+                          - TMP-GEFR-EFR-VLARTNTO                +              
+                          + TMP-DEFR-EFR-VLARTNTO                               
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  E-ENBART-FAKT.  PROC                                                          
+                                                                                
+    UT-IDDC             = IN-IDDC                                               
+    UT-IDPRC            = IN-IDPRC                                              
+    UT-KDORDKL          = IN-KDORDKL                                            
+    UT-IDDISTR          = IN-IDDISTR                                            
+    UT-IDKUNDNR         = IN-IDKUNDNR                                           
+    UT-IDKUNDRF         = IN-IDKUNDRF                                           
+    UT-INK-STD          =   IN-VALUE-STD                         +              
+                          - 0                                    +              
+                          + 0                                                   
+    UT-INK-AVG          =   IN-VALUE-AVG                         +              
+                          - 0                                    +              
+                          + 0                                                   
+    UT-INK-LINES        =   IN-LINES                             +              
+                          - 0                                    +              
+                          + 0                                                   
+    UT-INK-VKARTNTO     =   IN-VKARTNTO                          +              
+                          - 0                                    +              
+                          + 0                                                   
+    UT-INK-VLARTNTO     =   IN-VLARTNTO                          +              
+                          - 0                                    +              
+                          + 0                                                   
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  F-ENBART-DAGENS-EFR.  PROC                                                    
+                                                                                
+    UT-IDDC             = TMP-DEFR-IDDC                                         
+    UT-IDPRC            = TMP-DEFR-IDPRC                                        
+    UT-KDORDKL          = TMP-DEFR-KDORDKL                                      
+    UT-IDDISTR          = TMP-DEFR-IDDISTR                                      
+    UT-IDKUNDNR         = TMP-DEFR-IDKUNDNR                                     
+    UT-IDKUNDRF         = TMP-DEFR-IDKUNDRF                                     
+    UT-INK-STD          =   0                                    +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-STD                                    
+    UT-INK-AVG          =   0                                    +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-AVG                                    
+    UT-INK-LINES        =   0                                    +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-LINES                                  
+    UT-INK-VKARTNTO     =   0                                    +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-VKARTNTO                               
+    UT-INK-VLARTNTO     =   0                                    +              
+                          - 0                                    +              
+                          + TMP-DEFR-EFR-VLARTNTO                               
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  G-ENBART-GARDAGENS-EFR.  PROC                                                 
+                                                                                
+    UT-IDDC             = TMP-GEFR-IDDC                                         
+    UT-IDPRC            = TMP-GEFR-IDPRC                                        
+    UT-KDORDKL          = TMP-GEFR-KDORDKL                                      
+    UT-IDDISTR          = TMP-GEFR-IDDISTR                                      
+    UT-IDKUNDNR         = TMP-GEFR-IDKUNDNR                                     
+    UT-IDKUNDRF         = TMP-GEFR-IDKUNDRF                                     
+    UT-INK-STD          =   0                                    +              
+                          - TMP-GEFR-EFR-STD                     +              
+                          + 0                                                   
+    UT-INK-AVG          =   0                                    +              
+                          - TMP-GEFR-EFR-AVG                     +              
+                          + 0                                                   
+    UT-INK-LINES        =   0                                    +              
+                          - TMP-GEFR-EFR-LINES                   +              
+                          + 0                                                   
+    UT-INK-VKARTNTO     =   0                                    +              
+                          - TMP-GEFR-EFR-VKARTNTO                +              
+                          + 0                                                   
+    UT-INK-VLARTNTO     =   0                                    +              
+                          - TMP-GEFR-EFR-VLARTNTO                +              
+                          + 0                                                   
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         

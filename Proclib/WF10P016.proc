@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DISTRIBUTES FILE WITH CURRENCY TO PULS                                     
+//*                                                                             
+//*  FREQUENCE:    ON DEMAND    RTN WF10R2                                      
+//*                                                                             
+//*  RESTART:      WF1016       NORMAL  (BMP)                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF10P016 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&WF10..WF10R2,                                             
+//             INDUT=&WF10..WF10R2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF1016   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,WF1016,WF1016,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//WF1016D1 DD  DSN=&INDIN..WF1013(+0),DISP=SHR                                  
+//************ CURRENCY FILE VCC AND NON-VCC                                    
+//WF1016D2 DD  DSN=&INDUT..WF1023(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ CURRENCY FILE TO W930S3                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//WF1016D3 DD  DSN=&INDUT..WF1023A(+1),                         -LIM(1)         
+//************ CURRENCY FILE TO W930S2                                          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

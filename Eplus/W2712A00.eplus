@@ -1,0 +1,86 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2712A00                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATE A FILE FOR QUALITY SUPERSESSION.               *        
+*  FÖRFATTARE :  JOHAN NIHLBLAD                                        *        
+*                                                                      *        
+*  CHANGE LOG :                                                        *        
+*                                                                      *        
+*      2013-08-19  E'TRACKER 10162003                                  *        
+*                  DECREASE NO OF WEEKS AT SUPERSESSION.               *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W2712AD1                                                                   
+%W01160    'IN1-'                                                               
+                                                                                
+FILE W2712AD2 FB(21 0)                                                          
+%W27136    'UT-'                                                                
+                                                                                
+****************************                                                    
+* AREOR FÖR SUBPROGRAM     *                                                    
+****************************                                                    
+W009VADD          W   8   A   VALUE 'W009VADD'                                  
+                                                                                
+DATUM-AAVV        W   3   P                                                     
+ANTAL-VECKOADD    W   2   P 0                                                   
+                                                                                
+****************************                                                    
+* PARAMETERAR TILL DATKONV *                                                    
+****************************                                                    
+%WDATAREA                                                                       
+                                                                                
+DAGENS-DATUM   W   6 N                                                          
+                                                                                
+W-TIAAVVD-2V           W   5 N                                                  
+                                                                                
+W-TIAAVVD              W   5 N                                                  
+W-TIAAVV     W-TIAAVVD     4 N                                                  
+W-TIAAVVD-D  W-TIAAVVD +4  1 N                                                  
+                                                                                
+%WY2000W2                                                                       
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT W2712AD1 START A-SOEK-DATUM                                           
+                                                                                
+  IF (IN1-CLAG-KDERS = 02 22 03 23 05 25 06 26)                                 
+*   IF IN1-CLAG-TISTOREF <= W-TIAAVVD-2V +                                      
+*   OR IN1-CLAG-TISTOREF > 50000                                                
+      IF IN1-CLAG-TISTOREF = 0                                                  
+      ELSE                                                                      
+        MOVE IN1-CLAG-IDARTNR TO UT-IDARTNR                                     
+        MOVE SPACE          TO UT-IDDC                                          
+        MOVE ZERO           TO UT-IDPERSON-BUY                                  
+        MOVE IN1-CLAG-KDERS TO UT-KDERS                                         
+        MOVE 'P'            TO UT-KDREFSTA                                      
+        MOVE ZERO           TO UT-TIREFSTO-CLAG                                 
+        MOVE ZERO           TO UT-TIREFSTO-SLAG                                 
+        MOVE 'N'            TO UT-FLPB-FLYTT                                    
+        PUT W2712AD2                                                            
+      END-IF                                                                    
+*   END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+A-SOEK-DATUM.   PROC                                                            
+                                                                                
+  DAT-KDDATFORM  = 'IDAG  '                                                     
+  CALL WDATKONV USING (DAT-KDDATFORM DAT-I-TIDATUM +                            
+                       DAT-O-TIDATUM DAT-KDSVAR)                                
+  DAGENS-DATUM   = DAT-TIAAMMDD                                                 
+  DISPLAY ' DAGENS-DATUM ' DAGENS-DATUM                                         
+                                                                                
+  W-TIAAVVD      = DAT-TIAAVVD                                                  
+  DATUM-AAVV     = W-TIAAVV                                                     
+  ANTAL-VECKOADD = +2                                                           
+  CALL W009VADD USING (DATUM-AAVV ANTAL-VECKOADD)                               
+                                                                                
+  W-TIAAVV       = DATUM-AAVV                                                   
+  W-TIAAVVD-D    = 1                                                            
+  W-TIAAVVD-2V   = W-TIAAVVD                                                    
+  DISPLAY ' DAGENS DAT + 2 VECKOR ' W-TIAAVVD-2V                                
+END-PROC                                                                        
+                                                                                

@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SELEKTERAR VECKANS INLEVERANSER.                                           
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W613V2                                         
+//*                                                                             
+//*  ÅTERSTART:    W61311    NORMAL                                             
+//*  VID OMKÖRNING VECKAN EFTER MÅSTE FIX PÅ DATUM GÖRAS.                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W613P011 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W611..W613V2,                                            
+//             INDUT=&W613..W613V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61311   EXEC PGM=V16459,PARM='W61311/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61311D1 DD  DSN=&INDIN2..W61111,DISP=SHR                                     
+//************ SB AV W6D1                                                       
+//*                                                                             
+//W61311D2 DD  DSN=&&W61311,DISP=(NEW,PASS,DELETE),                             
+//************ SENASTE VECKANS INLEVERANSER                                     
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W613PD11),DISP=SHR                         
+//SORTIN    DD DSN=&&W61311,DISP=(OLD,DELETE,DELETE)                            
+//SORTOUT  DD  DSN=&INDUT..W61311(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ SORTAD PÅ IDARTNR                                                
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR SAMMAN ARTIKELINFO FRÅN OLIKA FILER                                
+//*                                                                             
+//*  FREKVENS:     ORDER   RTN W217S4                                           
+//*                                                                             
+//*  ÅTERSTART:    W21709    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W217P009 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W217..W217S4,                                             
+//             INDIN2=&W217..W217R1,                                            
+//             INDREG=&W225,                                                    
+//             INDUT=&W217..W217S4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21709   EXEC PGM=V16459,PARM='W21709/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W21709D1 DD  DSN=&INDIN..W21708(+0),DISP=SHR                                  
+//************ LAGERBANDINFO                                                    
+//*                                                                             
+//W21709D2 DD  DSN=&INDREG..W22509,DISP=SHR                                     
+//************ W22509                                                           
+//*                                                                             
+//W21709D3 DD  DSN=&&TEMP1,DISP=(NEW,PASS,DELETE),                              
+//************ TEMP1 D1 OCH D2 SAMMANSLAGNA                                     
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W21709D4 DD  DSN=&INDIN2..W21706(+0),DISP=SHR                                 
+//************ ORDERINGÅNG FRÅN WDL8                                            
+//*                                                                             
+//W21709D5 DD  DSN=&INDUT..W21709(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ SAMMANSTÄLLD ARTIKELINFO                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  NHTSA NDC SUPPLIER LIST                                                    
+//*                                                                             
+//*  FREQUENCE:    WEEKLY    RTN W213V1                                         
+//*                                                                             
+//*  RESTART:      W21308    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W213P008 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W011..&RTEGRP.,                                          
+//             INDIN2=&W011..NDC,                                               
+//             INDIN=&W213..W213V1,                                             
+//             INDUT=&W213..W213V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21308   EXEC PGM=V16459,PARM='W21308/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W21308D1 DD  DSN=&INDIN1..W01160(+0),DISP=SHR                                 
+//************ W01160 WDK6                                                      
+//*                                                                             
+//W21308D2 DD  DSN=&INDIN2..W01184(+0),DISP=SHR                                 
+//************ W01184 WDK7                                                      
+//*                                                                             
+//W21308D3 DD  DSN=&&TEMPFIL1,DISP=(NEW,PASS,DELETE),                           
+//************ (W01160)                                                         
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W21308D4 DD  DSN=&&TEMPFIL2,DISP=(NEW,PASS,DELETE),                           
+//************ (W01184)                                                         
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W21308D5 DD  DSN=&&TEMPFIL3,DISP=(NEW,PASS,DELETE),                           
+//************ (W01184)                                                         
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W21308D6 DD  DSN=&INDIN..W213F1(+1),DISP=SHR                                  
+//************ WDF106                                                           
+//*                                                                             
+//W21308D7 DD  DSN=&&TEMPFIL4,DISP=(NEW,PASS,DELETE),                           
+//************ (WDF106S)                                                        
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W21308D8 DD  DSN=&INDUT..W21308(+1),DISP=(NEW,CATLG,DELETE), -LIM(99          
+//************ CSV OUTFILE TO D&P                                               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

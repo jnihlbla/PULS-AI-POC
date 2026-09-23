@@ -1,0 +1,74 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  INVENTERINGEN.                                                             
+//*                                                                             
+//*  MATCHAR POSTER MED LAGERBAND FÖR ATT KOMPLETTERA MED LAGEROMRÅDE           
+//*  SEDAN SUMMERAS POSTERNA PÅ IDDC, ADLAGOMR OCH IDPTYP 1,2 OCH 3             
+//*  FREKVENS:     VECKA     RTN W513V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W51310    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P010 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W011,                                                    
+//             INDIN=&W513..W513V1,                                             
+//             INDIN2=&W570..W513V1,                                            
+//             INDIN3=&W515..W513V1,                                            
+//             INDIN4=&W561..W513V1,                                            
+//             INDLDC=&W011..LDC,                                               
+//             INDSDC=&W011..SDC,                                               
+//             INDNDC=&W011..NDC,                                               
+//             INDUT=&W513..W513V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51310   EXEC PGM=V16459,PARM='W51310/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR            -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W51310D1 DD  DSN=&INDIN..W51310,DISP=SHR                                      
+//         DD  DSN=&INDIN2..W51310,DISP=SHR                                     
+//         DD  DSN=&INDIN3..W51310,DISP=SHR                                     
+//         DD  DSN=&INDIN4..W51310,DISP=SHR                                     
+//         DD  DSN=&INDIN2..W51390,DISP=SHR                                     
+//         DD  DSN=&INDIN2..W51350,DISP=SHR                                     
+//         DD  DSN=&INDIN2..W51380,DISP=SHR                                     
+//         DD  DSN=&INDIN2..W51320,DISP=SHR                                     
+//         DD  DSN=&INDIN2..W51340,DISP=SHR                                     
+//         DD  DSN=&INDIN2..W51310A,DISP=SHR                                    
+//         DD  DSN=&INDIN2..W51350B,DISP=SHR                                    
+//         DD  DSN=&INDIN2..W51350M,DISP=SHR                                    
+//         DD  DSN=&INDIN2..W51350Z,DISP=SHR                                    
+//************ EKONOMI-ARTIKELSALDOFIL                                          
+//*                                                                             
+//W51310D2 DD  DSN=&INDREG..W01172(+0),DISP=SHR                                 
+//************ ARTIKELEXTRAKT WDK6                                              
+//*                                                                             
+//W51310D3 DD  DSN=&INDLDC..W01184(+0),DISP=SHR                                 
+//         DD  DSN=&INDSDC..W01184(+0),DISP=SHR                                 
+//         DD  DSN=&INDNDC..W01184(+0),DISP=SHR                                 
+//************ ARTIKELEXTRAKT LDC                                               
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL3   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51310D4 DD  DSN=&INDUT..W51312(+1),DISP=(NEW,CATLG,DELETE),  -LIM(10)        
+//************  UTFIL MED SUMMERADE POSTER FÖR INVENTERINGSLISTOR               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

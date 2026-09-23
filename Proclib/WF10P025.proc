@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* GET ONE YEAR OF RECORD FROM DLIN_ARC AND DHEA_ARC                           
+//*  DB2 TABLE FOR VCCS VCIN VCCN VCUS VCKR                                     
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      WF1025    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF10P025 PROC STPLIB=&INDRTE..LOAD, -- PERHAPS REMOVE COMMA                   
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO      EXEC PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                               
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WF1025D1 DD  DSN=&INDUT..W51293(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ ONE YEAR OF VCCS RECORDS FROM T01_DLINARC PER DC                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//WF1025D2 DD  DSN=&INDUT..W51294(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ ONE YEAR OF NON-VCCS RECORDS PER DC                              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//WF1025D3 DD  DSN=&INDUT..W51295(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ ONE YEAR OF VCCS RECORDS FROM T01_DLINARC PER COMPANY            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//WF1025D4 DD  DSN=&INDUT..W51296(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ ONE YEAR OF NON-VCCS RECORDS PER COMPANY                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456',                              
+//             COND=(4,GE,TSO)                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

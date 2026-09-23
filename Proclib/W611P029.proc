@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR FIL FRÅN W6G3 MED GENOMLOPPSTID                               
+//*                                                                             
+//*  FREKVENS:     VECKA  RTN W611V1                                            
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W61129    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P029 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611V1,                                             
+//             INDUT=&W611..W611V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD29),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61128,DISP=SHR                                      
+//************ FIL FRÅN W6G3 (W6FILA)                                           
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61128,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD W6G3 FIL (W6FILA)                                       
+//             SPACE=(46,(1000,100),RLSE),AVGREC=K                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61129   EXEC PGM=W61129                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                    -- POSTSUM           
+//W61129D1 DD  DSN=&&W61128,DISP=(OLD,PASS,DELETE)                              
+//************ SORTERAD W6G3 FIL                                                
+//*                                                                             
+//W61129D2 DD  DSN=&INDUT..W61129(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ STATUSPOSTER MED GENOMLOPPSTID                                   
+//             MGMTCLAS=&BACKUPC,SPACE=(54,(150,200),RLSE),AVGREC=K             
+//*                                                                             

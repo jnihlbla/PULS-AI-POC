@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATES REFILL PROPOSAL WITH SUP.MESSAGE                                   
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W271D8                                         
+//*                                                                             
+//*  RESTART:      W27209      NORMAL                                           
+//*                READS        WDK6 WDK7 WDB6                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W272P009 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W271..W271D8,                                             
+//             INDUT=&W271..W271D8                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27209   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W27209,W27209,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W27209D1 DD  DSN=&INDIN..W27208(+0),DISP=SHR                                  
+//************ FILE WITH CHANGED KDERS                                          
+//*                                                                             
+//W27209D2 DD  DSN=&INDUT..W27209(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ FILE WITH REF PROPOSALS WITH MESSAGE CODE                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

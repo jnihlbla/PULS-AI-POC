@@ -1,0 +1,40 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*  SELECT RECORDS FROM THE NETWEIGHT FILE FROM KDP,                           
+//*  WHICH ARE OK TO UPDATE IN PULS (WDK611 AND WDK212).                        
+//*  ALSO CREATE AN ALARM FILE WHEN NETWEIGHT IS GREATER                        
+//*  THAN GROSSWEIGHT.                                                          
+//*                                                                             
+//*  FREQUENCE:    ORDERED    RTN W611S9                                        
+//*                                                                             
+//*  RESTART:      W61108     NORMAL                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P008 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W611..W611X2SE,                                          
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDUT=&W611..W611S9                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61108   EXEC PGM=V16459,PARM='W61108/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61108D1 DD  DSN=&INDIN1..W61106(+0),DISP=SHR                                 
+//************ NETWEIGHT FILE FROM KDP                                          
+//*                                                                             
+//W61108D2 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ LAGERBAND                                                        
+//*                                                                             
+//W61108D3 DD  DSN=&INDUT..W611081(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ NETWEIGHT FILE WDK212                                            
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//W61108D4 DD  DSN=&INDUT..W611082(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ NETWEIGHT FILE WDK611                                            
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//W61108D5 DD  DSN=&INDUT..W611083(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ ALARM FILE WHERE VKART-NTO > VKART (CSV FILE)                    
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  

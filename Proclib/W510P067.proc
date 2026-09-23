@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER HÄNDELSEBAS FÖR KOMPLETTERING AV TRANSAR                             
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W510D4                                           
+//*                                                                             
+//*  ÅTERSTART:    W51067      NORMAL                                           
+//*                LÄSER        WDH5                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P067 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..W510D4,                                             
+//             INDUT=&W510..W510D4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51067   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W51067,W51067,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDH5     INCLUDE MEMBER=WDH5                                                  
+//W51067D1 DD  DSN=&INDIN..W51063,DISP=SHR                                      
+//************ SENASTE DYGNETS BOKNINGSHÄNDELSER                                
+//*                                                                             
+//W51067D2 DD  DSN=&INDUT..W51066(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ FIL MED ALLT SOM SKALL BOKAS I SAP                               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51067D3 DD  DSN=&INDUT..W5106D(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ UTFIL MED KLIENT W511 (SKALL EJ BOKAS I SAP)                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51067D4 DD  DSN=&INDUT..W5106G(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ UTFIL MED LISTTRANSAR FÖR DIRLEV-LISTA I W500M1                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

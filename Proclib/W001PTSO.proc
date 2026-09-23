@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*    FUNKTION:     GENERELL PROCEDUR FÖR ATT KÖRA TSO I BATCH       *         
+//*                                                                   *         
+//*                  CLISTOR SKA AVSLUTAS MED EXIT CODE(&RC) SÅ       *         
+//*                  AVGER TSO RC SOM RETURKOD. RC SKA VARA 12        *         
+//*                  ELLER STÖRRE                                     *         
+//*                                                                   *         
+//*    ÅTERSTART:    KONTAKTA JOURANSVARIG                            *         
+//*           OBS !! RENAME STEG FÅR ALDRIG KÖRAS OM UTAN ÅTGÄRD !!!  *         
+//*                                                                   *         
+//*    ANSVARIG:     57051                                            *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W001PTSO PROC MEMBER=TEMPNAME,MAXRC=4                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO     EXEC PGM=IKJEFT01,DYNAMNBR=50,PARM=' '                                
+//STEPLIB  DD  DSN=SYS2.F1TS00.LOAD,DISP=SHR -- USED TO FIND FIA                
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR   -- USED BY RENDATE,WRTNINP         
+//SYSTCPD  DD  DSN=F1TI00.TCPIP.DATA(TCPDATA),DISP=SHR                          
+//SYSHELP  DD  DUMMY                                                            
+//SYSPROC  DD  DSN=SYS2.F1TS00.CLIST,DISP=SHR                                   
+//         DD  DSN=&W..ISPF.EXEC,DISP=SHR                                       
+//         DD  DSN=&INDGRND..EXEC,DISP=SHR                                      
+//         DD  DSN=&W..ISPF.CLIST,DISP=SHR                                      
+//         DD  DSN=&INDGRND..CLIST,DISP=SHR                                     
+//         DD  DSN=SYS2.F1TS00.EXEC,DISP=SHR                                    
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DDNAME=SYSIN                                                     
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(&MEMBER),DISP=SHR                          
+//*                                                                             
+//GRSNEWD1 DD  SYSOUT=*                      -- USED BY FIA IN WRTNINP          
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND   EXEC PGM=ABEND,COND=(&MAXRC,GE,TSO),PARM='1234567890123456'           

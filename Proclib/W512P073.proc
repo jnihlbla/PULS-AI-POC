@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATES GIT REPORT TO SHOW ITEMS OLDER THAN 6 MONTHS                       
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W51273    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P073 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W512..W512M2,                                             
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W512PD73),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W51272(+0),DISP=SHR                                  
+//************ GIT FILE WITH ITEMS OLDER THAN 6 MONTHS                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W51272,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED WITH IDFTG                                                
+//             DATACLAS=PSEN                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51273   EXEC PGM=V16459,PARM='W51273/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W51273D1 DD  DSN=&&W51272,DISP=SHR                                            
+//************ GIT FILE WITH ITEMS OLDER THAN 6 MONTHS                          
+//*                                                                             
+//W51273D2 DD  DSN=&INDUT..W51273(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ GIT REPORT TO SHOW ITEMS OLDER THAN 6 MONTHS                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

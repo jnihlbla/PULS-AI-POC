@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RENSNING WDJ1                                                              
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W122B1                                      
+//*                                                                             
+//*  ÅTERSTART:    W12270     BACKOUT VIA SOP                                   
+//*                UPPDATERAR  WDJ1                                             
+//*                LÄSER  WDK6 WDD3                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W122P070 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT2=&W112                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W12270   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W12270,W12270,,00')                                  
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DSN=&INDPLOG..W122P070(+1),                                      
+//             DISP=(NEW,CATLG,CATLG),                                          
+//             DCB=(RECFM=VB,LRECL=6229,BLKSIZE=27998,BUFNO=5),                 
+//             MGMTCLAS=&EMID70,SPACE=(TRK,(100,100),RLSE)                      
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDJ1     INCLUDE MEMBER=WDJ1                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//W12270D1 DD  DSN=&INDUT2..W11250(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ HISTORIKFIL RASA                                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

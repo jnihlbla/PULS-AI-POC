@@ -1,0 +1,60 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER WDD9 MED SB, SKRIVER SUMMERAD KVBR PER ARTIKEL                       
+//*  FRÅN WDD902 PÅ FILEN W01173, SORT;IDARTNR                                  
+//*                                                                             
+//*                                                                             
+//*  FREKVENS:     TIMME  RTN W011S1                                            
+//*                DAG    RTN W011D1                                            
+//*                       RTN W011D2                                            
+//*                VECKA  RTN W100V1                                            
+//*                                                                             
+//*                INDUT ANGES I JCL                                            
+//*                                                                             
+//*                                                                             
+//*  ÅTERSTART:    W01173      NORMAL                                           
+//*                                                                             
+//*                LÄSER  WDD9                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W011P073 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=SAKNAS                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W01173   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W01173,W01173,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//W01173D1 DD  DSN=&&W01173,DISP=(NEW,PASS,DELETE),                             
+//************ SUMMERAD KVBR PER ARTIKEL                                        
+//*******  SPACE=(9,(150,25),RLSE),AVGREC=K                                     
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W011PD73),DISP=SHR                         
+//SORTIN   DD  DSN=&&W01173,DISP=(OLD,DELETE,DELETE)                            
+//************ SUMMERAD KVBR PER ARTIKEL                                        
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W01173(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SUMMERAD KVBR PER ARTIKEL, SORT IDARTNR                          
+//************ SPACE=(9,(150,25),RLSE),AVGREC=K,                                
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  

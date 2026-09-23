@@ -1,0 +1,75 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6142100                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER FIL W61420, KDLEVSP SATT TILL 20 ELLER 21       *        
+*                SKAPAR MAIL.                                          *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL                                         *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W61421D1                                                                   
+%W61420  'IN-'                                                                  
+NEWPAGE                                                                         
+*                                                                               
+FILE W61421D2  PRINTER FB (133 0)                                               
+*                                                                               
+PROGRAM-NAMN      W   6   A   VALUE 'W61421'                                    
+WS-IDARTNR        W   9   N   MASK 'ZZZZZZZZ9'                                  
+WS-TIAAMMDD       W   6   N                                                     
+WS-DAREGDAT       W   8   N                                                     
+WS-DAREGDAT-X     W   6   A                                                     
+WS-AAR          WS-DAREGDAT   2    N                                            
+WS-REGDAT-QUAL  WS-DAREGDAT  +2  6 N                                            
+NEWPAGE                                                                         
+************************************************************************        
+* LÄSER INFIL W61420                                                            
+************************************************************************        
+*                                                                               
+JOB INPUT (W61421D1)                                                            
+*                                                                               
+     WS-IDARTNR  = IN-IDARTNR                                                   
+     WS-TIAAMMDD = IN-TIAAMMDD                                                  
+     WS-DAREGDAT = IN-DAREGDAT                                                  
+     IF WS-REGDAT-QUAL = 0                                                      
+        WS-DAREGDAT-X = ' '                                                     
+     ELSE                                                                       
+        WS-DAREGDAT-X = WS-REGDAT-QUAL                                          
+     END-IF                                                                     
+     PRINT RAPPORT01                                                            
+*                                                                               
+REPORT RAPPORT01 PRINTER W61421D2 LINESIZE 116 PAGESIZE 41       +              
+       NOADJUST NOHEADING NOSPREAD SPACE 1 TITLESKIP 3                          
+                                                                                
+TITLE 1  COL 11  'VCCS W61421-001'                                              
+                                                                                
+TITLE 2  COL 11  'THIS PARTNUMBER IS BLOCKED FOR THE MARKET DUE  +              
+                  TO QUALITY PROBLEMS'                                          
+                                                                                
+TITLE 3  COL 11  'FOUND AT CDC'                                  +              
+         COL 24  WS-TIAAMMDD                                                    
+                                                                                
+LINE 01  COL 01   'PART NO.'                                    +               
+         COL 22   WS-IDARTNR                                                    
+LINE 02  COL 01   'SUPPLIER'                                    +               
+         COL 22   IN-IDLEVNR                                                    
+LINE 03  COL 01   'REG.DATE'                                    +               
+         COL 22   WS-TIAAMMDD                                                   
+LINE 04  COL 01   'QUALITY ENGINEER'                            +               
+         COL 22   IN-IDNAMN                                                     
+LINE 05  COL 01    'TFN.'                                       +               
+         COL 22   IN-IDTFN                                                      
+LINE 06  COL 01   'MAIL ADDRESS'                                +               
+         COL 22   IN-IDMAIL                                                     
+LINE 07  COL 01   'REG.DATE QUAL.NOTE'                          +               
+         COL 22   WS-DAREGDAT-X                                                 
+LINE 08  COL 01   'QUAL.NOTE'                                                   
+LINE 09  COL 01   IN-TEKVAINF-EXT(1)                                            
+LINE 10  COL 01   IN-TEKVAINF-EXT(2)                                            
+LINE 11  COL 01   IN-TEKVAINF-EXT(3)                                            
+LINE 12  COL 01   IN-TEKVAINF-EXT(4)                                            
+LINE 13  COL 01   IN-TEKVAINF-EXT(5)                                            
+LINE 14  COL 01   IN-TEKVAINF-EXT(6)                                            
+LINE 15  COL 01   IN-TEKVAINF-EXT(7)                                            
+*                                                                               

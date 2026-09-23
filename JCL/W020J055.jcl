@@ -1,0 +1,11 @@
+//W020J055 JOB (650W4830100W020J055,W100),'RTN W483V1',                         
+//             CLASS=K,USER=?,PASSWORD=?                                        
+//PROC  JCLLIB ORDER=(W.QASE.PROCLIB)                                           
+//ENV  INCLUDE MEMBER=ENVQASE                                                   
+//     INCLUDE MEMBER=SYST0                                                     
+/*JOBPARM FORMS=1800,LINECT=0                                                   
+/*ROUTE   XEQ LOCAL                                                             
+/*ROUTE PRINT LOCAL                                                             
+//W020    EXEC W020P055                                                         
+//*                                                                             
+//SOPEND  EXEC WSOPEND,PROCESS=W020J055                                         

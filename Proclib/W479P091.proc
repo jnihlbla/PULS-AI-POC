@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR  W47988 OCH                                                        
+//*           W91042                                                            
+//*  STANDARPRIS PER ARTIKEL HÄNGS PÅ OKS-FIL                                   
+//*  UTFIL  -->  W47991                                                         
+//*                                                                             
+//*  FREKVENS:     DAGLIG   RTN W479D1                                          
+//*                                                                             
+//*  ÅTERSTART:    W47991   NORMAL                                              
+//*                DFUP   NORMAL                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P091 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W910,                                                    
+//             INDIN2=&W479..W479D1,                                            
+//             INDUT=&W479..W479D1                                              
+//*                                                                             
+//W47991   EXEC PGM=V16459,PARM='W47991/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(10000,200))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W47991D1 DD  DSN=&INDIN1..W91042(+0),DISP=SHR                                 
+//************ STANDARPRISER M.M                                                
+//*                                                                             
+//W47991D2 DD  DSN=&INDIN2..W47988(+0),DISP=SHR                                 
+//************ OKS-INFO                                                         
+//*                                                                             
+//W47991D3 DD  DSN=&INDUT..W47991(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ OKS-INFO MED STANDARDPRIS                                        
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,66 @@
+//*      TA BORT STPLIB OM INGET STEG FÖRUTOM SORT                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  ADD PARTNER ID TO VSIM PART INFO TOTAL FILE                                
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W116D7                                         
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                W1166E    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P06E PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W116..W116D7,                                             
+//             INDUT=&W116..W116D7                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PD6E),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W1166D(+0),DISP=SHR                                  
+//************ VSIM TOTAL PART INFO FILE                                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W1166D,DISP=(NEW,PASS,DELETE),                             
+//************ VSIM TOTAL FILE SORTED BY IDDC                                   
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W1166E   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W1166E,W1166E,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W1166ED1 DD  DSN=&&W1166D,DISP=(OLD,DELETE,DELETE)                            
+//************ VSIM TOTAL FILE SORTED BY IDDC                                   
+//*                                                                             
+//W1166ED2 DD  DSN=&&W1166E,DISP=(NEW,PASS,DELETE),                             
+//************ VSIM TOTAL PART INFO FILE WITH PARTNER ID ADDED                  
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PE6E),DISP=SHR                         
+//SORTIN   DD  DSN=&&W1166E,DISP=(OLD,DELETE,DELETE)                            
+//************                                                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W1166E(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VSIM TOTAL PART INFO FILE SORTED BY ACSCENDING PART NO.          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             

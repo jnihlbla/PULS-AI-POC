@@ -1,0 +1,54 @@
+//W016P013 PROC STPLIB=&INDRTE..LOAD,                                           
+//             GRP=&RTEGRP,                                                     
+//             EXPEDIT=MISSED,                                                  
+//             RVALUE=                                                          
+//********************************************************************          
+//*  System    VCOM Receiving program.                               *          
+//*                                                                  *          
+//*  Funktion  This JCL is used by pgm r01613 and contains step:     *          
+//*                                                                  *          
+//*              1   Receiveing of VCOM-file to specific dataset.    *          
+//*                  m h a SENDERTAG.                                *          
+//*                  File will be allocated and created dynamically  *          
+//*                  by W01613.                                      *          
+//*                  If fileidentity missing in SENDERTAG then a     *          
+//*                  generalized dataset will be created:            *          
+//*                    if TEST R.TEST.W01613F(+1)                    *          
+//*                    if PROD W016.PROD.W01613F(+1)                 *          
+//*                  Don't use (+1) in the SENDERTAG.                *          
+//*                                                                  *          
+//*              2   If W01613 abends then a memo will be sent.      *          
+//*                                                                  *          
+//********************************************************************          
+//*                                                                             
+//W01613   EXEC PGM=W01613,                                                     
+//         PARM='&EXPEDIT,&GRP,&RVALUE'                                         
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSTSIN  DD  SYSOUT=*                                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W01613D1 DD  DSN=&INDRTE..JCL(W01613JC),DISP=SHR                              
+//W01613D2 DD  SYSOUT=(A,INTRDR)                                                
+//W01613D3 DD  DDNAME=SYSIN                                                     
+//SOPDD1   DD  DSN=&INDRTE..SOP,DISP=SHR                                        
+//PDSDD1   DD  DSN=&INDRTE.TMP.JCL,DISP=SHR                                     
+//PDSDD2   DD  DSN=&INDRTE..JCL,DISP=SHR                                        
+//*                                                                             
+//KOLLA    EXEC PGM=V1645R,COND=(6,GE,W01613)                                   
+//*                                                                             
+//*                                                                             
+//IEBGENER EXEC PGM=IEBGENER,COND=ONLY                                          
+//SYSUT1   DD  DSN=&INDRTE..JCL(W01613ME),DISP=SHR                              
+//SYSUT2   DD  SYSOUT=(A,INTRDR)                                                
+//SYSPRINT DD  DUMMY                                                            
+//SYSIN    DD  DUMMY                                                            
+//*                                                                             

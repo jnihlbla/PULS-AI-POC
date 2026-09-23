@@ -1,0 +1,92 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SB, SKAPAR INLEVERANSHISTORIKFIL FÖR SDC-LAGREN                            
+//*                                                                             
+//*  FREKVENS:     VECKO               RTN W612V1                               
+//*                                                                             
+//*  ÅTERSTART:    W61210   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P010 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W612..W612V1,                                             
+//             INDUT2=&WXTR                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61210   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W61210,W61210,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR            -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//WDL6     INCLUDE MEMBER=WDL6                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W61210D1 DD  DSN=&INDUT..W61210(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ INLEVERANSHISTORIKFIL FÖR SDC-LAGREN                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W61210D2 DD  DSN=&INDUT..W61212(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ INLEVERANSHISTORIKFIL FÖR SDC-LAGREN KVAVIS NE KVANTMOT          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W61210D3 DD  DSN=&INDUT..W61214(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ INLEVERANSHISTORIKFIL FÖR SDC-LAGREN                             
+//************ RENAMAS TILL EXTRAKTFIL                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W61210D4 DD  DSN=&INDUT..W61216(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ INLEVERANSHISTORIKFIL FÖR INLEVERANSER FRÅN                      
+//************ EXTERNA LEVRANTÖRER TILL NDC'ER I KINA                           
+//************ GRUND FÖR VOLYM FIL TILL SI+ I W233PV                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//COPY     EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W61214(+1),DISP=SHR                                  
+//************                                                                  
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W61214X(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ KOPIA AV W61214                                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//COPY2    EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W61214(+1),DISP=SHR                                  
+//************                                                                  
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..W61214(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ KOPIA AV W61214                                                  
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//COPY3    EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W61212(+1),DISP=SHR                                  
+//************                                                                  
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..W61212(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ KOPIA AV W61214                                                  
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

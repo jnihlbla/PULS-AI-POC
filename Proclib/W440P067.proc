@@ -1,0 +1,65 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*               EPLUS - PROCEDUR                                              
+//*                                                                             
+//*  KÖR PGM W4406700 SOM LISTAR SALDODIFFAR                                    
+//*                   OCH SKAPAR FIL FÖR SALDO UPPDATERING                      
+//*                                                                             
+//*  FREQUENCE:    WEEKLY   RTN W440V3                                          
+//*                                                                             
+//*  RESTART:      W44067    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P067 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W440..W440V3,                                             
+//             INDUT=&W440..W440V3,                                             
+//             DEST=&CPRINT                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W44067   EXEC PGM=V16459,PARM='W44067/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W44063D1 DD  DSN=&INDIN..W44063(+0),DISP=SHR                                  
+//************ SALDON FRÅN WDQ4 (KVBEART-Q, KVPREAVB, KVPRERO)                  
+//*                                                                             
+//W44064D2 DD  DSN=&INDIN..W44064(+0),DISP=SHR                                  
+//************ SALDON FRÅN WDR4 (KVBEART, KVPREAVB)                             
+//*                                                                             
+//W44065D3 DD  DSN=&INDIN..W44065(+0),DISP=SHR                                  
+//************ SALDON FRÅN WDA5 (KVART)                                         
+//*                                                                             
+//W44066D4 DD  DSN=&INDIN..W44066(+0),DISP=SHR                                  
+//************ SALDON FRÅN WDK9 (KVOKS, KVPREAVB, KVPRERO)                      
+//*                                                                             
+//W44068D5 DD  DSN=&INDIN..W44068(+0),DISP=SHR                                  
+//************ SALDON FRÅN WDQ1 (KVBEART-Q, KVPREAVB, KVPRERO)                  
+//*                                                                             
+//W44068D6 DD  DSN=&INDIN..W44069(+0),DISP=SHR                                  
+//************ SALDON FRÅN WDE4 (KVAVBART)                                      
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W44067D7 DD  SYSOUT=(A,,3803),DEST=&DEST,OUTPUT=(*.A4LF),                     
+//************ LISTADE SALDODIFFAR, OKS                                         
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W44067D8 DD  SYSOUT=(A,,3803),DEST=&DEST,OUTPUT=(*.A4LF),                     
+//************ LISTADE SALDODIFFAR, PREAVB                                      
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W44067D9 DD  SYSOUT=(A,,3803),DEST=&DEST,OUTPUT=(*.A4LF),                     
+//************ LISTADE SALDODIFFAR, PRERO                                       
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//*                                                                             
+//W44067D0 DD DSN=&INDUT..W44058(+1),DISP=(NEW,CATLG,DELETE),   -LIM(3)         
+//************ FIL FÖR UPPDATERING AV SALDON                                    
+//             SPACE=(6232,(200,50),RLSE),MGMTCLAS=&BACKUPC                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

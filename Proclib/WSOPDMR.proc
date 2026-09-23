@@ -1,0 +1,65 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  S O P - UPDATE SOP DATA BASE WITH INFO FROM DATA DICTIONARY      *         
+//*          THE INPUT TO DMR SHOULD BE ONE OR MORE KEEP COMMANDS,    *         
+//*          THAT SELECTS THE PROCESS-MEMBERS WHICH ARE TO BE         *         
+//*          UPDATED.                                                 *         
+//*          PARAMETER MTYP SPECIFIES THE LOWEST TYPE OF DMR MEMBER   *         
+//*          THAT SHOULD BE ENTERED IN THE DATA BASE.                 *         
+//*          VALID MEMBER TYPES ARE SYSTEM, ROUTINE OR JOB            *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WSOPDMR PROC SOPREG=,USER=,DICT=,                                             
+//             STPLIB=&INDRTE..LOAD,                                            
+//             MTYP=JOB                                                         
+//*                                                                             
+//DMR     EXEC PGM=MPR00                                                        
+//STEPLIB  DD  DSN=F1DAV1.DMR.LOAD,DISP=SHR                                     
+//MPOUT    DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=*                                                         
+//MPAID    DD  DSN=F1DAV1.MPAID,DISP=SHR                                        
+//DICT     DD  DSN=&USER..&DICT..INDEX,DISP=SHR                                 
+//DICTD    DD  DSN=&USER..&DICT..DATA,DISP=SHR                                  
+//DICTS    DD  DSN=&USER..&DICT..DMSOURCE,DISP=SHR                              
+//DICTE    DD  DSN=&USER..&DICT..RECOVER,DISP=SHR                               
+//DICTJ    DD  DSN=&USER..&DICT..LOG,DISP=SHR                                   
+//MPIN     DD  DDNAME=SYSIN                                                     
+//         DD  DSN=&INDRTE..CONSTANT(WSOPDMR),DISP=SHR                          
+//*                                                                             
+//MAILDD   DD  DSN=&&MAIL,                              FROM DICTIONARY         
+//             DISP=(NEW,PASS,DELETE), INFO FROM DICTIONARY                     
+//             DCB=(RECFM=VB,LRECL=700,BLKSIZE=27998),                          
+//             SPACE=(CYL,(1,1))                                                
+//*                                                                             
+//PREPARE EXEC PGM=IRXJCL,PARM='SOPLIB'                                         
+//SYSEXEC  DD  DSN=&INDRTE..EXEC,DISP=SHR                                       
+//         DD  DSN=&INDLIB2..EXEC,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..EXEC,DISP=SHR                                      
+//         DD  DSN=&INDGRND..EXEC,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//IN       DD  DSN=&&MAIL,DISP=(OLD,DELETE)                                     
+//GENCNTL  DD  DSN=&&GENCNTL,DISP=(NEW,PASS,DELETE),                            
+//             RECFM=FB,LRECL=80,SPACE=(CYL,(1,1))                              
+//OUT      DD  DSN=&&MAIL256,DISP=(NEW,PASS,DELETE),                            
+//             RECFM=FB,LRECL=256,SPACE=(CYL,(1,1))                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W98030  EXEC PGM=W98030,                                                      
+//             PARM='&MTYP'                                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//*                                                                             
+//W98030D1 DD  DSN=&SOPREG,DISP=SHR                      SOP DATA BASE          
+//W98030D2 DD  DSN=&&MAIL256,DISP=(OLD,DELETE,DELETE)                           
+//W98030D3 DD  SYSOUT=*,                            LOG AND ERROR LIST          
+//             DCB=(LRECL=121,RECFM=FBA,BLKSIZE=121)                            
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//     IF W98030.RC >= 8 THEN                                                   
+//ABEND   EXEC PGM=ABEND,PARM='1234567890123456'                                
+//     ENDIF                                                                    

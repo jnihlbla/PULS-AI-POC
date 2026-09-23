@@ -1,0 +1,31 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  REPORT WITH FREIGHT COST,INSURANCE COST,PACKING & HANDLING COST            
+//*                                                                             
+//*  FREQUENCE:    WEEKLYY     RTN WF10V1                                       
+//*                                                                             
+//*  RESTART:      WF1045    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF10P045 PROC STPLIB=&INDRTE..LOAD, -- PERHAPS REMOVE COMMA                   
+//             INDIN=&WF10..WF10V1,                                             
+//             INDUT=&WF10..WF10V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF1045   EXEC PGM=V16459,PARM='WF1045/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//WF1045D1 DD  DSN=&INDIN..WF1044(+0),DISP=SHR                                  
+//************ RECORDS FROM T01DHEA_ARC AND T01DLIN_ARC                         
+//*                                                                             
+//WF1045D2 DD  DSN=&INDUT..WF1045(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ REPORT WITH FREIGHT COST                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

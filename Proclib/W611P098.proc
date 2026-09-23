@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKRIVER LISTA ÖVER EJ AVSLUTADE PARTIER ÄLDRE ÄN                           
+//*  300 DAGAR                                                                  
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W611V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W61198    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P098 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611V1,                                             
+//             INDUT=&W611..W611V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61198   EXEC PGM=V16459,PARM='W61198/8/'                                     
+//PR1 OUTPUT DEST=&DEST1                                                        
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61198D1 DD  DSN=&INDIN..W6118A(+0),DISP=SHR                                  
+//************ LEVANDE PARTIER > 300 DGR                                        
+//*                                                                             
+//W61198D2 DD  DSN=&INDUT..W61198(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ W61198-001  LISTA MED EJ AVSLUTADE PARTIER > 300 DGR             
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  

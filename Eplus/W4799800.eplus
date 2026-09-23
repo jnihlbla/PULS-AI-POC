@@ -1,0 +1,110 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4799800                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR W47992 (WDQ2) OCH W47982 (WDQ4).              *        
+*                SKRIVER W47998.                                       *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFANO GIOBBI                                        *        
+*                                                                      *        
+*  DATUM      :  920520                                                *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W47998D1                                                                   
+*  NEDLÄST Q2                                                                   
+%W47992        'I92-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W47998D2                                                                   
+*  NEDLÄST Q4                                                                   
+%W47982        'I82-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W47998D3                FB (80 0)                                          
+*  NEDLÄST WDQ4 KOMPLETTERAD MED WDQ2-INFO                                      
+%W47998        'U98-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W    1     A     VALUE 'J'                          
+  NEJ                       W    1     A     VALUE 'N'                          
+*                                                                               
+  KONST-IDPRC-9998          W    4     A     VALUE '9998'                       
+  KONST-KDODELSTA-R         W    1     A     VALUE 'R'                          
+*                                                                               
+  HELP-ADLAGOMR             W    3     N     VALUE  0                           
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT (W47998D1 KEY (I92-IDORDER                           +              
+                           I92-IDDC)                             +              
+             W47998D2 KEY (I82-IDORDER                           +              
+                           I82-IDDC))                            +              
+                                                 NAME   STEG01                  
+    IF MATCHED                                                                  
+      PERFORM A-FYLL-W47998-POST                                                
+      PUT W47998D3                                                              
+    END-IF                                                                      
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  A-FYLL-W47998-POST.  PROC                                                     
+                                                                                
+    U98-IDORDER   = I82-IDORDER                                                 
+    U98-IDDC      = I82-IDDC                                                    
+    HELP-ADLAGOMR = I82-ADLAGOMR                                                
+                                                                                
+    IF I82-IDLEVNR  = '     '                                                   
+      U98-IDPRC   = I92-IDPRC (HELP-ADLAGOMR)                                   
+    ELSE                                                                        
+      U98-IDPRC   = KONST-IDPRC-9998                                            
+    END-IF                                                                      
+                                                                                
+    U98-KDODELSTA         = KONST-KDODELSTA-R                                   
+    U98-IDDISTR           = I82-IDDISTR                                         
+    U98-IDKUNDNR          = I82-IDKUNDNR                                        
+    U98-IDKUNDRF          = I82-IDKUNDRF                                        
+    U98-IDARTNR           = I82-IDARTNR                                         
+    U98-KVBEART-Q         = I82-KVBEART-Q                                       
+    U98-KDFRAKT           = I92-KDFRAKT                                         
+    U98-KDORDKL           = I92-KDORDKL                                         
+    U98-TIREGDAT          = I82-TIREGDAT                                        
+    U98-ADLAGOMR          = I82-ADLAGOMR                                        
+    U98-IDLEVNR           = I82-IDLEVNR                                         
+    U98-VKART             = I82-VKART                                           
+    U98-VLARTNTO          = I82-VLARTNTO                                        
+    U98-PRARTNTO          = I82-PRARTNTO                                        
+    U98-PRARTNTO-LOC      = I82-PRARTNTO-LOC                                    
+    U98-PRARTNTO-LOCPREL  = I82-PRARTNTO-LOCPREL                                
+    U98-KDVALISO          = I82-KDVALISO                                        
+    U98-KDPRODSL          = I82-KDPRODSL                                        
+                                                                                
+  END-PROC                                                                      
+*                                                                               
+NEWPAGE                                                                         

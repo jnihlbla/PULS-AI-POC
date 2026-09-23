@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TO CREATE UNIQUE INVOICE NO FOR DC 61 AND 62 FROM                          
+//*  W5107Q AND W5107R FILE                                                     
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W510D4                                           
+//*                                                                             
+//*  ÅTERSTART:    W51076  NORMAL                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P076 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..W510D4,                                             
+//             INDUT=&W510..W510D4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51076   EXEC PGM=W51076                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W51076D1 DD  DSN=&INDIN..W5107Q(+0),DISP=SHR                                  
+//************ RECORDS WITH TODAY'S ALL ACCOUNT SEND TO SAP                     
+//*                                                                             
+//W51076D2 DD  DSN=&INDIN..W5107R(+0),DISP=SHR                                  
+//************ RECORDS WITH TODAY'S ALL ACCOUNT SEND TO SAP                     
+//*                                                                             
+//W51076D3 DD  DSN=&INDUT..W5107S(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ LIST FOR DC 61 UNIQUE INVOICES                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51076D4 DD  DSN=&INDUT..W5107T(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ LIST FOR DC 62 UNIQUE INVOICES                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51076D5 DD  DSN=&INDUT..W5107QA(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ LIST FOR ALL DC AND EXCLUDED DC 91 AND RELATED                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51076D6 DD  DSN=&INDUT..W5107RA(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ LIST FOR ALL DC AND EXCLUDED DC 91 AND RELATED                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

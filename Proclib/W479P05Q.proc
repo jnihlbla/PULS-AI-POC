@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR DAGLIG EFR MED IDPRC FRÅN WDQ3                                
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W479D1                                       
+//*                                                                             
+//*  ÅTERSTART:    W4795Q    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P05Q PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479D1,                                             
+//             INDIN2=&W413,                                                    
+//             INDUT=&W479..W479D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//SORTQ3   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479PD5Q),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W41302(+0),DISP=SHR                                 
+//SORTOUT  DD  DSN=&&Q3,DISP=(NEW,PASS,DELETE),                                 
+//             DATACLAS=PSEB                                                    
+//************  WDQ3 NEDLÄST MHA SB (CBL W41302, -P002)                         
+//************  SORTAS PÅ                                                       
+//************  DISTR, KUND, ORDER, DC, PRODNR OCH PLOCKLISTA                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W4795Q   EXEC PGM=V16459,PARM='W4795Q/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W4795QD1 DD  DSN=&INDIN..W47986(+0),DISP=SHR                                  
+//************ DAGLIG FAKTURAHISTORIK                                           
+//*                                                                             
+//W4795QD2 DD  DSN=&&Q3,DISP=(OLD,DELETE,DELETE)                                
+//************ WDQ3 NEDLÄST MHA SB (CBL W41302, -P002)                          
+//*                                                                             
+//W4795QD3 DD  DSN=&INDUT..W4795Q(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ DAGLIG EFRHISTORIK KOMPLETTERAD MED IDPRC                        
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             

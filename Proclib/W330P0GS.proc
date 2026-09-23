@@ -1,0 +1,49 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UPPDATERAR PRIMÄRREGISTRET TILL ARTIKEL-                                   
+//*  STATISTIKEN                                                                
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W330V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W33012   NORMAL                                              
+//*                .                                                            
+//*                DFUP   NORMAL                                                
+//*                .                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P012 PROC STPLIB=&W..XDEV.LOAD,                                           
+//             INDIN=&W..SAP,                                                   
+//             INDUT=&W..SAP                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33012   EXEC PGM=W33012                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W33012D1 DD  DSN=&INDIN..W33011(+0),DISP=SHR                                  
+//************ TRANSAR MED SENASTE VECKANS FÖRSÄLJN/KREDITERING                 
+//*                                                                             
+//W33012D2 DD  DSN=&INDIN..W33013(+0),DISP=SHR                                  
+//************ PRIMÄRREGISTRET                                                  
+//*                                                                             
+//W33012D3 DD  DSN=&INDUT..W33013(+1),DISP=(NEW,CATLG,DELETE),  -LIM(4)         
+//************ PRIMÄRREGISTRET-UT                                               
+//             SPACE=(32,(15,5),RLSE),AVGREC=M,                                 
+//             MGMTCLAS=&BACKUPC                                                
+//*            DCB=(RECFM=VB,LRECL=32,BLKSIZE=32000),                           
+//*            UNIT=T9,LABEL=RETPD=30,VOL=(,,,30)                               
+//*                                                                             
+//W33012D4 DD  DSN=&INDUT..W33012(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FEL-TRANSAR                                                      
+//             MGMTCLAS=&NOBACKUP,SPACE=(23432,(1,3),RLSE)                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

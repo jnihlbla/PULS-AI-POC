@@ -1,0 +1,114 @@
+                                                                                
+**********************************************************************          
+*                                                                    *          
+* PROGRAM ............ : W56062                                      *          
+*                                                                    *          
+* SKRIVET AV ......... : INGVAR SKJELBRED                            *          
+*                                                                    *          
+* DATUM .............. : 970731                                      *          
+*                                                                    *          
+* FUNKTION .. : PROGRAMMET SKAPAR UNDERLAG FÖR BERÄKNING AV          *          
+*               TOATALSTOCK, BASE, COST ,BEGINING-YEAR-COST          *          
+*               OCH END-YEAR-COST.                                   *          
+*               FILEN SOM SKAPAS ANVÄNDS SOM EN ÅRSFIL (SALDO MM)    *          
+*   OBS, OBS: FÖR ATT AVSTÄMNINGEN SKALL BLI RÄTT I USA MÅSTE SALDO  *          
+*               HÄMTAS FRÅN LAB.LAGEBAND, MEN DETTA SAKNAR LEVERANTÖR*          
+*               SOM JU FINNS PÅ W01184.                              *          
+*                                                                    *          
+* INDATA .... : W011.W01160(+0) EXTRAKT WDK6                         *          
+*               W011.W01184(+0) EXTRAKT WDK7                         *          
+*               W510.W51052(+0) EXTRAKT WDK7                         *          
+*                                                                    *          
+* UTDATA..... : W56062                                               *          
+*                                                                    *          
+**********************************************************************          
+*                                                                               
+* INFIL W011.W01160(+0) ARTIKEL EXTRAKTFIL WDK6                                 
+FILE W56062D1                                                                   
+%W01160 'IN60-'                                                                 
+                                                                                
+* ARTIKELEXTRAKT WDK7                W01184                                     
+FILE W56062D2                                                                   
+%W01184  'IN84-'                                                                
+                                                                                
+* ARTIKELEXTRAKTFIL WDK7 SORTERAD PÅ ARTIKELNR OCH IDDC                         
+FILE TPFIL1 FB(483 0)                                                           
+%W01184 'T1-'                                                                   
+                                                                                
+* ÅRSFIL KOMPLETTERAD MED IDARTNR KDPSLLOC IDDC OCH IDLEVNR                     
+FILE TPFIL2 FB(27 0)                                                            
+%W56062 'T2-'                                                                   
+                                                                                
+* ARTIKELEXTRAKT                       FIL W51052                               
+FILE W56062D3                                                                   
+%W51052  'IN52-'                                                                
+                                                                                
+* LAB-LAGERBAND FÖR SORTERING (PER IDARTNR OCH IDDC)                            
+FILE TPFIL3 FB(28 0)                                                            
+%W51052 'T3-'                                                                   
+                                                                                
+* ÅRSFIL KOMPLETTERAD MED KVLS, KVEFRS OCH PRAVCOST                             
+FILE W56062D4 FB(27 0)                                                          
+%W56062   'UT62-'                                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+*****************************************************************               
+*                                                               *               
+* STEG 1  SORTERA K7-LAGERBANDET PER IDARTNR OCH IDDC           *               
+*                                                               *               
+*****************************************************************               
+                                                                                
+SORT W56062D2 TO TPFIL1 USING (IN84-SLAG-IDARTNR IN84-SLAG-IDDC) +              
+                 SIZE 300000                                                    
+                                                                                
+*****************************************************************               
+*                                                               *               
+* STEG 2  MATCHA TPFIL1 K7-LAGERBAND(IN84-) MED K6-LAGERBAND,   *               
+*         OCH SKAPA EN UTPOST PER K7-LAGERBANDSPOST             *               
+*                                                               *               
+*****************************************************************               
+                                                                                
+JOB INPUT(W56062D1 KEY (IN60-CLAG-IDARTNR)                      +               
+            TPFIL1 KEY (T1-SLAG-IDARTNR))                                       
+                                                                                
+IF MATCHED                                                                      
+  T2-IDARTNR       = IN60-CLAG-IDARTNR                                          
+  T2-KDPSLLOC      = IN60-CLAG-KDPSLLOC                                         
+  T2-IDDC          = T1-SLAG-IDDC                                               
+  T2-IDLEVNR       = T1-SLAG-IDLEVNR                                            
+  T2-KVLS          = 0                                                          
+  T2-KVEFRS        = 0                                                          
+  T2-PRAVCOST      = 0                                                          
+  PUT TPFIL2                                                                    
+END-IF                                                                          
+                                                                                
+*****************************************************************               
+*                                                               *               
+* STEG 3  SORTERA LAB-LAGERBANDET PÅ IDARTNR OCH IDDC           *               
+*                                                               *               
+*****************************************************************               
+                                                                                
+SORT W56062D3 TO TPFIL3 USING (IN52-IDARTNR IN52-IDDC) +                        
+                 SIZE 400000                                                    
+                                                                                
+*****************************************************************               
+*                                                               *               
+* STEG 4  MATCHA TPFIL3 LAB-LAGERBAND(IN52-) MED ÅRSTEMPFIL,    *               
+*         OCH KOMPLETTERA DESS POSTER MED SALDO OCH AVGCOST     *               
+*                                                               *               
+*****************************************************************               
+                                                                                
+JOB INPUT(TPFIL3 KEY (T3-IDARTNR T3-IDDC)                      +                
+          TPFIL2 KEY (T2-IDARTNR T2-IDDC))                                      
+                                                                                
+IF MATCHED                                                                      
+  UT62-IDARTNR     = T2-IDARTNR                                                 
+  UT62-KDPSLLOC    = T2-KDPSLLOC                                                
+  UT62-IDDC        = T2-IDDC                                                    
+  UT62-IDLEVNR     = T2-IDLEVNR                                                 
+  UT62-KVLS        = T3-KVLS                                                    
+  UT62-KVEFRS      = T3-KVEFRS                                                  
+  UT62-PRAVCOST    = T3-PRAVCOST                                                
+  PUT W56062D4                                                                  
+END-IF                                                                          

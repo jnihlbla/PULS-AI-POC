@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR FIL TILL VIOS MED KDINLOMR                                    
+//*                                                                             
+//*  FREKVENS:     FLERA GGR PER DAG    RTN W611D1                              
+//*                                                                             
+//*  ÅTERSTART:    W61131      NORMAL                                           
+//*                LÄSER  W6G1                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P031 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611D1,                                             
+//             INDUT=&WXTR..W611D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61131   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W61131,W61131,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W6G1     INCLUDE MEMBER=W6G1                                                  
+//W61131D1 DD  DSN=&INDIN..W61130(+0),DISP=SHR                                  
+//************ FIL MED INFO FRÅN W6D1 FRÅN W61130                               
+//*                                                                             
+//W61131D2 DD  DSN=&INDUT..WXTRC0(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ KOMPLETTERAD FIL TILL VIOS                                       
+//             SPACE=(54,(6,1),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

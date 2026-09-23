@@ -1,0 +1,58 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATES GENERAL LEDGER DATA FILE                                           
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN WF20S2                           
+//*                                                                             
+//*  RESTART:      WF2014    NORMAL                                             
+//*                                                                             
+//WF2014   PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&WF20..WF20S2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO    EXEC  PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                                
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//WF2014D1 DD  DSN=&&WF2014,DISP=(NEW,PASS,DELETE),                             
+//************ TEMP UTFIL WITH DOCUMENT DATA                                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//WF2014D2 DD  DSN=&&WF2024,DISP=(NEW,PASS,DELETE),                             
+//************ TEMP UTFIL WITH DOCUMENT DATA                                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *        
+//WF2014S EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&WF2014,DISP=(OLD,DELETE,DELETE)                            
+//************** TEMP FILE WITH DOCUMENT DATA                       ***         
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WF2014(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************** OUTPUT FILE WITH SORTED DOCUMENT DATA              ***         
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF20PD14),DISP=SHR                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF2024S EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&WF2024,DISP=(OLD,DELETE,DELETE)                            
+//************** TEMP FILE WITH DOCUMENT DATA                       ***         
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WF2024(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************** OUTPUT FILE WITH SORTED DOCUMENT DATA              ***         
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF20PD14),DISP=SHR                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456',                              
+//             COND=(4,GE,TSO)                                                  

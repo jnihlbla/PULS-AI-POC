@@ -1,0 +1,268 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2319200                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR FIL REFILL UPPFÖLJNING NDC                     *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL                                         *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W23192D1                                                                   
+*                                                                               
+%W27120   'IN-'                                                                 
+IN-KDPRISKL 12 1 A                                                              
+IN-KDFREKKL 13 1 A                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W23192D3                                                                   
+*                                                                               
+%W01184                                                                         
+                                                                                
+NEWPAGE                                                                         
+FILE W23192D4                                                                   
+*                                                                               
+%W01186                                                                         
+                                                                                
+NEWPAGE                                                                         
+FILE SDC FB (19 0)                                                              
+SDC-IDARTNR     1  5 P                                                          
+SDC-IDDC        6  2 A                                                          
+SDC-PRARTSTD    8  5 P 2                                                        
+SDC-KDFREKKL   13  1 A                                                          
+SDC-KDPRISKL   14  1 A                                                          
+SDC-PRMATRL    15  5 P 2                                                        
+                                                                                
+NEWPAGE                                                                         
+FILE ARTFIL FB (754 0)                                                          
+*                                                                               
+%W23192       'ART-'                                                            
+                                                                                
+NEWPAGE                                                                         
+FILE W23192D5 FB(754 0)                                                         
+*                                                                               
+%W23192       'UT-'                                                             
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+                                                                                
+WS-IDDC     W    2   A                                                          
+INDX        W    2   N   VALUE 0                                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+* STEG 2. MATCHAR NEDLÄST WDK7 WDL7 SKAPAR TEMPFIL                              
+JOB INPUT(W23192D3 KEY (SLAG-IDARTNR SLAG-IDDC) +                               
+          W23192D4 KEY (DC-IDARTNR DC-IDDC))                                    
+                                                                                
+ IF MATCHED                                                                     
+    ART-IDARTNR               = DC-IDARTNR                                      
+    ART-IDLEVNR               = SLAG-IDLEVNR                                    
+    ART-KDPRODSL              = 0                                               
+    ART-KDPSLLOC              = 0                                               
+    ART-IDPERSON-BUY          = SLAG-IDPERSON-BUY                               
+    ART-IDDC                  = SLAG-IDDC                                       
+    ART-IDREFTAB              = SLAG-IDREFTAB                                   
+    ART-KDREFSTA              = SLAG-KDREFSTA                                   
+    ART-KVAKS-SDC             = SLAG-KVAKS-SDC                                  
+    ART-KVAKS-PAV             = SLAG-KVAKS-PAV                                  
+    ART-KVLS                  = SLAG-KVLS                                       
+    ART-KVOKS                 = SLAG-KVOKS-BULK + SLAG-KVOKS-DAG                
+    ART-KVRESS                = SLAG-KVRESS                                     
+    ART-KVPB-REF              = SLAG-KVPB-REF                                   
+    ART-KVREFBER              = SLAG-KVREFBER                                   
+    ART-KVREFOVL              = SLAG-KVREFOVL                                   
+    ART-KVREFPKT              = SLAG-KVREFPKT                                   
+    IF SLAG-IDDC NE '42'                                                        
+      PERFORM SKAPA-ARTFIL                                                      
+      PUT ARTFIL                                                                
+    END-IF                                                                      
+ ELSE                                                                           
+* OM ARTIKEL SAKNAS PÅ WDK7                                                     
+    IF W23192D4                                                                 
+       ART-KDREFSTA           = ' '                                             
+       ART-IDREFTAB           = ' '                                             
+       ART-IDARTNR            = DC-IDARTNR                                      
+       ART-KDPRODSL           = 0                                               
+       ART-KDPSLLOC           = 0                                               
+       ART-IDPERSON-BUY       = 0                                               
+****   ART-IDDC               = '00'                                            
+       ART-IDDC               = DC-IDDC                                         
+       ART-IDLEVNR            = '     '                                         
+       ART-KVAKS-SDC          = 0                                               
+       ART-KVAKS-PAV          = 0                                               
+       ART-KVLS               = 0                                               
+       ART-KVOKS              = 0                                               
+       ART-KVRESS             = 0                                               
+       ART-KVPB-REF           = 0                                               
+       ART-KVREFBER           = 0                                               
+       ART-KVREFOVL           = 0                                               
+       ART-KVREFPKT           = 0                                               
+       IF ART-IDDC NE '42'                                                      
+         PERFORM SKAPA-ARTFIL                                                   
+         PUT ARTFIL                                                             
+       END-IF                                                                   
+    ELSE                                                                        
+* OM ARTIKEL SAKNAS PÅ WDL7                                                     
+       IF W23192D3                                                              
+          ART-IDARTNR           = SLAG-IDARTNR                                  
+          ART-IDLEVNR           = SLAG-IDLEVNR                                  
+          ART-KDPRODSL          = 0                                             
+          ART-KDPSLLOC          = 0                                             
+          ART-IDPERSON-BUY      = SLAG-IDPERSON-BUY                             
+          ART-IDDC              = SLAG-IDDC                                     
+          ART-IDREFTAB          = SLAG-IDREFTAB                                 
+          ART-KDREFSTA          = SLAG-KDREFSTA                                 
+          ART-KVAKS-SDC         = SLAG-KVAKS-SDC                                
+          ART-KVAKS-PAV         = SLAG-KVAKS-PAV                                
+          ART-KVLS              = SLAG-KVLS                                     
+          ART-KVOKS             = SLAG-KVOKS-BULK + SLAG-KVOKS-DAG              
+          ART-KVRESS            = SLAG-KVRESS                                   
+          ART-KVPB-REF          = SLAG-KVPB-REF                                 
+          ART-KVREFBER          = SLAG-KVREFBER                                 
+          ART-KVREFOVL          = SLAG-KVREFOVL                                 
+          ART-KVREFPKT          = SLAG-KVREFPKT                                 
+          PERFORM NOLLSTALL-KVOI                                                
+          IF SLAG-IDDC NE '42'                                                  
+            PUT ARTFIL                                                          
+          END-IF                                                                
+       END-IF                                                                   
+    END-IF                                                                      
+ END-IF                                                                         
+                                                                                
+SKAPA-ARTFIL. PROC                                                              
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 54                                                
+    ART-KVOI-RULL(INDX)     = DC-KVOI-RULL(INDX)                                
+    ART-KVOT-RULL(INDX)     = DC-KVOT-RULL(INDX)                                
+    ART-KVOT-CDC-RULL(INDX) = DC-KVOT-CDC-RULL(INDX)                            
+    INDX                    = INDX + 1                                          
+ END-DO                                                                         
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 6                                                 
+    ART-TIVV(INDX)           = DC-TIVV(INDX)                                    
+    ART-KVOT-INNEV(INDX)     = DC-KVOT-INNEV(INDX)          +                   
+                             + DC-KVOT-PP-INNEV(INDX)                           
+    ART-KVOT-CDC-INNEV(INDX) = DC-KVOT-CDC-INNEV(INDX)                          
+    INDX                    = INDX + 1                                          
+ END-DO                                                                         
+                                                                                
+END-PROC                                                                        
+                                                                                
+NOLLSTALL-KVOI. PROC                                                            
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 54                                                
+    ART-KVOI-RULL(INDX)     = 0                                                 
+    ART-KVOT-RULL(INDX)     = 0                                                 
+    ART-KVOT-CDC-RULL(INDX) = 0                                                 
+    INDX                    = INDX + 1                                          
+ END-DO                                                                         
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 6                                                 
+    ART-TIVV(INDX)           = 0                                                
+    ART-KVOT-INNEV(INDX)     = 0                                                
+    ART-KVOT-CDC-INNEV(INDX) = 0                                                
+    INDX                    = INDX + 1                                          
+ END-DO                                                                         
+                                                                                
+END-PROC                                                                        
+* STEG 3. SKAPAR TEMPFIL FRÅN W27120 MED AKTUELLT SDC                           
+JOB INPUT(W23192D1)                                                             
+                                                                                
+* IF WS-IDDC = IN-IDDC                                                          
+     SDC-IDARTNR  = IN-IDARTNR                                                  
+     SDC-IDDC     = IN-IDDC                                                     
+     SDC-PRARTSTD = IN-PRARTSTD                                                 
+     SDC-KDFREKKL = IN-KDFREKKL                                                 
+     SDC-KDPRISKL = IN-KDPRISKL                                                 
+     SDC-PRMATRL  = IN-PRMATRL                                                  
+     PUT SDC                                                                    
+* END-IF                                                                        
+* STEG 4. MATCHAR ARTFIL (NEDLÄST WDK7/WDL7) MED                                
+*         MED SDCFIL (URVAL FRÅN W27120 AKTUELLT SDC)                           
+                                                                                
+JOB INPUT(SDC KEY (SDC-IDARTNR SDC-IDDC) +                                      
+          ARTFIL KEY (ART-IDARTNR ART-IDDC))                                    
+                                                                                
+ IF MATCHED                                                                     
+    UT-KDFREKKL = SDC-KDFREKKL                                                  
+    UT-KDPRISKL = SDC-KDPRISKL                                                  
+    UT-PRARTSTD = SDC-PRARTSTD                                                  
+    UT-PRMATRL  = SDC-PRMATRL                                                   
+    PERFORM SKAPA-UTFIL                                                         
+    WS-IDDC = UT-IDDC                                                           
+    PERFORM S23-CHECK-WS-IDDC                                                   
+    IF UT-IDDC = NDC                                                            
+       PUT W23192D5                                                             
+    END-IF                                                                      
+ ELSE                                                                           
+* OM ARTIKEL SAKNAS PÅ W27120                                                   
+    IF ARTFIL                                                                   
+       UT-KDFREKKL = ' '                                                        
+       UT-KDPRISKL = ' '                                                        
+       UT-PRARTSTD = 0                                                          
+       UT-PRMATRL  = 0                                                          
+       PERFORM SKAPA-UTFIL                                                      
+       WS-IDDC = UT-IDDC                                                        
+       PERFORM S23-CHECK-WS-IDDC                                                
+       IF UT-IDDC = NDC                                                         
+          PUT W23192D5                                                          
+       END-IF                                                                   
+    END-IF                                                                      
+ END-IF                                                                         
+                                                                                
+SKAPA-UTFIL. PROC                                                               
+                                                                                
+ UT-IDARTNR               = ART-IDARTNR                                         
+ UT-IDDC                  = ART-IDDC                                            
+ UT-IDLEVNR               = ART-IDLEVNR                                         
+ UT-KDPRODSL              = ART-KDPRODSL                                        
+ UT-KDPSLLOC              = ART-KDPSLLOC                                        
+ UT-IDPERSON-BUY          = ART-IDPERSON-BUY                                    
+ UT-IDREFTAB              = ART-IDREFTAB                                        
+ UT-KDREFSTA              = ART-KDREFSTA                                        
+ UT-KVAKS-SDC             = ART-KVAKS-SDC                                       
+ UT-KVAKS-PAV             = ART-KVAKS-PAV                                       
+ UT-KVLS                  = ART-KVLS                                            
+ UT-KVOKS                 = ART-KVOKS                                           
+ UT-KVRESS                = ART-KVRESS                                          
+ UT-KVPB-REF              = ART-KVPB-REF                                        
+ UT-KVREFBER              = ART-KVREFBER                                        
+ UT-KVREFOVL              = ART-KVREFOVL                                        
+ UT-KVREFPKT              = ART-KVREFPKT                                        
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 54                                                
+    UT-KVOI-RULL(INDX)      = ART-KVOI-RULL(INDX)                               
+    UT-KVOT-RULL(INDX)      = ART-KVOT-RULL(INDX)                               
+    UT-KVOT-CDC-RULL(INDX)  = ART-KVOT-CDC-RULL(INDX)                           
+    INDX                    = INDX + 1                                          
+ END-DO                                                                         
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 6                                                 
+    UT-TIVV(INDX)           = ART-TIVV(INDX)                                    
+    UT-KVOT-INNEV(INDX)     = ART-KVOT-INNEV(INDX)                              
+    UT-KVOT-CDC-INNEV(INDX) = ART-KVOT-CDC-INNEV(INDX)                          
+    INDX                    = INDX + 1                                          
+ END-DO                                                                         
+                                                                                
+END-PROC                                                                        
+NEWPAGE                                                                         
+*    --- S23-CHECK-WS-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'WS-'                                                                   
+                                                                                

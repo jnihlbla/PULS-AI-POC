@@ -1,0 +1,86 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR FILER TILL ANDRA SYSTEM FRÅN ORDERAVSLUT                            
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W414D1                                            
+//*                                                                             
+//*  ÅTERSTART:    W41403    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W414P003 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W414..W414D1,                                             
+//             INDUT=&W414..W414D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41403   EXEC PGM=W41403                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W41403D1 DD  DSN=&INDIN..W41401(+0),DISP=SHR                                  
+//************ ORDERHUVUD TRANSAR                                               
+//*                                                                             
+//W41403D2 DD  DSN=&INDIN..W41403(+0),DISP=SHR                                  
+//************ RAD OCH OBKR.TRANSAR                                             
+//*                                                                             
+//W41403D3 DD  DSN=&INDUT..W41406(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ VR. POSTTYP: SUA, SUD, SU1, SU2, SU3                             
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403D4 DD  DSN=&INDUT..W41407(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ NOAC. POSTTYP 001                                                
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403D5 DD  DSN=&INDUT..W41408(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ NOAC. POSTTYP 015                                                
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403D6 DD  DSN=&INDUT..W41409(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ NOAC. POSTTYP 020                                                
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403D7 DD  DSN=&INDUT..W4140A(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ NOAC. POSTTYP 002 -- 008                                         
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403D9 DD  DSN=&INDUT..W4140J(+1),DISP=(NEW,CATLG,DELETE), -LIM(01)         
+//************ PRISLARM. POSTTYP AMC                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W41403DA DD  DSN=&INDUT..W4140D(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ ANNULLATION VORKÖ                                                
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403DB DD  DSN=&INDUT..W4140E(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ SPÄRRADE BASLAGER RADER                                          
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403DD DD  DSN=&INDUT..W4140G(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ NOAC. POSTTYP 009                                                
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403DE DD  DSN=&INDIN..W41405(+0),DISP=SHR                                  
+//************ TPO ORDERENTRY TRANSAR                                           
+//*                                                                             
+//W41403DG DD  DSN=&INDUT..W4140I(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ VORKÖ FRÅN ORDERENTRY TILL SRS                                   
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403DI DD  DSN=&INDUT..W414X2(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ ORDERRADER   SPX                                                 
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403DJ DD  DSN=&INDUT..W414X3(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ ORDERBEKRÄFTELSER SPX                                            
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W41403DK DD  DSN=&INDUT..W4140S(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ ORDERRADER SKROT                                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

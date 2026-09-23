@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPA PSB-LADDATA TILL DMR                                                 
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN WDMRV3                                          
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMRP066 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&WDMR..WDMRV3,                                             
+//             INDUT=&WDMR..WDMRV3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WDMRPD66),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..WDMR64(+0),DISP=SHR                                  
+//************ PSB-ER SOM SKA ÄNDRAS ELLER TAS BORT                             
+//*                                                                             
+//SORTOUT  DD  DSN=&&WDMR64S,DISP=(NEW,PASS,DELETE),                            
+//************ SORTERAD PSB-FIL                                                 
+//             SPACE=(23452,(1,5),RLSE)                                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMR66   EXEC PGM=WDMR66                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//WDMR66D1 DD  DSN=&&WDMR64S,DISP=(OLD,DELETE,DELETE)                           
+//V16247D3 DD  SYSOUT=*                                                         
+//*                                                                             
+//WDMR66D2 DD  DSN=&INDUT..WDMR66(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL MED DATAMANAGERKOD                                           
+//             MGMTCLAS=&DEL2BKPC,SPACE=(23440,(5,10),RLSE)                     
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

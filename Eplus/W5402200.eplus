@@ -1,0 +1,152 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5402200                                              *        
+*                                                                      *        
+*  FUNKTION   :  ÅRSKÖRNING - LÄSER IN W54020 OCH SUMMERAR DENNA PER   *        
+*                             DC OCH PRODUKTSLAG                       *        
+*                                                                      *        
+*  FÖRFATTARE :  MARKUS ASPFJÄLL                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W54022D1                                                                   
+*                                                                               
+%W51060  'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE TPFIL1   FB(265 0)                                                         
+*                                                                               
+%W51060  'SORT-'                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+FILE W54022D2 FB(304 0)                                                         
+%WDR9KJ  'UT-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W54022D3 FB(83 0)                                                          
+%W51068  'UT2-'                                                                 
+*                                                                               
+*************************************                                           
+* WORKING STORAGE                   *                                           
+*************************************                                           
+W-SUBEL            W  11 N 2                                                    
+W-IDDC             W   2 A                                                      
+W-KDPRODSL         W   2 P 0                                                    
+W-ANTAL            W   4 N                                                      
+                                                                                
+*****************************************                                       
+* STEG 1. SORTAR FILEN PÅ DC OCH PRODSL *                                       
+*****************************************                                       
+SORT W54022D1 TO +                                                              
+     TPFIL1   USING (IN-EKHT-IDDC-SEND, IN-EKHT-KDPRODSL) +                     
+              SIZE 300000                                                       
+                                                                                
+*****************************************                                       
+* STEG 2. SUMMERAR PÅ DC OCH PRODSL     *                                       
+*****************************************                                       
+                                                                                
+JOB INPUT  TPFIL1  FINISH 1-FINIT                                               
+                                                                                
+ IF RECORD-COUNT EQ 1                                                           
+    PERFORM A-SKAPA-SAP-BOKNINGSPOST                                            
+ ELSE                                                                           
+   IF SORT-EKHT-IDDC-SEND = UT-EKH-IDDC-SEND AND                  +             
+      SORT-EKHT-KDPRODSL  = UT-EKH-KDPRODSL                                     
+     UT-EKH-SUBEL   = UT-EKH-SUBEL + SORT-EKHT-SUBEL                            
+   ELSE                                                                         
+     PUT W54022D2                                                               
+     PERFORM B-SKAPA-LIST-FIL                                                   
+     PUT W54022D3                                                               
+                                                                                
+     PERFORM A-SKAPA-SAP-BOKNINGSPOST                                           
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+1-FINIT. PROC                                                                   
+*----------------------------*                                                  
+* FÖR ATT FÅ MED SISTA POSTEN*                                                  
+*----------------------------*                                                  
+  PUT W54022D2                                                                  
+  PERFORM B-SKAPA-LIST-FIL                                                      
+  PUT W54022D3                                                                  
+END-PROC                                                                        
+                                                                                
+A-SKAPA-SAP-BOKNINGSPOST. PROC                                                  
+  UT-EKH-IDPGM           = SORT-EKHT-IDPGM                                      
+  UT-EKH-DAREGDAT        = SORT-EKHT-DAREGDAT                                   
+  UT-EKH-TIKLOCK         = SORT-EKHT-TIKLOCK                                    
+  UT-EKH-IDSEKVNR        = SORT-EKHT-IDSEKVNR                                   
+  UT-EKH-IDCPYTXT        = SORT-EKHT-IDCPYTXT                                   
+  UT-EKH-DAVERDAT        = SORT-EKHT-DAVERDAT                                   
+  UT-EKH-IDDC-SEND       = SORT-EKHT-IDDC-SEND                                  
+  UT-EKH-IDDC-REC        = SORT-EKHT-IDDC-REC                                   
+  UT-EKH-IDVERGL         = SORT-EKHT-IDVERGL                                    
+  UT-EKH-KDPRODSL        = SORT-EKHT-KDPRODSL                                   
+  UT-EKH-PRKURS          = SORT-EKHT-PRKURS                                     
+  UT-EKH-SUBEL           = SORT-EKHT-SUBEL                                      
+  UT-EKH-IDFAKT-EXP      = SORT-EKHT-IDFAKT-EXP                                 
+  UT-EKH-KDEKHHT         = '401'                                                
+  UT-EKH-KDEKSHT         = '401'                                                
+  UT-EKH-KDEKNIVA        = 'SUM'                                                
+  UT-EKH-KDVALISO        = 'SEK'                                                
+  UT-EKH-FLLSBOK         = ' '                                                  
+  UT-EKH-IDTRANS         = '    '                                               
+  UT-EKH-IDLEVNR         = '     '                                              
+  UT-EKH-KDSORT          = '  '                                                 
+  UT-EKH-KDTRADP         = '    '                                               
+  UT-EKH-FLOVRLEV        = 'N'                                                  
+  UT-EKH-IDUSER          = '        '                                           
+  UT-EKH-IDUSER2         = '        '                                           
+  UT-EKH-BEVAT           = '  '                                                 
+  UT-EKH-IDANALYS        = '            '                                       
+  UT-EKH-IDARTNR         = 0                                                    
+  UT-EKH-IDDISTR         = 0                                                    
+  UT-EKH-IDKONTO         = 0                                                    
+  UT-EKH-IDKST           = '          '                                         
+  UT-EKH-IDKUNDNR        = 0                                                    
+  UT-EKH-KDANMORS        = '  '                                                 
+  UT-EKH-KDFRAKT         = 0                                                    
+  UT-EKH-KDPSLLOC        = 0                                                    
+  UT-EKH-KVANTAL         = 0                                                    
+  UT-EKH-PRARTNTO        = 0                                                    
+  UT-EKH-PRARTSJK        = 0                                                    
+  UT-EKH-PRHEMTAG        = 0                                                    
+  UT-EKH-PRARTSTD        = 0                                                    
+  UT-EKH-PRDIRLON        = 0                                                    
+  UT-EKH-PRDMTRL         = 0                                                    
+  UT-EKH-PRINK           = 0                                                    
+  UT-EKH-PRLANDCO        = 0                                                    
+  UT-EKH-PROVRPAL        = 0                                                    
+  UT-EKH-SUVAT           = 0                                                    
+  UT-EKH-DAAVIDAT        = 0                                                    
+  UT-EKH-IDAVINR         = 0                                                    
+  UT-EKH-KDAVVTYP        = 0                                                    
+  UT-EKH-KDRT            = 0                                                    
+  UT-EKH-KVANTMOT        = 0                                                    
+  UT-EKH-KVAVIS          = 0                                                    
+  UT-EKH-FLDCET          = ' '                                                  
+  UT-EKH-IDKUNDRF        = '          '                                         
+END-PROC                                                                        
+                                                                                
+B-SKAPA-LIST-FIL. PROC                                                          
+                                                                                
+  UT2-DAREGDAT       = UT-EKH-DAREGDAT                                          
+  UT2-TIKLOCK        = UT-EKH-TIKLOCK                                           
+  UT2-KDEKHHT        = UT-EKH-KDEKHHT                                           
+  UT2-KDEKSHT        = UT-EKH-KDEKSHT                                           
+  UT2-KDEKNIVA       = UT-EKH-KDEKNIVA                                          
+  UT2-IDDC           = UT-EKH-IDDC-SEND                                         
+  UT2-IDVERGL        = UT-EKH-IDVERGL                                           
+  UT2-IDARTNR        = 0                                                        
+  UT2-KDPRODSL       = UT-EKH-KDPRODSL                                          
+  UT2-IDKONTO        = 0                                                        
+  UT2-SUBEL          = UT-EKH-SUBEL                                             
+  UT2-FLLSBOK        = ' '                                                      
+  UT2-KVANTAL        = 0                                                        
+  UT2-PRINK          = 0                                                        
+  UT2-PRARTSTD       = 0                                                        
+END-PROC                                                                        

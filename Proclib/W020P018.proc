@@ -1,0 +1,58 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SELEKTERING AV SRS-INFORMATION                                             
+//*                                                                             
+//*  FREKVENS:     VECKA                                                        
+//*                                                                             
+//*  ÅTERSTART:    NORMAL                                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W020P018 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W225..W020V1,                                            
+//             INDIN=&W011..&RTEGRP,                                            
+//             INDUT=&W020..W020V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT18  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN2..W22508,DISP=SHR                                     
+//SORTOUT  DD  DSN=&&W22508,DISP=(NEW,PASS,DELETE),                             
+//**************  SORTERAD W22508 FIL                               ***         
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W020PD18),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W02018   EXEC PGM=V16459,PARM='W02018/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(500,500))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W02018D1 DD  DSN=&INDIN..W01160(0),DISP=SHR                                   
+//************ ARTIKELINFO                                                      
+//*                                                                             
+//W02018D2 DD  DSN=&&W22508,DISP=(OLD,DELETE,DELETE)                            
+//************ SRSINFO FRÅN W225                                                
+//*                                                                             
+//W02018D3 DD  DSN=&&W02008,DISP=(NEW,PASS,DELETE),                             
+//************ SRSINFO TILL RSREDO                                              
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT08   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W020PD06),DISP=SHR                         
+//SORTIN   DD  DSN=&&W02008,DISP=SHR                                            
+//************ FIL FRÅN W092P108 (WDG6) OCH W225P102                            
+//************ FIL SOM MOTSVARAR W092S1 - SORTAD                                
+//************ FILEN ÄR SORTERAD PÅ DISTRIKT KUND                               
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W02008(+1),DISP=(NEW,CATLG,DELETE),  -LIM(6)         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEB                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

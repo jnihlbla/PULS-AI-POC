@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER SAP R/3-FIL SKAPAR TRANSAR TILL VECKO- OCH MÅNADS-RAPPORTEN          
+//*                    SKAPAR RAPPORT PÅ FIL FÖR MAIL                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W510D1                                         
+//*                                                                             
+//*  RESTART:      W51710    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W517P010 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..W510D1,                                             
+//             INDUT=&W517..W510D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51710   EXEC PGM=V16459,PARM='W51710/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//W51710D1 DD  DSN=&INDIN..W51011(+0),DISP=SHR                                  
+//************ INFIL FRÅN SAP R/3                                               
+//*                                                                             
+//W51710D2 DD  DSN=&INDUT..W51711(+1),DISP=(NEW,CATLG,DELETE), -LIM(20)         
+//************ UTFIL MED RW1-POSTER TILL VECKORAPPORTEN                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51710D3 DD  DSN=&INDUT..W51709(+1),DISP=(NEW,CATLG,DELETE), -LIM(20)         
+//************ UTFIL MED POSTER TILL MÅNADSRAPPORTEN                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51710D4 DD  DSN=&INDUT..W51710(+1),DISP=(NEW,CATLG,DELETE), -LIM(20)         
+//************ RAPPORT PÅ UTFIL FÖR MAIL TIL EK-AVD                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

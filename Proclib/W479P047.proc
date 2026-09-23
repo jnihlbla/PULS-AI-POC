@@ -1,0 +1,56 @@
+//*                                                                             
+//*  GET COUNTRY NAME FOR DISTRICT                                              
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W479M3                                       
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                W47947      NORMAL                                           
+//*                READS        WDB2                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P047 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479M3,                                             
+//             INDUT=&W479..W479M3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479PD47),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W47945(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W47946(+0),DISP=SHR                                  
+//************ FILE WITH DC AND DISTRICTS                                       
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47947,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED FILE WITH DUPLICATES ELIMINATED                           
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47947   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W47947,W47947,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//WDB1BK   DD   DSN=&INDBAS..WDB1BK,DISP=SHR                                    
+//*                                                                             
+//W47947D1 DD  DSN=&&W47947,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W47947D2 DD  DSN=&INDUT..W47947(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ FILE WITH COUNTRY NAME                                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

@@ -1,0 +1,118 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W1118200                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER INFIL W22428 MED ARTIKLAR MED KDFARLIG          *        
+*                4 ELLER 6. SKAPAR 2 LISTOR.                           *        
+*                - NYREGISTRERADE ARTIKLAR UNDER VECKAN                *        
+*                - ERSÄTTNINGAR UNDER VECKAN                           *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL  931111                                 *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W11182D1                                                                   
+*                                                                               
+%W224281A  'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W11182D2  PRINTER FB (121 121)                                             
+                                                                                
+NEWPAGE                                                                         
+FILE W11182D3  PRINTER FB (121 121)                                             
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+WS-IDARTNR        W   9   N   MASK 'ZZZZZZZZ9'                                  
+WS-TIAAVV         W   5   N   MASK 'Z9999'                                      
+WS-TIFINLV        W   5   N   MASK 'Z9999'                                      
+WS-TIREGDAT       W   6   N   MASK 'Z99999'                                     
+WS-IDFKNGRP       W   5   N   MASK 'ZZZZ9'                                      
+WS-KDERS-OLD      W   3   N   MASK 'Z99'                                        
+WS-KDERS-NEW      W   3   N   MASK 'Z99'                                        
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SKAPAR 2 LISTOR                                                       
+*                                                                               
+JOB INPUT W11182D1                                                              
+                                                                                
+  WS-IDARTNR = IN-IDARTNR                                                       
+  WS-TIAAVV  = IN-TIAAVV-AKT                                                    
+  WS-TIFINLV = IN-TIFINLV                                                       
+  WS-TIREGDAT = IN-TIREGDAT                                                     
+  WS-IDFKNGRP = IN-IDFKNGRP                                                     
+                                                                                
+  IF IN-IDPTYP = '001'                                                          
+     PRINT NYREG                                                                
+  END-IF                                                                        
+  IF IN-IDPTYP = '002'                                                          
+     WS-KDERS-OLD = IN-KDERS-OLD                                                
+     WS-KDERS-NEW = IN-KDERS-NEW                                                
+     PRINT ERSINF                                                               
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+REPORT NYREG PRINTER W11182D2 LINESIZE 120 DTLCTL FIRST         +               
+       NOADJUST PAGESIZE 41 TITLESKIP 3                         +               
+       SUMCTL ALL                                                               
+                                                                                
+TITLE 1  COL 12  'VOLVO CAR AFTERSALES W11182-001'                              
+                                                                                
+TITLE 2  ' '                                                                    
+                                                                                
+TITLE 3  COL 35  'NYREGISTRERADE/UPPDATERADE ARTIKLAR'          +               
+         COL 71  'FARLIGT GODS VECKA'                           +               
+         COL 90  WS-TIAAVV                                                      
+                                                                                
+HEADING WS-IDFKNGRP      ('FKN.GRP.')                                           
+HEADING WS-IDARTNR       ('ARTNR.')                                             
+HEADING IN-KDFARLIG-NEW  ('FG NY')                                              
+HEADING IN-KDFARLIG-OLD  ('FG G')                                               
+HEADING IN-BEART-SVE     ('BENÄMN.')                                            
+HEADING IN-IDBERED       ('BERED.')                                             
+HEADING WS-TIFINLV       ('PUB.V')                                              
+HEADING WS-TIREGDAT      ('REG.DAT')                                            
+HEADING IN-KDLEVSP       ('LEV.SP')                                             
+HEADING IN-IDPROJ        ('PROJ')                                               
+                                                                                
+LINE 01  WS-IDFKNGRP WS-IDARTNR IN-KDFARLIG-NEW IN-KDFARLIG-OLD  +              
+         IN-BEART-SVE +                                                         
+         IN-IDBERED WS-TIFINLV WS-TIREGDAT IN-KDLEVSP IN-IDPROJ                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+REPORT ERSINF PRINTER W11182D3 LINESIZE 120 DTLCTL FIRST        +               
+       NOADJUST PAGESIZE 41 TITLESKIP 3 NOHEADING NOSPREAD      +               
+       SUMCTL ALL                                                               
+                                                                                
+TITLE 1  COL 12  'VOLVO CAR AFTERSALES W11182-002'                              
+                                                                                
+TITLE 2  ' '                                                                    
+                                                                                
+TITLE 3  COL 35  'ERSÄTTNING ARTIKLAR FARLIGT GODS VECKA '      +               
+         COL 73   WS-TIAAVV                                                     
+                                                                                
+TITLE 4  ' '                                                                    
+                                                                                
+TITLE 5  COL 12  'ARTIKELNUMMER'                                +               
+         COL 29  'SVENSK BENÄMNING'                             +               
+         COL 54  'NY ERSÄTTN.KOD'                               +               
+         COL 73  'GAMMAL ERSÄTTN.SKOD'                          +               
+         COL 95  'KOD FARLIGT GODS'                                             
+                                                                                
+LINE 01  COL 16   WS-IDARTNR                                    +               
+         COL 29   IN-BEART-SVE                                  +               
+         COL 60   WS-KDERS-NEW                                  +               
+         COL 80   WS-KDERS-OLD                                  +               
+         COL 101  IN-KDFARLIG-NEW                                               

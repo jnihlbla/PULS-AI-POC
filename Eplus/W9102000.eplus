@@ -1,0 +1,95 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W910 FILER TILL ANDRA SYSTEM                          *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR UTDRAG FRÅN FIL W91042 FÖR PPMAS               *        
+*                                                                      *        
+*  FÖRFATTARE :  JOHAN NIHLBLAD                                        *        
+*                                                                      *        
+*  INFILER    :  W91042                                                *        
+*                                                                      *        
+*  UTFILER    :  W91020                                                *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W91020D1                                                                   
+%W91042  'IN-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+FILE W91020D2 FB (55 0)                                                         
+%W91020 'UT-'                                                                   
+*                                                                               
+*******************************************                                     
+*         WORKING STORAGE                 *                                     
+*******************************************                                     
+                                                                                
+%WDATAREA                                                                       
+                                                                                
+PROGRAM-NAMN      W   6   A   VALUE 'W91020'                                    
+DATUMKORT-ID      W   6   A   VALUE 'WDATUM'                                    
+%WDATKORT 'DATKORT-'                                                            
+NEWPAGE                                                                         
+*                                                                               
+ DAGENS-DATUM             W  6 N                                                
+ AA1     DAGENS-DATUM        2 N                                                
+ MM1     DAGENS-DATUM  +2    2 N                                                
+ DD1     DAGENS-DATUM  +4    2 N                                                
+*                                                                               
+ DAGENS-DATUM-SEKEL       W  8 N                                                
+ WS-DATPUBL               W  8 N                                                
+*                                                                               
+%WWPRODSL  'IN-' WORK ''                                                        
+*                                                                               
+JOB INPUT W91020D1 START A-INIT.                                                
+*                                                                               
+                                                                                
+ PERFORM S25-CHECK-IN-KDPRODSL                                                  
+ IF IN-KDPRODSL = KDPRODSL-VOLVO-ALL                                            
+   IF IN-KDERS-UTG = 0                                                          
+     UT-IDARTNR = IN-IDARTNR                                                    
+     UT-BEART     = IN-BEART(8)                                                 
+     UT-KVQPACK-1 = IN-KVQPACK-1                                                
+     UT-PRARTSTD = IN-PRARTSTD * 100                                            
+     IF IN-TIFINLV = 99999                                                      
+       UT-DATPUBL = 900101                                                      
+     ELSE                                                                       
+       DAT-KDDATFORM = 'AAVVD'                                                  
+       DAT-I-TIDATUM = IN-TIFINLV                                               
+       CALL WDATKONV USING                +                                     
+                           (DAT-KDDATFORM, +                                    
+                            DAT-I-TIDATUM, +                                    
+                            DAT-O-TIDATUM, +                                    
+                            DAT-KDSVAR)                                         
+       IF DAT-KDSVAR = ' '                                                      
+          IF DAT-TIAAMMDD > 500000                                              
+            WS-DATPUBL = 19000000 + DAT-TIAAMMDD                                
+          ELSE                                                                  
+            WS-DATPUBL = 20000000 + DAT-TIAAMMDD                                
+          END-IF                                                                
+          IF WS-DATPUBL > DAGENS-DATUM-SEKEL                                    
+            UT-DATPUBL = WS-DATPUBL                                             
+          ELSE                                                                  
+            UT-DATPUBL = 0                                                      
+          END-IF                                                                
+       ELSE                                                                     
+          DISPLAY 'FEL FRÅN DATKONV TIFINLV'                                    
+          DISPLAY 'ARTIKELNR: ' UT-IDARTNR                                      
+          STOP EXECUTE                                                          
+       END-IF                                                                   
+     END-IF                                                                     
+     PUT W91020D2                                                               
+   END-IF                                                                       
+ END-IF                                                                         
+*                                                                               
+A-INIT. PROC                                                                    
+  CALL DATKORT USING (PROGRAM-NAMN +                                            
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+  AA1 = DATKORT-D-AAR                                                           
+  MM1 = DATKORT-D-MAANAD                                                        
+  DD1 = DATKORT-D-DAG                                                           
+  DAGENS-DATUM-SEKEL = DAGENS-DATUM + 20000000                                  
+END-PROC                                                                        
+*                                                                               
+%WWPRODSL 'IN-' PROC ''                                                         
+*                                                                               

@@ -1,0 +1,853 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6117400                                              *        
+*                                                                      *        
+*  FUNKTION   :  AK LISTA PÅ "TVÄREN" ANTINGEN FÖR DC 11-12            *        
+*                                                                      *        
+*  FÖRFATTARE :  MÅNS SAMUELSSON                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     970429      KENT JEBSEN              50653                       *        
+*     981007      KENT JEBSEN.......       9213..                      *        
+*     190429      SANTHOSH SK.......       CHANGE RULE FP40            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+FILE W61174D1                                                                   
+%W6111001  'IN10-'                                                              
+                                                                                
+FILE TMPFIL1 FB (36 0) VIRTUAL RETAIN                                           
+TMP1-IDDC        1 2 A                                                          
+TMP1-KDSORT      3 1 N                                                          
+TMP1-KDINLSTA    4 3 A                                                          
+TMP1-IDLOPNRM    7 5 P                                                          
+TMP1-KDRT       12 2 P                                                          
+TMP1-KVINLART   14 4 P 0                                                        
+TMP1-PRARTSTD   18 5 P 2                                                        
+TMP1-TIINLMOT   23 4 P                                                          
+TMP1-TIUPPDAT   27 4 P                                                          
+TMP1-KDINLPRIO  31 2 N                                                          
+TMP1-KVAVIS     33 4 P 0                                                        
+*                                                                               
+FILE W61174D2  PRINTER VB (125 0)                                               
+                                                                                
+FILE W61174D3  PRINTER FB (121 0)                                               
+                                                                                
+FILE W61174D4  PRINTER FB (121 0)                                               
+                                                                                
+FILE W61174D5  PRINTER VB (125 0)                                               
+                                                                                
+FILE W61174D6  PRINTER VB (125 0)                                               
+                                                                                
+FILE W61174D7  PRINTER VB (125 0)                                               
+                                                                                
+FILE W61174D8  PRINTER VB (125 0)                                               
+                                                                                
+FILE W61174D9  PRINTER VB (125 0)                                               
+NEWPAGE                                                                         
+*                                                                               
+%WDATKORT                                                                       
+NEWPAGE                                                                         
+PAGE                    W  8 A VALUE '    PAGE'                                 
+JA                      W  1 A VALUE 'J'                                        
+NEJ                     W  1 A VALUE 'N'                                        
+FOERSTA                 W  1 A VALUE 'J'                                        
+*                                                                               
+PGM-NAMN    W  6  A  VALUE 'W61174'                                             
+DATKORT-ID  W  6  A  VALUE '000001'                                             
+*                                                                               
+W-DATUM        W  6 N                                                           
+W-AA W-DATUM      2 N                                                           
+W-MM W-DATUM +2   2 N                                                           
+W-DD W-DATUM +4   2 N                                                           
+*                                                                               
+SPAR-IDDC               W  2 A                                                  
+SPAR-KDSORT             W  1 N                                                  
+SPAR-IDLOPNRM-AK        W  8 N                                                  
+SPAR-IDLOPNRM-R32       W  8 N                                                  
+W-AK-ANTAL              W  7 N 0                                                
+W-AK-VARDE              W 11 N 2                                                
+W-AK-VARDE-RO           W 11 N 2                                                
+W-R32-ANTAL             W  7 N 0                                                
+W-R32-ANTAL-STYCK       W  9 N 0                                                
+W-R32-VARDE             W 11 N 2                                                
+*                                                                               
+LST-TITEL-11          W  16  A                                                  
+LST-AK-ANTAL-11       W   7  N 0                                                
+LST-AK-VARDE-11       W  11  N 2                                                
+LST-AK-VARDE-RO-11    W  11  N 2                                                
+LST-R32-STYCK-11      W   9  N 0                                                
+LST-R32-VARDE-11      W   9  N 0                                                
+*                                                                               
+LST-TITEL-12          W  16  A                                                  
+LST-AK-ANTAL-12       W   7  N 0                                                
+LST-AK-VARDE-12       W  11  N 2                                                
+LST-AK-VARDE-RO-12    W  11  N 2                                                
+LST-R32-ANTAL-12      W   7  N 0                                                
+LST-R32-VARDE-12      W   9  N 0                                                
+*                                                                               
+LST-TITEL-61          W  16  A                                                  
+LST-AK-ANTAL-61       W   7  N 0                                                
+LST-AK-VARDE-61       W  11  N 2                                                
+LST-AK-VARDE-RO-61    W  11  N 2                                                
+LST-R32-ANTAL-61      W   7  N 0                                                
+LST-R32-VARDE-61      W   9  N 0                                                
+*                                                                               
+LST-TITEL-62          W  16  A                                                  
+LST-AK-ANTAL-62       W   7  N 0                                                
+LST-AK-VARDE-62       W  11  N 2                                                
+LST-AK-VARDE-RO-62    W  11  N 2                                                
+LST-R32-ANTAL-62      W   7  N 0                                                
+LST-R32-VARDE-62      W   9  N 0                                                
+*                                                                               
+LST-TITEL-67          W  16  A                                                  
+LST-AK-ANTAL-67       W   7  N 0                                                
+LST-AK-VARDE-67       W  11  N 2                                                
+LST-AK-VARDE-RO-67    W  11  N 2                                                
+LST-R32-ANTAL-67      W   7  N 0                                                
+LST-R32-VARDE-67      W   9  N 0                                                
+*                                                                               
+LST-TITEL-51          W  16  A                                                  
+LST-AK-ANTAL-51       W   7  N 0                                                
+LST-AK-VARDE-51       W  11  N 2                                                
+LST-AK-VARDE-RO-51    W  11  N 2                                                
+LST-R32-ANTAL-51      W   7  N 0                                                
+LST-R32-VARDE-51      W   9  N 0                                                
+*                                                                               
+LST-TITEL-65          W  16  A                                                  
+LST-AK-ANTAL-65       W   7  N 0                                                
+LST-AK-VARDE-65       W  11  N 2                                                
+LST-AK-VARDE-RO-65    W  11  N 2                                                
+LST-R32-ANTAL-65      W   7  N 0                                                
+LST-R32-VARDE-65      W   9  N 0                                                
+*                                                                               
+LST-TITEL-87          W  16  A                                                  
+LST-AK-ANTAL-87       W   7  N 0                                                
+LST-AK-VARDE-87       W  11  N 2                                                
+LST-AK-VARDE-RO-87    W  11  N 2                                                
+LST-R32-ANTAL-87      W   7  N 0                                                
+LST-R32-VARDE-87      W   9  N 0                                                
+*                                                                               
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SELECTERAR INPUTEN                                                    
+*                                                                               
+JOB INPUT W61174D1 START A-INIT                                                 
+                                                                                
+  IF IN10-IDLOPNRM GT +0 AND +                                                  
+     IN10-KDINLSTA EQ '   ' 'FPK' 'INL' 'VOR' 'FRD' 'AVI'                       
+    IF IN10-FLKLAR = NEJ OR +                                                   
+       IN10-RAD-TIUPPDAT = W-DATUM                                              
+      TMP1-IDDC     = IN10-IDDC                                                 
+      TMP1-KDINLSTA = IN10-KDINLSTA                                             
+      TMP1-IDLOPNRM = IN10-IDLOPNRM                                             
+      TMP1-KDRT     = IN10-KDRT                                                 
+      TMP1-KVINLART = IN10-KVINLART                                             
+      TMP1-KVAVIS   = IN10-KVAVIS                                               
+      TMP1-PRARTSTD = IN10-PRARTSTD                                             
+      TMP1-TIINLMOT = IN10-TIINLMOT                                             
+      TMP1-TIUPPDAT = IN10-RAD-TIUPPDAT                                         
+      TMP1-KDINLPRIO = IN10-RAD-KDINLPRIO                                       
+      IF IN10-IDDC = CDC-SE                                                     
+        IF IN10-KDRT = 3                                                        
+          IF IN10-BEFT = 15 96                                                  
+            TMP1-KDSORT = 1                                                     
+          ELSE                                                                  
+            TMP1-KDSORT = 6                                                     
+          END-IF                                                                
+        ELSE                                                                    
+          IF IN10-KDRT = 6                                                      
+            TMP1-KDSORT = 2                                                     
+          ELSE                                                                  
+            IF IN10-KDRT = 8                                                    
+              IF IN10-KDINLSTA = 'AVI'                                          
+                TMP1-KDSORT = 3                                                 
+              ELSE                                                              
+                TMP1-KDSORT = 4                                                 
+              END-IF                                                            
+            ELSE                                                                
+              IF IN10-BEFT = 10 11 12 13 14 16 17 18 20 21 22 24 25  +          
+                26 27 28 32 33 34 36 38 55 63 65 67                  +          
+                80 81 82 83 84 85 86                                            
+                TMP1-KDSORT = 7                                                 
+              ELSE                                                              
+                TMP1-KDSORT = 5                                                 
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      ELSE                                                                      
+        IF IN10-KDRT = 3                                                        
+          TMP1-KDSORT = 1                                                       
+        ELSE                                                                    
+          IF IN10-KDRT = 6 7 77                                                 
+            TMP1-KDSORT = 2                                                     
+          ELSE                                                                  
+            IF IN10-KDRT = 8                                                    
+              IF IN10-KDINLSTA = 'AVI'                                          
+                TMP1-KDSORT = 3                                                 
+              ELSE                                                              
+                IF IN10-BEFT = 41 THRU 49                                       
+                  TMP1-KDSORT = 6                                               
+                ELSE                                                            
+                  TMP1-KDSORT = 4                                               
+                END-IF                                                          
+              END-IF                                                            
+            ELSE                                                                
+              IF IN10-BEFT = 41 THRU 49                                         
+                TMP1-KDSORT = 6                                                 
+              ELSE                                                              
+                IF IN10-BEFT = 0 70 71 72 73 74 75 76 77 78 79 90 99            
+                  TMP1-KDSORT = 8                                               
+                ELSE                                                            
+                  TMP1-KDSORT = 9                                               
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+      PUT TMPFIL1                                                               
+    END-IF                                                                      
+  END-IF                                                                        
+*                                                                               
+A-INIT. PROC                                                                    
+  CALL DATKORT USING (PGM-NAMN DATKORT-ID DATUMKORT)                            
+  W-AA = D-AAR                                                                  
+  W-MM = D-MAANAD                                                               
+  W-DD = D-DAG                                                                  
+END-PROC                                                                        
+*                                                                               
+* STEG 2. SORTERAR INPUTEN                                                      
+*                                                                               
+SORT TMPFIL1 TO TMPFIL1 USING (TMP1-IDDC, TMP1-KDSORT, TMP1-IDLOPNRM)           
+*                                                                               
+* STEG 3. BEHANDLAR OCH SKRIVER LISTAN                                          
+*                                                                               
+JOB INPUT TMPFIL1 FINISH Z-FINIT                                                
+                                                                                
+    IF FOERSTA = JA                                                             
+      SPAR-IDDC     = TMP1-IDDC                                                 
+      SPAR-KDSORT   = TMP1-KDSORT                                               
+      SPAR-IDLOPNRM-AK = +0                                                     
+      SPAR-IDLOPNRM-R32 = +0                                                    
+      FOERSTA = NEJ                                                             
+    END-IF                                                                      
+    IF TMP1-IDDC   NE SPAR-IDDC   OR  +                                         
+      TMP1-KDSORT NE SPAR-KDSORT                                                
+      IF SPAR-IDDC = CDC-SE                                                     
+        PERFORM C-PRINTA-LISTA-DC11                                             
+      ELSE                                                                      
+        IF SPAR-IDDC = CDC-TR                                                   
+          PERFORM D-PRINTA-LISTA-DC12                                           
+        ELSE                                                                    
+          IF SPAR-IDDC = NDC-JP-61                                              
+            PERFORM E-PRINTA-LISTA-DC61                                         
+          ELSE                                                                  
+            IF SPAR-IDDC = NDC-AU                                               
+              PERFORM F-PRINTA-LISTA-DC62                                       
+            ELSE                                                                
+              IF SPAR-IDDC = NDC-CA                                             
+                PERFORM G-PRINTA-LISTA-DC51                                     
+              ELSE                                                              
+                IF SPAR-IDDC = NDC-IN                                           
+                  PERFORM H-PRINTA-LISTA-DC67                                   
+                ELSE                                                            
+                  IF SPAR-IDDC = NDC-KR                                         
+                    PERFORM H-PRINTA-LISTA-DC65                                 
+                  ELSE                                                          
+                    IF SPAR-IDDC = NDC-AE                                       
+                      PERFORM H-PRINTA-LISTA-DC87                               
+                    END-IF                                                      
+                  END-IF                                                        
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+      SPAR-IDDC   = TMP1-IDDC                                                   
+      SPAR-KDSORT = TMP1-KDSORT                                                 
+      W-AK-ANTAL = +0                                                           
+      W-AK-VARDE = +0                                                           
+      W-AK-VARDE-RO = +0                                                        
+      W-R32-ANTAL = +0                                                          
+      W-R32-ANTAL-STYCK = +0                                                    
+      W-R32-VARDE = +0                                                          
+    END-IF                                                                      
+    IF TMP1-KDINLSTA = '   ' 'FPK' 'AVI'                                        
+       IF TMP1-IDLOPNRM NE SPAR-IDLOPNRM-AK                                     
+         W-AK-ANTAL = W-AK-ANTAL + +1                                           
+       END-IF                                                                   
+       W-AK-VARDE = W-AK-VARDE                            +                     
+                    + (TMP1-KVINLART * TMP1-PRARTSTD)                           
+       IF TMP1-KDINLPRIO LT 20                                                  
+         W-AK-VARDE-RO = W-AK-VARDE-RO                    +                     
+                    + (TMP1-KVINLART * TMP1-PRARTSTD)                           
+       END-IF                                                                   
+       SPAR-IDLOPNRM-AK  = TMP1-IDLOPNRM                                        
+    ELSE                                                                        
+       IF TMP1-TIUPPDAT = W-DATUM                                               
+         IF TMP1-IDLOPNRM NE SPAR-IDLOPNRM-R32                                  
+           IF TMP1-IDDC = CDC-SE                                                
+             W-R32-ANTAL-STYCK = W-R32-ANTAL-STYCK + TMP1-KVINLART              
+           ELSE                                                                 
+             W-R32-ANTAL = W-R32-ANTAL + +1                                     
+           END-IF                                                               
+         END-IF                                                                 
+         IF TMP1-KDINLPRIO LT 20                                                
+         END-IF                                                                 
+         W-R32-VARDE = W-R32-VARDE                          +                   
+                      + (TMP1-KVINLART * TMP1-PRARTSTD)                         
+         SPAR-IDLOPNRM-R32 = TMP1-IDLOPNRM                                      
+       END-IF                                                                   
+    END-IF                                                                      
+*                                                                               
+C-PRINTA-LISTA-DC11. PROC                                                       
+  IF SPAR-KDSORT = 1                                                            
+    LST-TITEL-11        = 'CDC SATSER'                                          
+  ELSE                                                                          
+    IF SPAR-KDSORT = 2                                                          
+      LST-TITEL-11        = 'CDC RETURER'                                       
+    ELSE                                                                        
+      IF SPAR-KDSORT = 3                                                        
+        LST-TITEL-11        = 'CDC AVISERAT REREFILL'                           
+      ELSE                                                                      
+        IF SPAR-KDSORT = 4                                                      
+          LST-TITEL-11        = 'CDC MOTTAGET REREFILL'                         
+        ELSE                                                                    
+          IF SPAR-KDSORT = 5                                                    
+            LST-TITEL-11        = 'CDC ÖVRIGA INLEV'                            
+          ELSE                                                                  
+            IF SPAR-KDSORT = 6                                                  
+              LST-TITEL-11        = 'SVS SATSER'                                
+            ELSE                                                                
+              IF SPAR-KDSORT = 7                                                
+                LST-TITEL-11        = 'SVS FÖRPACKNING'                         
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+  LST-AK-ANTAL-11     = W-AK-ANTAL                                              
+  LST-AK-VARDE-11     = W-AK-VARDE                                              
+  LST-AK-VARDE-RO-11  = W-AK-VARDE-RO                                           
+  LST-R32-STYCK-11    = W-R32-ANTAL-STYCK                                       
+  LST-R32-VARDE-11    = W-R32-VARDE                                             
+  PRINT W61174-001                                                              
+END-PROC                                                                        
+*                                                                               
+D-PRINTA-LISTA-DC12. PROC                                                       
+  IF SPAR-KDSORT = 1                                                            
+    LST-TITEL-12        = 'KIT   '                                              
+  ELSE                                                                          
+    IF SPAR-KDSORT = 2                                                          
+      LST-TITEL-12        = 'RT6 INTERNAL'                                      
+    ELSE                                                                        
+      IF SPAR-KDSORT = 3                                                        
+        LST-TITEL-12        = 'ADVICED FROM C1'                                 
+      ELSE                                                                      
+        IF SPAR-KDSORT = 4                                                      
+          LST-TITEL-12        = 'RECEIWED FROM C1'                              
+        ELSE                                                                    
+          IF SPAR-KDSORT = 5                                                    
+            LST-TITEL-12        = 'C1 PAINT SHOP   '                            
+          ELSE                                                                  
+            IF SPAR-KDSORT = 6                                                  
+              LST-TITEL-12        = 'PAINT SHOP'                                
+            ELSE                                                                
+              IF SPAR-KDSORT = 7                                                
+                LST-TITEL-12        = 'RENAULT '                                
+              ELSE                                                              
+                IF SPAR-KDSORT = 8                                              
+                  LST-TITEL-12        = 'WITHOUT PRE-PACK'                      
+                ELSE                                                            
+                  IF SPAR-KDSORT = 9                                            
+                    LST-TITEL-12        = 'PRE-PACKING '                        
+                  END-IF                                                        
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+  LST-AK-ANTAL-12     = W-AK-ANTAL                                              
+  LST-AK-VARDE-12     = W-AK-VARDE                                              
+  LST-AK-VARDE-RO-12  = W-AK-VARDE-RO                                           
+  LST-R32-ANTAL-12    = W-R32-ANTAL                                             
+  LST-R32-VARDE-12    = W-R32-VARDE                                             
+  PRINT W61174-002                                                              
+END-PROC                                                                        
+E-PRINTA-LISTA-DC61. PROC                                                       
+  IF SPAR-KDSORT = 1                                                            
+    LST-TITEL-61        = 'KIT   '                                              
+  ELSE                                                                          
+    IF SPAR-KDSORT = 2                                                          
+      LST-TITEL-61        = 'RT6 INTERNAL'                                      
+    ELSE                                                                        
+      IF SPAR-KDSORT = 3                                                        
+        LST-TITEL-61        = 'ADVICED FROM C1'                                 
+      ELSE                                                                      
+        IF SPAR-KDSORT = 4                                                      
+          LST-TITEL-61        = 'RECEIWED FROM C1'                              
+        ELSE                                                                    
+          IF SPAR-KDSORT = 5                                                    
+            LST-TITEL-61        = 'C1 PAINT SHOP   '                            
+          ELSE                                                                  
+            IF SPAR-KDSORT = 6                                                  
+              LST-TITEL-61        = 'PAINT SHOP'                                
+            ELSE                                                                
+              IF SPAR-KDSORT = 7                                                
+                LST-TITEL-61        = 'RENAULT '                                
+              ELSE                                                              
+                IF SPAR-KDSORT = 8                                              
+                  LST-TITEL-61        = 'WITHOUT PRE-PACK'                      
+                ELSE                                                            
+                  IF SPAR-KDSORT = 9                                            
+                    LST-TITEL-61        = 'PRE-PACKING '                        
+                  END-IF                                                        
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+  LST-AK-ANTAL-61     = W-AK-ANTAL                                              
+  LST-AK-VARDE-61     = W-AK-VARDE                                              
+  LST-AK-VARDE-RO-61  = W-AK-VARDE-RO                                           
+  LST-R32-ANTAL-61    = W-R32-ANTAL                                             
+  LST-R32-VARDE-61    = W-R32-VARDE                                             
+  PRINT W61174-003                                                              
+END-PROC                                                                        
+F-PRINTA-LISTA-DC62. PROC                                                       
+  IF SPAR-KDSORT = 1                                                            
+    LST-TITEL-62        = 'KIT   '                                              
+  ELSE                                                                          
+    IF SPAR-KDSORT = 2                                                          
+      LST-TITEL-62        = 'RT6 INTERNAL'                                      
+    ELSE                                                                        
+      IF SPAR-KDSORT = 3                                                        
+        LST-TITEL-62        = 'ADVICED FROM C1'                                 
+      ELSE                                                                      
+        IF SPAR-KDSORT = 4                                                      
+          LST-TITEL-62        = 'RECEIWED FROM C1'                              
+        ELSE                                                                    
+          IF SPAR-KDSORT = 5                                                    
+            LST-TITEL-62        = 'C1 PAINT SHOP   '                            
+          ELSE                                                                  
+            IF SPAR-KDSORT = 6                                                  
+              LST-TITEL-62        = 'PAINT SHOP'                                
+            ELSE                                                                
+              IF SPAR-KDSORT = 7                                                
+                LST-TITEL-62        = 'RENAULT '                                
+              ELSE                                                              
+                IF SPAR-KDSORT = 8                                              
+                  LST-TITEL-62        = 'WITHOUT PRE-PACK'                      
+                ELSE                                                            
+                  IF SPAR-KDSORT = 9                                            
+                    LST-TITEL-62        = 'PRE-PACKING '                        
+                  END-IF                                                        
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+  LST-AK-ANTAL-62     = W-AK-ANTAL                                              
+  LST-AK-VARDE-62     = W-AK-VARDE                                              
+  LST-AK-VARDE-RO-62  = W-AK-VARDE-RO                                           
+  LST-R32-ANTAL-62    = W-R32-ANTAL                                             
+  LST-R32-VARDE-62    = W-R32-VARDE                                             
+  PRINT W61174-004                                                              
+END-PROC                                                                        
+                                                                                
+G-PRINTA-LISTA-DC51. PROC                                                       
+  IF SPAR-KDSORT = 1                                                            
+    LST-TITEL-51        = 'KIT   '                                              
+  ELSE                                                                          
+    IF SPAR-KDSORT = 2                                                          
+      LST-TITEL-51        = 'RT6 INTERNAL'                                      
+    ELSE                                                                        
+      IF SPAR-KDSORT = 3                                                        
+        LST-TITEL-51        = 'ADVICED FROM C1'                                 
+      ELSE                                                                      
+        IF SPAR-KDSORT = 4                                                      
+          LST-TITEL-51        = 'RECEIWED FROM C1'                              
+        ELSE                                                                    
+          IF SPAR-KDSORT = 5                                                    
+            LST-TITEL-51        = 'C1 PAINT SHOP   '                            
+          ELSE                                                                  
+            IF SPAR-KDSORT = 6                                                  
+              LST-TITEL-51        = 'PAINT SHOP'                                
+            ELSE                                                                
+              IF SPAR-KDSORT = 7                                                
+                LST-TITEL-51        = 'RENAULT '                                
+              ELSE                                                              
+                IF SPAR-KDSORT = 8                                              
+                  LST-TITEL-51        = 'WITHOUT PRE-PACK'                      
+                ELSE                                                            
+                  IF SPAR-KDSORT = 9                                            
+                    LST-TITEL-51        = 'PRE-PACKING '                        
+                  END-IF                                                        
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+  LST-AK-ANTAL-51     = W-AK-ANTAL                                              
+  LST-AK-VARDE-51     = W-AK-VARDE                                              
+  LST-AK-VARDE-RO-51  = W-AK-VARDE-RO                                           
+  LST-R32-ANTAL-51    = W-R32-ANTAL                                             
+  LST-R32-VARDE-51    = W-R32-VARDE                                             
+  PRINT W61174-005                                                              
+END-PROC                                                                        
+                                                                                
+H-PRINTA-LISTA-DC67. PROC                                                       
+  IF SPAR-KDSORT = 1                                                            
+    LST-TITEL-67        = 'KIT   '                                              
+  ELSE                                                                          
+    IF SPAR-KDSORT = 2                                                          
+      LST-TITEL-67        = 'RT6 INTERNAL'                                      
+    ELSE                                                                        
+      IF SPAR-KDSORT = 3                                                        
+        LST-TITEL-67        = 'ADVICED FROM C1'                                 
+      ELSE                                                                      
+        IF SPAR-KDSORT = 4                                                      
+          LST-TITEL-67        = 'RECEIWED FROM C1'                              
+        ELSE                                                                    
+          IF SPAR-KDSORT = 5                                                    
+            LST-TITEL-67        = 'C1 PAINT SHOP   '                            
+          ELSE                                                                  
+            IF SPAR-KDSORT = 6                                                  
+              LST-TITEL-67        = 'PAINT SHOP'                                
+            ELSE                                                                
+              IF SPAR-KDSORT = 7                                                
+                LST-TITEL-67        = 'RENAULT '                                
+              ELSE                                                              
+                IF SPAR-KDSORT = 8                                              
+                  LST-TITEL-67        = 'WITHOUT PRE-PACK'                      
+                ELSE                                                            
+                  IF SPAR-KDSORT = 9                                            
+                    LST-TITEL-67        = 'PRE-PACKING '                        
+                  END-IF                                                        
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+  LST-AK-ANTAL-67     = W-AK-ANTAL                                              
+  LST-AK-VARDE-67     = W-AK-VARDE                                              
+  LST-AK-VARDE-RO-67  = W-AK-VARDE-RO                                           
+  LST-R32-ANTAL-67    = W-R32-ANTAL                                             
+  LST-R32-VARDE-67    = W-R32-VARDE                                             
+  PRINT W61174-006                                                              
+END-PROC                                                                        
+                                                                                
+H-PRINTA-LISTA-DC65. PROC                                                       
+  IF SPAR-KDSORT = 1                                                            
+    LST-TITEL-65        = 'KIT   '                                              
+  ELSE                                                                          
+    IF SPAR-KDSORT = 2                                                          
+      LST-TITEL-65        = 'RT6 INTERNAL'                                      
+    ELSE                                                                        
+      IF SPAR-KDSORT = 3                                                        
+        LST-TITEL-65        = 'ADVICED FROM C1'                                 
+      ELSE                                                                      
+        IF SPAR-KDSORT = 4                                                      
+          LST-TITEL-65        = 'RECEIWED FROM C1'                              
+        ELSE                                                                    
+          IF SPAR-KDSORT = 5                                                    
+            LST-TITEL-65        = 'C1 PAINT SHOP   '                            
+          ELSE                                                                  
+            IF SPAR-KDSORT = 6                                                  
+              LST-TITEL-65        = 'PAINT SHOP'                                
+            ELSE                                                                
+              IF SPAR-KDSORT = 7                                                
+                LST-TITEL-65        = 'RENAULT '                                
+              ELSE                                                              
+                IF SPAR-KDSORT = 8                                              
+                  LST-TITEL-65        = 'WITHOUT PRE-PACK'                      
+                ELSE                                                            
+                  IF SPAR-KDSORT = 9                                            
+                    LST-TITEL-65        = 'PRE-PACKING '                        
+                  END-IF                                                        
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+  LST-AK-ANTAL-65     = W-AK-ANTAL                                              
+  LST-AK-VARDE-65     = W-AK-VARDE                                              
+  LST-AK-VARDE-RO-65  = W-AK-VARDE-RO                                           
+  LST-R32-ANTAL-65    = W-R32-ANTAL                                             
+  LST-R32-VARDE-65    = W-R32-VARDE                                             
+  PRINT W61174-007                                                              
+END-PROC                                                                        
+                                                                                
+*                                                                               
+                                                                                
+H-PRINTA-LISTA-DC87. PROC                                                       
+  IF SPAR-KDSORT = 1                                                            
+    LST-TITEL-87        = 'KIT   '                                              
+  ELSE                                                                          
+    IF SPAR-KDSORT = 2                                                          
+      LST-TITEL-87        = 'RT6 INTERNAL'                                      
+    ELSE                                                                        
+      IF SPAR-KDSORT = 3                                                        
+        LST-TITEL-87        = 'ADVICED FROM C1'                                 
+      ELSE                                                                      
+        IF SPAR-KDSORT = 4                                                      
+          LST-TITEL-87        = 'RECEIWED FROM C1'                              
+        ELSE                                                                    
+          IF SPAR-KDSORT = 5                                                    
+            LST-TITEL-87        = 'C1 PAINT SHOP   '                            
+          ELSE                                                                  
+            IF SPAR-KDSORT = 6                                                  
+              LST-TITEL-87        = 'PAINT SHOP'                                
+            ELSE                                                                
+              IF SPAR-KDSORT = 7                                                
+                LST-TITEL-87        = 'RENAULT '                                
+              ELSE                                                              
+                IF SPAR-KDSORT = 8                                              
+                  LST-TITEL-87        = 'WITHOUT PRE-PACK'                      
+                ELSE                                                            
+                  IF SPAR-KDSORT = 9                                            
+                    LST-TITEL-87        = 'PRE-PACKING '                        
+                  END-IF                                                        
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+  LST-AK-ANTAL-87     = W-AK-ANTAL                                              
+  LST-AK-VARDE-87     = W-AK-VARDE                                              
+  LST-AK-VARDE-RO-87  = W-AK-VARDE-RO                                           
+  LST-R32-ANTAL-87    = W-R32-ANTAL                                             
+  LST-R32-VARDE-87    = W-R32-VARDE                                             
+  PRINT W61174-008                                                              
+END-PROC                                                                        
+                                                                                
+*                                                                               
+Z-FINIT. PROC                                                                   
+  IF SPAR-IDDC = CDC-SE                                                         
+    PERFORM C-PRINTA-LISTA-DC11                                                 
+  ELSE                                                                          
+    IF SPAR-IDDC = CDC-TR                                                       
+      PERFORM D-PRINTA-LISTA-DC12                                               
+    ELSE                                                                        
+      IF SPAR-IDDC = NDC-JP-61                                                  
+        PERFORM E-PRINTA-LISTA-DC61                                             
+      ELSE                                                                      
+        IF SPAR-IDDC = NDC-AU                                                   
+          PERFORM F-PRINTA-LISTA-DC62                                           
+        ELSE                                                                    
+           IF SPAR-IDDC = NDC-CA                                                
+              PERFORM G-PRINTA-LISTA-DC51                                       
+           ELSE                                                                 
+              IF SPAR-IDDC = NDC-IN                                             
+                 PERFORM H-PRINTA-LISTA-DC67                                    
+              ELSE                                                              
+                 IF SPAR-IDDC = NDC-KR                                          
+                    PERFORM H-PRINTA-LISTA-DC65                                 
+                 ELSE                                                           
+                   IF SPAR-IDDC = NDC-AE                                        
+                      PERFORM H-PRINTA-LISTA-DC87                               
+                   END-IF                                                       
+                 END-IF                                                         
+              END-IF                                                            
+           END-IF                                                               
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+REPORT W61174-001  PRINTER W61174D2 LINESIZE 120 DTLCTL FIRST  +                
+       TITLESKIP 0 SPACE 2                                                      
+CONTROL  LST-TITEL-11 NOPRINT                                                   
+SUM      LST-AK-ANTAL-11  LST-AK-VARDE-11 LST-R32-STYCK-11   +                  
+         LST-R32-VARDE-11                                                       
+TITLE 1  'VOLVO CAR PARTS       AK BELÄGGNING W61174-001   DC11'                
+TITLE 3  '                       BELÄGGNING                  '                  
+HEADING  LST-TITEL-11          'RUBRIK'                                         
+HEADING  LST-AK-ANTAL-11       'ANTAL MR'                                       
+HEADING  LST-AK-VARDE-11       'STD VÄRDE'                                      
+HEADING  LST-R32-STYCK-11      'INLAGT ANTAL'                                   
+HEADING  LST-R32-VARDE-11      'INRAPP. VÄRDE'                                  
+*                                                                               
+LINE  1  LST-TITEL-11       LST-AK-ANTAL-11     LST-AK-VARDE-11 +               
+         LST-R32-STYCK-11   LST-R32-VARDE-11                                    
+                                                                                
+NEWPAGE                                                                         
+REPORT W61174-002  PRINTER W61174D3 LINESIZE 120 DTLCTL FIRST +                 
+       TITLESKIP 0 SPACE 2                                                      
+CONTROL  LST-TITEL-12 NOPRINT                                                   
+SUM      LST-AK-ANTAL-12  LST-AK-VARDE-12 LST-AK-VARDE-RO-12   +                
+         LST-R32-ANTAL-12 LST-R32-VARDE-12                                      
+TITLE 1  'VOLVO CAR PARTS       AK WORK LOAD  W61174-002   DC12'                
+TITLE 3  '                        WORK LOAD                 '                   
+HEADING  LST-TITEL-12          'TITLE '                                         
+HEADING  LST-AK-ANTAL-12       'QTY RR'                                         
+HEADING  LST-AK-VARDE-12       'STD VALUE'                                      
+HEADING  LST-AK-VARDE-RO-12    'STD VALUE BO'                                   
+HEADING  LST-R32-ANTAL-12      'REPORTED LINES'                                 
+HEADING  LST-R32-VARDE-12      'REPORTED VALUE'                                 
+*                                                                               
+LINE  1  LST-TITEL-12       LST-AK-ANTAL-12     LST-AK-VARDE-12 +               
+         LST-AK-VARDE-RO-12                                     +               
+         LST-R32-ANTAL-12   LST-R32-VARDE-12                                    
+NEWPAGE                                                                         
+REPORT W61174-003  PRINTER W61174D4 LINESIZE 120 DTLCTL FIRST +                 
+       TITLESKIP 0 SPACE 2 NOADJUST                                             
+                                                                                
+CONTROL  LST-TITEL-61 NOPRINT                                                   
+SUM      LST-AK-ANTAL-61  LST-AK-VARDE-61 LST-AK-VARDE-RO-61   +                
+         LST-R32-ANTAL-61 LST-R32-VARDE-61                                      
+TITLE 1  '            VOLVO CAR PARTS       AK WORK LOAD  W61174-003' +         
+         '   DC61' +                                                            
+COL 106  PAGE                                                                   
+TITLE 3  '                        WORK LOAD                 '                   
+HEADING  LST-TITEL-61          'TITLE '                                         
+HEADING  LST-AK-ANTAL-61       'QTY RR'                                         
+HEADING  LST-AK-VARDE-61       'STD VALUE'                                      
+HEADING  LST-AK-VARDE-RO-61    'STD VALUE BO'                                   
+HEADING  LST-R32-ANTAL-61      'REPORTED LINES'                                 
+HEADING  LST-R32-VARDE-61      'REPORTED VALUE'                                 
+*                                                                               
+LINE  1  LST-TITEL-61       LST-AK-ANTAL-61     LST-AK-VARDE-61 +               
+         LST-AK-VARDE-RO-61                                     +               
+         LST-R32-ANTAL-61   LST-R32-VARDE-61                                    
+NEWPAGE                                                                         
+REPORT W61174-004  PRINTER W61174D5 LINESIZE 120 DTLCTL FIRST +                 
+       TITLESKIP 0 SPACE 2 NOADJUST                                             
+CONTROL  LST-TITEL-62 NOPRINT                                                   
+SUM      LST-AK-ANTAL-62  LST-AK-VARDE-62 LST-AK-VARDE-RO-62   +                
+         LST-R32-ANTAL-62 LST-R32-VARDE-62                                      
+TITLE 1  '            VOLVO CAR PARTS       AK WORK LOAD  W61174-004' +         
+         '   DC62' +                                                            
+COL 106  PAGE                                                                   
+TITLE 3  '                        WORK LOAD                 '                   
+HEADING  LST-TITEL-62          'TITLE '                                         
+HEADING  LST-AK-ANTAL-62       'QTY RR'                                         
+HEADING  LST-AK-VARDE-62       'STD VALUE'                                      
+HEADING  LST-AK-VARDE-RO-62    'STD VALUE BO'                                   
+HEADING  LST-R32-ANTAL-62      'REPORTED LINES'                                 
+HEADING  LST-R32-VARDE-62      'REPORTED VALUE'                                 
+*                                                                               
+LINE  1  LST-TITEL-62       LST-AK-ANTAL-62     LST-AK-VARDE-62 +               
+         LST-AK-VARDE-RO-62                                     +               
+         LST-R32-ANTAL-62   LST-R32-VARDE-62                                    
+NEWPAGE                                                                         
+REPORT W61174-005  PRINTER W61174D6 LINESIZE 120 DTLCTL FIRST +                 
+       TITLESKIP 0 SPACE 2 NOADJUST                                             
+CONTROL  LST-TITEL-51 NOPRINT                                                   
+SUM      LST-AK-ANTAL-51  LST-AK-VARDE-51 LST-AK-VARDE-RO-51   +                
+         LST-R32-ANTAL-51 LST-R32-VARDE-51                                      
+TITLE 1  '            VOLVO CAR PARTS       AK WORK LOAD  W61174-005' +         
+         '   DC51' +                                                            
+COL 106  PAGE                                                                   
+TITLE 3  '                        WORK LOAD                 '                   
+HEADING  LST-TITEL-51          'TITLE '                                         
+HEADING  LST-AK-ANTAL-51       'QTY RR'                                         
+HEADING  LST-AK-VARDE-51       'STD VALUE'                                      
+HEADING  LST-AK-VARDE-RO-51    'STD VALUE BO'                                   
+HEADING  LST-R32-ANTAL-51      'REPORTED LINES'                                 
+HEADING  LST-R32-VARDE-51      'REPORTED VALUE'                                 
+*                                                                               
+LINE  1  LST-TITEL-51       LST-AK-ANTAL-51     LST-AK-VARDE-51 +               
+         LST-AK-VARDE-RO-51                                     +               
+         LST-R32-ANTAL-51   LST-R32-VARDE-51                                    
+*                                                                               
+NEWPAGE                                                                         
+REPORT W61174-006  PRINTER W61174D7 LINESIZE 120 DTLCTL FIRST +                 
+       TITLESKIP 0 SPACE 2 NOADJUST                                             
+CONTROL  LST-TITEL-67 NOPRINT                                                   
+SUM      LST-AK-ANTAL-67  LST-AK-VARDE-67 LST-AK-VARDE-RO-67   +                
+         LST-R32-ANTAL-67 LST-R32-VARDE-67                                      
+TITLE 1  '            VOLVO CAR PARTS       AK WORK LOAD  W61174-006' +         
+         '   DC67' +                                                            
+COL 106  PAGE                                                                   
+TITLE 3  '                        WORK LOAD                 '                   
+HEADING  LST-TITEL-67          'TITLE '                                         
+HEADING  LST-AK-ANTAL-67       'QTY RR'                                         
+HEADING  LST-AK-VARDE-67       'STD VALUE'                                      
+HEADING  LST-AK-VARDE-RO-67    'STD VALUE BO'                                   
+HEADING  LST-R32-ANTAL-67      'REPORTED LINES'                                 
+HEADING  LST-R32-VARDE-67      'REPORTED VALUE'                                 
+*                                                                               
+LINE  1  LST-TITEL-67       LST-AK-ANTAL-67     LST-AK-VARDE-67 +               
+         LST-AK-VARDE-RO-67                                     +               
+         LST-R32-ANTAL-67   LST-R32-VARDE-67                                    
+*                                                                               
+NEWPAGE                                                                         
+REPORT W61174-007  PRINTER W61174D8 LINESIZE 120 DTLCTL FIRST +                 
+       TITLESKIP 0 SPACE 2 NOADJUST                                             
+CONTROL  LST-TITEL-65 NOPRINT                                                   
+SUM      LST-AK-ANTAL-65  LST-AK-VARDE-65 LST-AK-VARDE-RO-65   +                
+         LST-R32-ANTAL-65 LST-R32-VARDE-65                                      
+TITLE 1  '            VOLVO CAR PARTS       AK WORK LOAD  W61174-007' +         
+         '   DC65' +                                                            
+COL 106  PAGE                                                                   
+TITLE 3  '                        WORK LOAD                 '                   
+HEADING  LST-TITEL-65          'TITLE '                                         
+HEADING  LST-AK-ANTAL-65       'QTY RR'                                         
+HEADING  LST-AK-VARDE-65       'STD VALUE'                                      
+HEADING  LST-AK-VARDE-RO-65    'STD VALUE BO'                                   
+HEADING  LST-R32-ANTAL-65      'REPORTED LINES'                                 
+HEADING  LST-R32-VARDE-65      'REPORTED VALUE'                                 
+*                                                                               
+LINE  1  LST-TITEL-65       LST-AK-ANTAL-65     LST-AK-VARDE-65 +               
+         LST-AK-VARDE-RO-65                                     +               
+         LST-R32-ANTAL-65   LST-R32-VARDE-65                                    
+*                                                                               
+NEWPAGE                                                                         
+REPORT W61174-008  PRINTER W61174D9 LINESIZE 120 DTLCTL FIRST +                 
+       TITLESKIP 0 SPACE 2 NOADJUST                                             
+CONTROL  LST-TITEL-87 NOPRINT                                                   
+SUM      LST-AK-ANTAL-87  LST-AK-VARDE-87 LST-AK-VARDE-RO-87   +                
+         LST-R32-ANTAL-87 LST-R32-VARDE-87                                      
+TITLE 1  '            VOLVO CAR PARTS       AK WORK LOAD  W61174-008' +         
+         '   DC87' +                                                            
+COL 106  PAGE                                                                   
+TITLE 3  '                        WORK LOAD                 '                   
+HEADING  LST-TITEL-87          'TITLE '                                         
+HEADING  LST-AK-ANTAL-87       'QTY RR'                                         
+HEADING  LST-AK-VARDE-87       'STD VALUE'                                      
+HEADING  LST-AK-VARDE-RO-87    'STD VALUE BO'                                   
+HEADING  LST-R32-ANTAL-87      'REPORTED LINES'                                 
+HEADING  LST-R32-VARDE-87      'REPORTED VALUE'                                 
+*                                                                               
+LINE  1  LST-TITEL-87       LST-AK-ANTAL-87     LST-AK-VARDE-87 +               
+         LST-AK-VARDE-RO-87                                     +               
+         LST-R32-ANTAL-87   LST-R32-VARDE-87                                    

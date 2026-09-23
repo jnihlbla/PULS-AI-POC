@@ -1,0 +1,36 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR UTLISTOR FÖR SERVICEGRAD PER VENDOR                                 
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W225V3                                         
+//*                                                                             
+//*  ÅTERSTART:    W22552    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W225P052 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W231..W225V3,                                            
+//             INDUT=&W225..W225V3                                              
+//**           DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22552   EXEC PGM=V16459,PARM='W22552/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  DATACLAS=PSEB                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W22552D1 DD  DSN=&INDIN2..W23196(+0),DISP=SHR                                 
+//************ INFIL FRÅN "BODILS MATRIS"                                       
+//*                                                                             
+//W22552D2 DD  DSN=&INDUT..W22552A(+1),                        -LIM(10)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ COMMON FILE FOR ALL DC'S (41,42,43,51,61,62,71-73,7A-7H)         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//SORTFIL1 DD  DSN=&&TEMPFIL,DATACLAS=PSEN,                                     
+//             DISP=(NEW,DELETE,DELETE)                                         
+//*                                                                             

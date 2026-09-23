@@ -1,0 +1,74 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UPPDATERAR PUNKTER FÖR REFILLING                                           
+//*                                                                             
+//*                                                                             
+//*  PROCEDUREN KÖRS I FLERA RUTINER, INDIN OCH INDUT ANGES                     
+//*  I RESP JCL                                                                 
+//*                                                                             
+//*  FREQUENCE:    DAG       RTN W271D1                                         
+//*                          RTN W271DA                                         
+//*                VECKA     RTN W271V1                                         
+//*                                                                             
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                W27120    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P020 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=SAKNAS,                                                    
+//             INDUT=SAKNAS                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W271PD20),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W27121(+0),DISP=SHR                                  
+//************ ARTIKLAR VARS PUNKTER SKA BERÄKNAS                               
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27121,DISP=(NEW,PASS,DELETE),                             
+//**************                                                    ***         
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27120   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('&DBB,W27120,W27120,,00')                                             
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDF1     INCLUDE MEMBER=WDF1                                                  
+//WL2501   INCLUDE MEMBER=WDR2                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//*                                                                             
+//W27120D1 DD  DSN=&&W27121,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKLAR VARS PUNKTER BERÄKNATS                                  
+//W27120D2 DD  DSN=&INDUT..W27120(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ UTFIL MED SAMTLIGA ARTIKLAR FÖR UPPFÖLJNING                      
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W27120D3 DD  DSN=&INDUT..W2712F(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ UTFIL WITH REFILL POINTS,WHICH WILL BE UPDATED IN WDK711         
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

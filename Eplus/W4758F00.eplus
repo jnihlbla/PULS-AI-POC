@@ -1,0 +1,110 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4758F00                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  MARGARETA GABRIELSSON                                 *        
+*                                                                      *        
+*  DATUM      :  971209                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET SKAPAR VECKOFIL FÖR TULLRESTITUTION        *        
+*                                                                      *        
+*                                                                      *        
+*                PROGRAMMET SKAPAR:                                    *        
+*                  UTFIL W475TR                                        *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W4758FD1                                                                   
+*                                                                               
+%W475030       'IN-'                                                            
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W4758FD2 FB (80 0)                                                         
+%W475010       'UTHUV-'                                                         
+%W475030       'UTRAD-'                                                         
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+%WDATKORT     'DAT-'                                                            
+*                                                                               
+  PROGRAM-NAMN              W          6         A  VALUE 'W4758F'              
+  DATUMKORT-ID              W          6         A  VALUE 'WDATUM'              
+  WS-DATUM                  W          8         A                              
+    WS-YEAR                 WS-DATUM        2      A                            
+    WS-MONTH                WS-DATUM    +3  2      A                            
+    WS-DAY                  WS-DATUM    +6  2      A                            
+  WS-CCYYMMDD               W            8         N                            
+    WS-CC                   WS-CCYYMMDD     2      A                            
+    WS-YY                   WS-CCYYMMDD +2  2      A                            
+    WS-MM                   WS-CCYYMMDD +4  2      A                            
+    WS-DD                   WS-CCYYMMDD +6  2      A                            
+  WS-TID                    W            8         A                            
+    WS-TIM                  WS-TID          2      A                            
+    WS-MIN                  WS-TID      +3  2      A                            
+    WS-SEK                  WS-TID      +6  2      A                            
+  WS-HHMM                   W            4         N                            
+    WS-HH                   WS-HHMM         2      A                            
+    WS-MMIN                 WS-HHMM     +2  2      A                            
+                                                                                
+*  --  CHECKED BY WY2000                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  JOB INPUT  W4758FD1   START  A-INIT                            +              
+                                                  NAME   STEG01                 
+    UTRAD-TREST03-IDPTYP2  = IN-TREST03-IDPTYP2                                 
+    UTRAD-TREST03-IDARTNR  = IN-TREST03-IDARTNR                                 
+    UTRAD-TREST03-IDDISTR  = IN-TREST03-IDDISTR                                 
+    UTRAD-TREST03-IDFAKT   = IN-TREST03-IDFAKT                                  
+    UTRAD-TREST03-DAFAKT   = IN-TREST03-DAFAKT                                  
+    UTRAD-TREST03-KOD      = IN-TREST03-KOD                                     
+    UTRAD-TREST03-KVLEVART = IN-TREST03-KVLEVART                                
+    UTRAD-TREST03-IDLANDX2 = IN-TREST03-IDLANDX2                                
+    UTRAD-FILLER01         = ' '                                                
+                                                                                
+    PUT W4758FD2                                                                
+                                                                                
+*                                                                               
+  A-INIT. PROC                                                                  
+    WS-DATUM               EQ SYSDATE                                           
+    WS-TID                 EQ SYSTIME                                           
+*                                                                               
+    UTHUV-TREST01-IDPTYP2  = '01'                                               
+    UTHUV-TREST01-IDFILAVS = '01441300'                                         
+    UTHUV-TREST01-IDORGNR  = '5560743089'                                       
+                                                                                
+    IF WS-YEAR LT '50'                                                          
+      WS-CC = '20'                                                              
+    ELSE                                                                        
+      WS-CC = '19'                                                              
+    END-IF                                                                      
+    WS-YY   = WS-YEAR                                                           
+    WS-MM   = WS-MONTH                                                          
+    WS-DD   = WS-DAY                                                            
+    WS-HH   = WS-TIM                                                            
+    WS-MMIN = WS-MIN                                                            
+                                                                                
+    UTHUV-TREST01-DAFILDAT = WS-CCYYMMDD                                        
+    UTHUV-TREST01-TIFILTID = WS-HHMM                                            
+*                                                                               
+    PUT W4758FD2                                                                
+  END-PROC                                                                      
+*                                                                               
+ NEWPAGE                                                                        

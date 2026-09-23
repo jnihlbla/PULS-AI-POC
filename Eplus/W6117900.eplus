@@ -1,0 +1,128 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W611                                                  *        
+*                                                                      *        
+*  FUNKTION   :  LISTAR SENASTE PERIODENS INLEVERANSHISTORIK           *        
+*                                                                      *        
+*  FÖRFATTARE :  MÅNS SAMUELSSON                                       *        
+*                                                                      *        
+*  INFILER    :  W61178 FRÅN W61178                                    *        
+*                DAGLIGA-LAGERBANDET                                   *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     920406      GERRY CARMICHAEL..       30631.                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W61179D1                                                                   
+%W6117801 'IN-'                                                                 
+*                                                                               
+FILE W61179D2                                                                   
+%W011100  'DLB-'                                                                
+*                                                                               
+FILE W61179D3 FB (106 0)                                                        
+%W6117901 'UT-'                                                                 
+*                                                                               
+FILE W61179D4 FB (27 0)                                                         
+%W6119101 'KVAL-'                                                               
+*                                                                               
+FILE TEMPFIL FB (27 0) VIRTUAL RETAIN                                           
+%W6119101 'TEMP-'                                                               
+*                                                                               
+*--------------- WORKING STORAGE                                                
+W-IDLOPNRM                 W  9  N                                              
+  W-IDO      W-IDLOPNRM       1  N                                              
+  W-IDVV     W-IDLOPNRM   +1  2  N                                              
+  W-DLLLLK   W-IDLOPNRM   +3  6  N                                              
+W-DATE                     W  5  N                                              
+  W-AA       W-DATE           3  N                                              
+  W-VV       W-DATE       +3  2  N                                              
+W-TIAAVVD                  W  5  N                                              
+  W-TIAA     W-TIAAVVD        2  N                                              
+  W-TIVV     W-TIAAVVD    +2  2  N                                              
+  W-TID      W-TIAAVVD    +4  1  N                                              
+*                                                                               
+PBSEP   W  7  P  1                                                              
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+%WWIDFTG     WORK ''                                                            
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+JOB INPUT(W61179D2 KEY (DLB-IDARTNR) +                                          
+          W61179D1 KEY (IN-IDARTNR ))                                           
+*                                                                               
+  IF MATCHED                                                                    
+     PERFORM A-SKRIV-INLEV-FIL                                                  
+     IF IN-KDRT NE 6 7 8 77 88                                                  
+       IF IN-KDAVVANT NE 2                                                      
+         PERFORM B-SKRIV-TEMP-FIL                                               
+       END-IF                                                                   
+     END-IF                                                                     
+  ELSE                                                                          
+     IF NOT W61179D2                                                            
+        DISPLAY 'ARTNR FINNS EJ PÅ DLB ARTNR = ' IN-IDARTNR                     
+        RETURN-CODE = 999                                                       
+        STOP EXECUTE                                                            
+     END-IF                                                                     
+  END-IF                                                                        
+*                                                                               
+  A-SKRIV-INLEV-FIL. PROC                                                       
+     UT-W61179      = IN-W61178                                                 
+     UT-BEFT       = DLB-BEFT                                                   
+     UT-PRARTSTD   = DLB-PRARTSTD                                               
+     UT-KDFORP     = DLB-KDFORP                                                 
+     UT-KVPB-SEP   = DLB-KVPB-SEP                                               
+     UT-KVPB-SATS  = DLB-KVPB-SATS                                              
+     UT-KDEMBKOD-0 = DLB-KDEMBKOD-0                                             
+     UT-KDEMBKOD-1 = DLB-KDEMBKOD-1                                             
+     UT-KDEMBKOD-2 = DLB-KDEMBKOD-2                                             
+     UT-KVQPACK-0  = DLB-KVQPACK-0                                              
+     UT-KVQPACK-1  = DLB-KVQPACK-1                                              
+     UT-KVQPACK-2  = DLB-KVQPACK-2                                              
+     PUT W61179D3                                                               
+  END-PROC                                                                      
+*                                                                               
+  B-SKRIV-TEMP-FIL. PROC                                                        
+     TEMP-IDLEVNR    = IN-IDLEVNR-INL                                           
+     TEMP-IDARTNR    = IN-IDARTNR                                               
+     IF (DLB-KDPRODSL < 30                OR  +                                 
+         DLB-KDPRODSL = 71 THRU 74)                                             
+       TEMP-IDFTG = WC-IDFTG-PV                                                 
+     ELSE                                                                       
+       TEMP-IDFTG = 00                                                          
+     END-IF                                                                     
+     TEMP-IDDC     = IN-IDDC                                                    
+     TEMP-IDFKNGRP = DLB-IDFKNGRP                                               
+     TEMP-IDLOPNRM = IN-IDLOPNRM                                                
+     TEMP-SUINLEV  = +1                                                         
+                                                                                
+     W-TIAAVVD     = IN-TIAAVVD                                                 
+     W-IDLOPNRM    = IN-IDLOPNRM                                                
+                                                                                
+     W-VV          =  W-IDVV                                                    
+                                                                                
+     IF W-IDVV LE W-TIVV                                                        
+       W-AA = W-TIAA                                                            
+     ELSE                                                                       
+       IF W-TIAA = 00                                                           
+         W-AA = 99                                                              
+       ELSE                                                                     
+         W-AA = W-TIAA - 1                                                      
+       END-IF                                                                   
+     END-IF                                                                     
+                                                                                
+     TEMP-TIAAVV   =  W-DATE                                                    
+     PUT TEMPFIL                                                                
+  END-PROC                                                                      
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+SORT TEMPFIL TO W61179D4 USING (TEMP-IDLEVNR, TEMP-IDLOPNRM,  +                 
+                                TEMP-IDARTNR)                                   
+*                                                                               

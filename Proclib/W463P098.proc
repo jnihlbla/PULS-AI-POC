@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  EJ SKICKADE DDGS-ORDER TILL D&P                                            
+//*                                                                             
+//*  FREKVENS:     DAG A     RTN W463D1                                         
+//*                                                                             
+//*  ÅTERSTART:    W46398    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W463P098 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W463..W463D1,                                             
+//             INDUT=&W463..W463D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W463PD98),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W4639M(+0),DISP=SHR                                  
+//************ EJ SKICKADE DDGS-ORDER                                           
+//*                                                                             
+//SORTOUT  DD  DSN=&&W4639M,DISP=(NEW,PASS,DELETE),                             
+//************ EJ SKICKADE DDGS-ORDER SORTERAD FÖR RAPPORT                      
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46398   EXEC PGM=W46398                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W46398D1 DD  DSN=&&W4639M,DISP=(OLD,DELETE,DELETE)                            
+//************ EJ SKICKADE DDGS-ORDER SORTERAD FÖR RAPPORT                      
+//*                                                                             
+//W46398D2 DD  DSN=&INDUT..W4639N(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ EJ SKICKADE DDGS-ORDER TILL D&P EXCEL-FORMAT                     
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

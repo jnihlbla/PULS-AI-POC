@@ -1,0 +1,71 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  FUNCTION: Compress a normal MVS containing BINARY data,          *         
+//*            and create a zip archive file                          *         
+//*                                                                   *         
+//*  PARAMETERS:                                                      *         
+//*                                                                   *         
+//*    DSIN:    The name of the MVS file to be zipped.                *         
+//*                                                                   *         
+//*    CONTENT: The name of the content of the zip file.              *         
+//*             This should be a short "DOS-file" name in the format  *         
+//*             "name.typesuffix" that can be interpreted by the PC   *         
+//*             software if when the zip file is opened in that       *         
+//*             environment.                                          *         
+//*             NOTE: The name MUST also be compatible with MVS       *         
+//*             file naming standard - Each part should consist of    *         
+//*             max 8 CAPITAL letters or digits, each part starting   *         
+//*             with a letter. Example: "DATA2008.ZIP"                *         
+//*                                                                   *         
+//*    DSOUTZIP: The name of the zip archive file                     *         
+//*                                                                   *         
+//*    ZIPDISP:  Dispostion for the archive zip file                  *         
+//*              Default is (NEW,CATLG,DELETE)                        *         
+//*                                                                   *         
+//*    ZIPMGMTC: Management class for the archive zip file            *         
+//*              Default class is DEL2.                               *         
+//*                                                                   *         
+//*    ZIPDATAC: Data class for the archive zip file                  *         
+//*              Default class is PSEN.                               *         
+//*                                                                   *         
+//*    MAXRC:   The maximum allowed return code from ICONV or INFOZIP *         
+//*             A higher return code results in a U0016 abend.        *         
+//*             Default: 3                                            *         
+//*                                                                   *         
+//*  Maintained by dept 923x.                                         *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ11BZIP PROC DSIN=NULLFILE,DSOUTZIP=NULLFILE,                                
+//             ZIPDISP=(NEW,CATLG,DELETE),                                      
+//             ZIPDATAC=PSEN,ZIPMGMTC=DEL2,                                     
+//             INDCONT=&SYSUID,CONTENT=DATA.BIN,                                
+//             MAXRC=3                                                          
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//BR14     EXEC PGM=IEFBR14                                                     
+//DELETE    DD DSNAME=&INDCONT..&CONTENT,DISP=(MOD,DELETE),                     
+//             DATACLAS=PSEN,MGMTCLAS=DEL2                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//GENER   EXEC PGM=ICEGENER                                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN     DD DUMMY                                                            
+//SYSUT1    DD DSNAME=&DSIN,DISP=SHR                                            
+//SYSUT2    DD DSNAME=&INDCONT..&CONTENT,DISP=(NEW,CATLG,DELETE),               
+//             DATACLAS=&ZIPDATAC,MGMTCLAS=DEL2                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//INFOZIP EXEC PGM=ZIP,                                                         
+//             PARM='/DD:ARCHIVE -vBT &CONTENT '                                
+//STEPLIB  DD  DSN=F1TEV2.INFOZIP.LOAD,DISP=SHR                                 
+//SYSPRINT DD  SYSOUT=*                                                         
+//ARCHIVE  DD  DSN=&DSOUTZIP,DISP=&ZIPDISP,                                     
+//             DATACLAS=&ZIPDATAC,MGMTCLAS=&ZIPMGMTC                            
+//CONTENT  DD  DSNAME=&INDCONT..&CONTENT,DISP=(OLD,DELETE)                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//CHECKRC  IF  (GENER.RC > &MAXRC OR INFOZIP.RC > &MAXRC) THEN                  
+//*                                                                             
+//CABEND  EXEC PGM=ABEND,PARM='1234567890123456'                                
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//*                                                                             
+//CHECKRC ENDIF                                                                 

@@ -1,0 +1,57 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      TÖMNING AV HÄNDELSEREGISTER, KOD 2201, 2202, 2233            *         
+//*                                                                   *         
+//*      PERIODICITET: DAG (SAMMA PROGRAM GÅR VECKOVIS I ANNAN PROC)  *         
+//*                                                                   *         
+//*      ÅTERSTART:    NORMAL (BMP)                                   *         
+//*                    W22214 UPPDATERAR WDG3                         *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W222P014 PROC INDUT=NULLFILE,                                                 
+//             CPU=1,                                                           
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22214  EXEC PGM=DFSRRC00,                                                    
+//        PARM=('BMP,W22214,W22214,,,N00,,,,,&CPU,,,&IMS')                      
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W22214D1 DD  DSN=&INDUT..W22201(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************   LEVERANSPLAN UPPDATERAD PÅ SATSARTIKEL                       
+//             DCB=(RECFM=FB,LRECL=10,BLKSIZE=6230),                            
+//             SPACE=(6230,(6,9),RLSE),                                         
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W22214D2 DD  DSN=&INDUT..W22202(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************   PB-SEP UPPDATERAD PÅ SATSARTIKEL                             
+//             SPACE=(6228,(6,9),RLSE),                                         
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W22214D3 DD  DSN=&INDUT..W22203(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************   SATSSTRUKTUR UPPDATERAD (M.A.P. ING ARTIKEL)     ***         
+//             SPACE=(6216,(3,9),RLSE),                                         
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W22214D4 DD  DSN=&INDUT..W22215(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************   KOPIA PÅ OVANSTÅENDE                                         
+//             SPACE=(6216,(3,9),RLSE),                                         
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W22214D5 DD  DSN=&INDUT..W22204(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ POST OM OMSTART SKA SKE                                          
+//             SPACE=(1,(1,1),RLSE),AVGREC=U,                                   
+//             MGMTCLAS=DEL2                                                    
+//*                                                                             

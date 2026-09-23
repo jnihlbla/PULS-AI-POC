@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*        UNLOAD-PROCEDURE FÖR PARTS TEST-DATABASER                            
+//*        ANVÄNDER BMC-UTILITY UNLOAD PLUS/EP                                  
+//*        ÅTERSTART: IMS-TEKNIK                                                
+//*                                                                             
+//*        EXEMPEL PÅ DD-KORT SOM SKALL LÄGGAS TILL                             
+//*                                                                             
+//*        //UNL.DFSURGU1 DD  DSN=&W..UNLO.WDX1V,                               
+//*        //             DISP=(NEW,CATLG,DELETE),                              
+//*        //             DCB=(BLKSIZE=27998,BUFNO=5),                          
+//*        //             SPACE=(4096,(180,180),RLSE),                          
+//*        //             MGMTCLAS=DEL2                                         
+//*        //UNL.WDX1V    DD  DSN=&W..TEST.WDX1V,DISP=SHR                       
+//*        //UNL.PLUSIN   DD  *                                                 
+//*                                            ANSV. AVD. IMS-TEKNIK            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDLIUNL  PROC DBD=MISSING,INDABE=&INDRTE,                                     
+//             STPLIB=&INDRTE..LOAD                                             
+//*                                                                             
+// EXPORT SYMLIST=*                                                             
+// SET DBD=&DBD                                                                 
+//*                                                                             
+//UNL     EXEC PGM=IDIDBO                                                       
+//STEPLIB  DD  DSN=F1IM00.IMSTOOL.CIMTLOAD,DISP=SHR                             
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDABE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//DBOCTRL  DD  *,SYMBOLS=EXECSYS                                                
+* CONVERTED BY CA TECHNOLOGIES 24 FEB 2022 19:44:18                             
+                                                                                
+  FUNCTION=UNLOAD,                                                              
+  DBDNAME=&DBD                                                                  
+                                                                                
+/*                                                                              
+//*                                                                             

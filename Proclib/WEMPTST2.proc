@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  GENERAL PROCEDURE FOR CHECKING IF A FILE CONTAINS RECORDS        *         
+//*  RETURN CODES:                                                    *         
+//*                                                                   *         
+//*            RC = 0   ==>   RECORDS EXIST                           *         
+//*            RC = 4   ==>   FIE IS EMPTY                            *         
+//*                                                                   *         
+//*  RESTART:   NORMAL                                                *         
+//*                                                                   *         
+//*  MAINTAINED BY 9231                                               *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WEMPTST  PROC DSIN=NULLFILE,STPLIB=&INDRTE..LOAD,GEN='(+0)'                   
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//LISTGEN EXEC PGM=V12340,                                                      
+//             PARM=(' LISTCAT LEVEL(&DSIN) GDG ')                              
+//V12340D1 DD  DUMMY,DCB=BLKSIZE=80                                             
+//V12340D2 DD  DSN=&&LIST,DISP=(NEW,PASS,DELETE),                               
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=160),                             
+//             SPACE=(TRK,1)                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//LISTCAT EXEC  PGM=IDCAMS                                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&&LIST,DISP=(OLD,DELETE,DELETE)                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//      IF LISTCAT.RC = 0 THEN                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//T       EXEC PGM=W00927                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//DD1      DD  DSN=&DSIN.&GEN,DISP=SHR,FREE=CLOSE                               
+//      ELSE                                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//T       EXEC PGM=ABEND,PARM='1234'                                            
+//      ENDIF                                                                   

@@ -1,0 +1,30 @@
+000100 01  W02009.                                                              
+000200*                                 SRS - COPYTEXT TILL FIL W02009          
+000300*                                                 OCH FIL W02031.         
+000400     03 IDDC                 PIC X(2).                                    
+000500*                                 IDENTIFIERARE LAGER                     
+000600     03 IDDISTR              PIC S9(5)           COMP-3.                  
+000700*                                 DISTRIKTNUMMER                          
+000800     03 IDKUNDNR             PIC S9(7)           COMP-3.                  
+000900*                                 KUNDNUMMER                              
+001000     03 IDARTNR              PIC S9(9)           COMP-3.                  
+001100*                                 ARTIKELNUMMER                           
+001200     03 KDORDKL              PIC S9              COMP-3.                  
+001300*                                 ORDERKLASS                              
+001400     03 IDDC-PRIM            PIC X(2).                                    
+001500*                                 PRIMÄRT LEVERERANDE LAGER               
+001600     03 KDPRODSL             PIC S9(3)           COMP-3.                  
+001700*                                 PRODUKTSLAG                             
+001800     03 REINKORD             PIC S9              COMP-3.                  
+001900*                                 INKOMMEN ORDERRAD                       
+002000     03 REFYSAVV             PIC S9V9(2)         COMP-3.                  
+002100*                                 FYSISK AVVIKELSE                        
+002200     03 REAVBRAD             PIC S9V9(2)         COMP-3.                  
+002300*                                 AVBOKAD MÄNGD (DEL AV RAD)              
+002400     03 RELAGERB             PIC S9              COMP-3.                  
+002500*                                 INKOMMEN ORDERRAD                       
+002600     03 RESORTB              PIC S9              COMP-3.                  
+002700*                                 INKOMMEN ORDERRAD                       
+002800     03 KVBEART              PIC S9(7)           COMP-3.                  
+002900*                                 BESTÄLLT ANTAL STYCKEN                  
+003000*** END OF VILMAII-COPY LENGTH= 30 BYTES                                  

@@ -1,0 +1,49 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PGM SOM LÄSER NER WDD9 OCH SKAPAR FIL FÖR                                  
+//*  MATCHNING I PGM W23684                                                     
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W236D2                                         
+//*                                                                             
+//*  RESTART:      W23680      NORMAL                                           
+//*                READS        WDD9                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W236P080 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W236..W236D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23680   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W23680,W23680,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//W23680D1 DD  DSN=&&TEMPFIL,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W236PD80),DISP=SHR                         
+//SORTIN   DD  DSN=&&TEMPFIL,DISP=SHR                                           
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W23680(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ UTFIL FRÅN PGM W23860                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

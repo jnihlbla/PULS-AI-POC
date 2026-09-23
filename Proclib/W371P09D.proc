@@ -1,0 +1,31 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE CSV FILE OF BYLACK DATA                                             
+//*                                                                             
+//*  FREQUENCE:    YEARLY     RTN W371Y1                                        
+//*                                                                             
+//*  RESTART:      W3719D    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P09D PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W371..W371Y1,                                             
+//             INDUT=&W371..W371Y1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W3719D   EXEC PGM=V16459,PARM='W3719D/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W3719DD1 DD  DSN=&INDIN..W3719C(+0),DISP=SHR                                  
+//************ BYLACK TABLE DATA                                                
+//*                                                                             
+//W3719DD2 DD  DSN=&INDUT..W3719D(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ CSV FILE                                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

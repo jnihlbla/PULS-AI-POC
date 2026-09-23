@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RENSNINGSPOSTER AV LEVERANSANMÄRKNINGSREGISTRET                            
+//*                                                                             
+//*  FREKVENS:     MÅNAD       RTN W418M1                                       
+//*                                                                             
+//*  ÅTERSTART:    W41880    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W418P080 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W418..W418D2,                                             
+//             INDUT=&W418..W418M1,                                             
+//             DEST1=&QSE09012                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41880   EXEC PGM=V16459,PARM='W41880/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W41880D1 DD  DSN=&INDIN..W41842,DISP=SHR                                      
+//************ LEVERANSANMÄRKNINGSREGISTRET PÅ FIL                              
+//*                                                                             
+//W41880D2 DD  DSN=&INDUT..W41880(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LEVERANSANMÄRKNINGAR TILL RENSNING                               
+//             SPACE=(14,(100,133),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41880D3 DD  SYSOUT=(H,,STD),DEST=&DEST1                                      
+//************ W41880-001  REPORT                                               
+//*                                                                             

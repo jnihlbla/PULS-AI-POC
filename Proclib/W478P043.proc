@@ -1,0 +1,58 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  EXTRAKT FRÅN W47842  TILL FIL I W47843                                     
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W478D2                                         
+//*                                                                             
+//*  RESTART:      W47843      NORMAL                                           
+//*                READS       WDB2 WDB6                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W478P043 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W478..W478D2,                                             
+//             INDUT=&W478..W478D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W478PD43),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W47842(+0),DISP=SHR                                  
+//************ DAGENS ORDERDELAR                                                
+//*                                                                             
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47842,DISP=(NEW,PASS,DELETE),                             
+//************ VECKANS ORDERDELAR SORTERAD                                      
+//************ IDDISTR, IDKUNDNR                                                
+//         SPACE=(6233,(50,10),RLSE),AVGREC=K                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47843   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W47843,W47843,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W47843D1 DD  DSN=&&W47842,DISP=(OLD,DELETE,DELETE)                            
+//************ DAGENS ORDERDELAR SORTERAD                                       
+//*                                                                             
+//W47843D2 DD  DSN=&INDUT..W47843(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ DAGENS ORDERDELAR EXTRAHERADE FÖR D&P-LISTOR                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

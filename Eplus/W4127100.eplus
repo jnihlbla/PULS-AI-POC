@@ -1,0 +1,68 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4127100                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER FIL OCH SKRIVER LISTA 'DIREKTLEV. RADER I       *        
+*                STATUS U SOM ÄR ÄLDRE ÄN 1 VECKA'                     *        
+*                                                                      *        
+*  FÖRFATTARE :  ELAINE CURTSSON                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W41271D1                                                                   
+*                                                                               
+%W41270E  'IN-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W41271D2  PRINTER FB (121 121)                                             
+                                                                                
+* ARBETSFÄLT                                                                    
+ W-IDLEVNR          W  5 A                                                      
+ W-IDDISTR          W  5 N   MASK 'ZZZZ9'                                       
+ W-IDKUNDNR         W  7 N   MASK 'ZZZZZZ9'                                     
+ W-IDORDNR5         W  5 N   MASK 'ZZZZ9'                                       
+ W-IDPRODNR         W  7 N   MASK 'ZZZZZZZ'                                     
+ W-TIORDREG         W  6 N   MASK '999999'                                      
+ W-IDARTNR          W  9 N   MASK 'ZZZZZZZZ9'                                   
+ W-KVBEART          W  7 N   MASK 'ZZZZZZ9'                                     
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LÄSER INFIL OCH SKRIVER LISTA                                         
+*                                                                               
+JOB INPUT W41271D1                                                              
+                                                                                
+  W-IDLEVNR         = IN-IDLEVNR                                                
+  W-IDDISTR         = IN-IDDISTR                                                
+  W-IDKUNDNR        = IN-IDKUNDNR                                               
+  W-IDORDNR5        = IN-IDORDNR5                                               
+  W-IDPRODNR        = IN-IDPRODNR                                               
+  W-IDARTNR         = IN-IDARTNR                                                
+  W-KVBEART         = IN-KVBEART                                                
+  W-TIORDREG        = IN-TIORDREG                                               
+                                                                                
+  PRINT LISTA                                                                   
+                                                                                
+NEWPAGE                                                                         
+REPORT LISTA PRINTER W41271D2 LINESIZE 120 NOADJUST NODATE                      
+SEQUENCE W-IDLEVNR W-IDDISTR W-IDKUNDNR W-IDORDNR5                              
+CONTROL  W-IDLEVNR NEWPAGE NOPRINT                                              
+TITLE 1                                                          +              
+COL 02 'VOLVO CAR PARTS     '                                    +              
+COL 39 'DIREKTLEVERANSORDER I STATUS U, ÄLDRE ÄN 1 VECKA'        +              
+COL 93 SYSDATE                                                                  
+HEADING  W-IDLEVNR  ('LEVNR')                                                   
+HEADING  W-IDDISTR  ('DISTR')                                                   
+HEADING  W-IDKUNDNR ('   KUND')                                                 
+HEADING  W-IDORDNR5 (' ORDER' ' NR')                                            
+HEADING  W-IDPRODNR ('PRODNR')                                                  
+HEADING  W-TIORDREG ('REG.' 'DAT.')                                             
+HEADING  W-IDARTNR  ('ARTNR')                                                   
+HEADING  W-KVBEART  ('ANTAL')                                                   
+LINE 1  W-IDLEVNR W-IDDISTR W-IDKUNDNR  W-IDORDNR5    W-IDPRODNR    +           
+        W-TIORDREG W-IDARTNR W-KVBEART                                          
+*                                                                               

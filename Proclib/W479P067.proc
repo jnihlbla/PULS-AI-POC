@@ -1,0 +1,49 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE MANAGEMENT REPORTS TO NDC/LDC                                       
+//*  DATA IS SENT VIA DAP3 TO D&P                                               
+//*                                                                             
+//*  FREQUENCE:    LOGISTICS PERIOD  RTN W479R1                                 
+//*                                                                             
+//*  RESTART:      W47967    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479J067 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479XX,GEN='(+0)',                                  
+//             INDUT=&W479..W479XX                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479PD67),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W47968B&GEN,DISP=SHR                                 
+//************ EXTRACTED INVOICE DATA PER DC                                    
+//************ GEN=(+0) USED IN V2, ALL GENERATIONS READ IN R1                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47968B,DISP=(NEW,PASS,DELETE),                            
+//************ INVOICE DATA SORTED PER DC                                       
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47967   EXEC PGM=W47967                                                      
+//*                                                                             
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W47967D1 DD  DSN=&&W47968B,DISP=SHR                                           
+//************ INVOICED PER DC                                                  
+//*                                                                             
+//W47967D2 DD  DDNAME=SYSIN                                                     
+//************ NAME OF REPORT TO D&P                                            
+//*                                                                             
+//W47967D3 DD  DSN=&INDUT..W47968D(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ INVOICED PER DC TO D&P BY DAP3                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

@@ -1,0 +1,133 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  HISTORIK FAKTURERADE RADER                                                 
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W479V2                                          
+//*                                                                             
+//*  ÅTERSTART:    W47954   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P054 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479V2,INDIN2=&W011,                                
+//             INDUT=&W479..W479V2,                                             
+//             INDUT2=&WXTR                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SORTIN   DD  DSN=&INDIN..W47954(+0),DISP=SHR                                  
+//************* EV FAKTURERADE RADER                                            
+//SORTOUT  DD  DSN=&&SORT54,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479PD5A),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SORTIN   DD  DSN=&INDIN..W47964(+0),DISP=SHR                                  
+//************* EV FAKTURERADE RADER                                            
+//SORTOUT  DD  DSN=&&SORT64,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479PD5D),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47954   EXEC PGM=V16459,PARM='W47954/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(15000,2000))                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//W47954D1 DD  DSN=&&SORT54,DISP=(OLD,DELETE,DELETE)                            
+//************ EV FAKTURERADE RADER                                             
+//*                                                                             
+//W47954D2 DD  DSN=&&SORT64,DISP=(OLD,DELETE,DELETE)                            
+//************ EV FAKTURERADE RADER.                                            
+//*                                                                             
+//W47954D5 DD  DSN=&INDIN2..W01172,DISP=SHR                                     
+//************ DAGLIGA LAGER-BANDET                                             
+//*                                                                             
+//TEMPFIL1 DD  DSN=&&TEMPFIL1,DISP=(NEW,DELETE,DELETE),                         
+//************ TEMPORÄR ARBETSFIL                                               
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//TEMPFIL2 DD  DSN=&&TEMPFIL2,DISP=(NEW,DELETE,DELETE),                         
+//************ TEMPORÄR ARBETSFIL                                               
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//TEMPFIL3 DD  DSN=&&TEMPFIL3,DISP=(NEW,DELETE,DELETE),                         
+//************ TEMPORÄR ARBETSFIL                                               
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W47954D6 DD  DSN=&INDUT..W47955(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ FAKTURERADE RADER                                                
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W47954D7 DD  DSN=&INDUT..W4795F(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ FAKTURERADE RADER TILL FAKTURAHISTORIK W418V1                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//COPY     EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W47955(+1),DISP=SHR                                  
+//************                                                                  
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..FAKTRAD(+1),                        -LIM(1)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ KOPIA AV W47955/W020.VÅÅVV.FAKTRAD, SPARAR 1 GENERATION          
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEB                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* * *** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//COPY2    EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W47955(+1),DISP=SHR                                  
+//************                                                                  
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W47955A(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ KOPIA AV W47955/W.W479V2.W47955A,                                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//* * *** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//COPY3    EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W4795F(+1),DISP=SHR                                  
+//************                                                                  
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W4795F2(+1),                                         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ KOPIA AV W4795F                                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//* * *** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//COPY4    EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W4795F,DISP=SHR                                      
+//************                                                                  
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W4795F1(+1),                                         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ KOPIA AV W4795F                                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//* * *** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//COPY5    EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W47955(+1),DISP=SHR                                  
+//************                                                                  
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W47955B(+1),                         -LIM(99)        
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ KOPIA AV W47955/W.W479V2.W47955B,                                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

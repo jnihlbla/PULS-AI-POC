@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER FIL INEHÅLLANDE ARTIKELINFO TILL MB VCEM                             
+//*  DENNA FIL SKAPAS "LAGOM STOR" UTFIL SOM SKALL SKICKAS                      
+//*  VIA VCOM. EV. RESTERANDE POSTER SKRIVS SOM NY GENERATION                   
+//*  AV INFILEN.                                                                
+//*    OM RESTERANDE POSTER FINNS LÄMNAS RETURKOD 8 FRÅN PGM.                   
+//*  RETURKODEN TESTAS SEDAN I JCL OCH OM DEN ÄR 8 BESTÄLLS                     
+//*  JOBBET IGEN OCH DEN NYA GENERATIONEN TAS IN FÖR ATT KUNNA                  
+//*  SKICKA RESTERANDE POSTER OSV.                                              
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W335D5                                          
+//*                                                                             
+//*  ÅTERSTART:    W33542    NORMAL                                             
+//*                          NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W335P042 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=,                                                          
+//             INDUT=                                                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33542   EXEC PGM=W33542                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W33542D2 DD  DSN=&INDIN..W33544(+0),DISP=SHR                                  
+//************ FIL MED FÖRÄNDR. PÅ ART.REG TILL MB VCNA                         
+//************ POSTER ATT SÄNDA TILL MB VCNA                                    
+//*                                                                             
+//W33542D3 DD  DSN=&INDUT..W33544(+1),DISP=(NEW,PASS,DELETE),                   
+//************ FIL MED FÖRÄNDR. PÅ ART.REG TILL MB VCNA                         
+//************ EV. POSTER KVAR ATT SÄNDA EFTER DENNA SÄNDNING.                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W33542D4 DD  DSN=&INDUT..W33542V(+1),DISP=(NEW,CATLG,DELETE),                 
+//************ FIL MED FÖRÄNDR. PÅ ART.REG TILL MB VCNA                         
+//************ 'DEL-FIL' ATT SÄNDA VIA VCOM                                     
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W33542D5 DD  DSN=&INDIN..W33543(+0),DISP=SHR                                  
+//************ FIL MED EN POST = VISAR FIL 40:S ANTAL POSTER TOTALT             
+//*                                                                             
+//************ OBS! CATALOG-STEGET LIGGER I JCL:EN                              
+//*                                                                             

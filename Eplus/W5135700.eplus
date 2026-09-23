@@ -1,0 +1,202 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W513   INVENTERINGEN                                  *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR LISTA W51357-001 VÄRDEMÄSSIGA JUST. > 25 000   *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN                                            *        
+*                                                                      *        
+*  INFIL      :  W51326                                                *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W51357D1 VB(81 27945)                                                      
+                                                                                
+%W5132601 'IN-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W51357D2 PRINTER FB(121 121)                                               
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W51357D3 PRINTER VB(125 0)                                                 
+                                                                                
+FILE TEMPFIL1 FB(49 0)                                                          
+                                                                                
+T1-IDDC           1  2   A                                                      
+T1-KDPRODSL       3  2   P 0                                                    
+T1-IDARTNR        5  5   P                                                      
+T1-BEART         10  15  A                                                      
+T1-KVJUSTKV      25  4   P                                                      
+T1-TIAAVVD       29  5   A                                                      
+T1-PRARTSTD      34  5   P 2                                                    
+T1-VALUE         39  9   N 2                                                    
+T1-TIRP          48  2   A                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+%WDATAREA                                                                       
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+%WDATKORT                                                                       
+NEWPAGE                                                                         
+                                                                                
+  W-PGMNAMN    W  6   A    VALUE 'W51357'                                       
+  W-WDATUM     W  6   A    VALUE 'WDATUM'                                       
+                                                                                
+  W-DATUM          W  6   N                                                     
+  W-AAR  W-DATUM       2  N                                                     
+  W-MM   W-DATUM   +2  2  N                                                     
+  W-DD   W-DATUM   +4  2  N                                                     
+                                                                                
+  W-TIAAVVD    W  5   A    HEADING(' JUST.DAG')                                 
+  W-IDDC       W  2   A    HEADING(' DC')                                       
+  W-PRARTSTD   W  9   N 2  HEADING('    STD.PRIS')                              
+  W-VARDE      W  9   N 2  HEADING('      NETTO')  MASK BWZ                     
+  W-KDPRODSL   W  2   P    HEADING(' PSLAG ')                                   
+                                                                                
+  W-TIRP       W  2   A                                                         
+                                                                                
+  W-PREV-IDDC  W  2   A                                                         
+  W-TIRP-E     W  2   A                                                         
+  W-IDARTNR-E  W  9   N 0 MASK 'ZZZZZZZZ9'                                      
+  W-KDPRODSL-E W  2   N 0 MASK 'Z9'                                             
+  W-KVJUSTKV-E W  7   N 0 MASK 'ZZZZZZ9'                                        
+  W-PRARTSTD-E W  9   N 2 MASK '------9.99'                                     
+  W-VALUE      W  9   N 2 MASK '------9.99'                                     
+  W-TIAAVVD-E  W  5   A                                                         
+  W-BEART      W 15   A                                                         
+  W-SEM1       W  1   A   VALUE ';'                                             
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+JOB INPUT W51357D1 START INIT-PROC                                              
+                                                                                
+  IF IN-IDLISTA EQ 02                                                           
+                                                                                
+    W-VARDE  = IN-KVJUSTKV * IN-PRARTSTD                                        
+    T1-VALUE = IN-KVJUSTKV * IN-PRARTSTD                                        
+                                                                                
+    IF W-VARDE GE 25000 OR W-VARDE LE -25000                                    
+                                                                                
+        DAT-KDDATFORM = 'AAMMDD'                                                
+        DAT-I-TIDATUM = IN-TIM-INV                                              
+        CALL WDATKONV USING +                                                   
+         (DAT-KDDATFORM DAT-I-TIDATUM DAT-O-TIDATUM DAT-KDSVAR)                 
+        W-TIAAVVD = DAT-TIAAVVD-GRP                                             
+                                                                                
+        W-KDPRODSL = IN-KDPRODSL                                                
+        W-IDDC     = IN-IDDC                                                    
+        W-PRARTSTD = IN-PRARTSTD                                                
+        PRINT RAPPORT01                                                         
+                                                                                
+        PERFORM S23-CHECK-IN-IDDC                                               
+        IF IN-IDDC = NDC-US                                                     
+           T1-IDDC       = IN-IDDC                                              
+           T1-IDARTNR    = IN-IDARTNR                                           
+           T1-KDPRODSL   = IN-KDPRODSL                                          
+           T1-PRARTSTD   = IN-PRARTSTD                                          
+           T1-KVJUSTKV   = IN-KVJUSTKV                                          
+           T1-TIAAVVD    = DAT-TIAAVVD-GRP                                      
+           T1-BEART      = IN-BEART-ENG                                         
+           T1-TIRP       = W-TIRP                                               
+           PUT TEMPFIL1                                                         
+        END-IF                                                                  
+    END-IF                                                                      
+                                                                                
+  END-IF                                                                        
+*                                                                               
+*    --- S23-CHECK-IN-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'IN-'                                                                   
+                                                                                
+INIT-PROC. PROC                                                                 
+    CALL DATKORT USING (W-PGMNAMN W-WDATUM DATUMKORT)                           
+    W-AAR  = D-AAR                                                              
+    W-MM   = D-MAANAD                                                           
+    W-DD   = D-DAG                                                              
+    DAT-KDDATFORM = 'AAMMDD'                                                    
+    DAT-I-TIDATUM = W-DATUM                                                     
+    CALL WDATKONV USING +                                                       
+       (DAT-KDDATFORM DAT-I-TIDATUM DAT-O-TIDATUM DAT-KDSVAR)                   
+    W-TIRP = DAT-TIRP                                                           
+END-PROC                                                                        
+NEWPAGE                                                                         
+                                                                                
+REPORT RAPPORT01 PRINTER W51357D2 +                                             
+     LINESIZE 120 NODATE NOSPREAD NOADJUST NOPAGE PAGESIZE 999 +                
+     DTLCTL EVERY SKIP 1                                                        
+                                                                                
+SEQUENCE IN-IDDC IN-IDARTNR                                                     
+CONTROL  FINAL NOPRINT W-IDDC NOPRINT NEWPAGE                                   
+                                                                                
+TITLE 1 COL 1   'W51357-001'                                    +               
+        COL 20  'VCCS'                                          +               
+        COL 40  'ADJUSTMENTS > 25000 KR PERIOD'                 +               
+        COL 70  W-TIRP                                          +               
+        COL 90  'DC: '                                          +               
+        COL 94  W-IDDC                                          +               
+        COL 100 'DATE: '                                        +               
+        COL 106 W-DATUM                                                         
+                                                                                
+LINE W-IDDC IN-IDARTNR IN-BEART-ENG W-KDPRODSL IN-KVJUSTKV +                    
+           W-TIAAVVD  W-PRARTSTD  W-VARDE                                       
+                                                                                
+SORT TEMPFIL1 TO TEMPFIL1 USING (T1-IDDC, T1-IDARTNR)                           
+JOB INPUT TEMPFIL1                                                              
+                                                                                
+    W-IDARTNR-E   = T1-IDARTNR                                                  
+    W-BEART       = T1-BEART                                                    
+    W-TIRP-E      = T1-TIRP                                                     
+    W-KVJUSTKV-E  = T1-KVJUSTKV                                                 
+    W-TIAAVVD-E   = T1-TIAAVVD                                                  
+    W-PRARTSTD-E  = T1-PRARTSTD                                                 
+    W-VALUE       = T1-VALUE                                                    
+    W-KDPRODSL-E  = T1-KDPRODSL                                                 
+    PRINT RAPPORT02                                                             
+                                                                                
+************************************************************************        
+*** LIST FOR NDC-US DC 4X - SENT TO D&P                                         
+************************************************************************        
+REPORT   RAPPORT02            +                                                 
+         PRINTER W51357D3     +                                                 
+         LINESIZE 120         +                                                 
+         SPACE 0              +                                                 
+         NOHEADING            +                                                 
+         NOSPREAD             +                                                 
+         NOADJUST             +                                                 
+         PAGESIZE 32767       +                                                 
+         NODATE                                                                 
+LINE  1  W-TIRP-E             +                                                 
+         W-SEM1               +                                                 
+         W-IDARTNR-E          +                                                 
+         W-SEM1               +                                                 
+         W-BEART              +                                                 
+         W-SEM1               +                                                 
+         W-KDPRODSL-E         +                                                 
+         W-SEM1               +                                                 
+         W-KVJUSTKV-E         +                                                 
+         W-SEM1               +                                                 
+         W-TIAAVVD-E          +                                                 
+         W-SEM1               +                                                 
+         W-PRARTSTD-E         +                                                 
+         W-SEM1               +                                                 
+         W-VALUE              +                                                 
+         W-SEM1                                                                 
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF T1-IDDC NE W-PREV-IDDC                                                      
+   DISPLAY '¤DAPADJ>25000'                                                      
+   DISPLAY '¤DAP' T1-IDDC                                                       
+   DISPLAY 'PERIOD;IDARTNR;BEART-ENG;PSLAG;KVJUSTKV;' +                         
+           'JUST.DAG;STD.PRIS;NETTO;'                                           
+   W-PREV-IDDC = T1-IDDC                                                        
+ END-IF                                                                         
+END-PROC                                                                        

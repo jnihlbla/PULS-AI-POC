@@ -1,0 +1,14 @@
+//W522J1AT JOB (650W5220100W522J1AT,W100),'RTN W522M1',                         
+//             USER=?,PASSWORD=?,                                               
+//             CLASS=K                                                          
+//PROC  JCLLIB ORDER=(W.QASE.PROCLIB)                                           
+//ENV  INCLUDE MEMBER=ENVQASE                                                   
+//     INCLUDE MEMBER=DESTN                                                     
+//     INCLUDE MEMBER=SYST5                                                     
+/*JOBPARM FORMS=1800,LINECT=0,LINES=999                                         
+/*ROUTE XEQ LOCAL                                                               
+/*ROUTE PRINT LOCAL                                                             
+//W522    EXEC W522P114,                                                        
+//             SOUT1='(A,,INTN)'                                                
+//*                                                                             
+//SOP     EXEC WSOPEND,PROCESS=W522J1AT                                         

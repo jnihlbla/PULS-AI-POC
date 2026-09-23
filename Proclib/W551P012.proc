@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KALKYLPÅLÄGG (R24)                                                         
+//*                                                                             
+//*  FREKVENS:     BEST.  RTN W551B7                                            
+//*                                                                             
+//*  ÅTERSTART:    W55112   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W551P012 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W551..W551B7,                                             
+//             INDUT=&W551..W551B7                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55112   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W55112,W55112,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDR1     INCLUDE MEMBER=WDR1                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDR2     INCLUDE MEMBER=WDR2                                                  
+//W55112D1 DD  DSN=&INDIN..W55111(+0),DISP=SHR                                  
+//************ FIL FRÅN W551P003                                                
+//*                                                                             
+//W55112D2 DD  DSN=&INDUT..W55114(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL TILL EKONOMISYSTEM SPIS (W551) FÖR UPPDAT. AV                
+//*            KALKYLPÅLÄGG                                                     
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//W55112D3 DD  DSN=&INDUT..W55115(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL TILL C1                                                      
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//W55112D4 DD  DSN=&INDUT..W55116(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FELFIL C1                                                        
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  

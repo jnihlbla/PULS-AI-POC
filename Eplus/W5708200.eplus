@@ -1,0 +1,51 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W570 SAP-BOKNINGAR                                    *        
+*                                                                      *        
+*  FUNKTION   :  RÄKNAR ANTALET VERIFIKAT SOM SKICKATS TILL SAP IDAG   *        
+*                                                                      *        
+*  FÖRFATTARE :  ANDERS HENRIKSSON                                     *        
+*                                                                      *        
+*  INFIL      :  W51074(+0)                                            *        
+*                                                                      *        
+*  UTFIL      :  W51078(+1)                                            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*------------------*                                                            
+* DAGFIL TILL SAP  *                                                            
+*------------------*                                                            
+FILE W57082D1                                                                   
+IN-IDPTYP 1 3 A                                                                 
+                                                                                
+*---------------------*                                                         
+* ANTALSRAD PÅ UTFIL                                                            
+*---------------------*                                                         
+FILE W57082D2  VB(64 0)                                                         
+UT-POST      1 64  A                                                            
+UT-RUBRIK    5 34  A                                                            
+UT-NOLL     40  1  N                                                            
+UT-DATUM    40  8  A                                                            
+UT-ANTAL    51  5  N                                                            
+UT-ST       57  2  A                                                            
+                                                                                
+W-KVANTAL    W  5  N                                                            
+                                                                                
+*-------------*                                                                 
+* JOBSTEG 1   *                                                                 
+*-------------*                                                                 
+                                                                                
+JOB INPUT W57082D1 FINISH Z-FIN                                                 
+                                                                                
+IF IN-IDPTYP EQ '200' '300' '600'                                               
+  W-KVANTAL = W-KVANTAL + 1                                                     
+END-IF                                                                          
+                                                                                
+Z-FIN. PROC                                                                     
+  UT-DATUM   = SYSDATE                                                          
+  UT-NOLL    = 0                                                                
+  UT-RUBRIK  = ' VCCN, NUMBER OF VERIFICAT TO SAP '                             
+  UT-ANTAL   = W-KVANTAL                                                        
+  UT-ST      = 'ST'                                                             
+  PUT W57082D2                                                                  
+END-PROC                                                                        

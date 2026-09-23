@@ -1,0 +1,326 @@
+                                                                                
+*  FUNKTION   :  LISTA UT, KONTROLL AV EN BESTÄLLD KATALOGS STATUS              
+*                PÅ H-GRP, U-GRP OCH AVSN, M.A.P. RUBRIKER OCH                  
+*                ILLUSTRATIONER.                                                
+*                                                                               
+*  FÖRFATTARE :  CONNY EGHOLT  891120                                           
+*                                                                               
+*  IN DDKORT  :  W15107D1    FIL W15107                                         
+*                                                                               
+*  UT DDKORT  :  W15107D2    PRINTER                                            
+*                                                                               
+*     DATUM      NAMN                     AVD                                   
+*     ........   ....................     ..............                        
+*     921106     CONNY                    30621                                 
+*             :  NY PRINTERADRESS                                               
+*     940519     CONNY                    57053                                 
+*             :  VADIS FLAGGOR                                                  
+*     951201     STEFAN ANDREASSON FRONTEC 57053                                
+*             :  PUBKODER                                                       
+*     981217     CONNY EGHOLT             9232                                  
+*             :  3-STÄLLIG KDCATPUB BYTS TILL KDCATPUB-R                        
+*--------------------------INFIL------------------------------------            
+ FILE  W15107D1                                                                 
+*                                                                               
+ %W15107   'IN-'                                                                
+*-------------------------PRINTFILER--------------------------------            
+FILE W15107D2 PRINTER FB(82 82)                                                 
+*                                                                               
+*-------------*                                                                 
+* ARBETSAREOR *                                                                 
+*-------------*                                                                 
+* SPAR CONTROL-ELEMENT FÖR LIST-RAD-BRYTNING                                    
+ W-BRYT-GRUPP              W 2 N                                                
+*                                                                               
+ W-SPAR-IDCATGRP-U         W 2 N                                                
+*                                                                               
+ W-SPAR-IDCATAVS           W 4 N                                                
+*                                                                               
+ W-L-AVS                   W 5 A                                                
+ W-L-AVS-RED W-L-AVS     +1  4 A                                                
+ W-L-AVS-R-1 W-L-AVS-RED     1 A                                                
+ W-L-AVS-R-2 W-L-AVS-RED +1  1 A                                                
+ W-L-AVS-R-3 W-L-AVS-RED +2  1 A                                                
+*                                                                               
+ W-L-ILL-RED               W 5 A                                                
+ W-L-ILL-R-1 W-L-ILL-RED     1 A                                                
+ W-L-ILL-R-2 W-L-ILL-RED +1  1 A                                                
+ W-L-ILL-R-3 W-L-ILL-RED +2  1 A                                                
+ W-L-ILL-R-4 W-L-ILL-RED +3  1 A                                                
+*                                                                               
+ SPRAK-KODER  W 30 A  VALUE +                                                   
+                      'D  +                                                     
+                       E  +                                                     
+                       F  +                                                     
+                       GB +                                                     
+                       I  +                                                     
+                       NL +                                                     
+                       P  +                                                     
+                       S  +                                                     
+                       SF +                                                     
+                       USA'                                                     
+*                                                                               
+ SPRAK-KOD SPRAK-KODER 3 A, OCCURS (10) INDEX (INDX)                            
+                                                                                
+SPRAK  W 240 A  VALUE +                                                         
+                      'TYSKA       GERMAN      +                                
+                       SPANSKA     SPANISH     +                                
+                       FRANSKA     FRENCH      +                                
+                       ENGELSKA    ENGLISH     +                                
+                       ITALIENSKA  ITALIAN     +                                
+                       HOLLÄNDSKA  DUTCH       +                                
+                       PORTUGISISKAPORTUGUESE  +                                
+                       SVENSKA     SWEDISH     +                                
+                       FINSKA      FINNISH     +                                
+                       AMERIKANSKA AMERICAN    '                                
+*                                                                               
+ SPRAK-TEXT  SPRAK       24 A, OCCURS (10) INDEX (INDX)                         
+ SPRAK-SPRAK SPRAK-TEXT  12 A, OCCURS (2)  INDEX (S-IX)                         
+*                                                                               
+ WL-HUV-RUB            W 62 A  VALUE +                                          
+                      'LISTA AVSNITTSRUBRIKER, & ILLU.+                         
+                       LIST TEXT BLOCK HEADINGS & ILL.'                         
+  L-H-RUB   WL-HUV-RUB   31 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+ WL-DATUM              W 12 A  VALUE 'DATUM: DATE:'                             
+  L-DATUM   WL-DATUM      6 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+ WL-KATALOG            W 14 A  VALUE 'KATALOGCATALOG'                           
+  L-KATALOG WL-KATALOG    7 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+ WL-GRUPP              W 10 A  VALUE 'GRUPPGROUP'                               
+  L-GRUPP   WL-GRUPP      5 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+ WL-HGRP               W  8 A  VALUE 'HGRPMGRP'                                 
+  L-HGRP    WL-HGRP       4 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+ WL-UGRP               W  8 A  VALUE 'UGRPSUBG'                                 
+  L-UGRP    WL-UGRP       4 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+ WL-AVSN               W 10 A  VALUE ' AVSNT-BLK'                               
+  L-AVSN    WL-AVSN       5 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+ WL-RUBRIK             W 24 A  VALUE 'RUBRIKTEXT  +                             
+                                      HEADING TEXT'                             
+  L-RUBRIK  WL-RUBRIK    12 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+ WL-RADER              W 16 A  VALUE 'RADER>19LINES>19'                         
+  L-RADER   WL-RADER      8 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+ WL-PUB                W  6 A  VALUE 'PUBPUB'                                   
+  L-PUB     WL-PUB        3 A, OCCURS (2) INDEX (S-IX)                          
+*                                                                               
+*                                                                               
+*--------------------COPY-TEXT--------------------------------------            
+ %WTXTAREA                                                                      
+*                                                                               
+*--------------------LIST-POST--------------------------------------            
+ LIST-IDCATNR       W  5 N     MASK (A 'Z9999')                                 
+ LIST-IDCATGRP-FRAN W  2 N     MASK (B '99')                                    
+ LIST-IDCATGRP-TILL W  2 N     MASK  B                                          
+ LIST-HGRP          W  3 N     MASK (C 'ZZZ')                                   
+ LIST-UGRP          W  3 N     MASK  C                                          
+ LIST-IDCATAVS      W  4 A                                                      
+ LIST-IDILLU        W  5 A                                                      
+ LIST-BERUBTXT      W 25 A                                                      
+ LIST-SPRAK         W 12 A                                                      
+ LIST-KDCATPUB-R    W  3 A                                                      
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+*---------------------------------------------*                                 
+*                      JOB                    *                                 
+*---------------------------------------------*                                 
+JOB INPUT W15107D1                                                              
+*                                                                               
+  IF INDX GT 10                                                                 
+  ELSE                                                                          
+     IF IN-IDSKYLT-H = 'S  '                                                    
+        S-IX = 1                                                                
+     ELSE                                                                       
+*       IN-IDSKYLT-H = 'GB '                                                    
+        S-IX = 2                                                                
+     END-IF                                                                     
+                                                                                
+     INDX = 1                                                                   
+     DO WHILE INDX < 11                                                         
+        IF IN-IDSKYLT = SPRAK-KOD(INDX)                                         
+           LIST-SPRAK = SPRAK-SPRAK(INDX, S-IX)                                 
+           INDX = 10                                                            
+        END-IF                                                                  
+        INDX = INDX + 1                                                         
+     END-DO                                                                     
+     LIST-IDCATNR = IN-IDCATNR                                                  
+     LIST-IDCATGRP-FRAN = IN-IDCATGRP-FRAN                                      
+     LIST-IDCATGRP-TILL = IN-IDCATGRP-TILL                                      
+     LIST-KDCATPUB-R = IN-KDCATPUB-R                                            
+  END-IF                                                                        
+*                                                                               
+  IF IN-BERUBTXT NE ' '                                                         
+     RTXT-TETEXTTR = IN-BERUBTXT                                                
+     RTXT-KDTEXTTR = 'V'                                                        
+     CALL WTXTTR USING RTXT-WTXTAREA                                            
+     LIST-BERUBTXT = RTXT-TETEXTTR                                              
+  ELSE                                                                          
+     LIST-BERUBTXT = IN-BERUBTXT                                                
+  END-IF                                                                        
+*                                                                               
+*********************************************************                       
+* REDIGERA IDCATGRP-H & IDCATGRP-U                      *                       
+*********************************************************                       
+  IF IN-IDLISTA = '001'                                                         
+     IF IN-IDCATGRP-H EQ W-BRYT-GRUPP                                           
+        LIST-HGRP = 0                                                           
+     ELSE                                                                       
+        W-BRYT-GRUPP = IN-IDCATGRP-H                                            
+        LIST-HGRP    = IN-IDCATGRP-H                                            
+     END-IF                                                                     
+     IF IN-IDCATGRP-U EQ W-SPAR-IDCATGRP-U                                      
+        LIST-UGRP    = 0                                                        
+     ELSE                                                                       
+        LIST-UGRP    = IN-IDCATGRP-U                                            
+     END-IF                                                                     
+  ELSE                                                                          
+**   IN-IDLISTA ÄR '002'                                                        
+     IF IN-IDCATGRP-U EQ W-BRYT-GRUPP                                           
+        LIST-UGRP = 0                                                           
+     ELSE                                                                       
+        W-BRYT-GRUPP = IN-IDCATGRP-U                                            
+        LIST-UGRP    = IN-IDCATGRP-U                                            
+     END-IF                                                                     
+     LIST-HGRP  = 0                                                             
+  END-IF                                                                        
+*********************************************************                       
+* REDIGERA MULTIPEL FÖREKOMST AV IDCATAVS               *                       
+*********************************************************                       
+  W-L-AVS = IN-IDCATAVS                                                         
+  IF W-L-AVS-R-1 EQ '0'                                                         
+     W-L-AVS-R-1 = ' '                                                          
+     IF W-L-AVS-R-2 EQ '0'                                                      
+        W-L-AVS-R-2 = ' '                                                       
+        IF W-L-AVS-R-3 EQ '0'                                                   
+           W-L-AVS-R-3 = ' '                                                    
+        END-IF                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+  LIST-IDCATAVS = W-L-AVS-RED                                                   
+*                                                                               
+  IF IN-IDLISTA EQ '001'                                                        
+     IF IN-IDCATGRP-U EQ W-SPAR-IDCATGRP-U                                      
+        IF IN-IDCATAVS GT 0                                                     
+           IF IN-IDCATAVS EQ W-SPAR-IDCATAVS                                    
+              LIST-IDCATAVS EQ '    '                                           
+           END-IF                                                               
+        END-IF                                                                  
+     END-IF                                                                     
+  ELSE                                                                          
+**   IN-IDLISTA  ÄR  '002'                                                      
+     IF IN-IDCATGRP-U EQ W-SPAR-IDCATGRP-U                                      
+        IF IN-IDCATAVS EQ W-SPAR-IDCATAVS                                       
+           LIST-IDCATAVS = '    '                                               
+        END-IF                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+*                                                                               
+  W-SPAR-IDCATGRP-U = IN-IDCATGRP-U                                             
+  W-SPAR-IDCATAVS = IN-IDCATAVS                                                 
+*********************************************************                       
+* REDIGERA IDILLU  (INLEDANDE NOLLOR I ALFA-FÄLT)       *                       
+*********************************************************                       
+  IF IN-IDILLU = -1                                                             
+     LIST-IDILLU = '-ERR-'                                                      
+  ELSE                                                                          
+     IF LIST-IDCATAVS EQ '    '                                                 
+        LIST-IDILLU = '     '                                                   
+     ELSE                                                                       
+        W-L-ILL-RED = IN-IDILLU                                                 
+        IF W-L-ILL-R-1 EQ '0'                                                   
+           W-L-ILL-R-1 =  ' '                                                   
+           IF W-L-ILL-R-2 EQ '0'                                                
+              W-L-ILL-R-2 =  ' '                                                
+              IF W-L-ILL-R-3 EQ '0'                                             
+                 W-L-ILL-R-3 =  ' '                                             
+                 IF W-L-ILL-R-4 EQ '0'                                          
+                    W-L-ILL-R-4 =  ' '                                          
+                 END-IF                                                         
+              END-IF                                                            
+           END-IF                                                               
+        END-IF                                                                  
+        LIST-IDILLU = W-L-ILL-RED                                               
+     END-IF                                                                     
+  END-IF                                                                        
+*                                                                               
+  IF IN-KDPRTVAL = 'A'                                                          
+     PRINT RAPPORT01                                                            
+  END-IF                                                                        
+*---------------------------------------------*                                 
+* RAPPORT 01                                  *                                 
+* LISTA TILL PRINTER MED KDPRTVAL = A         *                                 
+*---------------------------------------------*                                 
+  REPORT RAPPORT01  PRINTER W15107D2  +                                         
+                    LINESIZE 71     +                                           
+                    PAGESIZE 65     +                                           
+                    NOADJUST  NOHEADING NODATE +                                
+                    TITLESKIP 1                                                 
+                                                                                
+         CONTROL FINAL        NOPRINT +                                         
+                 W-BRYT-GRUPP NOPRINT                                           
+                                                                                
+    TITLE 1 COL   2 'W15107-'    +                                              
+            COL   9 IN-IDLISTA +                                                
+            COL  15 L-H-RUB(S-IX)                                               
+*                                                                               
+    TITLE 2 COL  57 L-DATUM(S-IX) +                                             
+            COL  64 SYSDATE                                                     
+    TITLE 3 COL  61 'T:'         +                                              
+            COL  64 SYSTIME                                                     
+*                                                                               
+    TITLE 4 COL   2 L-KATALOG(S-IX) +                                           
+            COL   9 LIST-IDCATNR +                                              
+            COL  16 IN-BEEMBLEM +                                               
+            COL  24 L-GRUPP(S-IX) +                                             
+            COL  30 LIST-IDCATGRP-FRAN +                                        
+            COL  34 '-' +                                                       
+            COL  35 LIST-IDCATGRP-TILL +                                        
+            COL  44 LIST-SPRAK   +                                              
+            COL  56 'D'  +                                                      
+            COL  59 'V'  +                                                      
+            COL  66 ' '                                                         
+*                                                                               
+    TITLE 5 COL  24 L-PUB(S-IX) +                                               
+            COL  29 LIST-KDCATPUB-R +                                           
+            COL  54 'N'          +                                              
+            COL  56 'I'          +                                              
+            COL  59 'A'                                                         
+*                                                                               
+    TITLE 6 COL   2 L-HGRP(S-IX) +                                              
+            COL   7 L-UGRP(S-IX) +                                              
+            COL  12 L-AVSN(S-IX) +                                              
+            COL  18 L-RUBRIK(S-IX) +                                            
+            COL  39 L-RADER(S-IX) +                                             
+            COL  49 'ILLU' +                                                    
+            COL  54 'Y'    +                                                    
+            COL  56 'G'    +                                                    
+            COL  59 'D'    +                                                    
+            COL  61 'Ä'    +                                                    
+            COL  63 'PUBF' +                                                    
+            COL  68 'PUBT'                                                      
+*                                                                               
+    LINE  1 COL   3 LIST-HGRP +                                                 
+            COL   8 LIST-UGRP +                                                 
+            COL  13 LIST-IDCATAVS +                                             
+            COL  18 LIST-BERUBTXT +                                             
+            COL  45 IN-RAD-FINNS +                                              
+            COL  48 LIST-IDILLU +                                               
+            COL  54 IN-NYILLU +                                                 
+            COL  56 IN-DIGILL +                                                 
+            COL  59 IN-FLAVSTVAD +                                              
+            COL  61 IN-FLAVSUST +                                               
+            COL  63 IN-KDCATPUB-R-FOM +                                         
+            COL  68 IN-KDCATPUB-R-TOM                                           
+BEFORE-BREAK.                                                                   
+PROC                                                                            
+     DISPLAY COL 04 '---------------'                  +                        
+             COL 18 '--------------------------------' +                        
+             COL 50 '----------------------'                                    
+END-PROC                                                                        

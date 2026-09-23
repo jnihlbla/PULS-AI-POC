@@ -1,0 +1,31 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  JOB TO PRINT RECORDS FROM W6115B(0)                                        
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W611V1                                         
+//*                                                                             
+//*  RESTART:      W6115C    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P05C PROC STPLIB=&INDRTE..LOAD, -- TA EV BORT KOMMA                       
+//             INDIN=&W611..W611V1,                                             
+//             INDUT=&W611..W611V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W6115C   EXEC PGM=V16459,PARM='W6115C/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W6115CD1 DD  DSN=&INDIN..W6115B(+0),DISP=SHR                                  
+//************ OUTPUT FILE FROM W6115A00 PROGRAM                                
+//*                                                                             
+//W6115CD2 DD  DSN=&INDUT..W6115C(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ TO BE SENT TO DISTRIBUTION AND PRINT                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

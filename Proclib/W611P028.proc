@@ -1,0 +1,29 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*  MATCH TWO FILES WITH NETWEIGHT INFO FROM KDP AND                           
+//*  CREATE AN OUTPUT FILE WITH TODAYS CHANGES FOR WDK611.                      
+//*                                                                             
+//*  FREQUENCE:    ORDERED    RTN W611S9                                        
+//*                                                                             
+//*  RESTART:      W61109     NORMAL                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P028 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611S9,                                             
+//             INDUT=&W611..W611S9                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61128   EXEC PGM=V16459,PARM='W61128/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61128D1 DD  DSN=&INDIN..W611082(+0),DISP=SHR                                 
+//************ NETWEIGHT FILE FROM KDP (VALID TO UPDATE WDK611)                 
+//W61128D2 DD  DSN=&INDIN..W611082(-1),DISP=SHR                                 
+//************ NETWEIGHT FILE FROM KDP (VALID TO UPDATE WDK611)                 
+//W61128D3 DD  DSN=&INDUT..W61131(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ TODAYS CHANGES OF NETWEIGHT TO UPDATE WDK611                     
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  

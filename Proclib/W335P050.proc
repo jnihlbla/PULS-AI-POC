@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  HÄMTAR ERSÄTTNINGSINFORMATION FRÅN WDD7 FÖR ATT                            
+//*  SKICKA TILL MARKNADSBOLAGEN.                                               
+//*  HÄMTAR PRODUKTSLAG FRÅN WDK6                                               
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W335D5                                            
+//*                                                                             
+//*  ÅTERSTART:    W33550      NORMAL                                           
+//*                LÄSER  WDD7                                                  
+//*                       WDK6                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W335P050 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W335..W335D5,                                             
+//             INDUT=&W335..W335D5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33550   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W33550,W33550,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD7     INCLUDE MEMBER=WDD7                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W33550D1 DD  DSN=&INDIN..W33549,DISP=SHR                                      
+//************ ARTIKLAR MED FÖRÄNDRAD ERSÄTTNINGSKOD                            
+//*                                                                             
+//W33550D2 DD  DSN=&INDUT..W33551(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ FIL MED ERSÄTTNINGSINFORMATION.                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

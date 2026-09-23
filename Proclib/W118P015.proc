@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  READS INPUT FILE W11811 WITH UPDATE ATTRIBUTE                              
+//*  FOR EXISTING PART FROM PRINS                                               
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W118D1                                         
+//*                                                                             
+//*  RESTART:      W11815    NORMAL  (BMP)                                      
+//*                CHECK SAR TO SEE IF ANY CHECKPOINT HAS BEEN TAKEN            
+//*                                                                             
+//*                IF NO CHECKPOINT TAKEN, RESTART NORMALLY                     
+//*                                                                             
+//*                IF CHECKPOINT TAKEN, RESTART AS BELOW :                      
+//*                   USE "CKPTID=LAST" IN JCL ON EXEC TO RESTART               
+//*                   FROM LAST CHECKPOINT.                                     
+//*                                                                             
+//*  EXAMPLE:                                                                   
+//*                EXEC W118P015,CKPTID=LAST                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W118P015 PROC STPLIB=&INDRTE..LOAD,                                           
+//*                                                                             
+//             INDIN=&W118..W118D1,CKPTID=                                      
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11815   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W11815,W11815,,,N00,,,&CKPTID,,&CPU,,,&IMS')                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDS3G    DD  DSN=&INDIN..W11811(+0),DISP=SHR                                  
+//*                                                                             

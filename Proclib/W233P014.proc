@@ -1,0 +1,86 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE VOLUME FILES FOR NDC IN CHINA AND NDC IN NA-USA                     
+//*                                                                             
+//*  FREQUENCE:    PLANNING PERIOD     RTN W233PV                               
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                W23314      NORMAL                                           
+//*                READS        WDK6                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W233P014 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W612..W233PV,                                            
+//             INDUT=&W233..W233PV                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W233PD14),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W61216(+0),DISP=SHR                                 
+//************ EXTERNAL DELIVERIES TO NDC'S IN CHINA                            
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61216,DISP=(NEW,PASS,DELETE),                             
+//************ EXTERNAL DELIVERIES   SORT: DC IDLEVNR IDARTNR                   
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23314   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W23314,W23314,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W23314D1 DD  DSN=&&W61216,DISP=(OLD,DELETE,DELETE),                           
+//************ EXTERNAL DELIVERIES NDC CHINA, SORTED                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W23314D2 DD  DSN=&INDUT..W23314(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VOLUME FILE TO SI+, NDC 71                                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W23314D3 DD  DSN=&INDUT..W23315(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VOLUME FILE TO SI+, NDC 72                                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W23314D4 DD  DSN=&INDUT..W23316(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VOLUM FILE TO SI+, NDC 73                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W23314D5 DD  DSN=&INDUT..W23317(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VOLUM FILE TO SI+, NDC 41                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W23314D6 DD  DSN=&INDUT..W23318(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VOLUM FILE TO SI+, NDC 43                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W23314D7 DD  DSN=&INDUT..W23322(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VOLUM FILE TO SI+, NDC 44                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W23314D8 DD  DSN=&INDUT..W23323(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VOLUM FILE TO SI+, NDC 45                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W23314D9 DD  DSN=&INDUT..W23325(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VOLUM FILE TO SI+, NDC 46                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W23314DA DD  DSN=&INDUT..W23326(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VOLUM FILE TO SI+, NDC 47                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

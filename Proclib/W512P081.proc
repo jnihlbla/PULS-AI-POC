@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TO CREATE EXCEL FILE FOR GIT NON-VCC - SUMMARY AND PART LEVEL              
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W51281    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P081 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W512..W512M2,                                             
+//             INDIN1=&W011..&RTEGRP.,                                          
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51281   EXEC PGM=V16459,PARM='W51281/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR            -- DATKORT            
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W51281D1 DD  DSN=&INDIN..W51281(+0),DISP=SHR                                  
+//************ GIT FILE FROM W51280 - R30                                       
+//*                                                                             
+//W51281D2 DD  DSN=&INDIN1..W01160(+0),DISP=SHR                                 
+//************ ARTIKELUPPGIFTER                                                 
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FÖR SORTERADE ARTIKEL                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TPFIL2,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FÖR SORTERADE                                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL3   DD  DSN=&&TPFIL3,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FÖR SORTERADE                                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51281D3 DD  DSN=&INDUT..W51281A(+1),                        -LIM(1)          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ EXCEL FILE WITH GIT FOR NON VCC DC'S - SUMMARY                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51281D4 DD  DSN=&INDUT..W51281B(+1),                        -LIM(1)          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ EXCEL FILE WITH GIT FOR NON VCC DC'S - PART LEVEL                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

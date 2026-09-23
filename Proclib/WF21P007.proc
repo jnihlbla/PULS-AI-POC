@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DISTRIBUTES FILES WITH FEEDBACK DATA TO WEBSHOP                            
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN WF21S1                           
+//*                                                                             
+//*  RESTART:      WF2107    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF21P007 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&WF20..WF21S1,                                             
+//             INDUT=&WF20..WF21S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF2107S EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN..WF2017,DISP=SHR                                      
+//************** FEEDBACK DATA                                      ***         
+//*                                                                             
+//SORTOUT  DD  DSN=&&WF2017,DISP=(NEW,PASS,DELETE),                             
+//************** OUTPUT FILE WITH SORTED FEEDBACK DATA              ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF21PD07),DISP=SHR                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF2107   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,WF2107,WF2107,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//************ FEEDBACK DATA FILE                                               
+//WF2107D1 DD  DSN=&&WF2017,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//WF2107D2 DD  DSN=&INDUT..WF2107(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ DISTRIBUTION FILE FOR FEEDBACK                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

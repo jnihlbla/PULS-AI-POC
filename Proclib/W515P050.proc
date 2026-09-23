@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TO CREATE EXCEL FILE FOR GIT INDIA                                         
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W515M2                                       
+//*                                                                             
+//*  RESTART:      W51550    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W515P050 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W515..W515M2,                                             
+//             INDUT=&W515..W515M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51550   EXEC PGM=V16459,PARM='W51550/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR            -- DATKORT            
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W51550D1 DD  DSN=&INDIN..W51549(+0),DISP=SHR                                  
+//************ GIT FILE FROM W515B2                                             
+//*                                                                             
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FÖR SORTERADE ARTIKEL                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TPFIL2,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FÖR SORTERADE ARTIKELSALDO-POSTER                        
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51550D2 DD  DSN=&INDUT..W51550(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ EXCEL FILE WITH GIT FOR INDIA   DC'S                             
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//*                                                                             

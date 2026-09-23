@@ -1,0 +1,36 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR DETALJ-LISTA ÖVER DAGENS TRANSAKTIONER TILL LEVA1                   
+//*  LISTAN LÄGG SEDAN PÅ ON-DEMAND                                             
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W510D4                                           
+//*                                                                             
+//*  ÅTERSTART:    W51082  NORMAL                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P082 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&WUT..W510D4,                                              
+//             INDUT=&W510..W510D4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51082   EXEC PGM=W51082                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W51082D1 DD  DSN=&INDIN..W51080(+0),DISP=SHR                                  
+//************ FIL MED DAGENS ALLA KONTERINGAR ÅT LEVA1                         
+//*                                                                             
+//W51082D2 DD  DSN=&INDUT..W51082(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ W51082-001  LISTA GRUNDBOKFÖRINGSTRANSAR TILL LEVA1              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

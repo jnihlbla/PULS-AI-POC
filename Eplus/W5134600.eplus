@@ -1,0 +1,742 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5134600                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKRIVER LISTOR ARTIKLAR MED NEGATIVA SALDON,          *        
+*                OM KVLS < 0                                           *        
+*                                                                      *        
+*  FÖRFATTARE :  THOMAS LARSSON                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W51346D1                                                                   
+**** SALDOFIL ALLA DC:N UTOM CDC OCH NDC-NA                                     
+%W51054   'IN-'                                                                 
+                                                                                
+FILE W51346D2                                                                   
+**** ARTIKELREGISTER-EXTRAKT WDK6                                               
+%W011100  'LB-'                                                                 
+                                                                                
+FILE W51346DH                                                                   
+**** NDC-NA                                                                     
+%W51052   'NA-'                                                                 
+                                                                                
+FILE W51346DI                                                                   
+**** NDC-CN                                                                     
+%W5705C   'CN-'                                                                 
+                                                                                
+FILE W51346DJ                                                                   
+**** NDC-IN                                                                     
+%W5705C   'IND-'                                                                
+                                                                                
+FILE TEMP1  FB (47 0)                                                           
+**  TEMPFIL MED ALLA EJ DC 11-ARTIKLAR MED NEG. SALDO                           
+T1-IDARTNR       1   9 N                                                        
+T1-IDDC         10   2 A                                                        
+T1-KVAKS        12   7 N  0                                                     
+T1-KVEFRS       19   7 N  0                                                     
+T1-KVLS         26   7 N  0                                                     
+T1-ADLAGOMR     33   4 N                                                        
+T1-PRAVCOST     37   9 N  2                                                     
+                                                                                
+FILE W51346D3  PRINTER FB (121 0)                                               
+* DC 21                                                                         
+FILE W51346D5  PRINTER FB (121 0)                                               
+* DC 24                                                                         
+FILE W51346D6  PRINTER FB (121 0)                                               
+* DC 25                                                                         
+FILE W51346D7  PRINTER FB (121 0)                                               
+* DC 26                                                                         
+FILE W51346D8  PRINTER FB (121 0)                                               
+* DC 61                                                                         
+FILE W51346D9  PRINTER FB (121 0)                                               
+* DC 62                                                                         
+                                                                                
+FILE W51346DW FB  (60 0)                                                        
+* WEBFIL FÖR ALLA DC (FIL FÖR DAP). LDC-LISTORNA VASKAS                         
+* SEDAN FRAM UR DENNA FIL I FÖLJANDE PGM W5134700                               
+%W513471   'UT-'                                                                
+                                                                                
+FILE W51346DD  PRINTER FB (121 0)                                               
+* DC ALLA - ONDEMAND                                                            
+FILE W51346DE  PRINTER FB (121 0)                                               
+* DC 91 ET                                                                      
+*                                                                               
+FILE W51346DF  PRINTER FB (211 0)                                               
+                                                                                
+FILE TEMP2  FB (80 0)                                                           
+T2-IDARTNR       1   9 N                                                        
+T2-IDDC         10   2 A                                                        
+T2-KVAKS        12   7 N  0                                                     
+T2-KVEFRS       19   7 N  0                                                     
+T2-KVLS         26   7 N  0                                                     
+T2-BEART        33  25 A                                                        
+T2-ADLAGOMR     58   4 N                                                        
+T2-PRAVCOST     62   9 N  2                                                     
+T2-PRARTSTD     71   9 N  2                                                     
+                                                                                
+PROGRAM-NAMN           W   8   A        VALUE 'W5134600'                        
+DATUMKORT-ID           W   6   A        VALUE 'WDATUM'                          
+FIRST-TIME-SW          W    1  A  VALUE 'J'                                     
+%WDATKORT                                                                       
+                                                                                
+AKT-TIAAVVDD           W                 6  N  MASK '99/99/99'                  
+AKT-AAR                AKT-TIAAVVDD      2  N                                   
+AKT-MAANAD             AKT-TIAAVVDD +2   2  N                                   
+AKT-DAG                AKT-TIAAVVDD +4   2  N                                   
+                                                                                
+ON-TIAAVVDD           W                  6  N                                   
+ON-AAR                ON-TIAAVVDD        2  N                                   
+ON-MAANAD             ON-TIAAVVDD   +2   2  N                                   
+ON-DAG                ON-TIAAVVDD   +4   2  N                                   
+*                                                                               
+W-PAGE        W   8  A  VALUE '    PAGE'                                        
+W-IDDC        W   2  A                                                          
+O-IDDC        W   2  A                                                          
+W-IDARTNR     W   9  N  0  MASK 'ZZZZZZZZ9'                                     
+W-BEART       W  25  A                                                          
+W-KVAKS       W   7  N  0  MASK 'ZZZZZZ9-'                                      
+W-KVEFRS      W   7  N  0  MASK 'ZZZZZZ9-'                                      
+W-KVLS        W   7  N  0  MASK 'ZZZZZZ9-'                                      
+W-PRARTSTD    W   9  N  2                                                       
+W-PRAVCOST    W   9  N  2                                                       
+W-SUMMA-STD   W   11 N  2  MASK  'ZZZ.ZZZ.ZZ9,99-'                              
+W-SUMMA-AVG   W   11 N  2  MASK  'ZZZ.ZZZ.ZZ9,99-'                              
+                                                                                
+W-SEM         W  1   A    VALUE ';'                                             
+W-IDDC-S      W   2  A                                                          
+W-IDARTNR-S   W   9  N  0  MASK 'ZZZZZZZZ9'                                     
+W-BEART-S     W  25  A                                                          
+W-KVAKS-S     W   7  N  0  MASK '------9'                                       
+W-KVEFRS-S    W   7  N  0  MASK '------9'                                       
+W-KVLS-S      W   7  N  0  MASK '------9'                                       
+W-PRARTSTD-S  W   9  N  2  MASK  '------9.99'                                   
+W-PRAVCOST-S  W   9  N  2  MASK  '------9.99'                                   
+W-REPORTID    W  8   A VALUE 'W51346-0'                                         
+W-LEGSEL      W  4   A VALUE 'VCCS'                                             
+W-REPORTNM    W 34   A VALUE 'PARTNO WITH NEGATIVE STOCKBALANCES'               
+W-REPORTDT    W  6   N                                                          
+                                                                                
+WEB-KVAKS                   W   8  N                                            
+WEB-KVAKS-1   WEB-KVAKS         1  N                                            
+                                                                                
+WEB-KVEFRS                  W   8  N                                            
+WEB-KVEFRS-1  WEB-KVEFRS        1  N                                            
+                                                                                
+WEB-KVLS                    W   8  N                                            
+WEB-KVLS-1    WEB-KVLS          1  N                                            
+                                                                                
+WEB-AAVV                    W   4  N                                            
+WEB-AA   WEB-AAVV               2  N                                            
+WEB-VV   WEB-AAVV           +2  2  N                                            
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+                                                                                
+******************************************************************              
+* STEG 1 LÄSER INFILER EJ CDC OCH LÄGGER ALLA ARTIKLAR + DC OM                  
+*        NEGATIVA SALDON, PÅ TEMPFIL FÖR LISTSKAPANDE.                          
+******************************************************************              
+                                                                                
+JOB INPUT NULL                                                                  
+*** LÄGG UT ALLA (EJ CDC) PÅ TEMPFIL                                            
+   GET W51346D1                                                                 
+   DO WHILE NOT EOF W51346D1                                                    
+     T1-IDARTNR   = IN-IDARTNR                                                  
+     T1-IDDC      = IN-IDDC                                                     
+     T1-KVLS      = IN-KVLS                                                     
+     T1-KVEFRS    = IN-KVEFRS                                                   
+     T1-KVAKS     = IN-KVAKS + IN-KVAKS-PAV                                     
+     T1-ADLAGOMR  = 0                                                           
+     T1-PRAVCOST  = 0                                                           
+     IF T1-KVLS LT 0                                                            
+       PUT TEMP1                                                                
+     END-IF                                                                     
+     GET W51346D1                                                               
+   END-DO                                                                       
+                                                                                
+*** WRITE ALL NEGATIVE BALANCE PARTS FOR NDC-NA INTO TEMP FILE                  
+   GET W51346DH                                                                 
+   DO WHILE NOT EOF W51346DH                                                    
+     T1-IDARTNR   = NA-IDARTNR                                                  
+     T1-IDDC      = NA-IDDC                                                     
+     T1-KVLS      = NA-KVLS                                                     
+     T1-KVEFRS    = NA-KVEFRS                                                   
+     T1-KVAKS     = NA-KVAKS-SDC + NA-KVAKS-PAV                                 
+     T1-ADLAGOMR  = 0                                                           
+     T1-PRAVCOST  = NA-PRAVCOST                                                 
+     IF T1-KVLS LT 0                                                            
+       PUT TEMP1                                                                
+     END-IF                                                                     
+     GET W51346DH                                                               
+   END-DO                                                                       
+                                                                                
+*** WRITE ALL NEGATIVE BALANCE PARTS FOR CN,TH,TW,MY,RU                         
+*** INTO TEMP FILE.                                                             
+   GET W51346DI                                                                 
+   DO WHILE NOT EOF W51346DI                                                    
+     T1-IDARTNR   = CN-IDARTNR                                                  
+     T1-IDDC      = CN-IDDC                                                     
+     T1-KVLS      = CN-KVLS                                                     
+     T1-KVEFRS    = CN-KVEFRS                                                   
+     T1-KVAKS     = CN-KVAKS + CN-KVAKS-PAV                                     
+     T1-ADLAGOMR  = 0                                                           
+     T1-PRAVCOST  = CN-PRAVCOST                                                 
+     IF T1-KVLS LT 0                                                            
+       PUT TEMP1                                                                
+     END-IF                                                                     
+     GET W51346DI                                                               
+   END-DO                                                                       
+*** WRITE ALL NEGATIVE BALANCE PARTS FOR NDC-IN INTO TEMP FILE                  
+   GET W51346DJ                                                                 
+   DO WHILE NOT EOF W51346DJ                                                    
+     T1-IDARTNR   = IND-IDARTNR                                                 
+     T1-IDDC      = IND-IDDC                                                    
+     T1-KVLS      = IND-KVLS                                                    
+     T1-KVEFRS    = IND-KVEFRS                                                  
+     T1-KVAKS     = IND-KVAKS + IND-KVAKS-PAV                                   
+     T1-ADLAGOMR  = 0                                                           
+     T1-PRAVCOST  = IND-PRAVCOST                                                
+     IF T1-KVLS LT 0                                                            
+       PUT TEMP1                                                                
+     END-IF                                                                     
+     GET W51346DJ                                                               
+   END-DO                                                                       
+STOP                                                                            
+                                                                                
+********************************************************************            
+* STEG 2. SORTERAR TEMP1 TILL TEMP1 PER ARTIKELNR                               
+********************************************************************            
+                                                                                
+SORT TEMP1 TO TEMP1 USING (T1-IDARTNR)                                          
+                                                                                
+******************************************************************              
+* STEG 3 MATCHA ARTIKELSALDOFIL MED TEMPFIL1 OCH SKAPA LISTRADER                
+******************************************************************              
+                                                                                
+JOB INPUT  (W51346D2 KEY (LB-IDARTNR)  +                                        
+            TEMP1    KEY (T1-IDARTNR)) START A-INIT                             
+  IF W51346D2                                                                   
+**  SKAPA CDC-TRANSAR OM KVLS ÄR NEGATIV                                        
+    W-IDARTNR   = LB-IDARTNR                                                    
+    W-IDDC      = CDC-SE                                                        
+    W-KVLS      = LB-KVLS                                                       
+    W-KVEFRS    = LB-KVEFRS                                                     
+    W-KVAKS     = LB-KVAKS-CDC + LB-KVAKS-PAV                                   
+    W-BEART     = LB-BEART-SVE                                                  
+    W-PRARTSTD  = LB-PRARTSTD                                                   
+    W-SUMMA-STD = W-KVLS * W-PRARTSTD                                           
+                                                                                
+    T2-IDARTNR    = LB-IDARTNR                                                  
+    T2-IDDC       = CDC-SE                                                      
+    T2-KVLS       = LB-KVLS                                                     
+    T2-KVEFRS     = LB-KVEFRS                                                   
+    T2-KVAKS      = LB-KVAKS-CDC + LB-KVAKS-PAV                                 
+    T2-BEART      = LB-BEART-SVE                                                
+    T2-PRARTSTD   = LB-PRARTSTD                                                 
+    IF W-KVLS LT 0                                                              
+      PERFORM TESTA-SKRIV-RAD                                                   
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+  IF MATCHED                                                                    
+**  SKAPA ÖVRIGA DCN:S TRANSAR OM KVLS ÄR NEGATIV                               
+    W-IDARTNR   = T1-IDARTNR                                                    
+    W-IDDC      = T1-IDDC                                                       
+    W-KVLS      = T1-KVLS                                                       
+    W-KVEFRS    = T1-KVEFRS                                                     
+    W-KVAKS     = T1-KVAKS                                                      
+    W-BEART     = LB-BEART-SVE                                                  
+                                                                                
+    T2-IDARTNR   = T1-IDARTNR                                                   
+    T2-IDDC      = T1-IDDC                                                      
+    T2-KVLS      = T1-KVLS                                                      
+    T2-KVEFRS    = T1-KVEFRS                                                    
+    T2-KVAKS     = T1-KVAKS                                                     
+    T2-BEART     = LB-BEART-SVE                                                 
+                                                                                
+    PERFORM S23-CHECK-W-IDDC                                                    
+    IF W-IDDC = NDC-NA, NDC-CN, NDC-IN, NDC-KR, NDC-TH, NDC-TW, +               
+                NDC-MY, NDC-RU-81, NDC-RU-82, NDC-AE, NDC-BR, NDC-MX +          
+                NDC-ZA, NDC-TR                                                  
+       W-PRAVCOST  = T1-PRAVCOST                                                
+       T2-PRAVCOST = T1-PRAVCOST                                                
+       W-SUMMA-AVG = W-KVLS * W-PRAVCOST                                        
+    ELSE                                                                        
+       W-PRARTSTD  = LB-PRARTSTD                                                
+       T2-PRARTSTD = LB-PRARTSTD                                                
+       W-SUMMA-STD = W-KVLS * W-PRARTSTD                                        
+    END-IF                                                                      
+    PERFORM TESTA-SKRIV-RAD                                                     
+  END-IF                                                                        
+                                                                                
+TESTA-SKRIV-RAD. PROC                                                           
+                                                                                
+   O-IDDC          = W-IDDC                                                     
+   IF W-IDDC = SDC-NL-ET                                                        
+       PRINT LISTA91                                                            
+   ELSE-IF W-IDDC = SDC-NL                                                      
+             PRINT LISTA21                                                      
+   ELSE-IF W-IDDC = SDC-ES                                                      
+             PRINT LISTA24                                                      
+   ELSE-IF W-IDDC = SDC-IT                                                      
+             PRINT LISTA25                                                      
+   ELSE-IF W-IDDC = SDC-AT                                                      
+             PRINT LISTA26                                                      
+   ELSE-IF W-IDDC = NDC-JP-61                                                   
+             PRINT LISTA61                                                      
+   ELSE-IF W-IDDC = NDC-AU                                                      
+             PRINT LISTA62                                                      
+   END-IF                                                                       
+                                                                                
+   PERFORM S23-CHECK-W-IDDC                                                     
+                                                                                
+   IF W-IDDC = NDC-NA, NDC-CN, NDC-IN, NDC-KR, NDC-TH, NDC-TW, +                
+               NDC-MY, NDC-RU-81, NDC-RU-82, NDC-AE, NDC-BR, NDC-MX +           
+               NDC-ZA, NDC-TR, NDC-JP                                           
+      PRINT ONDEMAND1                                                           
+      T2-PRARTSTD = 0                                                           
+      PUT   TEMP2                                                               
+   ELSE                                                                         
+      PRINT ONDEMAND                                                            
+      T2-PRAVCOST = 0                                                           
+      PUT   TEMP2                                                               
+   END-IF                                                                       
+   PERFORM SKAPA-UTFIL                                                          
+END-PROC                                                                        
+                                                                                
+*    --- S23-CHECK-W-IDDC (MACRO PROCEDURE)                                     
+%WWDC02 'W-'                                                                    
+*                                                                               
+A-INIT. PROC                                                                    
+                                                                                
+  CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                      
+                                                                                
+  AKT-AAR      =   D-AAR                                                        
+  WEB-AA       =   D-AAR                                                        
+  WEB-VV       =   D-VECKA                                                      
+  AKT-MAANAD   =   D-MAANAD                                                     
+  AKT-DAG      =   D-DAG                                                        
+                                                                                
+  ON-AAR       =   D-AAR                                                        
+  ON-MAANAD    =   D-MAANAD                                                     
+  ON-DAG       =   D-DAG                                                        
+  W-REPORTDT   =   ON-TIAAVVDD                                                  
+                                                                                
+END-PROC                                                                        
+                                                                                
+SKAPA-UTFIL. PROC                                                               
+  UT-IDAFPRCD      = '1'                                                        
+  UT-IDDC          = W-IDDC                                                     
+  UT-IDARTNR       = W-IDARTNR                                                  
+  UT-BEART         = W-BEART                                                    
+  UT-KVAKS         = W-KVAKS                                                    
+  UT-KVEFRS        = W-KVEFRS                                                   
+  UT-KVLS          = W-KVLS                                                     
+  UT-DAAAVV          = WEB-AAVV                                                 
+  PUT W51346DW                                                                  
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+*******************                                                             
+** LISTA 2 SDC 21 *                                                             
+*******************                                                             
+                                                                                
+REPORT LISTA21 PRINTER W51346D3 LINESIZE 120 DTLCTL FIRST +                     
+       NOHEADING NOADJUST NODATE                                                
+                                                                                
+SEQUENCE W-IDARTNR                                                              
+CONTROL  FINAL NOPRINT W-IDDC                                                   
+SUM      W-SUMMA-STD                                                            
+                                                                                
+TITLE 1  COL 5  'VCCS'                               +                          
+         COL 30 'W51346-021'                         +                          
+         COL 45 'PARTNO WITH NEGATIVE STOCKBALANCES' +                          
+         COL 95 AKT-TIAAVVDD                         +                          
+         COL 105 W-PAGE                                                         
+                                                                                
+TITLE 2  COL 45 'ONLY DC 21     '                                               
+                                                                                
+TITLE 4  COL  3 'DC'                +                                           
+         COL 14 'PARTNO'            +                                           
+         COL 25 'DESCRIPTION'       +                                           
+         COL 50 'KVAKS'             +                                           
+         COL 60 'KVEFRS'            +                                           
+         COL 73 'KVLS'              +                                           
+         COL 85 'PRARTSTD'          +                                           
+         COL 106 'SUM. STD'                                                     
+                                                                                
+LINE  1  COL   3 W-IDDC             +                                           
+         COL  11 W-IDARTNR          +                                           
+         COL  25 W-BEART            +                                           
+         COL  48 W-KVAKS            +                                           
+         COL  59 W-KVEFRS           +                                           
+         COL  70 W-KVLS             +                                           
+         COL  81 W-PRARTSTD         +                                           
+         COL  97 W-SUMMA-STD                                                    
+*******************                                                             
+** LISTA 5 SDC 24 *                                                             
+*******************                                                             
+                                                                                
+REPORT LISTA24 PRINTER W51346D5 LINESIZE 120 DTLCTL FIRST +                     
+       NOHEADING NOADJUST NODATE                                                
+                                                                                
+SEQUENCE W-IDARTNR                                                              
+CONTROL  FINAL NOPRINT W-IDDC                                                   
+SUM      W-SUMMA-STD                                                            
+                                                                                
+TITLE 1  COL 5  'VCCS'                               +                          
+         COL 30 'W51346-024'                         +                          
+         COL 45 'PARTNO WITH NEGATIVE STOCKBALANCES' +                          
+         COL 95 AKT-TIAAVVDD                         +                          
+         COL 105 W-PAGE                                                         
+                                                                                
+TITLE 2  COL 45 'ONLY DC 25     '                                               
+                                                                                
+TITLE 4  COL  3 'DC'                +                                           
+         COL 14 'PARTNO'            +                                           
+         COL 25 'DESCRIPTION'       +                                           
+         COL 50 'KVAKS'             +                                           
+         COL 60 'KVEFRS'            +                                           
+         COL 73 'KVLS'              +                                           
+         COL 85 'PRARTSTD'          +                                           
+         COL 106 'SUM. STD'                                                     
+                                                                                
+LINE  1  COL   3 W-IDDC             +                                           
+         COL  11 W-IDARTNR          +                                           
+         COL  25 W-BEART            +                                           
+         COL  48 W-KVAKS            +                                           
+         COL  59 W-KVEFRS           +                                           
+         COL  70 W-KVLS             +                                           
+         COL  81 W-PRARTSTD         +                                           
+         COL  97 W-SUMMA-STD                                                    
+NEWPAGE                                                                         
+*******************                                                             
+** LISTA 6 SDC 25 *                                                             
+*******************                                                             
+                                                                                
+REPORT LISTA25 PRINTER W51346D6 LINESIZE 120 DTLCTL FIRST +                     
+       NOHEADING NOADJUST NODATE                                                
+                                                                                
+SEQUENCE W-IDARTNR                                                              
+CONTROL  FINAL NOPRINT W-IDDC                                                   
+SUM      W-SUMMA-STD                                                            
+                                                                                
+TITLE 1  COL 5  'VCCS'                               +                          
+         COL 30 'W51346-025'                         +                          
+         COL 45 'PARTNO WITH NEGATIVE STOCKBALANCES' +                          
+         COL 95 AKT-TIAAVVDD                         +                          
+         COL 105 W-PAGE                                                         
+                                                                                
+TITLE 2  COL 45 'ONLY DC 25     '                                               
+                                                                                
+TITLE 4  COL  3 'DC'                +                                           
+         COL 14 'PARTNO'            +                                           
+         COL 25 'DESCRIPTION'       +                                           
+         COL 50 'KVAKS'             +                                           
+         COL 60 'KVEFRS'            +                                           
+         COL 73 'KVLS'              +                                           
+         COL 85 'PRARTSTD'          +                                           
+         COL 106 'SUM. STD'                                                     
+                                                                                
+LINE  1  COL   3 W-IDDC             +                                           
+         COL  11 W-IDARTNR          +                                           
+         COL  25 W-BEART            +                                           
+         COL  48 W-KVAKS            +                                           
+         COL  59 W-KVEFRS           +                                           
+         COL  70 W-KVLS             +                                           
+         COL  81 W-PRARTSTD         +                                           
+         COL  97 W-SUMMA-STD                                                    
+NEWPAGE                                                                         
+*******************                                                             
+** LISTA 7 SDC 26 *                                                             
+*******************                                                             
+                                                                                
+REPORT LISTA26 PRINTER W51346D7 LINESIZE 120 DTLCTL FIRST +                     
+       NOHEADING NOADJUST NODATE                                                
+                                                                                
+SEQUENCE W-IDARTNR                                                              
+CONTROL  FINAL NOPRINT W-IDDC                                                   
+SUM      W-SUMMA-STD                                                            
+                                                                                
+TITLE 1  COL 5  'VCCS'                               +                          
+         COL 30 'W51346-026'                         +                          
+         COL 45 'PARTNO WITH NEGATIVE STOCKBALANCES' +                          
+         COL 95 AKT-TIAAVVDD                         +                          
+         COL 105 W-PAGE                                                         
+                                                                                
+TITLE 2  COL 45 'ONLY DC 26     '                                               
+                                                                                
+TITLE 4  COL  3 'DC'                +                                           
+         COL 14 'PARTNO'            +                                           
+         COL 25 'DESCRIPTION'       +                                           
+         COL 50 'KVAKS'             +                                           
+         COL 60 'KVEFRS'            +                                           
+         COL 73 'KVLS'              +                                           
+         COL 85 'PRARTSTD'          +                                           
+         COL 106 'SUM. STD'                                                     
+                                                                                
+LINE  1  COL   3 W-IDDC             +                                           
+         COL  11 W-IDARTNR          +                                           
+         COL  25 W-BEART            +                                           
+         COL  48 W-KVAKS            +                                           
+         COL  59 W-KVEFRS           +                                           
+         COL  70 W-KVLS             +                                           
+         COL  81 W-PRARTSTD         +                                           
+         COL  97 W-SUMMA-STD                                                    
+NEWPAGE                                                                         
+*******************                                                             
+** LISTA 8 NDC 61 *                                                             
+*******************                                                             
+                                                                                
+REPORT LISTA61 PRINTER W51346D8 LINESIZE 120 DTLCTL FIRST +                     
+       NOHEADING NOADJUST NODATE                                                
+                                                                                
+SEQUENCE W-IDARTNR                                                              
+CONTROL  FINAL NOPRINT W-IDDC                                                   
+SUM      W-SUMMA-STD                                                            
+                                                                                
+TITLE 1  COL 5  'VCCS'                               +                          
+         COL 30 'W51346-061'                         +                          
+         COL 45 'PARTNO WITH NEGATIVE STOCKBALANCES' +                          
+         COL 95 AKT-TIAAVVDD                         +                          
+         COL 105 W-PAGE                                                         
+                                                                                
+TITLE 2  COL 45 'ONLY DC 61     '                                               
+                                                                                
+TITLE 4  COL  3 'DC'                +                                           
+         COL 14 'PARTNO'            +                                           
+         COL 25 'DESCRIPTION'       +                                           
+         COL 50 'KVAKS'             +                                           
+         COL 60 'KVEFRS'            +                                           
+         COL 73 'KVLS'              +                                           
+         COL 85 'PRARTSTD'          +                                           
+         COL 106 'SUM. STD'                                                     
+                                                                                
+LINE  1  COL   3 W-IDDC             +                                           
+         COL  11 W-IDARTNR          +                                           
+         COL  25 W-BEART            +                                           
+         COL  48 W-KVAKS            +                                           
+         COL  59 W-KVEFRS           +                                           
+         COL  70 W-KVLS             +                                           
+         COL  81 W-PRARTSTD         +                                           
+         COL  97 W-SUMMA-STD                                                    
+NEWPAGE                                                                         
+*******************                                                             
+** LISTA 9 NDC 62 *                                                             
+*******************                                                             
+                                                                                
+REPORT LISTA62 PRINTER W51346D9 LINESIZE 120 DTLCTL FIRST +                     
+       NOHEADING NOADJUST NODATE                                                
+                                                                                
+SEQUENCE W-IDARTNR                                                              
+CONTROL  FINAL NOPRINT W-IDDC                                                   
+SUM      W-SUMMA-STD                                                            
+                                                                                
+TITLE 1  COL 5  'VCCS'                               +                          
+         COL 30 'W51346-062'                         +                          
+         COL 45 'PARTNO WITH NEGATIVE STOCKBALANCES' +                          
+         COL 95 AKT-TIAAVVDD                         +                          
+         COL 105 W-PAGE                                                         
+                                                                                
+TITLE 2  COL 45 'ONLY DC 62     '                                               
+                                                                                
+TITLE 4  COL  3 'DC'                +                                           
+         COL 14 'PARTNO'            +                                           
+         COL 25 'DESCRIPTION'       +                                           
+         COL 50 'KVAKS'             +                                           
+         COL 60 'KVEFRS'            +                                           
+         COL 73 'KVLS'              +                                           
+         COL 85 'PRARTSTD'          +                                           
+         COL 106 'SUM. STD'                                                     
+                                                                                
+LINE  1  COL   3 W-IDDC             +                                           
+         COL  11 W-IDARTNR          +                                           
+         COL  25 W-BEART            +                                           
+         COL  48 W-KVAKS            +                                           
+         COL  59 W-KVEFRS           +                                           
+         COL  70 W-KVLS             +                                           
+         COL  81 W-PRARTSTD         +                                           
+         COL  97 W-SUMMA-STD                                                    
+NEWPAGE                                                                         
+********************                                                            
+** LISTA ONDEMAND  *                                                            
+********************                                                            
+                                                                                
+REPORT ONDEMAND PRINTER W51346DD LINESIZE 120 DTLCTL FIRST +                    
+       NOHEADING NOADJUST NODATE NOPAGE PAGESIZE 999                            
+                                                                                
+SEQUENCE O-IDDC W-IDARTNR                                                       
+CONTROL  FINAL NOPRINT O-IDDC NEWPAGE                                           
+SUM      W-SUMMA-STD                                                            
+                                                                                
+TITLE 1  COL 1  'W51346-0'                         +                            
+         COL 9   W-IDDC                              +                          
+         COL 20 'VCCS'                               +                          
+         COL 40 'PARTNO WITH NEGATIVE STOCKBALANCES' +                          
+         COL  90 'DC: '                              +                          
+         COL  94 O-IDDC                              +                          
+         COL 100 'DATE: '                            +                          
+         COL 106 ON-TIAAVVDD                                                    
+                                                                                
+                                                                                
+TITLE 4  COL  3 'DC'                +                                           
+         COL 14 'PARTNO'            +                                           
+         COL 25 'DESCRIPTION'       +                                           
+         COL 50 'KVAKS'             +                                           
+         COL 60 'KVEFRS'            +                                           
+         COL 73 'KVLS'              +                                           
+         COL 85 'PRARTSTD'          +                                           
+         COL 106 'SUM. STD'                                                     
+                                                                                
+LINE  1  COL   3 O-IDDC             +                                           
+         COL  11 W-IDARTNR          +                                           
+         COL  25 W-BEART            +                                           
+         COL  48 W-KVAKS            +                                           
+         COL  59 W-KVEFRS           +                                           
+         COL  70 W-KVLS             +                                           
+         COL  81 W-PRARTSTD         +                                           
+         COL  97 W-SUMMA-STD                                                    
+NEWPAGE                                                                         
+**************************************************************                  
+** LISTA ONDEMAND FOR NDC-NA NDC-CN NDC-IN NDC-KR NDC-TH                        
+**                    NDC-TW NDC-MY NDC-RU-81 NDC-RU-82 NDC-AE                  
+**                    NDC-BR NDC-MX NDC-ZA NDC-TR                               
+**************************************************************                  
+                                                                                
+REPORT ONDEMAND1 PRINTER W51346DD LINESIZE 120 DTLCTL FIRST +                   
+       NOHEADING NOADJUST NODATE NOPAGE PAGESIZE 999                            
+                                                                                
+SEQUENCE O-IDDC W-IDARTNR                                                       
+CONTROL  FINAL NOPRINT O-IDDC NEWPAGE                                           
+SUM      W-SUMMA-AVG                                                            
+                                                                                
+TITLE 1  COL 1  'W51346-0'                         +                            
+         COL 9   W-IDDC                              +                          
+         COL 20 'VCCS'                               +                          
+         COL 40 'PARTNO WITH NEGATIVE STOCKBALANCES' +                          
+         COL  90 'DC: '                              +                          
+         COL  94 O-IDDC                              +                          
+         COL 100 'DATE: '                            +                          
+         COL 106 ON-TIAAVVDD                                                    
+                                                                                
+                                                                                
+TITLE 4  COL  3 'DC'                +                                           
+         COL 14 'PARTNO'            +                                           
+         COL 25 'DESCRIPTION'       +                                           
+         COL 50 'KVAKS'             +                                           
+         COL 60 'KVEFRS'            +                                           
+         COL 73 'KVLS'              +                                           
+         COL 85 'PRAVCOST'          +                                           
+         COL 106 'SUM. AVG'                                                     
+                                                                                
+LINE  1  COL   3 O-IDDC             +                                           
+         COL  11 W-IDARTNR          +                                           
+         COL  25 W-BEART            +                                           
+         COL  48 W-KVAKS            +                                           
+         COL  59 W-KVEFRS           +                                           
+         COL  70 W-KVLS             +                                           
+         COL  81 W-PRAVCOST         +                                           
+         COL  97 W-SUMMA-AVG                                                    
+NEWPAGE                                                                         
+*******************                                                             
+** LISTA 2 SDC 91ET*                                                            
+*******************                                                             
+                                                                                
+REPORT LISTA91 PRINTER W51346DE LINESIZE 120 DTLCTL FIRST +                     
+       NOHEADING NOADJUST NODATE                                                
+                                                                                
+SEQUENCE W-IDARTNR                                                              
+CONTROL  FINAL NOPRINT W-IDDC                                                   
+SUM      W-SUMMA-STD                                                            
+                                                                                
+TITLE 1  COL 5  'VCCS'                               +                          
+         COL 30 'W51346-091'                         +                          
+         COL 45 'PARTNO WITH NEGATIVE STOCKBALANCES' +                          
+         COL 95  ON-TIAAVVDD                         +                          
+         COL 105 W-PAGE                                                         
+                                                                                
+TITLE 2  COL 45 'ONLY DC 91     '                                               
+                                                                                
+TITLE 4  COL  3 'DC'                +                                           
+         COL 14 'PARTNO'            +                                           
+         COL 25 'DESCRIPTION'       +                                           
+         COL 50 'KVAKS'             +                                           
+         COL 60 'KVEFRS'            +                                           
+         COL 73 'KVLS'              +                                           
+         COL 85 'PRARTSTD'          +                                           
+         COL 106 'SUM. STD'                                                     
+                                                                                
+LINE  1  COL   3 W-IDDC             +                                           
+         COL  11 W-IDARTNR          +                                           
+         COL  25 W-BEART            +                                           
+         COL  48 W-KVAKS            +                                           
+         COL  59 W-KVEFRS           +                                           
+         COL  70 W-KVLS             +                                           
+         COL  81 W-PRARTSTD         +                                           
+         COL  97 W-SUMMA-STD                                                    
+***************************************************                             
+* SORTAR UTFILEN PÅ DC                            *                             
+***************************************************                             
+SORT W51346DW TO W51346DW USING (UT-IDDC)                                       
+***************************************************                             
+SORT TEMP2    TO TEMP2    USING (T2-IDDC, T2-IDARTNR)                           
+JOB INPUT TEMP2                                                                 
+                                                                                
+     W-IDARTNR-S   = T2-IDARTNR                                                 
+     W-IDDC-S      = T2-IDDC                                                    
+     W-BEART-S     = T2-BEART                                                   
+     W-KVAKS-S     = T2-KVAKS                                                   
+     W-KVEFRS-S    = T2-KVEFRS                                                  
+     W-KVLS-S      = T2-KVLS                                                    
+     W-PRAVCOST-S  = T2-PRAVCOST                                                
+     W-PRARTSTD-S  = T2-PRARTSTD                                                
+    PRINT RAPPORT01                                                             
+                                                                                
+************************************************************************        
+*** LIST SENT TO SNOWFLAKE                                                      
+************************************************************************        
+REPORT   RAPPORT01            +                                                 
+         PRINTER W51346DF     +                                                 
+         LINESIZE 210         +                                                 
+         SPACE 0              +                                                 
+         NOHEADING            +                                                 
+         NOSPREAD             +                                                 
+         NOADJUST             +                                                 
+         PAGESIZE 32767       +                                                 
+         NODATE                                                                 
+LINE  1  W-IDDC-S             +                                                 
+         W-SEM                +                                                 
+         W-IDARTNR-S          +                                                 
+         W-SEM                +                                                 
+         W-BEART-S            +                                                 
+         W-SEM                +                                                 
+         W-KVAKS-S            +                                                 
+         W-SEM                +                                                 
+         W-KVEFRS-S           +                                                 
+         W-SEM                +                                                 
+         W-KVLS-S             +                                                 
+         W-SEM                +                                                 
+         W-PRARTSTD-S         +                                                 
+         W-SEM                +                                                 
+         W-PRAVCOST-S         +                                                 
+         W-SEM                +                                                 
+         W-REPORTID           +                                                 
+         W-IDDC-S             +                                                 
+         W-SEM                +                                                 
+         W-REPORTNM           +                                                 
+         W-SEM                +                                                 
+         W-REPORTDT                                                             
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF FIRST-TIME-SW = 'J'                                                         
+   DISPLAY 'DISTRUBUTION_CENTER;PART_NUMBER;PART_DESCRIPTION;' +                
+      'ADVICED_NOT_BINNED_QUANTITY;NOT_INVOICED_QUANTITY;' +                    
+      'STOCK_QUANTITY;STANDARD_PRICE;AVERAGE_COST_PRICE;' +                     
+      'REPORT_ID;REPORT_NAME;REPORT_DATE'                                       
+   FIRST-TIME-SW = 'N'                                                          
+ END-IF                                                                         
+END-PROC                                                                        

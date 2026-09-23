@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SORTERINGS-BEGREPP BORT FRÅN FIL                                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W476D1                                         
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                W4763700  NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W476P037 PROC STPLIB=&INDRTE..LOAD,                                           
+//             DSIN=NULLFILE,                                                   
+//             DSUT=NULLFILE                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W476PD37),DISP=SHR                         
+//SORTIN   DD  DSN=&DSIN,DISP=SHR                                               
+//************ BROKER-INFO FRÅN W4762500                                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47635,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD: POSTTYP,LÖPNR,SKEPPN.NR,DIST,KUND                      
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47637   EXEC PGM=W47637                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//W47637D1 DD  DSN=&&W47635,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD: POSTTYP,LÖPNR,SKEPPN.NR,DIST,KUND                      
+//*                                                                             
+//W47637D2 DD  DSN=&DSUT,DISP=(NEW,CATLG,DELETE),              -LIM(99)         
+//************ BROKER-INFO                                                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

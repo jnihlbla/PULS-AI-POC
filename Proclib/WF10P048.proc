@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      MOVE DATA TO DATALAKE FILE                                   *         
+//*                                                                   *         
+//*      PERIODICITET:   DAG                                          *         
+//*                                                                   *         
+//*      ÅTERSTART:      NORMAL                                       *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WF10P048 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&WF01..DISCARD,                                            
+//             INDUT=&WF10..WF10D5                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF1048  EXEC PGM=WF1048                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                  (POSTSUM)              
+//*                                                                             
+//WF1048D1 DD  DSN=&INDIN..S01DLIN(+0),DISP=SHR                                 
+//************ DLIN IN                                                          
+//*                                                                             
+//WF1048D2 DD  DSN=&INDIN..S01DHEA(+0),DISP=SHR                                 
+//************ DHEA IN                                                          
+//*                                                                             
+//WF1048D3 DD  DSN=&INDUT..DLINARC(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ DLIN FILE TO DATALAKE                                            
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//WF1048D4 DD  DSN=&INDUT..DHEAARC(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ DHEA FILE TO DATALAKE                                            
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  

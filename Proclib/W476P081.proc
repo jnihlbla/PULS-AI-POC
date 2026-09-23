@@ -1,0 +1,68 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//* TAR IN FIL FRÅN RUTIN W476SA OCH SKAPAR EN FIL MED FAKT-UPPG.               
+//* FÖR TULLEN. FIL SKICKAS TILL TLS OCH FLS/MIC.                               
+//*                                                                             
+//*  FREKVENS:     FLERA GGR PER DAG     RTN W476SA                             
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W47681    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W476P081 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W476..W476SA,                                             
+//             INDUT=&W476..W476SA                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W476PD81),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W47680(+0),DISP=SHR                                  
+//************ FAKT.UPPGIFTER FÖREGÅENDE JOBB.                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47680,DISP=(NEW,PASS,DELETE),                             
+//************ FAKT.UPPGIFTER, SORTERADE                                        
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47681   EXEC PGM=W47681                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                    -- ABEND         
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//W47681D1 DD  DSN=&&W47680,DISP=(OLD,DELETE,DELETE)                            
+//************ FAKT.UPPGIFTER, SORTERADE                                        
+//*                                                                             
+//W47681D2 DD  DSN=&INDUT..W47681(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FAKT.UPPGIFTER FÖR ÖVERFÖRING TILL TLS OCH TULLEN                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W47681D3 DD  DSN=&INDUT..W47681X(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)        
+//************ FAKT.UPPGIFTER FÖR ÖVERFÖRING TILL FLS/MIC OCH TULLEN            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//GENER1   EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W47681(+1),DISP=(OLD,PASS,DELETE)                    
+//************ FIL TILL TULLSYST-TLS                                            
+//*                                                                             
+//SYSUT2   DD DSN=&INDUT..W47681C(+1),                        -LIM(255)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ KOPIAN AV TULLFILEN                                              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//GENER2   EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W47681X(+1),DISP=(OLD,PASS,DELETE)                   
+//************ FIL TILL TULLSYST-FLS/MIC                                        
+//*                                                                             
+//SYSUT2   DD DSN=&INDUT..W47681XC(+1),                       -LIM(255)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ KOPIAN AV TULLFILEN2                                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

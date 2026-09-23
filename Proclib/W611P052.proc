@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTAN AK BEL횳GNINGSLISTA                                          
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611D1                                            
+//*                                                                             
+//*  휰ERSTART:    W61152    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P052 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611D1,                                             
+//             INDUT=&W611..W611D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD52),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61151(+0),DISP=SHR                                  
+//************ BEL횳GNINGSFIL                                                   
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61153,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD BEL횳GNINGSFIL                                          
+//             SPACE=(53,(200,50),RLSE),AVGREC=U                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61152   EXEC PGM=V16459,PARM='W61152/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61152D1 DD  DSN=&&W61153,DISP=(OLD,PASS,DELETE)                              
+//************ SORTERAD GENOMLOPPSTID FIL                                       
+//*                                                                             
+//W61152D2 DD  DSN=&INDUT..W61152(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//************ LISTA GENOMLOPPSTIDER OCH AK-BEL횳GNING                          
+//*                                                                             
+//W61152D3 DD  DSN=&INDUT..W61157(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//************ LISTA GENOMLOPPSTIDER OCH AK-BEL횳GNING, CHINA NDC               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

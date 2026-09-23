@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER TRANS   FRÅN WDR4 OCH SKRIVER FIL                                    
+//*     FÖR ATT AVGÖRA OM RUTIN W476S5 SKALL STARTAS                            
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W476SX                                            
+//*                                                                             
+//*  ÅTERSTART:    W47661    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W476P061 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W476..W476SX                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47661   EXEC PGM=DFSRRC00,REGION=6M,                                         
+//             PARM=('&DBB,W47661,W47661,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDR4     INCLUDE MEMBER=WDR4                                                  
+//*                                                                             
+//W47661D1 DD  DSN=&INDUT..W47661(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ INVOICE INFO COD / IMP                                           
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             

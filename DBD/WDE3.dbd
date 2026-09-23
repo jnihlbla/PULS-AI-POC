@@ -1,0 +1,36 @@
+*        REFILL ORDERFÖRSLAG S-LAGER                                            
+*                                                                               
+         DBD   NAME=WDE3,                                              *        
+               ACCESS=(HISAM,VSAM)                                              
+         DATASET DD1=WDE3K,DEVICE=3390,SIZE=4096                                
+*                                                                               
+         SEGM  NAME=WDE301,PARENT=0,BYTES=67                                    
+         FIELD NAME=(WDE301KY,SEQ,U),BYTES=13,START=1,TYPE=X                    
+         FIELD NAME=(IDDC),BYTES=2,START=1,TYPE=X                               
+         FIELD NAME=(IDPERSON),BYTES=2,START=3,TYPE=P                           
+         FIELD NAME=(KDREFTYP),BYTES=1,START=5,TYPE=X                           
+         FIELD NAME=(IDARTNR),BYTES=5,START=6,TYPE=P                            
+         FIELD NAME=(IDDISTR),BYTES=3,START=11,TYPE=P                           
+         FIELD NAME=(KDREFORS),BYTES=1,START=39,TYPE=X                          
+         FIELD NAME=(IDDCREF),BYTES=2,START=57,TYPE=X                           
+*                                                                               
+         LCHILD NAME=(WDE3A1,WDE3A),PTR=SYMB                                    
+         XDFLD NAME=WDE3ASEQ,SEGMENT=WDE301,                           *        
+               SRCH=(KDREFTYP,IDPERSON,IDARTNR),                       *        
+               SUBSEQ=(IDDC),                                          *        
+               DDATA=(KDREFORS),                                       *        
+               EXTRTN=WDE3BEXT                                                  
+* EXIT FINNS NÄR KDREFTYP = C A B L T                                           
+*                                                                               
+*                                                                               
+         LCHILD NAME=(WDE3B1,WDE3B),PTR=SYMB                                    
+         XDFLD NAME=WDE3BSEQ,SEGMENT=WDE301,                           *        
+               SRCH=(KDREFTYP,IDARTNR),                                *        
+               SUBSEQ=(IDDC,IDPERSON),                                 *        
+               DDATA=(KDREFORS),                                       *        
+               EXTRTN=WDE3BEXT                                                  
+* EXIT FINNS NÄR KDREFTYP = C A B L T                                           
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

@@ -1,0 +1,207 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  VECKORAPPORT                                          *        
+*                                                                      *        
+*  FUNKTION   :  SUMMERAR LAGERVÄRDESTRANSAR FÖR RSREDO                *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON SEPT 2000                          *        
+*                                                                      *        
+*  INFILER    :  W51712 LAGERVÄRDESTRANSAR ALL DC:N, SAMT              *        
+*                       LAGERVÄRDESTRANSAR ORDERKÖSALDON               *        
+*                W51715 LAGERVÄRDESTRANSAR 'KARANTÄN I CDC'            *        
+*                W51718 LAGERVÄRDESTRANSAR, ÅF-RETURER CDC             *        
+*                W51719 LAGERVÄRDESTRANSAR, ÅF-RETURER ÖVRIGA DC       *        
+*                W011.W01177, VECKOLAGERBAND                           *        
+*                                                                      *        
+*  UTFIL      :  W51716, SUMMERAD LAGERVÄRDESFIL MED POSTER TYP RW9    *        
+*                W51716X,SUMMERAD LAGERVÄRDESFIL FÖR AZURE DATALAKE    *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W51716D1                                                                   
+* VECKOLAGERBANDET        ******                                                
+%W011100 'LB-'                                                                  
+                                                                                
+FILE W51716D2                                                                   
+* DIV. LAGRV.TRANSAR OSORTERADE                                                 
+%W51712   'I2-'                                                                 
+                                                                                
+* DIV. LAGRV.TRANSAR SORTERADE                                                  
+FILE TPFIL1 FB(27 0)                                                            
+%W51712   'T1-'                                                                 
+                                                                                
+* LAGERV. TRANSAR KOMPLETTERADE                                                 
+FILE TPFIL2 FB(56 0)                                                            
+%W517RW9  'T2-'                                                                 
+                                                                                
+*  LAGERVÄRDESTRANSAR SUMMERADE                                                 
+FILE W51716D3 VB(56 0)                                                          
+%W517RW9  'UT-'                                                                 
+                                                                                
+*  LAGERVÄRDESTRANSAR SUMMERADE TILL AZURE                                      
+FILE W51716D4 FB(42 0)                                                          
+%W51716X1 'UT-AZURE-'                                                           
+                                                                                
+NEWPAGE                                                                         
+*--------------------------*                                                    
+* DATUMKORT                *                                                    
+*--------------------------*                                                    
+                                                                                
+PROGRAM-NAMN   W    8    A        VALUE 'W5171600'                              
+DATUMKORT-ID   W    6    A        VALUE 'WDATUM'                                
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+W-DAVVREG      W            6    N                                              
+W-SEKEL        W-DAVVREG    2    N                                              
+W-TIAA         W-DAVVREG +2 2    N                                              
+W-TIVV         W-DAVVREG +4 2    N                                              
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+                                                                                
+*-----------------------------------------------------------*                   
+* STEG1  SORTERA LAGERVÄRDESTRANSARNA PÅ ARTIKELNUMMER                          
+*-----------------------------------------------------------*                   
+                                                                                
+SORT W51716D2 TO TPFIL1 USING (I2-IDARTNR) SIZE 500000                          
+                                                                                
+*-----------------------------------------------------------*                   
+* STEG2  MATCHA LAGERBAND OCH LAGERVFIL(TPFIL1) OCH SKAPA TPFIL2                
+*        FIXA TLL PRODUKTSLAG                                                   
+*-----------------------------------------------------------*                   
+                                                                                
+JOB INPUT (W51716D1 KEY (LB-IDARTNR) TPFIL1 KEY (T1-IDARTNR))                   
+                                                                                
+  IF MATCHED                                                                    
+    T2-KDPRODSL          = LB-KDPRODSL                                          
+    T2-SUAKSV            = T1-KVAKS   * LB-PRARTSTD                             
+    T2-SULSV             = T1-KVLS    * LB-PRARTSTD                             
+    T2-SUEFRV            = T1-KVEFRS  * LB-PRARTSTD                             
+    T2-SURESSV           = T1-KVRESS  * LB-PRARTSTD                             
+    T2-SUOKSV            = T1-KVOKS   * LB-PRARTSTD                             
+    T2-IDDC            = T1-IDDC                                                
+    PERFORM S23-CHECK-T2-IDDC                                                   
+*   IF T2-IDDC = NDC-PACIFIC                                                    
+    IF T2-IDDC = NDC-JP                                         +               
+    OR T2-IDDC = NDC-AU                                                         
+       PERFORM KONVERTERA-LOKALA-PRODUKTSLAG                                    
+    END-IF                                                                      
+    IF T2-KDPRODSL LT 90                                                        
+      PUT TPFIL2                                                                
+    END-IF                                                                      
+  ELSE                                                                          
+    IF TPFIL1                                                                   
+      DISPLAY 'OMATCHAD ARTIKEL ' T1-IDARTNR                                    
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+*    --- S23-CHECK-T2-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'T2-'                                                                   
+*                                                                               
+KONVERTERA-LOKALA-PRODUKTSLAG. PROC                                             
+  IF T2-KDPRODSL EQ 91                                                          
+    T2-KDPRODSL     = +11                                                       
+  END-IF                                                                        
+  IF T2-KDPRODSL EQ 93                                                          
+    T2-KDPRODSL    = +13                                                        
+  END-IF                                                                        
+  IF T2-KDPRODSL EQ 94                                                          
+    T2-KDPRODSL    = +14                                                        
+  END-IF                                                                        
+  IF T2-KDPRODSL EQ 95                                                          
+    T2-KDPRODSL    = +15                                                        
+  END-IF                                                                        
+  IF T2-KDPRODSL EQ 96                                                          
+    T2-KDPRODSL    = +16                                                        
+  END-IF                                                                        
+  IF T2-KDPRODSL EQ 98                                                          
+    T2-KDPRODSL    = +18                                                        
+  END-IF                                                                        
+  IF T2-KDPRODSL EQ 99                                                          
+    T2-KDPRODSL    = +19                                                        
+  END-IF                                                                        
+END-PROC                                                                        
+NEWPAGE                                                                         
+                                                                                
+*-----------------------------------------------------------*                   
+* STEG3  SORTERA ARTIKEL-LAGERVÄRDESTRANSARNA                                   
+*-----------------------------------------------------------*                   
+                                                                                
+SORT TPFIL2 TO TPFIL2 USING (T2-IDDC T2-KDPRODSL)                               
+                                                                                
+*-----------------------------------------------------------*                   
+* STEG4  SUMMERA ARTIKEL-LAGERVÄRDESTRANSARNA                                   
+*-----------------------------------------------------------*                   
+                                                                                
+JOB INPUT(TPFIL2) START A-INIT FINISH Z-FINIT                                   
+                                                                                
+IF RECORD-COUNT = 1                                                             
+   UT-IDDC          = T2-IDDC                                                   
+   UT-KDPRODSL      = T2-KDPRODSL                                               
+END-IF                                                                          
+                                                                                
+IF UT-KDPRODSL = T2-KDPRODSL AND +                                              
+   UT-IDDC     = T2-IDDC                                                        
+   UT-SULSV         = UT-SULSV    + T2-SULSV                                    
+   UT-SUEFRV        = UT-SUEFRV   + T2-SUEFRV                                   
+   UT-SURESSV       = UT-SURESSV  + T2-SURESSV                                  
+   UT-SUOKSV        = UT-SUOKSV   + T2-SUOKSV                                   
+   UT-SUAKSV        = UT-SUAKSV   + T2-SUAKSV                                   
+ELSE                                                                            
+   PUT W51716D3                                                                 
+                                                                                
+   PERFORM S11-WRITE-W51716X1                                                   
+                                                                                
+   UT-IDDC          = T2-IDDC                                                   
+   UT-KDPRODSL      = T2-KDPRODSL                                               
+   UT-SULSV         = T2-SULSV                                                  
+   UT-SUEFRV        = T2-SUEFRV                                                 
+   UT-SURESSV       = T2-SURESSV                                                
+   UT-SUOKSV        = T2-SUOKSV                                                 
+   UT-SUAKSV        = T2-SUAKSV                                                 
+END-IF                                                                          
+                                                                                
+A-INIT. PROC                                                                    
+  UT-IDPTYP        = 'RW9'                                                      
+  UT-KDWRTYP       = 0999                                                       
+  UT-IDDISTR       = +0                                                         
+  UT-SULSV         = +0                                                         
+  UT-SUEFRV        = +0                                                         
+  UT-SURESSV       = +0                                                         
+  UT-SUOKSV        = +0                                                         
+  UT-SUAKSV        = +0                                                         
+  CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                      
+  W-SEKEL          = 20                                                         
+  IF D-MAANAD EQ 12 AND D-DAG EQ 31                                             
+***  DÅ LIGGER JOBBET I ÅRSRUTINEN WYR001 OCH SKALL SKAPA                       
+***  INGÅENDE LAGERVÄRDE FÖR NYTT ÅR TILL NYA STANDARPRISER                     
+    W-TIAA         = D-AAR + 1                                                  
+    W-TIVV         = 00                                                         
+  ELSE                                                                          
+    W-TIAA         = D-AAR                                                      
+    W-TIVV         = D-VECKA                                                    
+  END-IF                                                                        
+  UT-DAVVREG       = W-DAVVREG                                                  
+END-PROC                                                                        
+                                                                                
+S11-WRITE-W51716X1. PROC                                                        
+  UT-AZURE-IDDC         = UT-IDDC                                               
+  UT-AZURE-KDPRODSL     = UT-KDPRODSL                                           
+  UT-AZURE-DAVVREG      = UT-DAVVREG                                            
+  UT-AZURE-SUAKSV       = UT-SUAKSV                                             
+  UT-AZURE-SULSV        = UT-SULSV                                              
+  UT-AZURE-SUEFRV       = UT-SUEFRV                                             
+  UT-AZURE-SURESSV      = UT-SURESSV                                            
+  UT-AZURE-SUOKSV       = UT-SUOKSV                                             
+                                                                                
+  PUT W51716D4                                                                  
+END-PROC                                                                        
+                                                                                
+Z-FINIT. PROC                                                                   
+   PUT W51716D3                                                                 
+                                                                                
+   PERFORM S11-WRITE-W51716X1                                                   
+END-PROC                                                                        

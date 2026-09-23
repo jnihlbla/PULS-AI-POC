@@ -1,0 +1,96 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4799100                                              *        
+*                                                                      *        
+*  FUNKTION   :  I PROCEDUREN SORTAS W47988 PÅ IDARTNR.                *        
+*                DENNA FIL MATCHAS SEDAN MOT W91042 OCH KOMPLETTERAS   *        
+*                MED ARTIKELNS STANDARDPRIS OCH SJÄLVKOSTNADSPRIS.     *        
+*                UTFIL W47991 SORTERAS SEDAN I PROCEDUDUREN PÅ DIST-   *        
+*                RIKT, KUND, ORDER OCH ARTNR.                          *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFANO GIOBBI                                        *        
+*                                                                      *        
+*  DATUM      :  920516                                                *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W47991D1                                                                   
+%W91042 'I42-'                                                                  
+NEWPAGE                                                                         
+*                                                                               
+FILE W47991D2                                                                   
+%W47988 'I88-'                                                                  
+NEWPAGE                                                                         
+*                                                                               
+FILE W47991D3 FB (88 0)                                                         
+%W47991 'U91-'                                                                  
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                                   W      1 A   VALUE 'J'                   
+  NEJ                                  W      1 A   VALUE 'N'                   
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+JOB INPUT (W47991D1 KEY (I42-IDARTNR)      +                                    
+           W47991D2 KEY (I88-IDARTNR))     +                                    
+                                                         NAME STEG01            
+  IF MATCHED                                                                    
+    PERFORM A-FYLL-W47991-POST                                                  
+    U91-PRARTSTD = I42-PRARTSTD                                                 
+    PUT W47991D3                                                                
+  ELSE                                                                          
+    IF W47991D2                                                                 
+      PERFORM A-FYLL-W47991-POST                                                
+      U91-PRARTSTD = 0                                                          
+      PUT W47991D3                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  A-FYLL-W47991-POST.  PROC                                                     
+                                                                                
+    U91-IDDISTR           = I88-IDDISTR                                         
+    U91-IDKUNDNR          = I88-IDKUNDNR                                        
+    U91-IDKUNDRF          = I88-IDKUNDRF                                        
+    U91-IDPRODNR          = I88-IDPRODNR                                        
+    U91-IDARTNR           = I88-IDARTNR                                         
+    U91-IDDC              = I88-IDDC                                            
+    U91-KVBEART-Q         = I88-KVBEART-Q                                       
+    U91-KDFRAKT           = I88-KDFRAKT                                         
+    U91-KDORDKL           = I88-KDORDKL                                         
+    U91-TIBEGPAC          = I88-TIBEGPAC                                        
+    U91-TIREGDAT          = I88-TIREGDAT                                        
+    U91-ADLAGOMR          = I88-ADLAGOMR                                        
+    U91-VKART             = I88-VKART                                           
+    U91-VLARTNTO          = I88-VLARTNTO                                        
+    U91-PRARTNTO          = I88-PRARTNTO                                        
+    U91-PRARTNTO-LOC      = I88-PRARTNTO-LOC                                    
+    U91-PRARTNTO-LOCPREL  = I88-PRARTNTO-LOCPREL                                
+    U91-KDVALISO          = I88-KDVALISO                                        
+    U91-IDPRC             = I88-IDPRC                                           
+    U91-KDPRODSL          = I88-KDPRODSL                                        
+    U91-IDLEVNR           = I88-IDLEVNR                                         
+                                                                                
+  END-PROC.                                                                     
+                                                                                
+NEWPAGE                                                                         

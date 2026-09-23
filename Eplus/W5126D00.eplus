@@ -1,0 +1,405 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5126D00                                              *        
+*                                                                      *        
+*  FUNCTION   :  CREATES STOCK VALUE REPORT                            *        
+*                BASED ON TURN OVER GROUP AND PRODUCT GROUP            *        
+*                                                                      *        
+*  AUTHOR     :  SARASWATHY S                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+FILE W5126DD1 FB(69 0)                                                          
+%W51268  'IN-'                                                                  
+*                                                                               
+FILE TPFILE2  FB(69 0)                                                          
+%W51268  'TP2-'                                                                 
+*                                                                               
+FILE TPFILE1  FB(51 0)                                                          
+TP1-KDPRODSL        1 2  P                                                      
+TP1-TOTSTOCKVL      3 7  P 2                                                    
+TP1-STOCKVALUE1    10 7  P 2                                                    
+TP1-STOCKVALUE2    17 7  P 2                                                    
+TP1-STOCKVALUE3    24 7  P 2                                                    
+TP1-STOCKVALUE4    31 7  P 2                                                    
+TP1-STOCKVALUE5    38 7  P 2                                                    
+TP1-STOCKVALUE6    45 7  P 2                                                    
+*                                                                               
+FILE W5126DD2 VB(90 0)                                                          
+UT-DATA             1 90 A                                                      
+**                                                                              
+U01-HEAD1    W     90   A                                                       
+U01-COL11        U01-HEAD1          10  A VALUE 'W5126D-001'                    
+U01-BLK11        U01-HEAD1      +11  1  A VALUE ';'                             
+U01-COL12        U01-HEAD1      +12 17  A VALUE 'STOCK TURNOVER BY'             
+U01-BLK12        U01-HEAD1      +29  1  A VALUE ';'                             
+U01-COL13        U01-HEAD1      +30 17  A VALUE 'SHELF-LIFE METOD '             
+U01-BLK13        U01-HEAD1      +47  1  A VALUE ';'                             
+U01-COL14        U01-HEAD1      +48  5  A VALUE 'DATE:'                         
+U01-COL15        U01-HEAD1      +53 10  A                                       
+U01-BLK15        U01-HEAD1      +63  1  A VALUE ';'                             
+U01-COL16        U01-HEAD1      +64 13  A VALUE 'CURRENCY: SEK'                 
+**                                                                              
+U01-HEAD2    W     90   A                                                       
+U01-COL21        U01-HEAD2          14  A VALUE 'TURNOVER GROUP'                
+U01-BLK21        U01-HEAD2      +15  1  A VALUE ';'                             
+U01-COL22        U01-HEAD2      +16 13  A VALUE 'PRODUCT GROUP'                 
+U01-BLK22        U01-HEAD2      +29  1  A VALUE ';'                             
+U01-COL23        U01-HEAD2      +30 10  A VALUE 'STOCKVALUE'                    
+U01-BLK23        U01-HEAD2      +40  1  A VALUE ';'                             
+U01-COL24        U01-HEAD2      +42 15  A VALUE '% OF STOCKVALUE'               
+U01-BLK24        U01-HEAD2      +57  1  A VALUE ';'                             
+U01-COL25        U01-HEAD2      +58 12  A VALUE 'OBSOLESCENCE'                  
+**                                                                              
+U02-DATA     W     90   A                                                       
+U02-KDPRODSL     U02-DATA            2  N                                       
+U02-SEP1         U02-DATA       +3   1  A  VALUE ';'                            
+U02-KDKG         U02-DATA       +4   1  N                                       
+U02-SEP2         U02-DATA       +5   1  A  VALUE ';'                            
+U02-STOCKVALUEN  U02-DATA       +6  11  N 0                                     
+U02-SEP3         U02-DATA       +17  1  A  VALUE '.'                            
+U02-STOCKVALUED  U02-DATA       +18  2  N 2                                     
+U02-SEP4         U02-DATA       +20  1  A  VALUE ';'                            
+U02-PERCENTAGEN  U02-DATA       +21  3  N 0                                     
+U02-SEP5         U02-DATA       +24  1  A  VALUE '.'                            
+U02-PERCENTAGED  U02-DATA       +25  2  N 2                                     
+U02-SEP6         U02-DATA       +27  1  A  VALUE ';'                            
+U02-OBSN         U02-DATA       +28 11  N 0                                     
+U02-SEP7         U02-DATA       +39  1  A  VALUE '.'                            
+U02-OBSD         U02-DATA       +40  2  N 2                                     
+**                                                                              
+U03-FOOT     W     90   A                                                       
+U03-COL1         U03-FOOT            6  A   VALUE 'TOTAL:'                      
+U03-SEP2         U03-FOOT       +7   1  A   VALUE ';'                           
+U03-KDPRODSL     U03-FOOT       +8   2  N                                       
+U03-SEP3         U03-FOOT       +12  1  A   VALUE ';'                           
+U03-STOCKVALUEN  U03-FOOT       +13 11  N 0                                     
+U03-SEP4         U03-FOOT       +24  1  A   VALUE '.'                           
+U03-STOCKVALUED  U03-FOOT       +25  2  N 2                                     
+U03-SEP5         U03-FOOT       +27  1  A   VALUE ';'                           
+U03-PERCENTAGEN  U03-FOOT       +28  3  N 0                                     
+U03-SEP6         U03-FOOT       +31  1  A   VALUE '.'                           
+U03-PERCENTAGED  U03-FOOT       +32  2  N 2                                     
+U03-SEP7         U03-FOOT       +34  1  A   VALUE ';'                           
+U03-OBSN         U03-FOOT       +35  9  N 0                                     
+U03-SEP8         U03-FOOT       +44  1  A   VALUE '.'                           
+U03-OBSD         U03-FOOT       +45  2  N 2                                     
+**                                                                              
+U04-TOTAL    W     90   A                                                       
+U04-COL1         U04-TOTAL          19  A   VALUE 'TOTAL IN OBS      :'         
+U04-SEP2         U04-TOTAL      +20  1  A   VALUE ';'                           
+U04-TOTOBSN      U04-TOTAL      +21 11  N 0                                     
+U04-SEP3         U04-TOTAL      +32  1  A   VALUE '.'                           
+U04-TOTOBSD      U04-TOTAL      +33  2  N 2                                     
+**                                                                              
+U05-TOTAL    W     90   A                                                       
+U05-COL1         U05-TOTAL          19  A   VALUE 'TOTAL IN TURNOVER :'         
+U05-SEP1         U05-TOTAL      +20  1  A   VALUE ';'                           
+U05-STOCKVALUEN  U05-TOTAL      +21 11  N 0                                     
+U05-SEP2         U05-TOTAL      +32  1  A   VALUE '.'                           
+U05-STOCKVALUED  U05-TOTAL      +33  2  N 2                                     
+**                                                                              
+UT-BLANK     W     90 A VALUE '                                      '          
+*                                                                               
+NEWPAGE                                                                         
+WS-TOT-STOCKVALUE W   9   P   2 VALUE 0                                         
+WS-TOT-OBS        W   9   P   2 VALUE 0                                         
+WS-TOT-PERCENTAGE W   5   P   2 VALUE 0                                         
+WS-STOCKVALUE1   W   9   P   2 VALUE 0                                          
+WS-STOCKVALUE2   W   9   P   2 VALUE 0                                          
+WS-STOCKVALUE3   W   9   P   2 VALUE 0                                          
+WS-STOCKVALUE4   W   9   P   2 VALUE 0                                          
+WS-STOCKVALUE5   W   9   P   2 VALUE 0                                          
+WS-STOCKVALUE6   W   9   P   2 VALUE 0                                          
+WS-SUP-TOT-STVL  W   9   P   2 VALUE 0                                          
+WS-SUP-TOT-OBS   W  13   N   2 VALUE 0                                          
+WS1-INKRESDEL    W   3   P   2 VALUE 0.02                                       
+WS2-INKRESDEL    W   3   P   2 VALUE 0.02                                       
+WS3-INKRESDEL    W   3   P   2 VALUE 0.14                                       
+WS4-INKRESDEL    W   3   P   2 VALUE 0.58                                       
+WS5-INKRESDEL    W   3   P   2 VALUE 0.91                                       
+WS6-INKRESDEL    W   3   P   2 VALUE 1.00                                       
+WS-KDKG1         W   1   N   0 VALUE 1                                          
+WS-KDKG2         W   1   N   0 VALUE 2                                          
+WS-KDKG3         W   1   N   0 VALUE 3                                          
+WS-KDKG4         W   1   N   0 VALUE 4                                          
+WS-KDKG5         W   1   N   0 VALUE 5                                          
+WS-KDKG6         W   1   N   0 VALUE 6                                          
+WRITE-FLAG       W   1   A     VALUE 'Y'                                        
+W-DATE           W  10  A                                                       
+RUB-DATAA   W-DATE           2  N                                               
+RUB-SEP1    W-DATE       +3  1  A VALUE '-'                                     
+RUB-DATMM   W-DATE       +4  2  N                                               
+RUB-SEP2    W-DATE       +6  1  A VALUE '-'                                     
+RUB-DATDD   W-DATE       +7  2  N                                               
+*                                                                               
+W-STVL-FMT       W  13  N 2                                                     
+W-STVL-N        W-STVL-FMT         11  N 0                                      
+W-STVL-D        W-STVL-FMT     +11  2  N 2                                      
+W-PERC-FMT1  W 10 N 5                                                           
+W-PERC-TO W 10 N 2                                                              
+W-PERC-FMT       W  5   N 2                                                     
+W-PERC-N        W-PERC-FMT         3  N 0                                       
+W-PERC-D        W-PERC-FMT     +3  2  N 2                                       
+W-OBS-FMT       W  13   N 2                                                     
+W-OBS-N        W-OBS-FMT         11  N 0                                        
+W-OBS-D        W-OBS-FMT     +11  2  N 2                                        
+                                                                                
+%WDATKORT                                                                       
+PROGRAM-NAMN     W   6   A  VALUE 'W5126D'                                      
+DATUMKORT-ID     W   6   A  VALUE 'WDATUM'                                      
+                                                                                
+*----------------------------------------------------------------------*        
+* STEP 1. SORTS W51268 FILE ON PRODUCT GROUP                                    
+*----------------------------------------------------------------------*        
+SORT W5126DD1 TO TPFILE2  USING (IN-KDPRODSL) SIZE 900000 +                     
+                            BEFORE SORT-INIT                                    
+ SORT-INIT. PROC                                                                
+  IF IN-STOCKVALUE1 EQ 0 AND +                                                  
+    IN-STOCKVALUE2 EQ 0 AND +                                                   
+    IN-STOCKVALUE3 EQ 0 AND +                                                   
+    IN-STOCKVALUE4 EQ 0 AND +                                                   
+    IN-STOCKVALUE5 EQ 0 AND +                                                   
+    IN-STOCKVALUE6 EQ 0                                                         
+    CONTINUE                                                                    
+  ELSE                                                                          
+    SELECT                                                                      
+  END-IF                                                                        
+ END-PROC                                                                       
+*                                                                               
+*----------------------------------------------------------------------*        
+* STEP 2. READS W51268 FILE ON PRODUCT GROUP                                    
+*----------------------------------------------------------------------*        
+JOB INPUT (TPFILE2  KEY(TP2-KDPRODSL))                                          
+       TP1-KDPRODSL    = TP2-KDPRODSL                                           
+       WS-STOCKVALUE1 = WS-STOCKVALUE1 + TP2-STOCKVALUE1                        
+       WS-STOCKVALUE2 = WS-STOCKVALUE2 + TP2-STOCKVALUE2                        
+       WS-STOCKVALUE3 = WS-STOCKVALUE3 + TP2-STOCKVALUE3                        
+       WS-STOCKVALUE4 = WS-STOCKVALUE4 + TP2-STOCKVALUE4                        
+       WS-STOCKVALUE5 = WS-STOCKVALUE5 + TP2-STOCKVALUE5                        
+       WS-STOCKVALUE6 = WS-STOCKVALUE6 + TP2-STOCKVALUE6                        
+    IF LAST-DUP TPFILE2 OR NOT DUPLICATE TPFILE2                                
+       TP1-TOTSTOCKVL  = WS-STOCKVALUE1 + WS-STOCKVALUE2       +                
+                       + WS-STOCKVALUE3 + WS-STOCKVALUE4       +                
+                       + WS-STOCKVALUE5 + WS-STOCKVALUE6                        
+       TP1-STOCKVALUE1 = WS-STOCKVALUE1                                         
+       TP1-STOCKVALUE2 = WS-STOCKVALUE2                                         
+       TP1-STOCKVALUE3 = WS-STOCKVALUE3                                         
+       TP1-STOCKVALUE4 = WS-STOCKVALUE4                                         
+       TP1-STOCKVALUE5 = WS-STOCKVALUE5                                         
+       TP1-STOCKVALUE6 = WS-STOCKVALUE6                                         
+       PUT TPFILE1                                                              
+       WS-STOCKVALUE1 = 0                                                       
+       WS-STOCKVALUE2 = 0                                                       
+       WS-STOCKVALUE3 = 0                                                       
+       WS-STOCKVALUE4 = 0                                                       
+       WS-STOCKVALUE5 = 0                                                       
+       WS-STOCKVALUE6 = 0                                                       
+    END-IF                                                                      
+*----------------------------------------------------------------------*        
+* STEP 3. SORTS TPFILE1 ON PRODUCT GROUP                                        
+*----------------------------------------------------------------------*        
+SORT TPFILE1 TO TPFILE1 USING (TP1-KDPRODSL) SIZE 900000                        
+*----------------------------------------------------------------------*        
+* STEP 4. READS TPFILE1 ON PRODUCT GROUP                                        
+*----------------------------------------------------------------------*        
+JOB INPUT (TPFILE1  KEY(TP1-KDPRODSL))  START A-INIT +                          
+                                        FINISH Z-FINIT                          
+    U02-KDPRODSL      = TP1-KDPRODSL                                            
+    IF TP1-STOCKVALUE1 NE 0                                                     
+       U02-KDKG          = WS-KDKG1                                             
+       W-STVL-FMT        = TP1-STOCKVALUE1                                      
+       WS-TOT-STOCKVALUE = WS-TOT-STOCKVALUE + W-STVL-FMT                       
+       U02-STOCKVALUEN   = W-STVL-N                                             
+       U02-STOCKVALUED   = W-STVL-D                                             
+       W-PERC-FMT1 = 100 * (TP1-STOCKVALUE1 / TP1-TOTSTOCKVL)                   
+       W-PERC-TO  ROUNDED = W-PERC-FMT1                                         
+       W-PERC-FMT         = W-PERC-TO                                           
+       WS-TOT-PERCENTAGE = 100 * (TP1-TOTSTOCKVL / TP1-TOTSTOCKVL)              
+       U02-PERCENTAGEN = W-PERC-N                                               
+       U02-PERCENTAGED = W-PERC-D                                               
+       W-OBS-FMT         = TP1-STOCKVALUE1 * WS1-INKRESDEL                      
+       WS-TOT-OBS        = WS-TOT-OBS + W-OBS-FMT                               
+       U02-OBSN          = W-OBS-N                                              
+       U02-OBSD          = W-OBS-D                                              
+       UT-DATA = U02-DATA                                                       
+       PUT W5126DD2                                                             
+       W-OBS-FMT  = 0                                                           
+       W-STVL-FMT = 0                                                           
+       W-PERC-FMT = 0                                                           
+       W-PERC-FMT1 = 0                                                          
+       W-PERC-TO   = 0                                                          
+    END-IF                                                                      
+    IF TP1-STOCKVALUE2 NE 0                                                     
+       U02-KDKG          = WS-KDKG2                                             
+       W-STVL-FMT        = TP1-STOCKVALUE2                                      
+       WS-TOT-STOCKVALUE = WS-TOT-STOCKVALUE + W-STVL-FMT                       
+       U02-STOCKVALUEN   = W-STVL-N                                             
+       U02-STOCKVALUED   = W-STVL-D                                             
+       W-PERC-FMT1 = 100 * (TP1-STOCKVALUE2 / TP1-TOTSTOCKVL)                   
+       W-PERC-TO  ROUNDED = W-PERC-FMT1                                         
+       W-PERC-FMT         = W-PERC-TO                                           
+       WS-TOT-PERCENTAGE = 100 * (TP1-TOTSTOCKVL / TP1-TOTSTOCKVL)              
+       U02-PERCENTAGEN = W-PERC-N                                               
+       U02-PERCENTAGED = W-PERC-D                                               
+       W-OBS-FMT         = TP1-STOCKVALUE2 * WS2-INKRESDEL                      
+       WS-TOT-OBS        = WS-TOT-OBS + W-OBS-FMT                               
+       U02-OBSN          = W-OBS-N                                              
+       U02-OBSD          = W-OBS-D                                              
+       UT-DATA = U02-DATA                                                       
+       PUT W5126DD2                                                             
+       W-OBS-FMT  = 0                                                           
+       W-STVL-FMT = 0                                                           
+       W-PERC-FMT = 0                                                           
+       W-PERC-FMT1 = 0                                                          
+       W-PERC-TO   = 0                                                          
+    END-IF                                                                      
+    IF TP1-STOCKVALUE3 NE 0                                                     
+       U02-KDKG          = WS-KDKG3                                             
+       W-STVL-FMT        = TP1-STOCKVALUE3                                      
+       WS-TOT-STOCKVALUE = WS-TOT-STOCKVALUE + W-STVL-FMT                       
+       U02-STOCKVALUEN   = W-STVL-N                                             
+       U02-STOCKVALUED   = W-STVL-D                                             
+       W-PERC-FMT1 = 100 * (TP1-STOCKVALUE3 / TP1-TOTSTOCKVL)                   
+       W-PERC-TO  ROUNDED = W-PERC-FMT1                                         
+       W-PERC-FMT         = W-PERC-TO                                           
+       WS-TOT-PERCENTAGE = 100 * (TP1-TOTSTOCKVL / TP1-TOTSTOCKVL)              
+       U02-PERCENTAGEN = W-PERC-N                                               
+       U02-PERCENTAGED = W-PERC-D                                               
+       W-OBS-FMT         = TP1-STOCKVALUE3 * WS3-INKRESDEL                      
+       WS-TOT-OBS        = WS-TOT-OBS + W-OBS-FMT                               
+       U02-OBSN          = W-OBS-N                                              
+       U02-OBSD          = W-OBS-D                                              
+       UT-DATA = U02-DATA                                                       
+       PUT W5126DD2                                                             
+       W-OBS-FMT  = 0                                                           
+       W-STVL-FMT = 0                                                           
+       W-PERC-FMT = 0                                                           
+       W-PERC-FMT1 = 0                                                          
+       W-PERC-TO   = 0                                                          
+    END-IF                                                                      
+    IF TP1-STOCKVALUE4 NE 0                                                     
+       U02-KDKG          = WS-KDKG4                                             
+       W-STVL-FMT        = TP1-STOCKVALUE4                                      
+       WS-TOT-STOCKVALUE = WS-TOT-STOCKVALUE + W-STVL-FMT                       
+       U02-STOCKVALUEN   = W-STVL-N                                             
+       U02-STOCKVALUED   = W-STVL-D                                             
+       W-PERC-FMT1 = 100 * (TP1-STOCKVALUE4 / TP1-TOTSTOCKVL)                   
+       W-PERC-TO  ROUNDED = W-PERC-FMT1                                         
+       W-PERC-FMT         = W-PERC-TO                                           
+       WS-TOT-PERCENTAGE = 100 * (TP1-TOTSTOCKVL / TP1-TOTSTOCKVL)              
+       U02-PERCENTAGEN = W-PERC-N                                               
+       U02-PERCENTAGED = W-PERC-D                                               
+       W-OBS-FMT         = TP1-STOCKVALUE4 * WS4-INKRESDEL                      
+       WS-TOT-OBS        = WS-TOT-OBS + W-OBS-FMT                               
+       U02-OBSN          = W-OBS-N                                              
+       U02-OBSD          = W-OBS-D                                              
+       UT-DATA = U02-DATA                                                       
+       PUT W5126DD2                                                             
+       W-OBS-FMT  = 0                                                           
+       W-STVL-FMT = 0                                                           
+       W-PERC-FMT = 0                                                           
+       W-PERC-FMT1 = 0                                                          
+       W-PERC-TO   = 0                                                          
+    END-IF                                                                      
+    IF TP1-STOCKVALUE5 NE 0                                                     
+       U02-KDKG          = WS-KDKG5                                             
+       W-STVL-FMT        = TP1-STOCKVALUE5                                      
+       WS-TOT-STOCKVALUE = WS-TOT-STOCKVALUE + W-STVL-FMT                       
+       U02-STOCKVALUEN   = W-STVL-N                                             
+       U02-STOCKVALUED   = W-STVL-D                                             
+       W-PERC-FMT1 = 100 * (TP1-STOCKVALUE5 / TP1-TOTSTOCKVL)                   
+       W-PERC-TO  ROUNDED = W-PERC-FMT1                                         
+       W-PERC-FMT         = W-PERC-TO                                           
+       WS-TOT-PERCENTAGE = 100 * (TP1-TOTSTOCKVL / TP1-TOTSTOCKVL)              
+       U02-PERCENTAGEN = W-PERC-N                                               
+       U02-PERCENTAGED = W-PERC-D                                               
+       W-OBS-FMT         = TP1-STOCKVALUE5 * WS5-INKRESDEL                      
+       WS-TOT-OBS        = WS-TOT-OBS + W-OBS-FMT                               
+       U02-OBSN          = W-OBS-N                                              
+       U02-OBSD          = W-OBS-D                                              
+       UT-DATA = U02-DATA                                                       
+       PUT W5126DD2                                                             
+       W-OBS-FMT  = 0                                                           
+       W-STVL-FMT = 0                                                           
+       W-PERC-FMT = 0                                                           
+       W-PERC-FMT1 = 0                                                          
+       W-PERC-TO   = 0                                                          
+    END-IF                                                                      
+    IF TP1-STOCKVALUE6 NE 0                                                     
+       U02-KDKG          = WS-KDKG5                                             
+       W-STVL-FMT        = TP1-STOCKVALUE6                                      
+       WS-TOT-STOCKVALUE = WS-TOT-STOCKVALUE + W-STVL-FMT                       
+       U02-STOCKVALUEN   = W-STVL-N                                             
+       U02-STOCKVALUED   = W-STVL-D                                             
+       W-PERC-FMT1 = 100 * (TP1-STOCKVALUE6 / TP1-TOTSTOCKVL)                   
+       W-PERC-TO  ROUNDED = W-PERC-FMT1                                         
+       W-PERC-FMT         = W-PERC-TO                                           
+       WS-TOT-PERCENTAGE = 100 * (TP1-TOTSTOCKVL / TP1-TOTSTOCKVL)              
+       U02-PERCENTAGEN = W-PERC-N                                               
+       U02-PERCENTAGED = W-PERC-D                                               
+       W-OBS-FMT         = TP1-STOCKVALUE6 * WS6-INKRESDEL                      
+       WS-TOT-OBS        = WS-TOT-OBS + W-OBS-FMT                               
+       U02-OBSN          = W-OBS-N                                              
+       U02-OBSD          = W-OBS-D                                              
+       UT-DATA = U02-DATA                                                       
+       PUT W5126DD2                                                             
+       W-OBS-FMT  = 0                                                           
+       W-STVL-FMT = 0                                                           
+       W-PERC-FMT = 0                                                           
+       W-PERC-FMT1 = 0                                                          
+       W-PERC-TO   = 0                                                          
+    END-IF                                                                      
+    IF LAST-DUP TPFILE1 OR NOT DUPLICATE TPFILE1                                
+       U03-KDPRODSL    = U02-KDPRODSL                                           
+       WS-SUP-TOT-STVL = WS-SUP-TOT-STVL + WS-TOT-STOCKVALUE                    
+       W-STVL-FMT      = WS-TOT-STOCKVALUE                                      
+       U03-STOCKVALUEN = W-STVL-N                                               
+       U03-STOCKVALUED = W-STVL-D                                               
+       W-PERC-FMT      = WS-TOT-PERCENTAGE                                      
+       U03-PERCENTAGEN = W-PERC-N                                               
+       U03-PERCENTAGED = W-PERC-D                                               
+       WS-SUP-TOT-OBS  = WS-SUP-TOT-OBS  + WS-TOT-OBS                           
+       W-OBS-FMT       = WS-TOT-OBS                                             
+       U03-OBSN        = W-OBS-N                                                
+       U03-OBSD        = W-OBS-D                                                
+       UT-DATA         = U03-FOOT                                               
+       PUT W5126DD2                                                             
+       UT-DATA         = UT-BLANK                                               
+       PUT W5126DD2                                                             
+       WS-TOT-STOCKVALUE = 0                                                    
+       WS-TOT-OBS        = 0                                                    
+       WS-TOT-PERCENTAGE = 0                                                    
+       W-OBS-FMT  = 0                                                           
+       W-STVL-FMT = 0                                                           
+       W-PERC-FMT = 0                                                           
+    END-IF                                                                      
+  A-INIT. PROC                                                                  
+    IF WRITE-FLAG = 'Y'                                                         
+       CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                 
+       RUB-DATAA  = D-AAR                                                       
+       RUB-DATMM  = D-MAANAD                                                    
+       RUB-DATDD  = D-DAG                                                       
+       U01-COL15  = W-DATE                                                      
+       UT-DATA    = U01-HEAD1                                                   
+       PUT W5126DD2                                                             
+       UT-DATA    = U01-HEAD2                                                   
+       PUT W5126DD2                                                             
+       WRITE-FLAG = 'N'                                                         
+    END-IF                                                                      
+  END-PROC                                                                      
+  Z-FINIT. PROC                                                                 
+    W-OBS-FMT       = WS-SUP-TOT-OBS                                            
+    U04-TOTOBSN     = W-OBS-N                                                   
+    U04-TOTOBSD     = W-OBS-D                                                   
+    UT-DATA    = U04-TOTAL                                                      
+    PUT W5126DD2                                                                
+    W-STVL-FMT      = WS-SUP-TOT-STVL                                           
+    U05-STOCKVALUEN = W-STVL-N                                                  
+    U05-STOCKVALUED = W-STVL-D                                                  
+    UT-DATA    = U05-TOTAL                                                      
+    PUT W5126DD2                                                                
+    W-OBS-FMT = 0                                                               
+    W-STVL-FMT = 0                                                              
+  END-PROC                                                                      
+*                                                                               

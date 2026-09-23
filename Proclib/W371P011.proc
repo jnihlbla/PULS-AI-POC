@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  BYTES BANK - UPPDATERAR WDP8 MED ORDERTRANSAKTIONER                        
+//*             - SKAPAR SIGNALFIL                                              
+//*                                                                             
+//*  FREKVENS:    VECKA     RTN W371V8                                          
+//*                                                                             
+//*  ÅTERSTART:   W37111    NORMAL  (BMP)                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P011 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W371..W371V8,                                             
+//             INDUT=&W371..W371V8                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371S1  EXEC PGM=SORT                                                         
+//* SEKVENS= IDDISTR-BET/KDEXCHA/IDDISTR                                        
+//SORTIN   DD  DSN=&INDIN..W37111(+0),DISP=SHR                                  
+//************ ORDERTRANSAKTIONER TILL FAKTURERING                              
+//*                                                                             
+//SORTOUT  DD  DSN=&&W37111,DISP=(NEW,PASS,DELETE),                             
+//************ MELLANLAGRINGSFIL                                    ***         
+//             SPACE=(33,(10,1),RLSE),AVGREC=K                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W371PD11),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W37111   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W37111,W37111,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W37111D1 DD  DSN=&&W37111,DISP=(OLD,DELETE,DELETE)                            
+//************ MELLANLAGRINGSFIL                                                
+//W37111D2 DD  DSN=&INDUT..W37133(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SIGNALFIL                                                        
+//             SPACE=(5,(2,1),RLSE),AVGREC=K,                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

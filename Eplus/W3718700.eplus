@@ -1,0 +1,155 @@
+                                                                                
+**********************************************************************          
+*                                                                    *          
+* PROGRAM ............ : W37187                                      *          
+*                                                                    *          
+* SKRIVET AV ......... : PER FREDRIKSSON  57054                      *          
+*                                                                    *          
+* DATUM .............. : 930222                                      *          
+*                                                                    *          
+* FUNKTION .. : DETTA PROGRAM LÄSER IN BYTESREGISTER W37187          *          
+*               SKRIVER FELLISTA                                     *          
+*                                                                    *          
+* INDATA .... : W371.W37187(+0)                                      *          
+*                                                                    *          
+* LISTA ..... : W37187-001                                           *          
+*                                                                    *          
+**********************************************************************          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*****************************************************************               
+*                                                               *               
+* INFIL W371.W37187(+0)                                         *               
+*                                                               *               
+*****************************************************************               
+FILE W37187D1                                                                   
+%W371861 (W371-)                                                                
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* ARBETSAREA                                                    *               
+*                                                               *               
+*****************************************************************               
+*                                                                               
+W-IDPTYP                W   3  A                                                
+W-IDLOPNR               W   3  N     MASK 'ZZ9'                                 
+W-IDDISTR-FOM           W   5  N     MASK 'ZZZZZ'                               
+W-IDDISTR-TOM           W   5  N     MASK 'ZZZZZ'                               
+W-IDKUNDNR-FOM          W   7  N     MASK 'ZZZZZZZ'                             
+W-IDKUNDNR-TOM          W   7  N     MASK 'ZZZZZZZ'                             
+W-IDSKYLT               W   3  A                                                
+W-KVVECKOR              W   3  N     MASK 'ZZZ'                                 
+W-IDFKNGRP-FOM          W   5  N     MASK 'ZZZZZ'                               
+W-IDFKNGRP-TOM          W   5  N     MASK 'ZZZZZ'                               
+W-IDDISTR-NYTT          W   5  N     MASK 'ZZZZZ'                               
+*                                                                               
+W-IN-DATUM              W   8  A                                                
+W-IN-AA    W-IN-DATUM       2  N                                                
+W-IN-MM    W-IN-DATUM  +3   2  N                                                
+W-IN-DD    W-IN-DATUM  +6   2  N                                                
+*                                                                               
+W-UT-DATUM              W   6  N     MASK '99-99-99'                            
+W-UT-AA    W-UT-DATUM       2  N                                                
+W-UT-MM    W-UT-DATUM  +2   2  N                                                
+W-UT-DD    W-UT-DATUM  +4   2  N                                                
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* RAPPORT                                                       *               
+*                                                               *               
+*****************************************************************               
+FILE W37187D2 FB(121 6171) PRINTER                                              
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* JOBSTEG 1 : LÄSER IN W37187D1                                 *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT W37187D1                                              +               
+    START A-INIT                                                +               
+NAME STEG-1-LÄSER-INFIL-SKRIVER-RAPPORT                                         
+                                                                                
+  W-IDPTYP         =  W371-IDPTYP                                               
+  W-IDLOPNR        =  W371-IDLOPNR                                              
+  W-IDDISTR-FOM    =  W371-IDDISTR-FOM                                          
+  W-IDDISTR-TOM    =  W371-IDDISTR-TOM                                          
+  W-IDKUNDNR-FOM   =  W371-IDKUNDNR-FOM                                         
+  W-IDKUNDNR-TOM   =  W371-IDKUNDNR-TOM                                         
+  W-IDSKYLT        =  W371-IDSKYLT                                              
+  W-KVVECKOR       =  W371-KVVECKOR                                             
+  W-IDFKNGRP-FOM   =  W371-IDFKNGRP-FOM                                         
+  W-IDFKNGRP-TOM   =  W371-IDFKNGRP-TOM                                         
+  W-IDDISTR-NYTT   =  W371-IDDISTR-NYTT                                         
+                                                                                
+  PRINT RAPPORT01                                                               
+                                                                                
+NEWPAGE                                                                         
+A-INIT. PROC                                                                    
+                                                                                
+  W-IN-DATUM = SYSDATE                                                          
+  W-UT-AA  =  W-IN-AA                                                           
+  W-UT-MM  =  W-IN-MM                                                           
+  W-UT-DD  =  W-IN-DD                                                           
+                                                                                
+END-PROC                                                                        
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* RAPPORTBESKRIVNING                                            *               
+*                                                               *               
+*****************************************************************               
+REPORT RAPPORT01                                            +                   
+       PRINTER W37187D2                                     +                   
+       NOHEADING                                            +                   
+       NOADJUST                                             +                   
+       NOSPREAD                                             +                   
+       NODATE                                               +                   
+       TITLESKIP 1                                          +                   
+       LINESIZE 120                                                             
+                                                                                
+  SEQUENCE                                                  +                   
+          W-IDPTYP                                          +                   
+          W-IDLOPNR                                                             
+                                                                                
+  CONTROL                                                   +                   
+          W-IDPTYP NOPRINT NEWPAGE                                              
+                                                                                
+  TITLE 1 COL   1 'W37187-001    VOLVO CAR AFTERSALES'      +                   
+          COL  45 'DISTRIKT INTERVALL   BYTES'              +                   
+          COL  77 'FELLISTA'                                +                   
+          COL  90 'DATUM'                                   +                   
+          COL  97 W-UT-DATUM                                                    
+                                                                                
+  TITLE 4 COL   1 'POSTTYP'                                 +                   
+          COL  10 'LÖPNR'                                   +                   
+          COL  17 'DISTRIKT FOM'                            +                   
+          COL  31 'DISTRIKT TOM'                            +                   
+          COL  45 'KUNDNR FOM'                              +                   
+          COL  57 'KUNDNR TOM'                              +                   
+          COL  69 'SPRÅK'                                   +                   
+          COL  76 'VECKOR'                                  +                   
+          COL  84 'FGRP FOM'                                +                   
+          COL  94 'FGRP TOM'                                +                   
+          COL 104 'NYTT DISTR.NR'                                               
+                                                                                
+  LINE 1                                                    +                   
+          COL   3 W-IDPTYP                                  +                   
+          COL  12 W-IDLOPNR                                 +                   
+          COL  24 W-IDDISTR-FOM                             +                   
+          COL  38 W-IDDISTR-TOM                             +                   
+          COL  48 W-IDKUNDNR-FOM                            +                   
+          COL  60 W-IDKUNDNR-TOM                            +                   
+          COL  71 W-IDSKYLT                                 +                   
+          COL  79 W-KVVECKOR                                +                   
+          COL  87 W-IDFKNGRP-FOM                            +                   
+          COL  97 W-IDFKNGRP-TOM                            +                   
+          COL 112 W-IDDISTR-NYTT                                                
+*                                                                               

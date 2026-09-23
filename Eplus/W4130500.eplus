@@ -1,0 +1,184 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4130500                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR LISTA PA HUR MANGA RADER VARJE                 *        
+*                PLOCKARE I DC 4X HAR PACKAT VARJE DAG                 *        
+*                                                                      *        
+*  FÖRFATTARE :  MÅNS SAMUELSSON                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W41305D1                                                                   
+*                                                                               
+%WDQ301                                                                         
+                                                                                
+NEWPAGE                                                                         
+FILE W41305D2  PRINTER FB (81 0)                                                
+NEWPAGE                                                                         
+FILE W41305D3  PRINTER FB (81 0)                                                
+NEWPAGE                                                                         
+FILE W41305D4  PRINTER FB (81 0)                                                
+NEWPAGE                                                                         
+FILE TEMPFIL   FB (24 0)                                                        
+*                                                                               
+  T1-IDUSER                1  8 N                                               
+  T1-KVPACKRAD-OD          9  7 N                                               
+  T1-KVPACKRAD-OD-O        16 7 N                                               
+  T1-IDDC                  23 2 A                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W41305D6  VB (28 0)                                                        
+*                                                                               
+  UT-IDUSER                1  8 N                                               
+  UT-KVPACKRAD-OD          9  7 N                                               
+  UT-KVPACKRAD-OD-O        16 7 N                                               
+  UT-IDDC                  23 2 A                                               
+NEWPAGE                                                                         
+*                                                                               
+                                                                                
+IX            W  9 N   VALUE  1                                                 
+W-IDUSER      W  8 N MASK 'ZZZZZZZ9' HEADING 'PICKER'                           
+WS-IDUSER     W  8 N MASK 'ZZZZZZZ9'                                            
+W-IDDC        W  2 A                                                            
+W-TIAAMMDD    W  6 N                                                            
+W-TIAA W-TIAAMMDD 2 N                                                           
+W-TIMM W-TIAAMMDD +2 2 N                                                        
+W-TIDD W-TIAAMMDD +4 2 N                                                        
+                                                                                
+***     VALID IDDC CODES                                                        
+%WWDC99                                                                         
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+W-DATUM-Y2K   W  8  N                                                           
+W-SEKEL-Y2K   W-DATUM-Y2K     2  N                                              
+W-AAMMDD-Y2K  W-DATUM-Y2K +2  6  N                                              
+                                                                                
+W-KVPACKRAD-OD W 7 N 0 HEADING 'LINES PACKED'                                   
+W-KVPACKRAD-OD-O W 7 N 0 HEADING 'LINES PACKED RFS NOT TODAY'                   
+PROGRAMNAMN   W  6 A VALUE 'W41305'                                             
+NEWPAGE                                                                         
+%WDATKORT 'RC2'                                                                 
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+* STEG 1. SKAPAR LISTA                                                          
+*                                                                               
+JOB INPUT W41305D1 START A-INIT                                                 
+  PERFORM S23-CHECK-ODEL-IDDC                                                   
+  IF ODEL-IDDC = NDC-US                                                         
+    IF ODEL-TIPACKN = W-TIAAMMDD                                                
+      IF ODEL-IDUSER NUMERIC                                                    
+        MOVE ODEL-IDUSER TO W-IDUSER                                            
+        MOVE ODEL-IDUSER TO WS-IDUSER                                           
+      ELSE                                                                      
+        W-IDUSER = 0                                                            
+        WS-IDUSER = 0                                                           
+        DISPLAY 'USER = ' ODEL-IDUSER ' LINES = ' ODEL-KVPACKRAD-OD             
+      END-IF                                                                    
+      IF ODEL-DARFSDAT = W-DATUM-Y2K                                            
+        W-KVPACKRAD-OD = ODEL-KVPACKRAD-OD                                      
+        W-KVPACKRAD-OD-O = 0                                                    
+      ELSE                                                                      
+        W-KVPACKRAD-OD-O = ODEL-KVPACKRAD-OD                                    
+        W-KVPACKRAD-OD = 0                                                      
+      END-IF                                                                    
+      IF ODEL-IDDC = NDC-US-RU                                                  
+*       T1-IDDC = '41'                                                          
+        T1-IDDC = NDC-US-RU                                                     
+        T1-IDUSER = W-IDUSER                                                    
+        T1-KVPACKRAD-OD = W-KVPACKRAD-OD                                        
+        T1-KVPACKRAD-OD-O = W-KVPACKRAD-OD-O                                    
+        PUT TEMPFIL                                                             
+        PRINT LISTA1                                                            
+      ELSE                                                                      
+*       IF ODEL-IDDC = NDC-US-AT                                                
+*         T1-IDDC = '42'                                                        
+*         T1-IDDC = NDC-US-AT                                                   
+*         T1-IDUSER = W-IDUSER                                                  
+*         T1-KVPACKRAD-OD = W-KVPACKRAD-OD                                      
+*         T1-KVPACKRAD-OD-O = W-KVPACKRAD-OD-O                                  
+*         PUT TEMPFIL                                                           
+*         PRINT LISTA2                                                          
+*       ELSE                                                                    
+          IF ODEL-IDDC = NDC-US-LA                                              
+*           T1-IDDC = '43'                                                      
+            T1-IDDC = NDC-US-LA                                                 
+            T1-IDUSER = W-IDUSER                                                
+            T1-KVPACKRAD-OD = W-KVPACKRAD-OD                                    
+            T1-KVPACKRAD-OD-O = W-KVPACKRAD-OD-O                                
+            PUT TEMPFIL                                                         
+            PRINT LISTA3                                                        
+          END-IF                                                                
+*       END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+*                                                                               
+A-INIT. PROC                                                                    
+  CALL DATKORT USING (PROGRAMNAMN '000001' RC2DATUMKORT)                        
+  W-TIAA = RC2D-AAR                                                             
+  W-TIMM = RC2D-MAANAD                                                          
+  W-TIDD = RC2D-DAG                                                             
+  W-AAMMDD-Y2K = W-TIAAMMDD                                                     
+  IF W-TIAA < 50                                                                
+    W-SEKEL-Y2K = 20                                                            
+  ELSE                                                                          
+    W-SEKEL-Y2K = 19                                                            
+  END-IF                                                                        
+  DISPLAY W-TIAAMMDD ' DETTA AER DATUMET'                                       
+END-PROC                                                                        
+*                                                                               
+*  ---  S23-CHECK-ODEL-IDDC (MACRO PROCEDURE)                                   
+%WWDC02 'ODEL-'                                                                 
+*                                                                               
+REPORT LISTA1 LINESIZE 80 SPACE 3 SUMMARY PRINTER W41305D2 NODATE               
+  SEQUENCE W-IDUSER                                                             
+  CONTROL W-IDUSER                                                              
+  TITLE 'W41305-001   NO. OF LINES / PICKER DATE ' W-TIAAMMDD                   
+  LINE W-IDUSER W-KVPACKRAD-OD W-KVPACKRAD-OD-O                                 
+*                                                                               
+REPORT LISTA2 LINESIZE 80 SPACE 3 SUMMARY PRINTER W41305D3 NODATE               
+  SEQUENCE W-IDUSER                                                             
+  CONTROL W-IDUSER                                                              
+  TITLE 'W41305-001   NO. OF LINES / PICKER DATE ' W-TIAAMMDD                   
+  LINE W-IDUSER W-KVPACKRAD-OD W-KVPACKRAD-OD-O                                 
+*                                                                               
+REPORT LISTA3 LINESIZE 80 SPACE 3 SUMMARY PRINTER W41305D4 NODATE               
+  SEQUENCE W-IDUSER                                                             
+  CONTROL W-IDUSER                                                              
+  TITLE 'W41305-001   NO. OF LINES / PICKER DATE ' W-TIAAMMDD                   
+  LINE W-IDUSER W-KVPACKRAD-OD W-KVPACKRAD-OD-O                                 
+*                                                                               
+*                                                                               
+SORT TEMPFIL TO TEMPFIL USING (T1-IDDC T1-IDUSER)                               
+*                                                                               
+JOB INPUT TEMPFIL  FINISH Z-FIN                                                 
+  IF T1-IDDC = W-IDDC AND T1-IDUSER = WS-IDUSER                                 
+    UT-KVPACKRAD-OD      = UT-KVPACKRAD-OD   + T1-KVPACKRAD-OD                  
+    UT-KVPACKRAD-OD-O    = UT-KVPACKRAD-OD-O + T1-KVPACKRAD-OD-O                
+  ELSE                                                                          
+    IF RECORD-COUNT =  1                                                        
+    ELSE                                                                        
+      PUT W41305D6                                                              
+    END-IF                                                                      
+    UT-IDDC              = T1-IDDC                                              
+    UT-IDUSER            = T1-IDUSER                                            
+    UT-KVPACKRAD-OD      = T1-KVPACKRAD-OD                                      
+    UT-KVPACKRAD-OD-O    = T1-KVPACKRAD-OD-O                                    
+    W-IDDC               = T1-IDDC                                              
+    WS-IDUSER            = T1-IDUSER                                            
+  END-IF                                                                        
+                                                                                
+Z-FIN. PROC                                                                     
+  PUT W41305D6                                                                  
+END-PROC                                                                        

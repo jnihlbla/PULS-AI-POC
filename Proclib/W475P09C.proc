@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  COPY OF THE MONTHLY INTRASTAT FILES FOR SDC21 (NL)                         
+//*                                                                             
+//*  FREQUENCE:    MONTHLY   RTN R475M1                                         
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W475P09C PROC INDIN=&W475..W475M1,                                            
+//             INDUT=&W475..W475M1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGEN1  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDIN..W47588,DISP=SHR                                      
+//************ REFILL ORDERS FROM CDC TO THE SDC21                              
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W4759C(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FILE TO SYSTEM W477; THE INTRASTAT PC AT SDC21 (NL)              
+//             SPACE=(79,(100,300),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&NOBACKUP                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGEN2  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDIN..W4758T,DISP=SHR                                      
+//************ DELIVERIES FROM THE SDC IN NL                                    
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W4759D(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FILE TO SYSTEM W477; THE INTRASTAT PC IN MAASTRICHT              
+//             SPACE=(79,(200,100),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&NOBACKUP                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGEN3  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDIN..W47587,DISP=SHR                                      
+//************ DELIVERIES FROM CDC TO THE DUTCH IMPORTER                        
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W4759E(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FILE TO SYSTEM W477; THE INTRASTAT PC IN MAASTRICHT              
+//             SPACE=(79,(100,300),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&NOBACKUP                                               

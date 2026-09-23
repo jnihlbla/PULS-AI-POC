@@ -1,0 +1,131 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5706300                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER IN FELPOSTER OCH RÄTTPOSTER                     *        
+*             :  FEL: W57064, RÄTT: W57065                             *        
+*             :  MATCHAR FELFIL MED RÄTTFIL FÖR ATT FINNA              *        
+*             :  ALLA POSTER SOM TILLHÖR FELPOSTEN                     *        
+*             :  POSTER SOM MATCHAR SKRIVS UT PÅ NY FELFIL             *        
+*             :  OCH DE ANDRA SKRIVS UT PÅ NY RÄTTFIL                  *        
+*                                                                      *        
+*  FÖRFATTARE :  ANDERS HENRIKSSON                                     *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+*--------------------------*                                                    
+* RÄTTPOSTER OCH FELPOSTER *                                                    
+*--------------------------*                                                    
+FILE W57063D1                                                                   
+                                                                                
+%WDR801  'IN1-'                                                                 
+IN1-DAVERDAT       30  8  N                                                     
+IN1-IDVERGL        87  10 A                                                     
+IN1-KDEKHHT        99   3 A                                                     
+IN1-KDEKNIVA      105   5 A                                                     
+IN1-KDTRADP       215   4 A                                                     
+IN1-BEFEL         246  20 A                                                     
+                                                                                
+NEWPAGE                                                                         
+*---------------------------------*                                             
+* TEMPFIL MED SORTERADE RÄTT O FEL*                                             
+*---------------------------------*                                             
+FILE TPFIL1 FB(292 0)                                                           
+*                                                                               
+%WDR801  'T1-'                                                                  
+T1-DAVERDAT       30  8  N                                                      
+T1-IDVERGL        87  10 A                                                      
+T1-KDEKHHT        99   3 A                                                      
+T1-KDEKNIVA      105   5 A                                                      
+T1-KDTRADP       215   4 A                                                      
+T1-BEFEL         246  20 A                                                      
+                                                                                
+*----------------------------*                                                  
+* UTFIL 1 FELPOSTER          *                                                  
+*----------------------------*                                                  
+FILE W57063D3  FB(292 0)                                                        
+%WDR801 'FEL-'                                                                  
+FEL-BEFEL         246  20 A                                                     
+                                                                                
+*----------------------------*                                                  
+* UTFIL 2 RÄTTPOSTER         *                                                  
+*----------------------------*                                                  
+                                                                                
+FILE W57063D2  FB(292 0)                                                        
+%WDR801 'RATT-'                                                                 
+                                                                                
+*--------------------------------*                                              
+* ARBETSFÄLT                     *                                              
+*--------------------------------*                                              
+                                                                                
+W-IDPGM         W  8   A                                                        
+W-IDCPYTXT      W  8   A                                                        
+W-DAVERDAT      W  8   N                                                        
+W-IDVERGL       W  10  A                                                        
+W-KDEKHHT       W   3  A                                                        
+W-KDEKNIVA      W   5  A                                                        
+W-KDTRADP       W   4  A                                                        
+W-BEFEL         W  20  A                                                        
+W-FIL-IDCPYTXT            W  8 A                                                
+W-IDSYSTEM W-FIL-IDCPYTXT    6 A                                                
+W-IDPTYP W-FIL-IDCPYTXT   +6 1 A                                                
+W-IDVTYP W-FIL-IDCPYTXT   +7 1 A                                                
+                                                                                
+*----------------------------*                                                  
+* STEG 1. SORTAR RÄTT POSTER *                                                  
+*----------------------------*                                                  
+                                                                                
+SORT W57063D1 TO TPFIL1 USING(IN1-FIL-CT-IDSYSTEM   +                           
+                              IN1-DAVERDAT IN1-IDVERGL +                        
+                              IN1-KDEKHHT IN1-FIL-IDCPYTXT)                     
+                                                                                
+*-----------------------------------*                                           
+* STEG 2. SKRIV UT RÄTT- FEL-FILER  *                                           
+*-----------------------------------*                                           
+                                                                                
+JOB INPUT TPFIL1 START A-INIT                                                   
+                                                                                
+   W-FIL-IDCPYTXT = T1-FIL-IDCPYTXT                                             
+   IF W-IDPTYP = 'F'                                                            
+       W-IDPGM         = T1-FIL-IDPGM                                           
+       W-IDCPYTXT      = T1-FIL-IDCPYTXT                                        
+       W-DAVERDAT      = T1-DAVERDAT                                            
+       W-IDVERGL       = T1-IDVERGL                                             
+       W-KDEKHHT       = T1-KDEKHHT                                             
+       W-BEFEL         = T1-BEFEL                                               
+*****  FÖRSTA FEL POST                     *                                    
+*****  DDI-POST SKALL EJ MED               *                                    
+       IF T1-KDEKNIVA NE 'DDI'                                                  
+         FEL-FIL-WDR801  =  T1-FIL-WDR801                                       
+         PUT W57063D3                                                           
+       END-IF                                                                   
+   ELSE                                                                         
+       IF T1-DAVERDAT     =  W-DAVERDAT    AND  +                               
+          T1-IDVERGL      =  W-IDVERGL     AND  +                               
+          T1-KDEKHHT      =  W-KDEKHHT     AND  +                               
+          T1-KDTRADP      =  W-KDTRADP     AND  +                               
+          T1-FIL-IDPGM    =  W-IDPGM                                            
+         FEL-FIL-WDR801   = T1-FIL-WDR801                                       
+         W-FIL-IDCPYTXT   =  T1-FIL-IDCPYTXT                                    
+         W-IDPTYP         = 'F'                                                 
+         FEL-FIL-IDCPYTXT = W-FIL-IDCPYTXT                                      
+         FEL-BEFEL           = '   SAME VERIFICATION'                           
+*****    RESTEN AV SERIEN TILL FEL-FIL    *                                     
+         PUT W57063D3                                                           
+       ELSE                                                                     
+*****   RÄTT-POSTER SKRIVS UT PÅ RÄTT-FIL  *                                    
+         RATT-FIL-WDR801 = T1-FIL-WDR801                                        
+         PUT W57063D2                                                           
+       END-IF                                                                   
+   END-IF                                                                       
+                                                                                
+A-INIT. PROC                                                                    
+  W-IDPGM            = ' '                                                      
+  W-IDCPYTXT         = ' '                                                      
+  W-DAVERDAT         = +0                                                       
+  W-IDVERGL          = ' '                                                      
+  W-KDEKHHT          = ' '                                                      
+  W-KDEKNIVA         = ' '                                                      
+  W-BEFEL            = ' '                                                      
+END-PROC.                                                                       

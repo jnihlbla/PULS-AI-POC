@@ -1,0 +1,292 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2171100                                              *        
+*                                                                      *        
+*  FUNKTION   :  "SKRIVER FIL MED ARTIKELINFORMATION"                  *        
+*                                                                      *        
+*  FÖRFATTARE :  INGER STENING                                         *        
+*                                                                      *        
+*  ÄNDRINGAR  :                                                        *        
+*                                                                      *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W21711D1                                                                   
+* SLAG                                                                          
+%W01184  'IN1-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W21711D2                                                                   
+* CLAG                                                                          
+%W01160  'IN2-'                                                                 
+                                                                                
+FILE W21711D3                                                                   
+* PART DESCRIPTION                                                              
+%W01174  'IN3-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W21711D4                                                                   
+* WDK724                                                                        
+%W01185  'IN4-'                                                                 
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W21711D5                                                                   
+* SERVICEGRAD PER DC / PART NO                                                  
+%W23190  'IN5-'                                                                 
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W21711D6 FB(380 0)                                                         
+%W2172020  'OUT-'                                                               
+*                                                                               
+IX                 W  2 N  VALUE 0                                              
+W-DAPRLIST-9KOMPL  W  8 N  VALUE 0                                              
+W-KDFPKPRI         W  1 A  VALUE ' '                                            
+W-SPRL-DAPRLIST    W  6 N  VALUE 0.                                             
+*                                                                               
+NEWPAGE                                                                         
+%WDATAREA                                                                       
+NEWPAGE                                                                         
+*                                                                               
+WDATKONV                W  8  A VALUE 'WDATKONV'                                
+*                                                                               
+PROGRAM-NAMN      W   6   A   VALUE 'W21711'                                    
+DATUMKORT-ID      W   6   A   VALUE 'WDATUM'                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* WRITE OUTPUT FILE WITH PART DATA FROM W01184                                  
+*                                       W01160                                  
+*                                       W01174                                  
+*                                       W01185                                  
+*                                       W23190                                  
+*                                                                               
+JOB INPUT (W21711D2 KEY (IN2-CLAG-IDARTNR) +                                    
+           W21711D1 KEY (IN1-SLAG-IDARTNR)) +                                   
+           START A-INIT                                                         
+*                                                                               
+  IF MATCHED                                                                    
+     PERFORM S01-ASSIGN-VALUES-TO-FILE                                          
+     OUT-BEFT-CLAG           = IN2-CLAG-BEFT                                    
+     OUT-FLLSRDEL            = IN2-CLAG-FLLSRDEL                                
+     OUT-FLIART              = IN2-CLAG-FLIART                                  
+     OUT-IDARTNR-EMBQ0-CLAG  = IN2-CLAG-IDARTNR-EMBQ0                           
+     OUT-IDARTNR-EMBQ1-CLAG  = IN2-CLAG-IDARTNR-EMBQ1                           
+     OUT-IDARTNR-EMBQ2-CLAG  = IN2-CLAG-IDARTNR-EMBQ2                           
+     OUT-IDBERED             = IN2-CLAG-IDBERED                                 
+     OUT-IDFKNGRP            = IN2-CLAG-IDFKNGRP                                
+     OUT-IDKAT(01)           = IN2-CLAG-IDKAT(01)                               
+     OUT-IDKAT(02)           = IN2-CLAG-IDKAT(02)                               
+     OUT-IDKAT(03)           = IN2-CLAG-IDKAT(03)                               
+     OUT-IDPROJ              = IN2-CLAG-IDPROJ                                  
+     OUT-KDARTURS-CLAG       = IN2-CLAG-KDARTURS                                
+     OUT-KDERS               = IN2-CLAG-KDERS                                   
+     OUT-KDERS-UTG           = IN2-CLAG-KDERS-UTG                               
+     OUT-KDFORP              = IN2-CLAG-KDFORP                                  
+     OUT-KDPRODSL            = IN2-CLAG-KDPRODSL                                
+     OUT-KDSORT              = IN2-CLAG-KDSORT                                  
+     OUT-KVPB-SEP            = IN2-CLAG-KVPB-SEP                                
+     OUT-KVTILLG-TOT         = IN2-CLAG-KVTILLG-TOT                             
+     OUT-TIFINLV             = IN2-CLAG-TIFINLV                                 
+     OUT-TIURPROD            = IN2-CLAG-TIURPROD                                
+     OUT-VKART-CLAG          = IN2-CLAG-VKART                                   
+     OUT-VLARTNTO-CLAG       = IN2-CLAG-VLARTNTO                                
+     PUT W21711D6                                                               
+  ELSE                                                                          
+     IF W21711D1                                                                
+        PERFORM S01-ASSIGN-VALUES-TO-FILE                                       
+        OUT-BEFT-CLAG           = 0                                             
+        OUT-FLLSRDEL            = ' '                                           
+        OUT-FLIART              = ' '                                           
+        OUT-IDARTNR-EMBQ0-CLAG  = 0                                             
+        OUT-IDARTNR-EMBQ1-CLAG  = 0                                             
+        OUT-IDARTNR-EMBQ2-CLAG  = 0                                             
+        OUT-IDBERED             = 0                                             
+        OUT-IDFKNGRP            = 0                                             
+        OUT-IDKAT(01)           = ' '                                           
+        OUT-IDKAT(02)           = ' '                                           
+        OUT-IDKAT(03)           = ' '                                           
+        OUT-IDPROJ              = ' '                                           
+        OUT-KDARTURS-CLAG       = ' '                                           
+        OUT-KDERS               = 0                                             
+        OUT-KDERS-UTG           = 0                                             
+        OUT-KDFORPPL            = 0                                             
+        OUT-KDFORPGP            = 0                                             
+        OUT-KDFORPUF            = 0                                             
+        OUT-KDPRODSL            = 0                                             
+        OUT-KDSORT              = ' '                                           
+        OUT-KVPB-SEP            = 0                                             
+        OUT-KVTILLG-TOT         = 0                                             
+        OUT-TIFINLV             = 0                                             
+        OUT-TIURPROD            = 0                                             
+        OUT-VKART-CLAG          = 0                                             
+        OUT-VLARTNTO-CLAG       = 0                                             
+                                                                                
+        PUT W21711D6                                                            
+     END-IF                                                                     
+  END-IF                                                                        
+                                                                                
+A-INIT.   PROC                                                                  
+                                                                                
+  GET W21711D3                                                                  
+  GET W21711D4                                                                  
+  GET W21711D5                                                                  
+                                                                                
+  DAT-KDDATFORM = 'IDAG  '                                                      
+  DAT-I-TIDATUM = 0                                                             
+                                                                                
+  CALL WDATKONV USING (DAT-KDDATFORM                         +                  
+                       DAT-I-TIDATUM                         +                  
+                       DAT-O-TIDATUM                         +                  
+                       DAT-KDSVAR    )                                          
+                                                                                
+* IF DAT-KDSVAR = ' '                                                           
+*     WS-ANTAL-VECKOR = DAT-KVVIPER                                             
+* ELSE                                                                          
+*     DISPLAY 'FEL FRÅN DATKONV'                                                
+*     STOP EXECUTE                                                              
+* END-IF                                                                        
+                                                                                
+END-PROC                                                                        
+                                                                                
+S01-ASSIGN-VALUES-TO-FILE.   PROC                                               
+  OUT-IDARTNR             = IN1-SLAG-IDARTNR                                    
+  OUT-BEFT-SLAG           = IN1-SLAG-BEFT                                       
+  OUT-IDDC                = IN1-SLAG-IDDC                                       
+  OUT-IDDC-REF            = IN1-SLAG-IDDC-REF                                   
+  OUT-ADLAGOMR            = IN1-SLAG-ADLAGOMR                                   
+  OUT-ADGANG              = IN1-SLAG-ADGANG                                     
+  OUT-ADPLATS             = IN1-SLAG-ADPLATS                                    
+  OUT-DAPBPLAN            = IN1-SLAG-DAPBPLAN                                   
+  OUT-DAPUBL              = IN1-SLAG-DAPUBL                                     
+  OUT-DASEASON            = IN1-SLAG-DASEASON                                   
+  OUT-FLJIT               = IN1-SLAG-FLJIT                                      
+  OUT-FLFLYG              = IN1-SLAG-FLFLYG                                     
+  OUT-FLREFBEO            = IN1-SLAG-FLREFBEO                                   
+  OUT-FLWILSON            = IN1-SLAG-FLWILSON                                   
+  OUT-IDANSK              = IN1-SLAG-IDANSK                                     
+  OUT-IDARTNR-EMBQ0-SLAG  = IN1-SLAG-IDARTNR-EMBQ0                              
+  OUT-IDARTNR-EMBQ1-SLAG  = IN1-SLAG-IDARTNR-EMBQ1                              
+  OUT-IDARTNR-EMBQ2-SLAG  = IN1-SLAG-IDARTNR-EMBQ2                              
+  OUT-IDINK               = IN1-SLAG-IDINK                                      
+  OUT-IDLEVNR             = IN1-SLAG-IDLEVNR                                    
+  OUT-IDLEVNR-SHIP        = IN1-SLAG-IDLEVNR-SHIP                               
+  OUT-IDREFTAB            = IN1-SLAG-IDREFTAB                                   
+  OUT-KDARTURS-SLAG       = IN1-SLAG-KDARTURS                                   
+  OUT-KDAVT               = IN1-SLAG-KDAVT                                      
+  OUT-KDLEVPLF            = IN1-SLAG-KDLEVPLF                                   
+  OUT-KVAKS-PAV           = IN1-SLAG-KVAKS-PAV                                  
+  OUT-KVAKS-SDC           = IN1-SLAG-KVAKS-SDC                                  
+  OUT-KVEOQ               = IN1-SLAG-KVEOQ                                      
+  OUT-KVLS                = IN1-SLAG-KVLS                                       
+  OUT-KVRESS              = IN1-SLAG-KVRESS                                     
+  OUT-KVPALL              = IN1-SLAG-KVPALL                                     
+  OUT-KVPB-PLAN           = IN1-SLAG-KVPB-PLAN                                  
+  OUT-KVPB-REF            = IN1-SLAG-KVPB-REF                                   
+  OUT-KVPBREOI            = IN1-SLAG-KVPBREOI                                   
+  OUT-KVPB-TREND          = IN1-SLAG-KVPB-TREND                                 
+  OUT-KVREFBER            = IN1-SLAG-KVREFBER                                   
+  OUT-KVREFPKT            = IN1-SLAG-KVREFPKT                                   
+  OUT-KVREFOVL            = IN1-SLAG-KVREFOVL                                   
+  OUT-KVROS-BULK          = IN1-SLAG-KVROS-BULK                                 
+  OUT-KVROS-DAG           = IN1-SLAG-KVROS-DAG                                  
+  OUT-KVSLAGER            = IN1-SLAG-KVSLAGER                                   
+  OUT-KVSPANT             = IN1-SLAG-KVSPANT                                    
+  OUT-KVVECKOR-LT         = IN1-SLAG-KVVECKOR-LT                                
+  OUT-KVVECKOR-TREND      = IN1-SLAG-KVVECKOR-TREND                             
+  OUT-KVULOAD             = IN1-SLAG-KVULOAD                                    
+  OUT-PRAVCOST            = IN1-SLAG-PRAVCOST                                   
+  OUT-PRMATRL             = IN1-SLAG-PRMATRL                                    
+  OUT-TIMANSEC            = IN1-SLAG-TIMANSEC                                   
+                                                                                
+  OUT-RESEASON-PLAN(01)   = IN1-SLAG-RESEASON-PLAN(01)                          
+  OUT-RESEASON-PLAN(02)   = IN1-SLAG-RESEASON-PLAN(02)                          
+  OUT-RESEASON-PLAN(03)   = IN1-SLAG-RESEASON-PLAN(03)                          
+  OUT-RESEASON-PLAN(04)   = IN1-SLAG-RESEASON-PLAN(04)                          
+  OUT-RESEASON-PLAN(05)   = IN1-SLAG-RESEASON-PLAN(05)                          
+  OUT-RESEASON-PLAN(06)   = IN1-SLAG-RESEASON-PLAN(06)                          
+  OUT-RESEASON-PLAN(07)   = IN1-SLAG-RESEASON-PLAN(07)                          
+  OUT-RESEASON-PLAN(08)   = IN1-SLAG-RESEASON-PLAN(08)                          
+  OUT-RESEASON-PLAN(09)   = IN1-SLAG-RESEASON-PLAN(09)                          
+  OUT-RESEASON-PLAN(10)   = IN1-SLAG-RESEASON-PLAN(10)                          
+  OUT-RESEASON-PLAN(11)   = IN1-SLAG-RESEASON-PLAN(11)                          
+  OUT-RESEASON-PLAN(12)   = IN1-SLAG-RESEASON-PLAN(12)                          
+                                                                                
+  OUT-TIDATUM-TREND       = IN1-SLAG-TIDATUM-TREND                              
+  OUT-TIERSDAT-VIPS       = IN1-SLAG-TIERSDAT-VIPS                              
+                                                                                
+  IX = 1                                                                        
+  DO WHILE IX LT 6                                                              
+    OUT-TILEVDAG(IX)      = IN1-SLAG-TILEVDAG (IX)                              
+    IX = IX + 1                                                                 
+  END-DO                                                                        
+                                                                                
+  OUT-TIREFPAF            = IN1-SLAG-TIREFPAF                                   
+  OUT-TIREFPKT            = IN1-SLAG-TIREFPKT                                   
+  OUT-TIREFSTO-LOC        = IN1-SLAG-TIREFSTO-LOC                               
+  OUT-VKART-SLAG          = IN1-SLAG-VKART                                      
+  OUT-VLARTNTO-SLAG       = IN1-SLAG-VLARTNTO                                   
+  OUT-KVOI-12-RULL        = 0                                                   
+  OUT-KVOI-YEAR-0         = 0                                                   
+  OUT-KVOI-YEAR-1         = 0                                                   
+  OUT-KVOI-YEAR-2         = 0                                                   
+  OUT-KVOI-YEAR-3         = 0                                                   
+  OUT-KVOI-YEAR-4         = 0                                                   
+  OUT-KVOI-YEAR-5         = 0                                                   
+                                                                                
+* PART DESCRIPTION                                                              
+                                                                                
+  DO WHILE (NOT EOF W21711D3)                     +                             
+       AND (IN3-IDARTNR <= IN1-SLAG-IDARTNR)                                    
+    IF IN3-IDARTNR = IN1-SLAG-IDARTNR                                           
+       OUT-BEART          = IN3-BEART(4)                                        
+    ELSE                                                                        
+       OUT-BEART          = ' '                                                 
+    END-IF                                                                      
+    GET W21711D3                                                                
+  END-DO                                                                        
+                                                                                
+* INFO FROM WDK724                                                              
+  W-KDFPKPRI        = ' '                                                       
+  W-DAPRLIST-9KOMPL = 99999999                                                  
+                                                                                
+  DO WHILE (NOT EOF W21711D4)                        +                          
+       AND (IN4-SPRL-IDARTNR    <= IN1-SLAG-IDARTNR) +                          
+       AND (IN4-SPRL-IDDC       <= IN1-SLAG-IDDC)    +                          
+       AND (IN4-SPRL-IDLEVNR-PR <= IN1-SLAG-IDLEVNR)                            
+     IF IN4-SPRL-IDARTNR         = IN1-SLAG-IDARTNR  +                          
+    AND IN4-SPRL-IDDC            = IN1-SLAG-IDDC     +                          
+    AND IN4-SPRL-IDLEVNR-PR      = IN1-SLAG-IDLEVNR  +                          
+    AND IN4-SPRL-DAPRLIST-9KOMPL > 0                                            
+        W-SPRL-DAPRLIST = IN4-SPRL-DAPRLIST-9KOMPL - 99999999                   
+        IF W-SPRL-DAPRLIST <= DAT-TIAAMMDD                                      
+           W-KDFPKPRI     = IN4-SPRL-KDFPKPRI                                   
+        END-IF                                                                  
+     END-IF                                                                     
+     GET W21711D4                                                               
+  END-DO                                                                        
+                                                                                
+  OUT-KDFPKPRI            = W-KDFPKPRI                                          
+                                                                                
+* SERVICEGRAD PER DC / ARTIKEL                                                  
+  OUT-SUINKORD            = +0                                                  
+  OUT-SUAVBRP             = +0                                                  
+  OUT-RESERVG-NTO         = +0                                                  
+                                                                                
+  DO WHILE (NOT EOF W21711D5)                +                                  
+       AND (IN5-IDARTNR <= IN1-SLAG-IDARTNR) +                                  
+       AND (IN5-IDDC    <= IN1-SLAG-IDDC)                                       
+    IF (IN5-IDARTNR = IN1-SLAG-IDARTNR)      +                                  
+   AND (IN5-IDDC    = IN1-SLAG-IDDC)                                            
+       OUT-SUINKORD       = IN5-SUINKORD                                        
+       OUT-SUAVBRP        = IN5-SUAVBRP                                         
+       OUT-RESERVG-NTO    = IN5-RESERVG-NTO                                     
+    END-IF                                                                      
+    GET W21711D5                                                                
+  END-DO                                                                        
+                                                                                
+END-PROC                                                                        

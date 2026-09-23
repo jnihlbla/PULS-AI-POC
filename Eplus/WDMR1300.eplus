@@ -1,0 +1,142 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WDMR1300                                              *        
+*                                                                      *        
+*  FUNKTION   :  JOBBSTEG SOM SKALL UPPDATERAS I DATA MANAGER                   
+*                                                                      *        
+*  FÖRFATTARE :  ODD OLSEN                                             *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR13D1                                                                   
+*                                                                               
+  NEW-PGM             1 95 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR13D2                                                                   
+*                                                                               
+  OLD-PGM             1 95 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE SORTFIL  FB(96 23424)                                                      
+*                                                                               
+  TMP-STYR            1  1 A                                                    
+  TMP-PGM             2 95 A                                                    
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+  TMP-SORT            2 22 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE STYRFIL  FB(96 23424)                                                      
+*                                                                               
+  ST-STYR             1  1 A                                                    
+  ST-PGM              2 95 A                                                    
+  ST-PGM-NAME         2 22 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR13D5 FB(96 23424)                                                      
+*                                                                               
+  UT-STYR             1  1 A                                                    
+  UT-PGM              2 95 A                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* ARBETSAREOR                                                                   
+*                                                                               
+  CANCEL              W  1 A   VALUE 'A'                                        
+  NEW                 W  1 A   VALUE 'B'                                        
+  OLD                 W  1 A   VALUE 'Z'                                        
+  NU-TYP              W  1 A   VALUE ' '                                        
+  SPAR-PGM-NAME       W 22 A                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* MATCHNING AV PROCEDUR FILER                                                   
+*                                                                               
+JOB INPUT (WDMR13D1 KEY(NEW-PGM) +                                              
+           WDMR13D2 KEY(OLD-PGM))                                               
+  IF MATCHED                                                                    
+                                                                                
+    TMP-STYR = OLD                                                              
+    TMP-PGM = NEW-PGM                                                           
+    PUT SORTFIL                                                                 
+    GOTO JOB                                                                    
+  END-IF                                                                        
+                                                                                
+  IF WDMR13D1                                                                   
+                                                                                
+    TMP-STYR = NEW                                                              
+    TMP-PGM = NEW-PGM                                                           
+    PUT SORTFIL                                                                 
+    GOTO JOB                                                                    
+  END-IF                                                                        
+                                                                                
+  IF WDMR13D2                                                                   
+                                                                                
+    TMP-STYR = CANCEL                                                           
+    TMP-PGM = OLD-PGM                                                           
+    PUT SORTFIL                                                                 
+    GOTO JOB                                                                    
+  END-IF                                                                        
+                                                                                
+  GOTO JOB                                                                      
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* SORTERING AV PROCEDURFILER                                                    
+*                                                                               
+SORT SORTFIL  TO +                                                              
+     STYRFIL  USING (TMP-SORT, TMP-STYR)                                        
+NEWPAGE                                                                         
+*                                                                               
+* PLOCKA UT POSTER FÖR UPPDATERING                                              
+*                                                                               
+JOB INPUT (STYRFIL)                                                             
+                                                                                
+  IF ST-PGM-NAME ^= SPAR-PGM-NAME                                               
+                                                                                
+    IF NU-TYP = CANCEL                                                          
+      UT-STYR = 'D'                                                             
+      UT-PGM = SPAR-PGM-NAME                                                    
+      PUT WDMR13D5                                                              
+      UT-STYR = ' '                                                             
+    END-IF                                                                      
+                                                                                
+    SPAR-PGM-NAME = ST-PGM-NAME                                                 
+                                                                                
+    IF ST-STYR = CANCEL                                                         
+      NU-TYP = CANCEL                                                           
+    END-IF                                                                      
+                                                                                
+    IF ST-STYR = OLD                                                            
+      NU-TYP = OLD                                                              
+    END-IF                                                                      
+                                                                                
+    IF ST-STYR = NEW                                                            
+      NU-TYP = NEW                                                              
+      UT-PGM = ST-PGM                                                           
+      PUT WDMR13D5                                                              
+    END-IF                                                                      
+                                                                                
+  ELSE                                                                          
+    IF NU-TYP = CANCEL                                                          
+      IF ST-STYR ^= CANCEL                                                      
+        NU-TYP = NEW                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+    IF NU-TYP = NEW                                                             
+      UT-PGM = ST-PGM                                                           
+      PUT WDMR13D5                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+  GOTO JOB                                                                      

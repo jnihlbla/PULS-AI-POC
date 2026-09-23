@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RÄKNAR UT AVG SAMT DUBBLERAR BYTESTRANSAR                                  
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W560D1                                       
+//*                                                                             
+//*  ÅTERSTART:    W56030    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W560P030 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W560..W560D1,                                             
+//             INDUT=&W560..W560D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56030   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W56030,W56030,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W56030D1 DD  DSN=&INDIN..W56019(+0),DISP=SHR                                  
+//*                                                                             
+//W56030D2 DD  DSN=&INDUT..W56030(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ LAB-TRANSAR TYP A01 - A20                                        
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//W56030D3 DD  DSN=&INDUT..W56031(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ LISTTRANSAR                                                      
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//*                                                                             

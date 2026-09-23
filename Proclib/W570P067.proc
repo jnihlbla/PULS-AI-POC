@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER HÄNDELSEBAS FÖR KOMPLETTERING AV TRANSAR                             
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W570D3                                           
+//*                                                                             
+//*  ÅTERSTART:    W57067      NORMAL                                           
+//*                LÄSER        WDH5                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W570P067 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W570..W570D3,                                             
+//             INDUT=&W570..W570D3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W57067   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W57067,W57067,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDH5     INCLUDE MEMBER=WDH5                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W57067D1 DD  DSN=&INDIN..W57066,DISP=SHR                                      
+//************ SENASTE DYGNETS BOKNINGSHÄNDELSER                                
+//*                                                                             
+//W57067D2 DD  DSN=&INDUT..W57067(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ FIL MED ALLT SOM SKALL BOKAS I SAP                               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W57067D3 DD  DSN=&INDUT..W57069(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ UTFIL MED LISTTRANSAR FÖR DIRLEV-LISTA                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

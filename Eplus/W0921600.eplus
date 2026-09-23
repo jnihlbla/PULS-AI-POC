@@ -1,0 +1,600 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W0921600                                              *        
+*                                                                      *        
+*  FUNKTION   :  E+ PROGRAM SOM SKRIVER UT ALLA FELLISTORNA            *        
+*                                                                      *        
+*                                                                      *        
+*  FÖRFATTARE :  INGRID DANIELSSON    911010                           *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W09216D1                                                                   
+*                                                                               
+%W09211EE  'IN-'                                                                
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W09216DS FB(122 0)                                                         
+*                                                                               
+%W09211EE  'S-'                                                                 
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+MS-IDDISTR    10  4 N   MASK 'ZZZ9'                                             
+MS-IDKUNDNR   14  6 N   MASK 'ZZZZZ9'                                           
+MS-SORTBGP    29  8 N   MASK 'ZZZZZZZ9'                                         
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+                                                                                
+FILE W09216D6  PRINTER FB (121 0)                                               
+                                                                                
+                                                                                
+                                                                                
+FILE W09216D8  PRINTER FB (121 0)                                               
+                                                                                
+                                                                                
+FILE W09216D9  PRINTER FB (121 0)                                               
+                                                                                
+                                                                                
+FILE W09216DA  PRINTER FB (121 0)                                               
+                                                                                
+                                                                                
+FILE W09216DB  PRINTER FB (121 0)                                               
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+                                                                                
+  RAD-FELTEXT      W  75   A                                                    
+                                                                                
+                                                                                
+  R-TYP            W   3   A   VALUE 'TYP'                                      
+  R-DIST           W   4   A   VALUE 'DIST'                                     
+  R-KUND           W   6   A   VALUE 'KUND  '                                   
+  R-C              W   1   A   VALUE 'C'                                        
+  R-FK             W   2   A   VALUE 'FK'                                       
+  R-ORDER          W   5   A   VALUE 'ORDER'                                    
+  R-K              W   1   A   VALUE 'K'                                        
+  R-ARTNR          W   8   A   VALUE 'ARTNR   '                                 
+  R-FEL            W   3   A   VALUE 'FEL'                                      
+  R-FELTEXT        W  75   A   VALUE '     FELTEXT'                             
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+  W-DATUM          W   8   A                                                    
+                                                                                
+  W-AA     W-DATUM     2   A                                                    
+  FILLER1  W-DATUM +2  1   A   VALUE '/'                                        
+  W-MM     W-DATUM +3  2   A                                                    
+  FILLER2  W-DATUM +5  1   A   VALUE '/'                                        
+  W-DD     W-DATUM +6  2   A                                                    
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  PROGRAMNAMN      W   6   A   VALUE 'W09216'                                   
+  DATKORT-ID       W   6   A   VALUE 'WDATUM'                                   
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1.  SORT                                                                 
+*                                                                               
+                                                                                
+SORT W09216D1 TO                                                +               
+     W09216DS USING (IN-SORTARG, IN-IDDISTR, IN-IDKUNDNR,       +               
+                     IN-IDORDNR, IN-KDFRAKT, IN-SORTBGP,  IN-IDPTYP)            
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2.  JOBB                                                                 
+*                                                                               
+                                                                                
+JOB INPUT W09216DS   START INIT                                                 
+                                                                                
+                                                                                
+  IF W09216DS                                                                   
+                                                                                
+                                                                                
+    RAD-FELTEXT = S-FELTEXT                                                     
+                                                                                
+                                                                                
+                                                                                
+    IF S-KDLISTAD = 'OR'                                                        
+      PERFORM  B-FELLISTA-TILL-ORDER                                            
+    ELSE                                                                        
+      PERFORM D-FELLISTA-TILL-PV                                                
+    END-IF                                                                      
+                                                                                
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+                                                                                
+  INIT.  PROC                                                                   
+                                                                                
+                                                                                
+    CALL DATKORT USING (PROGRAMNAMN DATKORT-ID DATUMKORT)                       
+                                                                                
+    W-AA  =  D-AAR                                                              
+    W-MM  =  D-MAANAD                                                           
+    W-DD  =  D-DAG                                                              
+                                                                                
+                                                                                
+  END-PROC                                                                      
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  B-FELLISTA-TILL-ORDER.  PROC                                                  
+                                                                                
+  IF S-KDLISTSO = 80                                                            
+    R-FK        =  '  '                                                         
+    R-ORDER     =  'IDENT'                                                      
+  ELSE                                                                          
+    R-FK        =  'FK'                                                         
+    R-ORDER     =  'ORDER'                                                      
+  END-IF                                                                        
+                                                                                
+  IF S-KDLISTSO < 90                                                            
+    PRINT    ORDER                                                              
+  ELSE                                                                          
+    PRINT    ORDER-INFO                                                         
+  END-IF                                                                        
+                                                                                
+                                                                                
+                                                                                
+  END-PROC                                                                      
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  D-FELLISTA-TILL-PV.     PROC                                                  
+                                                                                
+  IF  S-KDLISTAD = 'MF'                                                         
+                          PERFORM DA-MARKNADSFORING                             
+  ELSE                                                                          
+  IF  S-KDLISTAD = 'AN'                                                         
+                          PERFORM DB-ANSKAFFNING                                
+  ELSE                                                                          
+  IF  S-KDLISTAD = 'EK'                                                         
+                          PERFORM DC-EKONOMI                                    
+  ELSE                                                                          
+  IF  S-KDLISTAD = 'GM'                                                         
+                          PERFORM DD-GODSMOTTAGNING                             
+  ELSE                                                                          
+                          DISPLAY 'FINNS INGEN MOTTAGAR-ADRESS TILL '           
+                          DISPLAY S-W09211                                      
+  END-IF                                                                        
+  END-IF                                                                        
+  END-IF                                                                        
+  END-IF                                                                        
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  DA-MARKNADSFORING.      PROC                                                  
+                                                                                
+  IF (S-IDPTYP = '666', '667')   AND       +                                    
+     (S-IDDISTR < 100  OR  S-IDDISTR > 7999)                                    
+                    CONTINUE                                                    
+  ELSE                                                                          
+                                                                                
+    IF S-KDLISTSO < 90                                                          
+      PRINT PV-MARKNAD                                                          
+    ELSE                                                                        
+      PRINT PV-MARKNAD-INFO                                                     
+    END-IF                                                                      
+                                                                                
+  END-IF                                                                        
+                                                                                
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  DB-ANSKAFFNING.         PROC                                                  
+                                                                                
+  IF S-KDLISTSO < 90                                                            
+    PRINT PV-ANSK                                                               
+  ELSE                                                                          
+    PRINT PV-ANSK-INFO                                                          
+  END-IF                                                                        
+                                                                                
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  DC-EKONOMI.             PROC                                                  
+                                                                                
+  IF S-KDLISTSO < 90                                                            
+    PRINT PV-EKO                                                                
+  ELSE                                                                          
+    PRINT PV-EKO-INFO                                                           
+  END-IF                                                                        
+                                                                                
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  DD-GODSMOTTAGNING.      PROC                                                  
+                                                                                
+  IF S-IDPTYP  = 'R77'  OR  S-IDPTYP = 'R78'                                    
+    R-FK        =  '  '                                                         
+    R-ORDER     =  'IDENT'                                                      
+  ELSE                                                                          
+    R-FK        =  'FK'                                                         
+    R-ORDER     =  'ORDER'                                                      
+  END-IF                                                                        
+                                                                                
+  IF S-KDLISTSO < 90                                                            
+    PRINT PV-GODSM                                                              
+  ELSE                                                                          
+    PRINT PV-GODSM-INFO                                                         
+  END-IF                                                                        
+                                                                                
+                                                                                
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+REPORT    ORDER    PRINTER W09216D6                       +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-KDLISTSO S-IDDISTR  S-IDKUNDNR S-IDPTYP S-SORTBGP                    
+                                                                                
+CONTROL  S-KDLISTSO NEWPAGE                               +                     
+         S-IDDISTR  NEWPAGE                               +                     
+         S-IDKUNDNR NEWPAGE                               +                     
+         S-IDPTYP                                                               
+                                                                                
+TITLE 1  'VOLVO CAR AFTERSALES '                          +                     
+         'W09216-005           '                          +                     
+         'FEL-LISTA            '                          +                     
+         'ORDER                '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL  +              
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+         S-IDFELKODX              +                                             
+       RAD-FELTEXT                                                              
+                                                                                
+NEWPAGE                                                                         
+REPORT    ORDER-INFO    PRINTER W09216D6                  +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-KDLISTSO S-IDDISTR  S-IDKUNDNR S-IDPTYP S-SORTBGP                    
+                                                                                
+CONTROL  S-KDLISTSO NEWPAGE                               +                     
+         S-IDDISTR  NEWPAGE                               +                     
+         S-IDKUNDNR NEWPAGE                               +                     
+         S-IDPTYP                                                               
+                                                                                
+TITLE 1  'VOLVO CAR AFTERSALES      '                     +                     
+         'W09216-005           '                          +                     
+         'INFO-LISTA           '                          +                     
+         'ORDER                '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL   +             
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+         S-IDFELKODX              +                                             
+       RAD-FELTEXT                                                              
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+NEWPAGE                                                                         
+REPORT PV-MARKNAD  PRINTER W09216D8                       +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-IDPTYP S-IDDISTR S-IDKUNDNR S-SORTBGP                                
+CONTROL  S-IDPTYP S-IDDISTR S-IDKUNDNR                                          
+                                                                                
+TITLE 1  'VOLVO CAR  AFTERSALES     '                     +                     
+         'W09216-006           '                          +                     
+         'FEL-LISTA            '                          +                     
+         'MARKNADSFÖRING       '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL   +             
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+         S-IDFELKODX              +                                             
+       RAD-FELTEXT                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+REPORT PV-MARKNAD-INFO  PRINTER W09216D8                  +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-IDPTYP S-IDDISTR S-IDKUNDNR S-SORTBGP                                
+CONTROL  S-IDPTYP S-IDDISTR S-IDKUNDNR                                          
+                                                                                
+TITLE 1  'VOLVO CAR  AFTERSALES     '                     +                     
+         'W09216-006           '                          +                     
+         'INFO-LISTA           '                          +                     
+         'MARKNADSFÖRING       '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL   +             
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+         S-IDFELKODX              +                                             
+       RAD-FELTEXT                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+REPORT PV-ANSK  PRINTER W09216D9                          +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-IDKUNDNR         S-IDPTYP S-IDDISTR  S-SORTBGP                       
+CONTROL  S-IDKUNDNR NEWPAGE S-IDPTYP S-IDDISTR                                  
+                                                                                
+TITLE 1  'VOLVO CAR  AFTERSALES     '                     +                     
+         'W09216-007           '                          +                     
+         'FEL-LISTA            '                          +                     
+         'ANSKAFFNING          '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL   +             
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+         S-IDFELKODX              +                                             
+       RAD-FELTEXT                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+REPORT PV-ANSK-INFO  PRINTER W09216D9                     +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-IDKUNDNR         S-IDPTYP S-IDDISTR  S-SORTBGP                       
+CONTROL  S-IDKUNDNR NEWPAGE S-IDPTYP S-IDDISTR                                  
+                                                                                
+TITLE 1  'VOLVO CAR  AFTERSALES     '                     +                     
+         'W09216-007           '                          +                     
+         'INFO-LISTA           '                          +                     
+         'ANSKAFFNING          '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL   +             
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+         S-IDFELKODX              +                                             
+       RAD-FELTEXT                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+REPORT PV-EKO  PRINTER W09216DA                           +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-IDPTYP         S-IDFELKODX         S-SORTBGP S-KDCLAGER              
+CONTROL  S-IDPTYP NEWPAGE S-IDFELKODX NEWPAGE                                   
+                                                                                
+TITLE 1  'VOLVO CAR  AFTERSALES     '                     +                     
+         'W09216-008           '                          +                     
+         'FEL-LISTA            '                          +                     
+         'EKONOMI              '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL   +             
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+       RAD-FELTEXT                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+REPORT PV-EKO-INFO  PRINTER W09216DA                      +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-IDPTYP         S-IDFELKODX         S-SORTBGP S-KDCLAGER              
+CONTROL  S-IDPTYP NEWPAGE S-IDFELKODX NEWPAGE                                   
+                                                                                
+TITLE 1  'VOLVO CAR  AFTERSALES     '                     +                     
+         'W09216-008           '                          +                     
+         'INFO-LISTA           '                          +                     
+         'EKONOMI              '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL   +             
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+         S-IDFELKODX              +                                             
+       RAD-FELTEXT                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+REPORT PV-GODSM PRINTER W09216DB                          +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-IDPTYP         S-IDDISTR S-IDKUNDNR S-SORTBGP                        
+CONTROL  S-IDPTYP NEWPAGE S-IDDISTR S-IDKUNDNR                                  
+                                                                                
+TITLE 1  'VOLVO CAR  AFTERSALES     '                     +                     
+         'W09216-009           '                          +                     
+         'FEL-LISTA            '                          +                     
+         'GODSMOTTAGNING       '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL   +             
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+         S-IDFELKODX              +                                             
+       RAD-FELTEXT                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+REPORT PV-GODSM-INFO PRINTER W09216DB                     +                     
+                                         LINESIZE 120     +                     
+                                         SPACE 1          +                     
+                                         TITLESKIP 0      +                     
+                                         NODATE           +                     
+                                         NOHEADING        +                     
+                                         DTLCTL FIRST     +                     
+                                         SUMCTL NONE                            
+                                                                                
+SEQUENCE S-IDPTYP         S-IDDISTR S-IDKUNDNR S-SORTBGP                        
+CONTROL  S-IDPTYP NEWPAGE S-IDDISTR S-IDKUNDNR                                  
+                                                                                
+TITLE 1  'VOLVO CAR  AFTERSALES     '                     +                     
+         'W09216-009           '                          +                     
+         'INFO-LISTA           '                          +                     
+         'GODSMOTTAGNING       '                          +                     
+          W-DATUM  '           '                                                
+                                                                                
+TITLE 3  R-TYP R-DIST R-KUND R-C R-FK R-ORDER R-K R-ARTNR R-FEL   +             
+                                                          R-FELTEXT             
+LINE  1  S-IDPTYP                 +                                             
+        MS-IDDISTR                +                                             
+        MS-IDKUNDNR               +                                             
+         S-KDCLAGER               +                                             
+         S-KDFRAKT-X              +                                             
+         S-IDORDNR-X              +                                             
+         S-KDORDKL                +                                             
+        MS-SORTBGP                +                                             
+         S-IDFELKODX              +                                             
+       RAD-FELTEXT                                                              
+                                                                                

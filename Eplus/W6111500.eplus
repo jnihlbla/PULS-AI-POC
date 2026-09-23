@@ -1,0 +1,79 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6111500                                              *        
+*                                                                      *        
+*  FUNKTION   :  HÄMTAR EVENTUELLT ERSÄTTANDE ARTIKLAR TILL ERSATTA    *        
+*                CD-ARTIKLAR OCH SKRIVER LISTA.                        *        
+*                                                                      *        
+*  FÖRFATTARE :  KENT JEBSEN                                           *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W61115D1                                                                   
+*                                                                               
+%W6111401  'CD-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61115D2                                                                   
+*                                                                               
+%WSUPERS  'SS-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W61115D3  PRINTER FB (121 0)                                               
+                                                                                
+WS-IDARTNR       W  9 N MASK 'ZZZZZZZZZ'                                        
+WS-IDARTNR-TILLK W  9 N MASK 'ZZZZZZZZZ'                                        
+WS-KDERS         W  2 N MASK 'ZZ'                                               
+WS-ADLAGOMR-CD1  W  2 N MASK 'ZZ'                                               
+WS-ADLAGOMR-CD2  W  2 N MASK 'ZZ'                                               
+WS-ADLAGOMR-CD3  W  2 N MASK 'ZZ'                                               
+WS-ADLAGOMR-CD4  W  2 N MASK 'ZZ'                                               
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. MATCHAR OCH SKRIVER LISTA                                             
+*                                                                               
+JOB INPUT (W61115D1 KEY(CD-IDARTNR) +                                           
+          W61115D2 KEY(SS-IDARTNR))                                             
+                                                                                
+IF MATCHED                                                                      
+  WS-IDARTNR       = CD-IDARTNR                                                 
+  WS-KDERS         = CD-KDERS                                                   
+  WS-ADLAGOMR-CD1  = CD-ADLAGOMR-CD(1)                                          
+  WS-ADLAGOMR-CD2  = CD-ADLAGOMR-CD(2)                                          
+  WS-ADLAGOMR-CD3  = CD-ADLAGOMR-CD(3)                                          
+  WS-ADLAGOMR-CD4  = CD-ADLAGOMR-CD(4)                                          
+  IF SS-IDARTNR-TILLK NUMERIC                                                   
+    WS-IDARTNR-TILLK = SS-IDARTNR-TILLK                                         
+  ELSE                                                                          
+    WS-IDARTNR-TILLK = 0                                                        
+  END-IF                                                                        
+  PRINT RAPPORT01                                                               
+ELSE                                                                            
+  IF W61115D1                                                                   
+    WS-IDARTNR       = CD-IDARTNR                                               
+    WS-KDERS         = CD-KDERS                                                 
+    WS-ADLAGOMR-CD1  = CD-ADLAGOMR-CD(1)                                        
+    WS-ADLAGOMR-CD2  = CD-ADLAGOMR-CD(2)                                        
+    WS-ADLAGOMR-CD3  = CD-ADLAGOMR-CD(3)                                        
+    WS-ADLAGOMR-CD4  = CD-ADLAGOMR-CD(4)                                        
+    WS-IDARTNR-TILLK = 0                                                        
+    PRINT RAPPORT01                                                             
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+                                                                                
+REPORT RAPPORT01  PRINTER W61115D3 LINESIZE 120 DTLCTL FIRST                    
+TITLE 1  'VCCS      W61115-001        '                                         
+TITLE 2  'CROSSDOCKINGFLAGGADE ARTIKLAR MED ERSÄTTNINGSKOD > 0'                 
+                                                                                
+HEADING  WS-IDARTNR        'ARTNR'                                              
+HEADING  WS-KDERS          'ERS'                                                
+HEADING  WS-ADLAGOMR-CD1   'CD-1'                                               
+HEADING  WS-ADLAGOMR-CD2   'CD-2'                                               
+HEADING  WS-ADLAGOMR-CD3   'CD-3'                                               
+HEADING  WS-ADLAGOMR-CD4   'CD-4'                                               
+HEADING  WS-IDARTNR-TILLK  'TILLK'                                              
+*                                                                               
+LINE 1   WS-IDARTNR WS-KDERS WS-ADLAGOMR-CD1 WS-ADLAGOMR-CD2 +                  
+         WS-ADLAGOMR-CD3 WS-ADLAGOMR-CD4 WS-IDARTNR-TILLK                       

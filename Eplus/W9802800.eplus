@@ -1,0 +1,83 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W9802800                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER MEMO-FIL ÖVER FÖRRA VECKANS ABEND-MEDDELANDEN   *        
+*                                                                      *        
+*  FÖRFATTARE :  KJELL ANDRE                                           *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     940321      KJELL ANDRÉ              57051                       *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W98028D1                                                                   
+*                                                                               
+POS1T4    1    4    A                                                           
+FELDAT    2    6    A                                                           
+FELTID    9    5    A                                                           
+FELTEXTA  15  29    A                                                           
+FELTEXTB  15  40    A                                                           
+ABENDTYPS 33   1    A                                                           
+ABENDTYPU 38   1    A                                                           
+                                                                                
+WFELDAT   W   6    A                                                            
+WFELTID   W   5    A                                                            
+WFELTID-H WFELTID  2    A                                                       
+WFELTEXT  W   40   A                                                            
+                                                                                
+TOTZ      W   4    P   VALUE 0                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W98028D2  PRINTER FB (82 0)                                                
+                                                                                
+*   --  CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LÄS MSG-POSTER, SÅLLA BORT OVIKTIGA RADER SAMT                        
+*         GENERERA RAPPORT MED BRYTNING PÅ DATUM                                
+*                                                                               
+JOB INPUT W98028D1                                                              
+                                                                                
+  IF FELDAT NUMERIC                                                             
+    WFELDAT = FELDAT                                                            
+    WFELTID = FELTID                                                            
+                                                                                
+    IF ABENDTYPS = 'S' AND ABENDTYPU = 'U'                                      
+*     -- AOS-MSG                                                                
+      WFELTEXT = FELTEXTA                                                       
+      TOTZ = TOTZ + 1                                                           
+    ELSE                                                                        
+*     -- SOP-MSG                                                                
+      WFELTEXT = FELTEXTB                                                       
+      TOTZ = TOTZ + 1                                                           
+    END-IF                                                                      
+                                                                                
+    PRINT FELPOSTER                                                             
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+REPORT FELPOSTER  PRINTER W98028D2  PAGESIZE 60 LINESIZE 70 +                   
+                  DTLCTL FIRST SUMCTL NONE                                      
+SEQUENCE WFELDAT WFELTID                                                        
+CONTROL  WFELDAT                                                                
+TITLE 1  'VOLVO VCCS    W98028 - Abend-logg'                                    
+HEADING  WFELDAT ('Datum')                                                      
+HEADING  WFELTID ('Tid')                                                        
+HEADING  WFELTEXT ('Feltext                ')                                   
+LINE  1  WFELDAT WFELTID WFELTEXT                                               
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+JOB INPUT NULL                                                                  
+                                                                                
+ DISPLAY W98028D2 SKIP 1                                                        
+ DISPLAY W98028D2 'Tot antal fel: ' TOTZ                                        
+                                                                                
+ STOP                                                                           
+                                                                                

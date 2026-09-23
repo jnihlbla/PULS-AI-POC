@@ -1,0 +1,39 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2712E00                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHES W01160 WITH FILE WITH UPDATED TISTOREF(WDK6)  *        
+*                WRITES OUT FILE FOR USE IN W2712A00 PGM.              *        
+*  FÖRFATTARE :  JOHAN NIHLBLAD 2011-AUGUSTI                           *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W2712ED1                                                                   
+%W27197   'IN1-'                                                                
+                                                                                
+FILE W2712ED2                                                                   
+%W01160    'IN2-'                                                               
+                                                                                
+FILE W2712ED3 FB(950 0)                                                         
+%W01160    'UT-'                                                                
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT (W2712ED2 KEY (IN2-CLAG-IDARTNR) +                                    
+           W2712ED1 KEY (IN1-IDARTNR))                                          
+                                                                                
+  IF MATCHED                                                                    
+    UT-CLAG-W01160            = IN2-CLAG-W01160                                 
+    UT-CLAG-TISTOREF          = IN1-TISTOREF                                    
+    PUT W2712ED3                                                                
+  ELSE                                                                          
+    IF W2712ED2                                                                 
+      UT-CLAG-W01160          = IN2-CLAG-W01160                                 
+      PUT W2712ED3                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                

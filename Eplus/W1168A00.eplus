@@ -1,0 +1,67 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W1168A00                                              *        
+*                                                                      *        
+*  FUNKTION   :  INPUT FILE W41225 IS A SUBSET OF THE FULL W41225               
+*                (WHICH IS A DOWNLOAD OF WDB601)                                
+*                MATCH W41225 SUBSET(DCS FOR CONCERNED COUNTRY)                 
+*                WITH FILE W11690.                                              
+*                OUTPUT A FILE WITH ONLY PART AND COUNTRY                       
+*                WHICH IS USED TO SELECT SUPERSESSIONS IN PGM W1168800 *        
+*                                                                      *        
+*  FÖRFATTARE :  CHESTER COUCH                                         *        
+*                                                                      *        
+*  DATUM      :  NOVEMBER 2022                                                  
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*--------------------------------------*                                        
+*        FILE SECTION                  *                                        
+* -------------------------------------*                                        
+FILE W1168AD1                                                                   
+%WDB601   'INB601-'                                                             
+*                                                                               
+NEWPAGE                                                                         
+FILE W1168AT1 FB (657 0) VIRTUAL                                                
+%WDB601   'B601-'                                                               
+*                                                                               
+NEWPAGE                                                                         
+FILE W1168AD2                                                                   
+%W11616A  'IN90-'                                                               
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  UTFIL                               *                                        
+* -------------------------------------*                                        
+FILE W1168AD3 FB (7 0)                                                          
+%W1168A     'UT-'                                                               
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*     WORKING STORAGE                  *                                        
+* -------------------------------------*                                        
+PROGRAM-NAMN      W   6   A   VALUE 'W1168A'                                    
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*      JOB 1                           *                                        
+* -------------------------------------*                                        
+                                                                                
+JOB INPUT  W1168AD1                                                             
+   B601-DCS-WDB601   = INB601-DCS-WDB601                                        
+   PUT W1168AT1                                                                 
+                                                                                
+*--------------------------------------*                                        
+*      JOB 2                           *                                        
+* -------------------------------------*                                        
+                                                                                
+JOB INPUT (W1168AT1 KEY(B601-DCS-IDLANDX2)  +                                   
+           W1168AD2 KEY(IN90-IDLANDX2))                                         
+                                                                                
+IF MATCHED                                                                      
+   UT-IDARTNR        = IN90-IDARTNR                                             
+   UT-IDLANDX2       = B601-DCS-IDLANDX2                                        
+   PUT W1168AD3                                                                 
+END-IF                                                                          
+*                                                                               
+NEWPAGE                                                                         

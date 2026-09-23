@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SORTERAR LEVERANSANMÄRKNINGSFILERNA                                        
+//*  KOPIERAR UT EXTRAKTFIL (KREDITERINGAR)                                     
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD  RTN W428R1                               
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                DFUP   NORMAL                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P041 PROC INDIN=&W428..W428R1,                                            
+//             INDUT1=&W428..W428R1,                                            
+//             INDUT2=&WXTR..W428R1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W428PD41),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W42840,DISP=SHR                                      
+//************ INFIL  LEVANM  ALLA GENERATIONER                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT1..W42841(+1),DISP=(NEW,CATLG,DELETE),                 
+//************ UPPFÖLJNINGSFIL (KREDITERADE RADER)                              
+//*  SB37      SPACE=(40,(200,90),RLSE),AVGREC=K,                               
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOPIERAR W42841 TILL EXTRAKTFIL WXTR8F                                     
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTR8F   EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT1..W42841(+1),DISP=SHR                                 
+//************ UPPFÖLJNINGSFIL (KREDITERADE RADER)                              
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..WXTR8F(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ UPPFÖLJNINGSFIL (KREDITERADE RADER)                              
+//*  SB37      SPACE=(40,(200,140),RLSE),AVGREC=K,                              
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

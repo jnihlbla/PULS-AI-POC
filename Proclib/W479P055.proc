@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKRIVER LISTA  RESTORDER DIREKTLEVERANTÖRER                                
+//*                                                                             
+//*  FREKVENS:     VECKOVIS   RTN W479V2                                        
+//*                                                                             
+//*  ÅTERSTART:    NORMAL  W42855 LÄSER ENDAST W42855 FILEN                     
+//*                .                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P055 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479V2,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47955   EXEC PGM=V16459,PARM='W47955/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//OSDAT    DD  DSN=&INDRTE..DATUM(0),DISP=SHR                                   
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//W47955D1 DD  DSN=&INDIN..W47952(+0),DISP=SHR                                  
+//************ RESTORDER                                                        
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W47955D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W47955-001  LISTA                                                
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

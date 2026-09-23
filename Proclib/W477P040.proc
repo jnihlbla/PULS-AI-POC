@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DOWNLOAD FOR CBS REPORTING SDC21 (SDC OUT/SUPPLY TERM. OUT)                
+//*                                                                             
+//*  FREQUENCY:    MONTHLY                                                      
+//*                                                                             
+//*  RESTART  :              NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W477P040 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W475..W477M1,                                             
+//             INDOUT=&W477..W477M1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W477PD40),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W4759D,DISP=SHR                                      
+//************ SDC21'S SDC-OUT CBS-FILE                                         
+//*                                                                             
+//SORTOUT  DD  DSN=&&W4774T,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED ON STATNR                                                 
+//         SPACE=(6233,(50,10),RLSE),AVGREC=K                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47740   EXEC PGM=V16459,PARM='W47740/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W47740D1 DD  DSN=&&W4774T,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMP TULLFIL SORTERAD PÅ STATNR                                  
+//*                                                                             
+//W47740D2 DD  DSN=&INDOUT..W47740,DISP=(OLD,CATLG,DELETE)                      
+//*            BLKSIZE=27904,                                                   
+//*            MGMTCLAS=&BACKUPC,SPACE=(100,(10,5),RLSE)                        
+//*                                                                             
+//W47740D3 DD  DSN=&INDRTE..CONSTANT(XREFLAND),DISP=SHR                         
+//*                                                                             
+//W47740D4 DD  DSN=&INDRTE..CONSTANT(CBSVAR),DISP=SHR                           
+//*                                                                             

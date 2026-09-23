@@ -1,0 +1,103 @@
+MACRO 1 PREF WORK '*' PROC '*'                                                  
+* *                                                                             
+* *    W W D I S T 3 5                                                          
+* *                                                                             
+* * !!! OBS!! DENNA E+ CPY INNEHÅLLER INTE ALLA 88-NIVÅER                       
+* * !!! OBS!! SOM FINNS I MOTSV. COBOLCPY UTAN BARA                             
+* * !!! OBS!! DEM NIVÅER SOM ANVÄNTS AV NGT E+ PROGRAM                          
+* *                                                                             
+* *        TEST AV                                                              
+* *        - SDC DISTRIKT SDC -> CDC                                            
+* *        - SDC DISTRIKT CDC -> SDC                                            
+* *        - ST  DISTRIKT ST  -> CDC                                            
+* *        - ST  DISTRIKT CDC -> ST                                             
+* *        - SDC DISTRIKT SDCNL -> SITTARD                                      
+* *        - SDC DISTRIKT SITTARD -> SDCNL                                      
+* *        - NDC DISTRIKT NDC -> CDC                                            
+* *        - NDC DISTRIKT NDC -> NDC                                            
+* *        - NDC DISTRIKT CDC -> NDC                                            
+* *                                                                             
+* *    U S A G E :                                                              
+* *                                                                             
+* *        THIS COPYTEXT IS A DUAL-PURPOSE COPYTEXT. IF COULD BE USED           
+* *    JUST TO DEFINE DISTRICT CONSTANTS, AND/OR COULD BE USED AS A             
+* *    PROCEDURE TO CHECK DISTRICT GROUPS.                                      
+* *        IF THIS COPYTEXT IS NEEDED IN EPLUST PROGRAM, THEN THERE             
+* *    MUST BE ATLEAST ONE DEFINITION IN THE WORKING STORAGE  AREA,LIKE         
+* *    THIS...                                                                  
+* *              %WWDIST35  REQUIRED-PREFIX  WORK ''                            
+* *                                                                             
+* *        IF DISTRICT GROUPS ARE TO BE TESTED, THE COPYTEXT HAS TO BE          
+* *     AS ...                                                                  
+* *              %WWDIST35  REQUIRED-PREFIX  PROC ''                            
+* *                                                                             
+* *     AT THE END OF THE JOB AND THE PROCEDURE IN THE COPYTEXT CAN BE          
+* *     CALLED FROM ANYWHERE IN THE JOB LIKE...                                 
+* *                                                                             
+* *              PERFORM S75-TEST-DIST35                                        
+* *                                                                             
+* *     I M P O R T A N T :                                                     
+* *                                                                             
+* *       - WHEN DEFINING NEW FIELDS IN THIS COPYTEXT,THE &&WORK FIELD          
+* *         MUST BE USED AT COLUMN 1.                                           
+* *       - WHEN ADDING NEW DISTRICT GROUP PROCEDURES TO THIS COPYTEXT,         
+* *         THE &&PROC FIELD MUST BE USED AT COLUMN 1.                          
+* *       - WHEN ANY CHANGES ARE DONE, ALL THE EPLUS PROGRAMS THAT USE          
+* *         THIS COPYTEXT MUST BE RECOMPILED.                                   
+* *                                                                             
+* *     E R R O R S :                                                           
+* *                                                                             
+* *       IN CASE OF ANY COMPILATATION ERRORS, PLEASE CHECK IF THE              
+* *     CORRECT VALUES ARE PASSED TO THE &&WORK AND &&PREF PARAMETERS.          
+* *     THE ONLY VALID VALUE FOR THESE PARAMETERS ARE ''.                       
+* *                                                                             
+                                                                                
+* *                                                                             
+* *  DISTRICT CONSTANT  AND GROUP DEFINITIONS.                                  
+* *                                                                             
+&WORK DEFINE DIST35-REFILL               W  5 N  VALUE 0                        
+&WORK DEFINE DIST35-CN-CN-REFILL         W  5 N  VALUE 0                        
+&WORK DEFINE DIST35-NDC71-CDC-REFILL     W  5 N  VALUE 0                        
+                                                                                
+*   TRANSFERDISTRIKEN (REFILL MELLAN NDC:ERNA) SKALL ANVÄNDAS                   
+*   I KOMBINATION MED DC FÖR ATT SÄRSKILJA DE OLIKA NDC:ERNA.                   
+                                                                                
+&WORK DEFINE DIST35-US-US-TRANSFER       W  5 N  VALUE 0                        
+                                                                                
+* *                                                                             
+* *  DISTRICT GROUP TESTING PROCEDURES.                                         
+* *                                                                             
+&PROC.S75-TEST-DIST35. PROC                                                     
+&PROC                                                                           
+&PROC IF &PREF.IDDISTR = 8032 8052 8062 8072 8082 8092 +                        
+&PROC                    8152 8153                     +                        
+&PROC                    8161 8162 8163 8164 8165 8166 8167 +                   
+&PROC                    8171 8172 8173 8174           +                        
+&PROC                    8181 8182 8185 8186 8187 8193 +                        
+&PROC                    8330 8331 8333 8334 8335 8336 8337 +                   
+&PROC                    8500                          +                        
+&PROC                    8700 8701 8702 8703           +                        
+&PROC                    8704 8705 8706 8720           +                        
+&PROC                    8731 8733 8734 8735 8736 8737 +                        
+&PROC                    8800 8801 8802 8803 8804 8805 +                        
+&PROC                    8806 8807 8808 8809 8810 8811 +                        
+&PROC                    8812 8813 8814 8851 8852 8853 +                        
+&PROC                    8854 8855 8856 8857 8858 8859 +                        
+&PROC                    8860 8861 8862 8863 8864 8865 +                        
+&PROC                    8866 8867 8868                +                        
+&PROC                    8900 8901 8902 8903 8904 8905 8906 8907 +              
+&PROC                    9111                                                   
+&PROC   DIST35-REFILL  = &PREF.IDDISTR                                          
+&PROC END-IF                                                                    
+&PROC IF &PREF.IDDISTR = 8271 8272 8273 8274           +                        
+&PROC                    8950 8951 8952 8953 8954 8955 8956 8957                
+&PROC   DIST35-CN-CN-REFILL   = &PREF.IDDISTR                                   
+&PROC END-IF                                                                    
+&PROC IF &PREF.IDDISTR = 8341 8343 8344 8345 8346 8347 8392                     
+&PROC   DIST35-US-US-TRANSFER = &PREF.IDDISTR                                   
+&PROC END-IF                                                                    
+&PROC IF &PREF.IDDISTR = 9111                                                   
+&PROC   DIST35-NDC71-CDC-REFILL = &PREF.IDDISTR                                 
+&PROC END-IF                                                                    
+&PROC.END-PROC                                                                  
+MEND                                                                            

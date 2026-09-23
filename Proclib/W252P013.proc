@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PART INFORMATION FROM PROCURMENT                                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W252D1                                         
+//*                                                                             
+//*  RESTART:      W25213    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W252P013 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W252..W252D1,                                             
+//             INDUT=&W252..W252D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO      EXEC PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                               
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W25213D1 DD  DSN=&INDIN..W25212(+0),DISP=SHR                                  
+//************ ÄT TOTLISTA                                                      
+//*                                                                             
+//W25213D2 DD  DSN=&INDUT..W25213(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ ÄT TOT LIST COMPLETED WITH INFO FROM TABLE TB1ACCE               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//         IF  (TSO.RC GT 4) THEN                                               
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456'                               
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                     -- ABEND           
+//         ENDIF                                                                

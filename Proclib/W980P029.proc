@@ -1,0 +1,96 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*    FUNCTION:     SOP - CHECK FOR PROBLEMS IN ACTIVE PROCESSES     *         
+//*                  (JCL ERRORS, LONG EXEC TIME ...)                 *         
+//*                                                                   *         
+//*                                                                   *         
+//*    RESPONSIBLE:  9231                                             *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W980P029 PROC STPLIB=&INDRTE..LOAD,                                           
+//             SOPREG=&INDRTE..SOP,INDUT=&W980..W980D1                          
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TEMPTL EXEC  PGM=IEFBR14                                                      
+//DD1      DD  DSN=&&TLIB,DISP=(NEW,PASS,DELETE),       * FOR ENQ               
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160),                            
+//             SPACE=(6160,(5,,5))                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W98029 EXEC  PGM=IKJEFT01,DYNAMNBR=35                                         
+//*                                                                             
+//ISPPLIB  DD  DSN=&INDGRND..PANELS,DISP=SHR            * APPL   MENU           
+//         DD  DSN=&W..ISPF.PANELS,DISP=SHR             * APPL   MENU           
+//         DD  DSN=SYS2.F1TS00.PANELS,DISP=SHR          * VOLVO  MENU           
+//         DD  DSN=SYS1.ISP.SISPPENU,DISP=SHR                                   
+//*                                                                             
+//ISPMLIB  DD  DSN=&INDGRND..MSGS,DISP=SHR              * APPL   MSGS           
+//         DD  DSN=&W..ISPF.MSGS,DISP=SHR               * APPL   MSGS           
+//         DD  DSN=SYS2.F1TS00.MSGS,DISP=SHR            * VOLVO  MSGS           
+//         DD  DSN=SYS1.ISP.SISPMENU,DISP=SHR                                   
+//*                                                                             
+//ISPSLIB  DD  DSN=&INDGRND..SKELS,DISP=SHR             * APPL   SKELS          
+//         DD  DSN=&W..ISPF.SKELS,DISP=SHR              * APPL   SKELS          
+//         DD  DSN=SYS2.F1TS00.SKELS,DISP=SHR           * VOLVO  SKELS          
+//         DD  DSN=SYS1.ISP.SISPSLIB,DISP=SHR                                   
+//*                                                                             
+//ISPTLIB  DD  DSN=&&TLIB,DISP=(OLD,DELETE)             * FOR ENQ               
+//         DD  DSN=&INDGRND..TABLES,DISP=SHR            * APPL   TABLE          
+//         DD  DSN=&W..ISPF.TABLES,DISP=SHR             * APPL   TABLE          
+//         DD  DSN=SYS2.F1TS00.TABLES,DISP=SHR          * VOLVO  TABLE          
+//         DD  DSN=SYS1.ISP.SISPTENU,DISP=SHR                                   
+//*                                                                             
+//ISPLLIB  DD  DSN=&STPLIB,DISP=SHR                     * APPL   LOAD           
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR              * APPL   LOAD           
+//         DD  DSN=&W..ISPF.LOAD,DISP=SHR               * APPL   LOAD           
+//         DD  DSN=SYS2.F1TS00.LOAD,DISP=SHR            * VOLVO  LOAD           
+//         DD  DSN=SYS1.ISP.SISPLOAD,DISP=SHR                                   
+//*                                                                             
+//ISPTABL  DD  DSN=&INDGRND..TABLES,DISP=SHR                                    
+//*                                                                             
+//ISPPROF  DD  DSN=&&USERID,                            * PROFILE DS            
+//             DISP=(NEW,DELETE,DELETE),                                        
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160),                            
+//             SPACE=(6160,(5,,5))                                              
+//*                                                                             
+//MVSIUSER DD  DSN=SYS1.MVSI.USER,DISP=SHR                                      
+//MVSIAPPL DD  DSN=SYS1.MVSI.APPL,DISP=SHR                                      
+//*                                                                             
+//SYSHELP  DD  DUMMY                                                            
+//*                                                                             
+//SYSPROC  DD  DSN=&INDGRND..CLIST,DISP=SHR                                     
+//         DD  DSN=&W..ISPF.CLIST,DISP=SHR                                      
+//         DD  DSN=SYS2.F1TS00.CLIST,DISP=SHR                                   
+//         DD  DSN=SYS1.ISP.SISPCLIB,DISP=SHR                                   
+//*                                                                             
+//SYSEXEC  DD  DSN=&INDGRND..EXEC,DISP=SHR                                      
+//         DD  DSN=&W..ISPF.EXEC,DISP=SHR                                       
+//         DD  DSN=SYS2.F1TS00.EXEC,DISP=SHR                                    
+//         DD  DSN=SYS1.ISP.SISPEXEC,DISP=SHR                                   
+//*                                                                             
+//ISPLST1  DD  DISP=NEW,SPACE=(CYL,(1,1)),            * LIST WORK-DS1           
+//             DCB=(LRECL=121,BLKSIZE=1210,RECFM=FBA)                           
+//ISPLST2  DD  DISP=NEW,SPACE=(CYL,(1,1)),            * LIST WORK-DS2           
+//             DCB=(LRECL=121,BLKSIZE=1210,RECFM=FBA)                           
+//SYSEDIT  DD  DSN=&EDIT,SPACE=(CYL,(2,2))            * EDIT WORK-DS            
+//*                                                                             
+//SYSPRINT DD  SYSOUT=*                               * STD. PRINT              
+//SYSOUT   DD  SYSOUT=*                               * STD. OUTPUT             
+//SYSTSPRT DD  SYSOUT=*                               * TSO  PRINT              
+//SYSTSIN  DD  DDNAME=SYSIN                                                     
+//*                                                                             
+//DUMMY1   DD  DUMMY,DSN=&USERID                                                
+//*                                                                             
+//SOPDD1   DD  DSN=&SOPREG,DISP=SHR            -- SOP DATA BASE                 
+//*                                                                             
+//W98029D1 DD  DSN=&INDUT..W98030(+1),DISP=(NEW,CATLG,CATLG),   -LIM(1)         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=DEL2                                                    
+//*                                                                             
+//W98029D2 DD  DSN=&INDUT..W98031(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=DEL2                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND   EXEC PGM=ABEND,COND=(4,GE,W98029),PARM='1234567890123456'             

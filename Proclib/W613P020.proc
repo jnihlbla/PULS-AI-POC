@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CALCULATE POINTS                                                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W613V5                                         
+//*                                                                             
+//*  RESTART:      W61320    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W613P020 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&WXTR..W020V1,                                             
+//             INDUT=&W613..W613V5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61320   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W61320,W61320,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W61320D1 DD  DSN=&INDIN..WXTRB4,DISP=SHR                                      
+//************ DEMAND HISTORY                                                   
+//*                                                                             
+//W61320D2 DD  DSN=&INDUT..W61320(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ UTFIL-CALCULATION                                                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W61320D3 DD  DSN=&&TEMPFIL,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W61320D4 DD  DSN=&INDUT..W61320A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ CALCULATION OF PONTS                                             
+//************ SKICKAS SOM LISTA.                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

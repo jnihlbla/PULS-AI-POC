@@ -1,0 +1,51 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FIX RUTIN FÖR SALDON (K611, K901, K911, K711)                              
+//*                                                                             
+//*  FREKVENS:     BEST   RTN W440B1                                            
+//*                                                                             
+//*  ÅTERSTART:    W44090     BACKOUT VIA SOP                                   
+//*                UPPDATERAR  WDK6 WDK9 WDK7                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P090 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W440..W440V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W44090   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W44090,W44090,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DSN=&INDPLOG..W440P090(+1),                                      
+//             DISP=(NEW,CATLG,CATLG),                                          
+//             DCB=(RECFM=VB,LRECL=6229,BLKSIZE=27998,BUFNO=5),                 
+//             MGMTCLAS=&EMID70,SPACE=(TRK,(100,100),RLSE)                      
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK9     INCLUDE MEMBER=WDK9                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//W44090D1 DD  DSN=&INDIN..W44056(+0),DISP=SHR                                  
+//************ FIL MED K6-SALDO-DIFFAR (CDC)                                    
+//         DD  DSN=&INDIN..W44078(+0),DISP=SHR                                  
+//************ FIL MED K7-SALDO-DIFFAR (NDC)                                    
+//         DD  DSN=&INDIN..W44057(+0),DISP=SHR                                  
+//************ FIL MED K7-SALDO-DIFFAR (NDC/SDC)                                
+//         DD  DSN=&INDIN..W44058(+0),DISP=SHR                                  
+//************ FIL MED K9-SALDO-DIFFAR (CDC)                                    
+//         DD  DSN=&INDIN..W44059(+0),DISP=SHR                                  
+//************ FIL MED K9-KVOFFERT-DIFFAR                                       
+//*                                                                             

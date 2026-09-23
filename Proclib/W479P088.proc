@@ -1,0 +1,65 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR OKS-INFO MED WDQ3-INFO                                        
+//*  UTFIL  -->  W47988                                                         
+//*                                                                             
+//*  FREKVENS:     DAGLIG   RTN W479D1                                          
+//*                                                                             
+//*  ÅTERSTART:    W47988   NORMAL                                              
+//*                DFUP   NORMAL                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P088 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W479..W479D1,                                            
+//             INDIN2=&W413,                                                    
+//             INDUT=&W479..W479D1                                              
+//*                                                                             
+//SORT02   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479P881),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W41302(+0),DISP=SHR                                 
+//************ WDQ3-INFO                                                        
+//************ SORTERAS PÅ IDORDER, KDCLAGER, IDPRC, IDLEVNR                    
+//************ ENDAST DE POSTER MED KDODELSTA = R KOMMER                        
+//************ ATT KOMMA MED PÅ UTFILEN MHA ETT INCLUDE-KORT I                  
+//************ CONSTANT-MEDLEMMEN W479P881                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&&W41302,DISP=(NEW,PASS,DELETE),                             
+//************ WDQ3-INFO SORTERAD                                               
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47988   EXEC PGM=V16459,PARM='W47988/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(10000,200))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W47988D1 DD  DSN=&INDIN1..W47998(+0),DISP=SHR                                 
+//************ OKS-INFO                                                         
+//*                                                                             
+//W47988D2 DD  DSN=&&W41302,DISP=(OLD,DELETE,DELETE)                            
+//************ WDQ3-INFO SORTERAD                                               
+//*                                                                             
+//W47988D3 DD  DSN=&&W47988,DISP=(NEW,PASS,DELETE),                             
+//************ KOMPL. OKS-INFO                                                  
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT88   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479P882),DISP=SHR                         
+//SORTIN   DD  DSN=&&W47988,DISP=(OLD,PASS,DELETE)                              
+//************ KOMPL. OKS-INFO                                                  
+//************ SORTERAS PÅ IDARTNR                                              
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W47988(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ KOMPL. OKS-INFO SORTERAD                                         
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

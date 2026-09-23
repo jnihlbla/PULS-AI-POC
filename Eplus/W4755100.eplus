@@ -1,0 +1,199 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4755100                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  MARGARETA GABRIELSSON                                 *        
+*                                                                      *        
+*  DATUM      :  940824                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET SKAPAR MÅNATLIG TULLISTA ALL DC21-EXPORT   *        
+*                                                                      *        
+*                                                                      *        
+*                PROGRAMMET SKAPAR:                                    *        
+*                  LISTA W47551-001                                    *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     940417      MARGARETA GABRIELSSON    57054 (NYTT FÖR DC21)       *        
+*     940824      MARGARETA GABRIELSSON    57054 (HELT OMSKRIVET)      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W47551D1                                                                   
+*                                                                               
+%W475894E      'IN-'                                                            
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W47551D2 PRINTER                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+*                                                                               
+ SPAR-IDSTATNR     W   9  N     MASK 'ZZZZZZZZ9'                                
+ SPAR-IDLANDX2     W   2  A                                                     
+ SPAR-KVLEVART     W   7  N 0   MASK 'ZZZZZZ9-'                                 
+ SPAR-VKLEV        W   7  N 1   MASK 'ZZZZZ9,9-'                                
+ SPAR-SUEEC        W  11  N 2   MASK 'ZZZZZZZZ9,99-'                            
+ SPAR-SUEFTA       W  11  N 2   MASK 'ZZZZZZZZ9,99-'                            
+ SPAR-SUOEVR       W  11  N 2   MASK 'ZZZZZZZZ9,99-'                            
+ SPAR-SUFAKT       W  11  N 2   MASK 'ZZZZZZZZ9,99-'                            
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT  W47551D1   START A-INIT                             +              
+                        FINISH Z-FINIT                           +              
+                                                  NAME   STEG01                 
+    IF RECORD-COUNT = 1                                                         
+      PERFORM SPARA-NYCKLAR                                                     
+    END-IF                                                                      
+                                                                                
+    IF IN-IDPTYP = 'SDC' 'SD2'                                                  
+      IF IN-IDSTATNR = SPAR-IDSTATNR AND                           +            
+        IN-IDLANDX2 = SPAR-IDLANDX2                                             
+          PERFORM SUMMERA-VARDEN                                                
+      ELSE                                                                      
+        PRINT RAPPORT01                                                         
+        PERFORM SPARA-NYCKLAR                                                   
+        PERFORM NOLLA-VARDEN                                                    
+        PERFORM SUMMERA-VARDEN                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  A-INIT. PROC                                                                  
+                                                                                
+    SPAR-IDSTATNR   = 0                                                         
+    SPAR-IDLANDX2   = '  '                                                      
+    SPAR-KVLEVART   = 0                                                         
+    SPAR-VKLEV      = 0                                                         
+    SPAR-SUEEC      = 0                                                         
+    SPAR-SUEFTA     = 0                                                         
+    SPAR-SUOEVR     = 0                                                         
+    SPAR-SUFAKT     = 0                                                         
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  SPARA-NYCKLAR. PROC                                                           
+                                                                                
+    SPAR-IDSTATNR  = IN-IDSTATNR                                                
+    SPAR-IDLANDX2  = IN-IDLANDX2                                                
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  SUMMERA-VARDEN. PROC                                                          
+                                                                                
+    SPAR-KVLEVART = SPAR-KVLEVART + IN-KVLEVART                                 
+    SPAR-VKLEV    = SPAR-VKLEV    + IN-VKLEV                                    
+    SPAR-SUEEC    = SPAR-SUEEC    + IN-SUEEC                                    
+    SPAR-SUEFTA   = SPAR-SUEFTA   + IN-SUEFTA                                   
+    SPAR-SUOEVR   = SPAR-SUOEVR   + IN-SUOEVR                                   
+    SPAR-SUFAKT   = SPAR-SUFAKT   + IN-SUFAKT                                   
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  NOLLA-VARDEN. PROC                                                            
+                                                                                
+    SPAR-KVLEVART  = 0                                                          
+    SPAR-VKLEV     = 0                                                          
+    SPAR-SUEEC     = 0                                                          
+    SPAR-SUEFTA    = 0                                                          
+    SPAR-SUOEVR    = 0                                                          
+    SPAR-SUFAKT    = 0                                                          
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  Z-FINIT. PROC                                                                 
+                                                                                
+    PRINT RAPPORT01                                                             
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  REPORT RAPPORT01 PRINTER W47551D2                              +              
+                   LINESIZE     120                              +              
+                   PAGESIZE      41                              +              
+                   NODATE                                        +              
+                   NOADJUST                                      +              
+                   NOSPREAD                                      +              
+                   SUMSPACE       0                              +              
+                   SPACE          3                                             
+*                                                                               
+  CONTROL SPAR-IDSTATNR                                                         
+*                                                                               
+  SUM SPAR-VKLEV                                                 +              
+      SPAR-SUFAKT                                                               
+*                                                                               
+  TITLE 01                                                       +              
+    COL 02 'VOLVO CAR PARTS                 W47551-001'                         
+*                                                                               
+  TITLE 04                                                       +              
+    COL 12 'MONTHLY REPORT PER CUSTOMS TARIFF NO. - SDC NL  '    +              
+    COL 68 SYSDATE                                                              
+*                                                                               
+  HEADING  SPAR-IDSTATNR    'CUST.TARIFF'                                       
+  HEADING  SPAR-IDLANDX2    'DEST'                                              
+  HEADING  SPAR-KVLEVART    'QUANTITY'                                          
+  HEADING  SPAR-VKLEV       'NET WEIGHT'                                        
+  HEADING  SPAR-SUEEC       'EEC TOTAL'                                         
+  HEADING  SPAR-SUEFTA      'EFTA TOTAL'                                        
+  HEADING  SPAR-SUOEVR      'NON ORIGIN'                                        
+  HEADING  SPAR-SUFAKT      'TOT.AMOUNT'                                        
+*                                                                               
+  LINE 01                                                        +              
+           SPAR-IDSTATNR                                         +              
+           SPAR-IDLANDX2                                         +              
+           SPAR-KVLEVART                                         +              
+           SPAR-VKLEV                                            +              
+           SPAR-SUEEC                                            +              
+           SPAR-SUEFTA                                           +              
+           SPAR-SUOEVR                                           +              
+           SPAR-SUFAKT                                                          
+*                                                                               
+  TERMINATION. PROC                                                             
+                                                                                
+    DISPLAY NEWPAGE '                                          '                
+    DISPLAY '                                                  '                
+    DISPLAY 'I, THE UNDERSIGNED; EXPORTER OF THE GOODS COVERED '                
+    DISPLAY 'BY THIS DOCUMENT DECLARE THAT, EXCEPT WHERE OTHER-'                
+    DISPLAY 'WISE INDICATE, THE GOODS MEET THE CONDITIONS      '                
+    DISPLAY 'REQUIRED TO OBTAIN ORIGINATING STATUS IN PREFEREN-'                
+    DISPLAY 'TIAL TRADE WITH NL AND THAT THE COUNTRY OF        '                
+    DISPLAY 'DESTINATION OF THE GOODS IS ACCORDING TO INVOICE. '                
+    DISPLAY 'BERTIL AXBOM, VOLVO TRANSPORT CORP. IS RESPONSIBLE'                
+    DISPLAY 'FOR THE CORRECTNESS OF ABOVE DECLARATION.         '                
+    DISPLAY 'APPROVED EXPORTER AUTHORIZATION NO GBG 1.         '                
+    DISPLAY '                                                  '                
+    DISPLAY 'INVOER MET MAANDEKIJSKE AANGIFTE                  '                
+    DISPLAY '138 V 92 OF 28-6-93                               '                
+    DISPLAY 'INSP 1 + A IN VENLO                               '                
+    DISPLAY 'TRUCK NO ............ TL NO .............         '                
+    DISPLAY 'VAT NO NL  801342107B01                           '                
+    DISPLAY '                                                  '                
+    DISPLAY 'GÖTEBORG   ........                               '                
+  END-PROC                                                                      
+*                                                                               

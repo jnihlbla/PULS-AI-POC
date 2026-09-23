@@ -1,0 +1,103 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR FIL MED SAMTLIGA REFILLARTIKLAR MED ERS-KOD = 0                     
+//*                                                                             
+//*                                                                             
+//*                                                                             
+//*  PROCEDUREN KÖRS I FLERA JOBB, INDUT ANGES I JCL                            
+//*                                                                             
+//*                                                                             
+//*  FREKVENS:     DAG       RTN W271D1                                         
+//*                          RTN W271DA                                         
+//*                VECKA     RTN W271V1                                         
+//*                                                                             
+//*                AKTIVERING                                                   
+//*                                                                             
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                          NORMAL                                             
+//*                W27140    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P040 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W011..&RTEGRP.,                                          
+//             INDIN2=&W011..LDC,                                               
+//             INDIN3=&W011..SDC,                                               
+//             INDIN4=&W011..NDC,                                               
+//             INDUT=SAKNAS                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SORTIN   DD  DSN=&INDIN2..W01184(+0),DISP=SHR                                 
+//************ SAMTLIGA ARTIKLAR  WDK7, LDC                                     
+//*                                                                             
+//         DD  DSN=&INDIN3..W01184(+0),DISP=SHR                                 
+//************ SAMTLIGA ARTIKLAR  WDK7, SDC                                     
+//*                                                                             
+//         DD  DSN=&INDIN4..W01184(+0),DISP=SHR                                 
+//************ SAMTLIGA ARTIKLAR  WDK7, NDC                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27184,DISP=(NEW,PASS,DELETE),                             
+//************ SAMTLIGA ARTIKLAR WDK7, SAMTLIGA SDC                             
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SORTIN   DD  DSN=&INDIN2..W01186(+0),DISP=SHR                                 
+//************ SAMTLIGA ARTIKLAR WDL7, LDC                                      
+//*                                                                             
+//         DD  DSN=&INDIN3..W01186(+0),DISP=SHR                                 
+//************ SAMTLIGA ARTIKLAR WDL7, SDC                                      
+//*                                                                             
+//         DD  DSN=&INDIN4..W01186(+0),DISP=SHR                                 
+//************ SAMTLIGA ARTIKLAR WDL7, NDC                                      
+//*                                                                             
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27186,DISP=(NEW,PASS,DELETE),                             
+//************ SAMTLIGA ARTIKLAR WDL7, SAMTLIGA DC                              
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27140   EXEC PGM=V16459,PARM='W27140/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(1000,500))                                          
+//SORTMSG  DD  SYSOUT=*                                                         
+//STEERFIL DD  DUMMY                                                            
+//************ STEERING FILE                                                    
+//*                                                                             
+//W27140D1 DD  DSN=&INDIN1..W01160(+0),DISP=SHR                                 
+//************ SAMTLIGA ARTIKLAR WDK6                                           
+//*                                                                             
+//W27140D2 DD  DSN=&&W27184,DISP=(OLD,DELETE,DELETE)                            
+//************ SAMTLIGA ARTIKLAR WDK7, SAMTLIGA DC                              
+//*                                                                             
+//W27140D3 DD  DSN=&&W27186,DISP=(OLD,DELETE,DELETE)                            
+//************ SAMTLIGA ARTIKLAR WDL7, SAMTLIGA SDC                             
+//*                                                                             
+//TEMPFIL1 DD  DSN=&&TEMP01,DISP=(NEW,DELETE,DELETE),                           
+//             DATACLAS=PSEB                                                    
+//************ TEMP FILE - ARTICLE INFORMATION WDK7                             
+//*                                                                             
+//TEMPFIL2 DD  DSN=&&TEMP02,DISP=(NEW,DELETE,DELETE),                           
+//             DATACLAS=PSEB                                                    
+//************ TEMP FILE - ARTICLE INFORMATION WDL7                             
+//*                                                                             
+//W27140D4 DD  DSN=&&W271401,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEB                                                    
+//************ TEMPFIL                                                          
+//*                                                                             
+//W27140D5 DD  DSN=&INDUT..W27140(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SAMTLIGA REFILLARTIKLAR MED ERSÄTTNINGSKOD = 0                   
+//*            SAMTLIGA SDC                                                     
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               

@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  HANDLES UPDATE OF DATA WHEN SUPERSSESION DEPENDENT ON TIME                 
+//*                                                                             
+//*  FREQUENCE:    WEEKLY    RTN W271V6                                         
+//*                                                                             
+//*  RESTART:      W27143    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P043 PROC STPLIB=&INDRTE..LOAD,                                           
+//*                                                                             
+//             INDIN=&W271..W271V6,                                             
+//             INDUT=&W271..W271V6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27143   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W27143,W27143,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W27143D1 DD  DSN=&INDIN..W2712B(+0),DISP=SHR                                  
+//************ INFIL MED AUTOREFILL VÄRDE                                       
+//*                                                                             
+//W27143D2 DD  DSN=&INDUT..W27131(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ SUPERSESSIONS NEEDS TO BE HANDLED MANUALY                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

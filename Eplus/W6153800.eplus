@@ -1,0 +1,113 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6153800                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET LÄSER W61536 OCH SKRIVER LISTA W61538-001  *        
+*                                                                      *        
+*  FÖRFATTARE :  TOMMIE JIVARP                                         *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61538D1                                                                   
+*                                                                               
+%W61537  'IN-'                                                                  
+                                                                                
+IDARTNR      IN-IDARTNR        5 P 0  MASK 'ZZZZZZZZ9'                          
+KVQPACK-3    IN-KVQPACK-3      3 P 0  MASK 'ZZZZ9'                              
+KVPB-TOT     IN-KVPB-TOT       4 P 1  MASK 'ZZZZZ9.9'                           
+KVPB-DC      IN-KVPB-DC        4 P 1  MASK 'ZZZZZ9.9'                           
+                                                                                
+UT-PLATS           W          9 N   MASK '99 99 99999'                          
+WS-ADLAGOMR    UT-PLATS       2 N                                               
+WS-ADGANG      UT-PLATS +2    2 N                                               
+WS-ADPLATS     UT-PLATS +4    5 N                                               
+                                                                                
+UT-BEART-ENG       W         18 A                                               
+UT-KVPLOCK         W          6 N   MASK 'ZZZZZ9'                               
+UT-TIRELOC         W          6 N   MASK '999999'                               
+                                                                                
+WS-KVPB-TOT   W  4  P 1                                                         
+WS-PALLBYTEN  W  3  P 1             MASK 'ZZZ9.9'                               
+WS-TEST       W  2  P 1               VALUE 0                                   
+                                                                                
+NEWPAGE                                                                         
+FILE W61538D2  PRINTER FB (121 0)                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LÄSNING AV W61537 OCH UTSKRIFT AV W61538-001                          
+*                                                                               
+JOB INPUT (W61538D1)                                                            
+                                                                                
+  UT-TIRELOC   = IN-TIRELOC-DATE                                                
+  UT-KVPLOCK   = IN-KVPLOCK                                                     
+  UT-BEART-ENG = IN-BEART-ENG                                                   
+  WS-ADLAGOMR  = IN-ADLAGOMR                                                    
+  WS-ADGANG    = IN-ADGANG                                                      
+  WS-ADPLATS   = IN-ADPLATS                                                     
+  WS-KVPB-TOT  = IN-KVPB-TOT + IN-KVPB-DC                                       
+  IF IN-KVQPACK-3 > 0                                                           
+     WS-PALLBYTEN = IN-KVLEVART / IN-KVQPACK-3                                  
+  ELSE                                                                          
+     WS-PALLBYTEN = 0                                                           
+  END-IF                                                                        
+  PRINT                                                                         
+                                                                                
+NEWPAGE                                                                         
+REPORT   PRINTER W61538D2 LINESIZE 120 DTLCTL FIRST +                           
+         NODATE  SPACE 1                                                        
+                                                                                
+SEQUENCE IN-KDLAGOMR WS-ADLAGOMR IN-KDFREQ IN-KDTECKEN +                        
+                                 WS-ADGANG WS-ADPLATS                           
+CONTROL IN-KDLAGOMR NEWPAGE RENUM                                               
+SUM WS-TEST                                                                     
+                                                                                
+TITLE 1  'VOLVO CAR CUSTOMER SERVICE  W61538-001 '   +                          
+         SYSDATE                                                                
+                                                                                
+TITLE 2  'DC: CDC       LAG.OMR: ' IN-KDLAGOMR          +                       
+         '          RELOCATION LIST, LOCATION MANAGEMENT'                       
+                                                                                
+TITLE 3  ' '                                                                    
+                                                                                
+HEADING IDARTNR         ('ART NR.')                                             
+HEADING UT-BEART-ENG    ('BENÄMNING')                                           
+HEADING IN-KDTECKEN     ('+/-')                                                 
+HEADING WS-KVPB-TOT     (' PB TOT.')                                            
+HEADING KVPB-DC         ('  PB DC.')                                            
+HEADING UT-KVPLOCK      ('PLOCKADE' 'RADER')                                    
+HEADING KVQPACK-3       ('  Q3')                                                
+HEADING WS-PALLBYTEN    (' PALL-' ' BYTEN')                                     
+HEADING IN-FLCDART      (' CD')                                                 
+HEADING IN-FLSEASON     ('SÄS')                                                 
+HEADING IN-VKART        ('  VIKT')                                              
+HEADING IN-KDFREQ       ('FR' 'KOD')                                            
+HEADING IN-KDSTOR       ('STR' 'KOD')                                           
+HEADING UT-PLATS        ('PLATS')                                               
+HEADING UT-TIRELOC      ('RELOC' 'DATE')                                        
+                                                                                
+LINE 01   IDARTNR            +                                                  
+          UT-BEART-ENG       +                                                  
+          IN-KDTECKEN        +                                                  
+          WS-KVPB-TOT        +                                                  
+          KVPB-DC            +                                                  
+          UT-KVPLOCK         +                                                  
+          KVQPACK-3          +                                                  
+          WS-PALLBYTEN       +                                                  
+          IN-FLCDART         +                                                  
+          IN-FLSEASON        +                                                  
+          IN-VKART           +                                                  
+          IN-KDFREQ          +                                                  
+          IN-KDSTOR          +                                                  
+          UT-PLATS           +                                                  
+          UT-TIRELOC                                                            

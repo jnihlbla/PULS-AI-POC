@@ -1,0 +1,140 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4262800                                              *        
+*                                                                      *        
+*  FUNKTION   :  KVALITETSSTATISTIK KONTROLLRAPPORT                    *        
+*                LISTA ÖVER KONTROLLRAPPORTER SOM HAR ÅTGÄRD BEGÄRD    *        
+*                (KDKRATG = 'M')                                       *        
+*                                                                      *        
+*  FÖRFATTARE :  ELAINE CURTSSON      NOVEMBER 91                      *        
+*                                                                      *        
+*  ÄNDRING    :  TAGIT BORT FELKOD 2,3 I SAMBAND MED VIR-INSTALLATION  *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     9803..      KENT JEBSEN.......       9213..                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W42628D1                                                                   
+*                                                                               
+ W6H701-IDPTYP   1   3  A                                                       
+ W6H701-DATA     4 395  A                                                       
+*                                                                               
+%W6H701W 'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W42628D2  PRINTER FB (121 121)                                             
+                                                                                
+FILE W42628D3  PRINTER FB (121 121)                                             
+                                                                                
+FILE W42628D4  PRINTER FB (121 121)                                             
+                                                                                
+*ARBETSFÄLT                                                                     
+                                                                                
+W-IDKR                W 5 N MASK 'ZZZZ9'                                        
+W-IDLEVNR             W 5 A                                                     
+W-TIKRANS             W 6 N MASK '999999'                                       
+W-IDARTNR             W 9 N MASK 'ZZZZZZZZ9'                                    
+W-FELKOD              W 2 A                                                     
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+                                                                                
+TITEL-FTG-CARS        W 21 A   VALUE 'VOLVO CAR CUST. SERV.'                    
+TITEL-FTG             W 21 A                                                    
+*                                                                               
+* SVENSK TEXT                                                                   
+*                                                                               
+TITEL-RUBRIK-1-S      W 35 A                                       +            
+      VALUE 'KVALITET-STATISTIK KONTROLLRAPPORT '                               
+TITEL-RUBRIK-2-S-INL-CDC W 36 A                                    +            
+      VALUE '   INLEVERANS CDC, ÅTGÄRD BEGÄRD    '                              
+TITEL-RUBRIK-2-S-LAG-CDC W 36 A                                    +            
+      VALUE '      LAGER CDC, ÅTGÄRD BEGÄRD      '                              
+TITEL-RUBRIK-2-S-ST      W 36 A                                    +            
+      VALUE '     ST BORN, ACTION REQUIRED       '                              
+TITEL-RUBRIK-2           W 36 A                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* ENGELSK TEXT                                                                  
+*                                                                               
+TITEL-RUBRIK-1-GB     W 35 A                                       +            
+      VALUE 'QUALITY STATISTIC  INSP. REPORT    '                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+* LÄSER KR-FIL                                                                  
+*                                                                               
+JOB INPUT W42628D1                                                              
+                                                                                
+  IF W6H701-IDPTYP = '701'                                                      
+    IN-KR-W6H701 = W6H701-DATA                                                  
+    IF IN-KR-FLANNULL = 'N'                                                     
+       IF IN-KR-KDKRATG = 'M' 'A'                                               
+         W-IDKR     = IN-KR-IDKR                                                
+         W-IDLEVNR  = IN-KR-IDLEVNR                                             
+         W-TIKRANS  = IN-KR-TIKRANS                                             
+         W-IDARTNR  = IN-KR-IDARTNR                                             
+         W-FELKOD   = IN-KR-IDKRFEL                                             
+         TITEL-FTG  = TITEL-FTG-CARS                                            
+         IF IN-KR-IDDC = CDC-SE                                                 
+            IF IN-KR-IDLOPNRM = +0                                              
+               TITEL-RUBRIK-2 = TITEL-RUBRIK-2-S-LAG-CDC                        
+               PRINT LISTA-CDC-LAGER                                            
+            ELSE                                                                
+               TITEL-RUBRIK-2 = TITEL-RUBRIK-2-S-INL-CDC                        
+               PRINT LISTA-CDC-INLEV                                            
+            END-IF                                                              
+         ELSE                                                                   
+            TITEL-RUBRIK-2 = TITEL-RUBRIK-2-S-ST                                
+            PRINT LISTA-ST                                                      
+         END-IF                                                                 
+       END-IF                                                                   
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+REPORT LISTA-CDC-LAGER PRINTER W42628D2 LINESIZE 120                 +          
+              NODATE NOADJUST                                                   
+CONTROL  FINAL NOPRINT                                                          
+TITLE 1  TITEL-FTG  COL  27 'W42628-001' COL 45 TITEL-RUBRIK-1-S     +          
+                    COL 89 'DATUM' SYSDATE                                      
+TITLE 2  COL 45 TITEL-RUBRIK-2                                                  
+HEADING  W-IDKR    ('KR-NR')                                                    
+HEADING  W-IDLEVNR ('LEVNR')                                                    
+HEADING  W-TIKRANS ('DATUM')                                                    
+HEADING  W-IDARTNR ('   ART.NR')                                                
+HEADING  W-FELKOD  ('FELKOD')                                                   
+LINE  1  W-IDKR W-IDLEVNR W-TIKRANS W-IDARTNR W-FELKOD                          
+NEWPAGE                                                                         
+REPORT LISTA-CDC-INLEV PRINTER W42628D3 LINESIZE 120                 +          
+              NODATE NOADJUST                                                   
+CONTROL  FINAL NOPRINT                                                          
+TITLE 1  TITEL-FTG  COL  27 'W42628-002' COL 45 TITEL-RUBRIK-1-S     +          
+                    COL 89 'DATUM' SYSDATE                                      
+TITLE 2  COL 45 TITEL-RUBRIK-2                                                  
+HEADING  W-IDKR    ('KR-NR')                                                    
+HEADING  W-IDLEVNR ('LEVNR')                                                    
+HEADING  W-TIKRANS ('DATUM')                                                    
+HEADING  W-IDARTNR ('   ART.NR')                                                
+HEADING  W-FELKOD  ('FELKOD')                                                   
+LINE  1  W-IDKR W-IDLEVNR W-TIKRANS W-IDARTNR W-FELKOD                          
+NEWPAGE                                                                         
+REPORT LISTA-ST PRINTER W42628D4 LINESIZE 120                        +          
+              NOADJUST NODATE                                                   
+CONTROL  FINAL NOPRINT                                                          
+TITLE 1  TITEL-FTG  COL  27 'W42628-003' COL 45 TITEL-RUBRIK-1-GB    +          
+                    COL 89 'DATUM' SYSDATE                                      
+TITLE 2  COL 45 TITEL-RUBRIK-2                                                  
+HEADING  W-IDKR    ('IR-NO')                                                    
+HEADING  W-IDLEVNR ('SUPPL')                                                    
+HEADING  W-TIKRANS ('DATE ')                                                    
+HEADING  W-IDARTNR ('PARTNO')                                                   
+HEADING  W-FELKOD  ('DEF.CODE')                                                 
+LINE  1  W-IDKR W-IDLEVNR W-TIKRANS W-IDARTNR W-FELKOD                          

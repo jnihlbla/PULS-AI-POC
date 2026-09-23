@@ -1,0 +1,100 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*    FUNKTION:     GENERELL PROCEDUR FÖR ATT KÖRA ISPF I BATCH      *         
+//*                                                                   *         
+//*                  CLISTOR SKA AVSLUTAS MED EXIT CODE(&RC) SÅ       *         
+//*                  AVGER TSO RC SOM RETURKOD. RC SKA VARA 12        *         
+//*                  ELLER STÖRRE                                     *         
+//*                                                                   *         
+//*    ÅTERSTART:    -                                                *         
+//*                                                                   *         
+//*    ANSVARIG:     57051                                            *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W001ISPF PROC INDEX=&W,USERID=VDUMMY,GROUP=ISPF,GROUP2=&GRNDGRP               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO0   EXEC  PGM=ICEGENER                -- COPY TSO CMDS TO TSO STEP         
+//SYSPRINT DD  DUMMY                                                            
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DDNAME=SYSTSIN                                                   
+//SYSTSIN  DD  DUMMY,LRECL=80,RECFM=FB                                          
+//SYSUT2   DD  DSN=&&TSIN,DISP=(NEW,PASS,DELETE),                               
+//             RECFM=FB,LRECL=80,                                               
+//             SPACE=(TRK,(1,1),RLSE)                                           
+//*                                                                             
+//ISPTLIB1 DD  DSN=&&TLIB,DISP=(NEW,PASS,DELETE),       * FOR ENQ               
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160),                            
+//             SPACE=(6160,(5,,5))                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO    EXEC  PGM=IKJEFT01,DYNAMNBR=35                                         
+//*                                                                             
+//ISPPLIB  DD  DSN=&INDEX..&GROUP..PANELS,DISP=SHR        * APPL   MENU         
+//         DD  DSN=&INDEX..&GROUP2..PANELS,DISP=SHR       * APPL   MENU         
+//         DD  DSN=SYS2.F1TS00.PANELS,DISP=SHR          * VOLVO  MENU           
+//         DD  DSN=SYS1.TSO.PANELS,DISP=SHR                                     
+//         DD  DSN=SYS1.ISP.SISPPENU,DISP=SHR                                   
+//*                                                                             
+//ISPMLIB  DD  DSN=&INDEX..&GROUP..MSGS,DISP=SHR          * APPL   MSGS         
+//         DD  DSN=&INDEX..&GROUP2..MSGS,DISP=SHR         * APPL   MSGS         
+//         DD  DSN=SYS2.F1TS00.MSGS,DISP=SHR            * VOLVO  MSGS           
+//         DD  DSN=SYS1.TSO.MSGS,DISP=SHR                                       
+//         DD  DSN=SYS1.ISP.SISPMENU,DISP=SHR                                   
+//*                                                                             
+//ISPSLIB  DD  DSN=&INDEX..&GROUP..SKELS,DISP=SHR         * APPL   SKEL         
+//         DD  DSN=&INDEX..&GROUP2..SKELS,DISP=SHR        * APPL   SKEL         
+//         DD  DSN=SYS2.F1TS00.SKELS,DISP=SHR           * VOLVO  SKEL           
+//         DD  DSN=SYS1.TSO.SKELS,DISP=SHR                                      
+//         DD  DSN=SYS1.ISP.SISPSLIB,DISP=SHR                                   
+//*                                                                             
+//ISPTLIB  DD  DSN=&&TLIB,DISP=(OLD,PASS)               * FOR ENQ               
+//         DD  DSN=&INDEX..&GROUP..TABLES,DISP=SHR        * APPL   TABL         
+//         DD  DSN=&INDEX..&GROUP2..TABLES,DISP=SHR       * APPL   TABL         
+//         DD  DSN=SYS2.F1TS00.TABLES,DISP=SHR          * VOLVO  TABL           
+//         DD  DSN=SYS1.TSO.TABLES,DISP=SHR                                     
+//         DD  DSN=SYS1.ISP.SISPTENU,DISP=SHR                                   
+//*                                                                             
+//ISPLLIB  DD  DSN=&INDEX..&GROUP..LOAD,DISP=SHR          * APPL   LOAD         
+//         DD  DSN=&INDEX..&GROUP2..LOAD,DISP=SHR         * APPL   LOAD         
+//         DD  DSN=SYS2.F1TS00.LOAD,DISP=SHR            * VOLVO  LOAD           
+//         DD  DSN=SYS1.TSO.LOAD,DISP=SHR                                       
+//***      DD  DSN=SYS1.ISP.SISPLOAD,DISP=SHR                                   
+//*                                                                             
+//ISPTABL  DD  DSN=&INDEX..&GROUP..TABLES,DISP=SHR                              
+//*                                                                             
+//ISPPROF  DD  DSN=&&USERID,                            * PROFILE DS            
+//             DISP=(NEW,DELETE,DELETE),                                        
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160),                            
+//             SPACE=(6160,(5,,5))                                              
+//*                                                                             
+//MVSIUSER DD  DSN=SYS1.MVSI.USER,DISP=SHR                                      
+//MVSIAPPL DD  DSN=SYS1.MVSI.APPL,DISP=SHR                                      
+//*                                                                             
+//SYSHELP  DD  DUMMY                                                            
+//*                                                                             
+//SYSPROC  DD  DSN=&INDEX..&GROUP..CLIST,DISP=SHR                               
+//         DD  DSN=&INDEX..&GROUP2..CLIST,DISP=SHR                              
+//         DD  DSN=SYS2.F1TS00.CLIST,DISP=SHR                                   
+//         DD  DSN=SYS1.ISP.SISPCLIB,DISP=SHR                                   
+//*                                                                             
+//SYSEXEC  DD  DSN=&INDEX..&GROUP..EXEC,DISP=SHR                                
+//         DD  DSN=&INDEX..&GROUP2..EXEC,DISP=SHR                               
+//         DD  DSN=SYS2.F1TS00.EXEC,DISP=SHR                                    
+//         DD  DSN=SYS1.ISP.SISPEXEC,DISP=SHR                                   
+//*                                                                             
+//ISPLST1  DD  DISP=NEW,SPACE=(CYL,(1,1)),            * LIST WORK-DS1           
+//             DCB=(LRECL=121,BLKSIZE=1210,RECFM=FBA)                           
+//ISPLST2  DD  DISP=NEW,SPACE=(CYL,(1,1)),            * LIST WORK-DS2           
+//             DCB=(LRECL=121,BLKSIZE=1210,RECFM=FBA)                           
+//SYSEDIT  DD  DSN=&&EDIT,SPACE=(CYL,(2,2))           * EDIT WORK-DS            
+//*                                                                             
+//SYSPRINT DD  SYSOUT=*                               * STD. PRINT              
+//SYSOUT   DD  SYSOUT=*                               * STD. OUTPUT             
+//SYSTSPRT DD  SYSOUT=*                               * TSO  PRINT              
+//SYSTSIN  DD  DSN=&TSIN,DISP=(OLD,DELETE,DELETE)                               
+//*                                                                             
+//DUMMY1   DD  DUMMY,DSN=&USERID                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND   EXEC PGM=ABEND,COND=(4,GE,TSO),PARM='1234567890123456'                
+//*                                                                             

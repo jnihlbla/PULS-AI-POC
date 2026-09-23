@@ -1,0 +1,56 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*       UPPSAMLING AV SERVICEGRADSINFORMATION                       *         
+//*                                                                   *         
+//*       PERIODICITET: VECKA                                         *         
+//*                                                                   *         
+//*       ÅTERSTART:    NORMAL                                        *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W225P002 PROC INDIN2=&W225..W225V1,                                           
+//             INDREG=&W225,                                                    
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22504  EXEC PGM=SORT                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W225PD04),DISP=SHR                         
+//*                                                                             
+//SORTIN   DD  DSN=&INDIN2..W22503,DISP=SHR                                     
+//**************                                                    ***         
+//*                                                                             
+//SORTOUT  DD  DSN=&&W22505,DISP=(NEW,PASS,DELETE),                             
+//**************                                                    ***         
+//             DATACLAS=PSEN,                                                   
+//             VOL=(,,,2)                                                       
+//*                                                                             
+//SORTMSG  DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22506   EXEC PGM=W22506                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//W22506D1 DD  DSN=&&W22505,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W22506D2 DD  DSN=&INDREG..W22509(+0),DISP=SHR                                 
+//**************   SERVICEGRADS-REGISTER                            ***         
+//*                                                                             
+//W22506D3 DD  DSN=&INDREG..W22509(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//**************   SERVICEGRADS-REGISTER UPPDATERAT                 ***         
+//             SPACE=(5976,(4000,500),RLSE),                                    
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

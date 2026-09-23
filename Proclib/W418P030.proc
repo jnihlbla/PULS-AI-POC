@@ -1,0 +1,358 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR KREDITERINGSTRANSAR UTIFRÅN WDA2                                    
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W418D2                                            
+//*                                                                             
+//*  ÅTERSTART:    W41830      NORMAL                                           
+//*                LÄSER  WDA2 WDB3 WDH1 WDK6 WDD5 WDL5 WDQ2 WDR5 WDB6          
+//*                                                                             
+//*  E'TRACKER 880053 DATED 2008-05-05                                          
+//*  E-TRACKER: 10143271 CHINA                                                  
+//*  JIRA     : 1910     INDIA                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W418P030 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W418,                                                    
+//             INDUT=&W418..W418D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41830   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W41830,W41830,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//WDA2     INCLUDE MEMBER=WDA2                                                  
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB3     INCLUDE MEMBER=WDB3                                                  
+//WDD5     INCLUDE MEMBER=WDD5                                                  
+//WDH1     INCLUDE MEMBER=WDH1                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDR1     INCLUDE MEMBER=WDR1                                                  
+//WDG2     INCLUDE MEMBER=WDG2                                                  
+//WDL5     INCLUDE MEMBER=WDL5                                                  
+//WDQ2     INCLUDE MEMBER=WDQ2                                                  
+//WDR5     INCLUDE MEMBER=WDR5                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//*                                                                             
+//W41830D1 DD  DSN=&INDREG..W41801(+0),DISP=SHR                                 
+//************ NUMMERSERIER IN                                                  
+//*                                                                             
+//W41830D2 DD  DSN=&INDREG..W41801(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ NUMMERSERIER UT                                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830D3 DD  DSN=&INDUT..W41833(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ TILL 514 KONTERING                                               
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830D4 DD  DSN=&INDUT..W41835(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ POSTER KLARA FÖR KREDITERING RESP UTSK. RETILL                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W41830D5 DD  DSN=&INDUT..W41836(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ TILL ORDER TILLÄGGSFAKTUROR                                      
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830D6 DD  DSN=&INDUT..W41837(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ KREDTINOTAINFO TILL VIPS                                         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830D7 DD  DSN=&INDUT..W41839(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ ARTIKELSTATISTIK                                                 
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830D8 DD  DSN=&INDUT..W4183A(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ AVVISADE TRANSAR TILL VIPS                                       
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830D9 DD  DSN=&INDUT..W4183B(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ RETURTILLSTÅNDSTRANSAR TILL VIPS                                 
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830DA DD  DSN=&INDUT..W41834(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UPPDATERINGSTRANSAR TILL BMP W41835                              
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DB DD  DSN=&INDUT..W4183C(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I USA                                       
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DC DD  DSN=&INDUT..W4183D(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I CANADA                                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DD DD  DSN=&INDUT..W418AG(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ KREDITINFO TILL BYTES, RUTIN W371D5, PGM W3712800                
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830DE DD  DSN=&INDUT..W4183E(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I BELGIEN                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DF DD  DSN=&INDUT..W4183F(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I HOLAND                                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DG DD  DSN=&INDUT..W4183G(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I ENGLAND                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DH DD  DSN=&INDUT..W4183H(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ OKÄND ART., KOD 12 OCH 22, TILL LIST PGM W41838                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//W41830DI DD  DSN=&INDUT..W4183I(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I KOREA                                     
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DJ DD  DSN=&INDUT..W4183J(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I POLEN                                     
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DK DD  DSN=&INDUT..W4183K(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I TYSKLAND                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DL DD  DSN=&INDUT..W418AI(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RADER SOM SKALL KREDITERAS I BILL-IT.                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DM DD  DSN=&INDUT..W41832(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ TILL EKONOMI KONTERING W57060                                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830DN DD  DSN=&INDUT..W4183N(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I NORGE                                     
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DO DD  DSN=&INDUT..W4183O(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I DANMARK                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DP DD  DSN=&INDUT..W4183P(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I AUSTRALIEN                                
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DQ DD  DSN=&INDUT..W4183Q(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I SPANIEN                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DR DD  DSN=&INDUT..W4183R(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I SVERIGE                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DS DD  DSN=&INDUT..W41830(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ TILL EKONOMI KONTERING W51060  #                                 
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830DT DD  DSN=&INDUT..W4183T(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I ITALIEN                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DU DD  DSN=&INDUT..W4183U(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I FINLAND                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DV DD  DSN=&INDUT..W4183V(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I FRANKRIKE                                 
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DW DD  DSN=&INDUT..W4183W(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I ÖSTERRIKE                                 
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DX DD  DSN=&INDUT..W4183X(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I JAPAN                                     
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DY DD  DSN=&INDUT..W4183Y(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I SCHWEIZ                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830DZ DD  DSN=&INDUT..W4183Z(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I TAIWAN-OLD DISTR. 6221                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830E1 DD  DSN=&INDUT..W418AA(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I PORTUGAL                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830E2 DD  DSN=&INDUT..W418AB(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I MALAYSIA                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830E3 DD  DSN=&INDUT..W418AC(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I THAILAND                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830E4 DD  DSN=&INDUT..W418AD(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I IRLAND                                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830E5 DD  DSN=&INDUT..W41843(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UTFIL TILL PGM W41843 FÖR VIR-RAPPORT                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830E6 DD  DSN=&INDUT..W418AE(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I BRASILIEN                                 
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830E7 DD  DSN=&INDUT..W418AF(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I MEXICO                                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830E8 DD  DSN=&INDUT..W418AH(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I TURKIET                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830E9 DD  DSN=&INDUT..W4183L(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I TAIWAN-NEW DISTR. 6222                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830EA DD  DSN=&INDUT..W418AN(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIX FÖR DDI                                                      
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830EB DD  DSN=&INDUT..W418AP(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I RYSSLAND                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830EC DD  DSN=&INDUT..W418AQ(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I SYDAFRIKA                                 
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830EE DD  DSN=&INDUT..W418AS(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I PORTUGAL 1958                             
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830EF DD  DSN=&INDUT..W418AT(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ UTFIL TILL BILL-IT FÖR FAKTURA HANDL.COST KOD 72/98              
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830EG DD  DSN=&INDUT..W418C1(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I KINA-C1                                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830EH DD  DSN=&INDUT..W41831(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ TILL EKONOMI KONTERING W51560                                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W41830EI DD  DSN=&INDUT..W418IN(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I INDIEN                                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830EJ DD  DSN=&INDUT..W418CZ(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I TJECKIEN                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830EK DD  DSN=&INDUT..W418HU(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TEXTINFO TILL DEALER I UNGERN                                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W41830MQ DD  DSN=&&W418MQA,DISP=(NEW,PASS,DELETE),                            
+//************ TEXT INFO WITH COUNTRY CODES FOR MQ                              
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//*******SORTED BY COUNTRY,DISTR-NO, CUSTOMER-NO*********                       
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W418PD30),DISP=SHR                         
+//SORTIN   DD  DSN=&&W418MQA,DISP=(OLD,DELETE,DELETE)                           
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W418MQA(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*******************************************************                       
+//*                                                                             
+//W4183M   EXEC PGM=W4183M                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W4183MD1 DD  DSN=&INDREG..W418D2.W418MQA(+1),DISP=SHR                         
+//*                                                                             
+//W4183MD2 DD  DSN=&INDUT..W418MQ(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)          
+//************ TEXT INFO FOR THE MQ FLOW                                        
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

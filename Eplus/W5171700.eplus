@@ -1,0 +1,82 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5171700                                              *        
+*                                                                      *        
+*  FUNKTION   :  ÅRLIG RENSNING AV RSREDOS MASTERFIL W517.W51717(+0)   *        
+*                DET ÄLDSTA ÅRETS TRANSAR LÄGGS PÅ RENSNINGSFIL        *        
+*                W517.RENS.W51717 MED NY GENERATION                    *        
+*                RESTEN LÄGGS PÅ NY GENERATION W517.W51717(+1)         *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON                                    *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W51717D1                                                                   
+%W517RW9 'RW9-'                                                                 
+%W517RW1 'RW1-'                                                                 
+%W517RW2 'RW2-'                                                                 
+                                                                                
+FILE W51717D2 VB(56 0)                                                          
+%W517RW9 'REG9-'                                                                
+%W517RW1 'REG1-'                                                                
+%W517RW2 'REG2-'                                                                
+                                                                                
+FILE W51717D3 VB(56 0)                                                          
+%W517RW9 'RENS9-'                                                               
+%W517RW1 'RENS1-'                                                               
+%W517RW2 'RENS2-'                                                               
+                                                                                
+***************************                                                     
+*WORKING STORAGE          *                                                     
+***************************                                                     
+                                                                                
+W-TIAAAAVV                W 6  N                                                
+W-SEKEL      W-TIAAAAVV     2  N                                                
+W-AAR        W-TIAAAAVV  +2 2  N                                                
+W-VV         W-TIAAAAVV  +4 2  N                                                
+                                                                                
+W-TIDATUM             W 6  N                                                    
+                                                                                
+W-PGMNAMN       W 6 A VALUE 'W51717'                                            
+W-WDATUM        W 6 A VALUE 'WDATUM'                                            
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+NEWPAGE                                                                         
+************************************************                                
+* STEG 1. RENSAR MASTER                        *                                
+************************************************                                
+                                                                                
+JOB INPUT W51717D1 START A-INIT                                                 
+IF RW9-DAVVREG LT W-TIAAAAVV                                                    
+***  RENS-POSTER                                                                
+  IF      RW9-IDPTYP = 'RW1'                                                    
+    RENS1-W517RW1 = RW1-W517RW1                                                 
+    RECORD-LENGTH(W51717D3) = 40                                                
+  ELSE-IF RW9-IDPTYP = 'RW2'                                                    
+    RENS2-W517RW2 = RW2-W517RW2                                                 
+    RECORD-LENGTH(W51717D3) = 26                                                
+  ELSE-IF RW9-IDPTYP = 'RW9'                                                    
+    RENS9-W517RW9 = RW9-W517RW9                                                 
+    RECORD-LENGTH(W51717D3) = 52                                                
+  END-IF                                                                        
+  PUT W51717D3                                                                  
+ELSE                                                                            
+** NYA REG-POSTER                                                               
+  IF      RW9-IDPTYP = 'RW1'                                                    
+    REG1-W517RW1 = RW1-W517RW1                                                  
+    RECORD-LENGTH(W51717D2) = 40                                                
+  ELSE-IF RW9-IDPTYP = 'RW2'                                                    
+    REG2-W517RW2 = RW2-W517RW2                                                  
+    RECORD-LENGTH(W51717D2) = 26                                                
+  ELSE-IF RW9-IDPTYP = 'RW9'                                                    
+    REG9-W517RW9 = RW9-W517RW9                                                  
+    RECORD-LENGTH(W51717D2) = 52                                                
+  END-IF                                                                        
+  PUT W51717D2                                                                  
+END-IF                                                                          
+                                                                                
+A-INIT. PROC                                                                    
+  CALL DATKORT USING (W-PGMNAMN W-WDATUM DATUMKORT)                             
+  W-SEKEL      = 20                                                             
+  W-AAR        = D-AAR                                                          
+  W-VV         = 00                                                             
+END-PROC                                                                        

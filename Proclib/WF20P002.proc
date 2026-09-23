@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FUNKTION:     SKAPAR DOKUMENTHUVUD                                         
+//*                                                                             
+//*  FREKVENS:     PÅ BEGÄRAN      RTN WF20S2                                   
+//*                                                                             
+//*  ÅTERSTART:    WF2002          NORMAL  (BMP)                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF2002   PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             DB2GRP=SAKNAS,                                                   
+//             INDUT2=&WF20..&RTEGRP..WF20S2                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF2002   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,WF2002,WF2002,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//SYSTSIN  DD  DUMMY                                                            
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//DDOTV02  DD  DSN=&INDUT2..WF2002BT(+1),DISP=(,CATLG,DELETE),  -LIM(3)         
+//             DATACLAS=PSEN,MGMTCLAS=DEL2                                      
+//DDITV02  DD  DSN=&W..&DB2GRP..CONSTANT(WF2002I2),DISP=SHR                     

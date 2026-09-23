@@ -1,0 +1,152 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6111200                                              *        
+*                                                                      *        
+*  FUNKTION   :  LISTAR ALLA POSTER MED STATUS 'R31'                   *        
+*                                                                      *        
+*  FÖRFATTARE :  MÅNS SAMUELSSON                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING    PROJEKT/ÄT     *        
+*     941129      CONNY EGHOLT......       57053.       SDC ST....     *        
+*     ......      ..................       ......       ..........     *        
+*     ......      ..................       ......       ..........     *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61112D1                                                                   
+*                                                                               
+%W6111001  'IN1-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W61112D2                                                                   
+*                                                                               
+%W011100 'DLB-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE TEMPFIL  FB (46 0) VIRTUAL RETAIN                                          
+*                                                                               
+TEMP-IDARTNR     1  5 P                                                         
+TEMP-IDDC        6  2 A                                                         
+TEMP-IDLOPNRM    8  5 P                                                         
+TEMP-IDLEVNR    13  5 A                                                         
+TEMP-IDOKOLLI   18  9 N                                                         
+TEMP-KDINLPRIO  27  2 N                                                         
+TEMP-KVINLART   29  4 P 0                                                       
+TEMP-BEFT       33  2 N                                                         
+TEMP-IDLBBET    35 12 A                                                         
+                                                                                
+NEWPAGE                                                                         
+FILE W61112D3  PRINTER FB (121 121)   . *  CDC GBG                              
+*                                                                               
+FILE W61112D4  PRINTER FB (121 121)   . *  ST BORN                              
+*                                                                               
+                                                                                
+JA           W  1 A VALUE 'J'                                                   
+NEJ          W  1 A VALUE 'N'                                                   
+*                                                                               
+W-PLATS      W 11 A                                                             
+W-ADLAGOMR W-PLATS 2 N                                                          
+W-BLANK1   W-PLATS +2 1 A VALUE ' '                                             
+W-ADGANG   W-PLATS +3 2 N                                                       
+W-BLANK2   W-PLATS +5 1 A VALUE ' '                                             
+W-ADPLATS  W-PLATS +6 5 N                                                       
+*                                                                               
+W-IDLOPNRM W 5 P MASK 'ZZZZZZZZ9'                                               
+W-IDARTNR  W 5 P MASK 'ZZZZZZZZ9'                                               
+W-IDLEVNR  W 5 A                                                                
+W-IDOKOLLI W 9 N MASK 'ZZZZZZZZZ'                                               
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LISTAR                                                                
+*                                                                               
+JOB INPUT W61112D1                                                              
+                                                                                
+  IF IN1-TIINLMOT > +0                                                          
+    IF IN1-FLKLAR = NEJ                                                         
+      IF IN1-KDINLSTA = '   ' 'FPK' 'SAK'                                       
+        IF IN1-ADINLOMR = '    '                                                
+          IF IN1-ADINLOMR-NXT = '    '                                          
+                                                                                
+            TEMP-IDDC      = IN1-IDDC                                           
+            TEMP-IDLOPNRM  = IN1-IDLOPNRM                                       
+            TEMP-IDARTNR   = IN1-IDARTNR                                        
+            TEMP-IDLEVNR   = IN1-RAD-IDLEVNR                                    
+            TEMP-IDOKOLLI  = IN1-IDOKOLLI                                       
+            TEMP-KDINLPRIO = IN1-RAD-KDINLPRIO                                  
+            TEMP-KVINLART  = IN1-KVINLART                                       
+            TEMP-BEFT      = IN1-BEFT                                           
+            TEMP-IDLBBET   = IN1-IDLBBET                                        
+            PUT TEMPFIL                                                         
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+*                                                                               
+SORT TEMPFIL TO TEMPFIL USING TEMP-IDARTNR                                      
+*                                                                               
+JOB INPUT (W61112D2 KEY (DLB-IDARTNR) +                                         
+          (TEMPFIL  KEY (TEMP-IDARTNR)))                                        
+  IF MATCHED                                                                    
+    W-IDLOPNRM = TEMP-IDLOPNRM                                                  
+    W-IDARTNR  = TEMP-IDARTNR                                                   
+    W-IDLEVNR  = TEMP-IDLEVNR                                                   
+    W-IDOKOLLI = TEMP-IDOKOLLI                                                  
+    W-ADLAGOMR = DLB-ADLAGOMR                                                   
+    W-ADGANG   = DLB-ADGANG                                                     
+    W-ADPLATS  = DLB-ADPLATS                                                    
+    IF TEMP-IDDC = CDC-SE                                                       
+      PRINT CDC-LISTA         . * CDC TERMINAL GBG                              
+    END-IF                                                                      
+    IF TEMP-IDDC = CDC-TR                                                       
+      PRINT ST-LISTA          . * SUPPLY TERMINAL BORN                          
+    END-IF                                                                      
+  END-IF                                                                        
+*                                                                               
+NEWPAGE                                                                         
+REPORT   CDC-LISTA PRINTER W61112D3 LINESIZE 120   +                            
+         DTLCTL FIRST SPACE 2                                                   
+SEQUENCE TEMP-IDLOPNRM                                                          
+TITLE 1  'W61112-001   VOLVO CAR AFTERSALES  LISTA STATUS R31 '                 
+HEADING  W-IDLOPNRM     'PARTINR'                                               
+HEADING  W-IDARTNR      'ARTNR'                                                 
+HEADING  TEMP-KVINLART  'ANTAL'                                                 
+HEADING  TEMP-KDINLPRIO 'PRIO'                                                  
+HEADING  W-PLATS        'LAGERPLATS'                                            
+HEADING  TEMP-BEFT      'FT'                                                    
+HEADING  DLB-BEART-SVE  'BENÄMNING'                                             
+HEADING  W-IDLEVNR      'LEVNR'                                                 
+HEADING  W-IDOKOLLI     'KOLLI NR.'                                             
+HEADING  TEMP-IDLBBET   'LASTB'                                                 
+LINE  1  W-IDLOPNRM     W-IDARTNR DLB-BEART-ENG TEMP-KVINLART +                 
+         TEMP-KDINLPRIO TEMP-BEFT W-IDLEVNR                   +                 
+         W-IDOKOLLI     W-PLATS   TEMP-IDLBBET                                  
+*                                                                               
+*                                                                               
+NEWPAGE                                                                         
+REPORT   ST-LISTA  PRINTER W61112D4 LINESIZE 120   +                            
+         DTLCTL FIRST SPACE 2                                                   
+SEQUENCE TEMP-IDLOPNRM                                                          
+TITLE 1  'W61112-002   VOLVO CAR AFTERSALES  R31 STATUS LIST  '                 
+HEADING  W-IDLOPNRM     'LOT NO.'                                               
+HEADING  W-IDARTNR      'PARTNO.'                                               
+HEADING  TEMP-KVINLART  'QTY.'                                                  
+HEADING  TEMP-KDINLPRIO 'PRIO'                                                  
+HEADING  TEMP-BEFT      'PT'                                                    
+HEADING  DLB-BEART-ENG  'DESCRIPTION'                                           
+HEADING  W-IDLEVNR      'SUPPLIER'                                              
+HEADING  W-IDOKOLLI     'CASE NO.'                                              
+HEADING  TEMP-IDLBBET   'CARRIER'                                               
+LINE  1  W-IDLOPNRM     W-IDARTNR DLB-BEART-ENG TEMP-KVINLART +                 
+         TEMP-KDINLPRIO TEMP-BEFT W-IDLEVNR                   +                 
+         W-IDOKOLLI               TEMP-IDLBBET                                  

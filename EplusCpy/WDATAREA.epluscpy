@@ -1,0 +1,162 @@
+MACRO P                                                                         
+  &P.DAT-WDATAREA                                         W    64 A             
+*                                 PARAMETRAR TILL WDATKONV                      
+*                                 F÷R KONVERTERING AV DATUM                     
+*                                 P≈ OLIKA FORMAT.                              
+*                                 EXEMPEL P≈ ANROP:                             
+*                                 MOVE "AAMMDD" TO DAT-KDDATFORM                
+*                                 MOVE TIAAMMDD TO DAT-I-TIDATUM                
+*                                 CALL WDATKONV USING                           
+*                                      DAT-KDDATFORM,                           
+*                                      DAT-I-TIDATUM,                           
+*                                      DAT-O-TIDATUM,                           
+*                                      DAT-KDSVAR                               
+*                                                                               
+*                                 RESULTAT ERH≈LLS I                            
+*                                 DAT-O-TIDATUM.                                
+*                                 STATUSKOD I DAT-KDSVAR.                       
+*                                 -------------------------------               
+*                                 PARAMETERS TO WDATKONV FOR                    
+*                                 CONVERTERING DATES OF VARYING                 
+*                                 FORMATS.                                      
+*                                 EXAMPLE OF CALL:                              
+*                                 MOVE "AAMMDD" TO DAT-KDDATFORM                
+*                                 MOVE TIAAMMDD TO DAT-I-TIDATUM                
+*                                 CALL WDATKONV USING                           
+*                                      DAT-KDDATFORM,                           
+*                                      DAT-I-TIDATUM,                           
+*                                      DAT-O-TIDATUM,                           
+*                                      DAT-KDSVAR                               
+*                                                                               
+*                                 RESULT IS PLACED IN                           
+*                                 DAT-O-TIDATUM.                                
+*                                 RETURN CODE IN DAT-KDSVAR.                    
+*                                 -------------------------------               
+    &P.DAT-KDDATFORM                      &P.DAT-WDATAREA       6 A             
+*                                 FORMAT P≈ DATUMFƒLT                           
+*                                 TILL≈TNA VƒRDEN:                              
+*                                 "IDAG  " INGET DATUM I FƒLTET                 
+*                                          MASKINENS DATUM TAS.                 
+*                                 "AAMMDD" ≈R-M≈NAD-DAG.                        
+*                                 "AADDD " ≈R-DAGNR.                            
+*                                 "AAVVD " ≈R-VECKA-DAGNR.                      
+*                                 "AAVV  " ≈R-VECKA.                            
+*                                 "AAP   " ≈R-PLANERINGSPERIOD                  
+*                                          8 PERIODER PER ≈R                    
+*                                 "AAPP  " ≈R-PLANERINGSPERIOD                  
+*                                          12 PERIODER PER ≈R                   
+*                                 "AARP  " ≈R-REDOV.PERIOD.                     
+*                                          12 PERIODER PER ≈R                   
+*                                 FORMAT OF DATE FIELD                          
+*                                 VALID CODE VALUES:                            
+*                                 "IDAG  " NO DATE IN FIELD                     
+*                                          MACHINE DATE IS USED.                
+*                                 "AAMMDD" YEAR-MONTH-DAY                       
+*                                 "AADDD " YEAR-DAY NO.                         
+*                                 "AAVVD " YEAR-WEEK-DAY NO.                    
+*                                 "AAVV  " YEAR-WEEK.                           
+*                                 "AAP   " YEAR-PLANNING PERIOD                 
+*                                          8 PERIODES PER YEAR                  
+*                                 "AAPP  " YEAR-PLANNING PERIOD                 
+*                                          12 PERIODES PER YEAR                 
+*                                 "AARP  " YEAR-ACCOUNT. PERIOD                 
+*                                          12 PERIODES PER YEAR                 
+    &P.DAT-I-TIDATUM                      &P.DAT-WDATAREA +6    6 N             
+*                                 DATUM ENLIGT KDDATFORM                        
+*                                 DATE AS SPECIFIED BY KDDATFORM                
+    &P.DAT-O-TIDATUM                      &P.DAT-WDATAREA +12  34 A             
+      &P.DAT-TIAAMMDD                     &P.DAT-WDATAREA +12   6 N             
+*                                 ≈R - M≈NAD - DAG  (≈≈MMDD)                    
+*                                 YEAR - MONTH - DAY  (YYMMDD)                  
+      &P.DAT-TIAAMMDD-GRP                 &P.DAT-WDATAREA +12   6 A             
+        &P.DAT-TIAA                       &P.DAT-WDATAREA +12   2 N             
+*                                 ≈R    (≈≈)                                    
+*                                 YEAR  (YY)                                    
+        &P.DAT-TIMM                       &P.DAT-WDATAREA +14   2 N             
+*                                 M≈NAD (MM)                                    
+*                                 MONTH (MM)                                    
+        &P.DAT-TIDD                       &P.DAT-WDATAREA +16   2 N             
+*                                 DAG I M≈NAD (DD)                              
+*                                 DAY OF MONTH (DD)                             
+      &P.DAT-TIAAVVD                      &P.DAT-WDATAREA +18   5 N             
+*                                 ≈R - VECKA - DAG   (≈≈VVD)                    
+*                                 YEAR - WEEK - DAY  (YYWWD)                    
+      &P.DAT-TIAAVVD-GRP                  &P.DAT-WDATAREA +18   5 A             
+        &P.DAT-TIAAVV-GRP                 &P.DAT-WDATAREA +18   4 A             
+          &P.DAT-TIAA-VECKA               &P.DAT-WDATAREA +18   2 N             
+*                                 ≈R    (≈≈)                                    
+*                                 YEAR  (YY)                                    
+          &P.DAT-TIVV                     &P.DAT-WDATAREA +20   2 N             
+*                                 VECKA  (VV)                                   
+*                                 WEEK   (WW)                                   
+        &P.DAT-TID                        &P.DAT-WDATAREA +22   1 N             
+*                                 DAGNUMMER I VECKA (M≈NDAG = 1)                
+*                                 DAY NO. IN WEEK   (MONDAY = 1)                
+      &P.DAT-TIAADDD                      &P.DAT-WDATAREA +23   5 N             
+*                                 ≈R - DAGNUMMER    (≈≈DDD)                     
+*                                 YEAR - DAY NUMBER   (YYDDD)                   
+      &P.DAT-TIAADDD-GRP                  &P.DAT-WDATAREA +23   5 A             
+        &P.DAT-TIAA-DAGNR                 &P.DAT-WDATAREA +23   2 N             
+*                                 ≈R    (≈≈)                                    
+*                                 YEAR  (YY)                                    
+        &P.DAT-TIDDD                      &P.DAT-WDATAREA +25   3 N             
+*                                 DAGNUMMER  (DDD)                              
+*                                 DAY NUMBER  (DDD)                             
+      &P.DAT-TIAAP                        &P.DAT-WDATAREA +28   3 N             
+*                                 ≈R - PLANERINGSPERIOD (≈≈P)                   
+*                                 8 PER ≈R                                      
+*                                 YEAR - PLANNING PERIOD (YYP)                  
+*                                 8 PER YEAR                                    
+      &P.DAT-TIAAP-GRP                    &P.DAT-WDATAREA +28   3 A             
+        &P.DAT-TIAA-PPER                  &P.DAT-WDATAREA +28   2 N             
+*                                 ≈R    (≈≈)                                    
+*                                 YEAR  (YY)                                    
+        &P.DAT-TIP                        &P.DAT-WDATAREA +30   1 N             
+*                                 PLANERINGSPERIOD (P)                          
+*                                 8 PER ≈R                                      
+*                                 PLANNING PERIOD  (P)                          
+*                                 8 PER YEAR                                    
+      &P.DAT-TISEKEL                      &P.DAT-WDATAREA +31   2 N             
+*                                 SEKEL I ≈RTALET                               
+*                                 CENTURY                                       
+      &P.DAT-KVVIPER                      &P.DAT-WDATAREA +33   1 N             
+*                                 ANT VECKOR I REDOVISNINGSPERIOD               
+*                                 NUMBER OF WEEKS IN A PERIOD                   
+      &P.DAT-TIAAPP                       &P.DAT-WDATAREA +34   4 N             
+*                                 ≈R - PLANERINGSPERIOD (≈≈PP)                  
+*                                 12 PER ≈R                                     
+*                                 YEAR - PLANNING PERIOD (YYPP)                 
+*                                 12 PER YEAR                                   
+      &P.DAT-TIAAPP-GRP                   &P.DAT-WDATAREA +34   4 A             
+        &P.DAT-TIAA-PPPER                 &P.DAT-WDATAREA +34   2 N             
+*                                 ≈R    (≈≈)                                    
+*                                 YEAR  (YY)                                    
+        &P.DAT-TIPP                       &P.DAT-WDATAREA +36   2 N             
+*                                 PLANERINGSPERIOD (PP)                         
+*                                 12 PER ≈R                                     
+*                                 PLANNING PERIOD  (PP)                         
+*                                 12 PER YEAR                                   
+      &P.DAT-TIAARP                       &P.DAT-WDATAREA +38   4 N             
+*                                 ≈R - REDOVISNINGSPERIOD (≈≈RP)                
+*                                 12 PER ≈R                                     
+*                                 YEAR - ACCOUNTING PERIOD (YYAP)               
+*                                 12 PER YEAR                                   
+      &P.DAT-TIAARP-GRP                   &P.DAT-WDATAREA +38   4 A             
+        &P.DAT-TIAA-RPPER                 &P.DAT-WDATAREA +38   2 N             
+*                                 ≈R    (≈≈)                                    
+*                                 YEAR  (YY)                                    
+        &P.DAT-TIRP                       &P.DAT-WDATAREA +40   2 N             
+*                                 REDOVISNINGSPERIOD                            
+*                                 12 PER ≈R                                     
+*                                 ACCOUNTING PERIOD                             
+*                                 12 PER YEAR                                   
+      &P.FILLER1                          &P.DAT-WDATAREA +42   4 A             
+    &P.DAT-KDSVAR                         &P.DAT-WDATAREA +46   1 A             
+*     88 DAT-KDSVAR-OK       VALUE ' '.                                         
+*     88 DAT-KDSVAR-FEL      VALUE 'F'.                                         
+*                                                       KDSVAR-88               
+*                                 SVARSKOD FR≈N SUBPROGRAM                      
+*                                                       KDSVAR-88               
+*                                 RETURN CODE FROM SUBPROGRAM                   
+    &P.FILLER2                            &P.DAT-WDATAREA +47  17 A             
+*** END COPY WDATAREA                LENGTH =            64                     

@@ -1,0 +1,86 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*                                                                             
+//*  SORTERAR FYRA FILER MED STDSORT                                            
+//*  SUMMERAR TOTALER LEVERERAT ANTAL ARTIKLAR SAMT SUMMAN                      
+//*  FÖR DITO ARTIKLAR. DESSUTOM SUMMERAS VISSA DAGORDER                        
+//*  OCH VISS TYP AV PRISSÄTTNING ENLIGT OVAN                                   
+//*  OCH SEDAN SORTERAS POSTERNA ENLIGT 2000 ÅRSREGLER.                         
+//*  FREKVENS:     VECKA    RTN W330V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W33009   NORMAL                                              
+//*                                                                             
+//*                W33010   NORMAL                                              
+//*                W33011   NORMAL                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P010 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W330..W330V1,                                             
+//             INDUT=&W330..W330V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33009   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W330PD09),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W33009(+0),DISP=SHR                                  
+//************ JUSTERINGAR PÅ SJÄLVKOST ELLER ANTAL/FSGPRIS                     
+//************ DENNA FIL LIGGER FÖRST PGA DEN HAR LÄNGSTA POSTEN                
+//*                                                                             
+//         DD  DSN=&INDIN..W33003(+0),DISP=SHR                                  
+//************ FAKTURAFIL                                                       
+//*                                                                             
+//         DD  DSN=&INDIN..W33007(+0),DISP=SHR                                  
+//************ KREDITERINGAR FRÅN DISTRIBUTION                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W33010,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD FIL TILL W3301000                                       
+//             SPACE=(23461,(5000,1500),RLSE)                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33010   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W33010,W33010,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//WDC1     INCLUDE MEMBER=WDC1                                                  
+//WDC2     INCLUDE MEMBER=WDC2                                                  
+//WDG2     INCLUDE MEMBER=WDG2                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDF1     INCLUDE MEMBER=WDF1                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W33010D1 DD  DSN=&&W33010,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W33010D2 DD  DSN=&INDUT..W33011(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SUMMERAD FIL TILL PRIMÄRREG                                      
+//             MGMTCLAS=&DEL2BKPC,VOL=(,,,3),                                   
+//             SPACE=(23407,(2500,2500),RLSE)                                   
+//*                                                                             
+//W33010D3 DD  DSN=&INDUT..W33010(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FELAKTIGA JUSTERINGSTRANSAR TILL TRATTEN                         
+//             MGMTCLAS=&NOBACKUP,SPACE=(23296,(100,15),RLSE)                   
+//*                                                                             
+//W33010D4 DD  DSN=&INDUT..W33018(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TRANSAR TILL SALES AND TARGET SKICKAS TILL AS-400                
+//             MGMTCLAS=&BACKUPC,SPACE=(27920,(100,15),RLSE)                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

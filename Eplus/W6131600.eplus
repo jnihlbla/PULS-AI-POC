@@ -1,0 +1,195 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6131600                                              *        
+*                                                                      *        
+*  FUNKTION   :  SUMMERAR UTIFRÅN VECKOFILER IHOP VAD SOM PACKATS PÅ   *        
+*                SVS UNDER SENASTE PERIODEN.                           *        
+*                                                                      *        
+*  FÖRFATTARE :  KENT JEBSEN                                           *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W61316D1                                                                   
+%W6131401  'IN1-'                                                               
+                                                                                
+FILE W61316D2 FB(39 0)                                                          
+%W6131401  'IN-'                                                                
+                                                                                
+FILE W61316D3 FB(39 0)                                                          
+%W6131401  'UT-'                                                                
+                                                                                
+FILE W61316D4 VB(60 0)                                                          
+LISTA           1   60 A                                                        
+LISTA1    LISTA     41 A                                                        
+LISTA2    LISTA +41  2 N                                                        
+LISTA3    LISTA +43 13 A                                                        
+FP-KOD    LISTA     12 A                                                        
+FP-BLANK  LISTA      8 A                                                        
+KDFORP    LISTA +8   4 A                                                        
+MELLAN1   LISTA +12 1 A                                                         
+LIST-ST   LISTA +13 7 A                                                         
+KVANT-ST  LISTA +13 7 N                                                         
+MELLAN2   LISTA +20 1 A                                                         
+LIST-28   LISTA +21 7 A                                                         
+KVANT-28  LISTA +21 7 N                                                         
+MELLAN3   LISTA +28 1 A                                                         
+LIST-GR   LISTA +29 7 A                                                         
+KVANT-GR  LISTA +29 7 N                                                         
+MELLAN4   LISTA +36 1 A                                                         
+LIST-MA   LISTA +37 7 A                                                         
+KVANT-MA  LISTA +37 7 N                                                         
+MELLAN5   LISTA +44 1 A                                                         
+LIST-SA   LISTA +45 7 A                                                         
+KVANT-SA  LISTA +45 7 N                                                         
+MELLAN6   LISTA +52 1 A                                                         
+SLASK     LISTA +53 3 A                                                         
+                                                                                
+%WDATAREA                                                                       
+NEWPAGE                                                                         
+                                                                                
+WDATKONV        W 8 A VALUE 'WDATKONV'                                          
+                                                                                
+DAGENS-DATUM             W 6 N                                                  
+                                                                                
+DATUM                    W 8 A                                                  
+D-AA         DATUM         2 N                                                  
+D-1          DATUM +2      1 A                                                  
+D-MM         DATUM +3      2 N                                                  
+D-2          DATUM +5      1 A                                                  
+D-DD         DATUM +6      2 N                                                  
+*                                                                               
+DATUM-FIX                W 6 N                                                  
+D-AA-FIX  DATUM-FIX        2 N                                                  
+D-MM-FIX  DATUM-FIX +2     2 N                                                  
+D-DD-FIX  DATUM-FIX +4     2 N                                                  
+                                                                                
+WS-RP                    W 2 N                                                  
+WS-KDFORP                W 4 A                                                  
+WS-KVANTAL               W 7 N                                                  
+WS-KVANTAL-ST            W 7 N                                                  
+WS-KVANTAL-28            W 7 N                                                  
+WS-KVANTAL-GR            W 7 N                                                  
+WS-KVANTAL-MA            W 7 N                                                  
+WS-KVANTAL-SA            W 7 N                                                  
+*                                                                               
+* STEG 1. SUMMERAR IHOP VAD SOM PACKATS PÅ SVS SENASTE PERIODEN                 
+*                                                                               
+SORT W61316D1 TO W61316D2 USING (IN1-KDFORP)                                    
+                                                                                
+JOB INPUT W61316D2 START A-INIT FINISH Z-FINIT                                  
+                                                                                
+IF RECORD-COUNT = 1                                                             
+  WS-KDFORP     = IN-KDFORP                                                     
+  WS-KVANTAL-ST = IN-KVANTAL-ST                                                 
+  WS-KVANTAL-28 = IN-KVANTAL-28                                                 
+  WS-KVANTAL-GR = IN-KVANTAL-GR                                                 
+  WS-KVANTAL-MA = IN-KVANTAL-MA                                                 
+  WS-KVANTAL-SA = IN-KVANTAL-SA                                                 
+ELSE                                                                            
+  IF WS-KDFORP = IN-KDFORP                                                      
+    WS-KVANTAL-ST = WS-KVANTAL-ST + IN-KVANTAL-ST                               
+    WS-KVANTAL-28 = WS-KVANTAL-28 + IN-KVANTAL-28                               
+    WS-KVANTAL-GR = WS-KVANTAL-GR + IN-KVANTAL-GR                               
+    WS-KVANTAL-MA = WS-KVANTAL-MA + IN-KVANTAL-MA                               
+    WS-KVANTAL-SA = WS-KVANTAL-SA + IN-KVANTAL-SA                               
+  ELSE                                                                          
+    UT-KDFORP     = WS-KDFORP                                                   
+    UT-KVANTAL-ST = WS-KVANTAL-ST                                               
+    UT-KVANTAL-28 = WS-KVANTAL-28                                               
+    UT-KVANTAL-GR = WS-KVANTAL-GR                                               
+    UT-KVANTAL-MA = WS-KVANTAL-MA                                               
+    UT-KVANTAL-SA = WS-KVANTAL-SA                                               
+    PUT W61316D3                                                                
+    IF WS-KDFORP = '0000'                                                       
+      KDFORP = '    '                                                           
+    ELSE                                                                        
+      KDFORP   = WS-KDFORP                                                      
+    END-IF                                                                      
+    KVANT-ST = WS-KVANTAL-ST                                                    
+    KVANT-28 = WS-KVANTAL-28                                                    
+    KVANT-GR = WS-KVANTAL-GR                                                    
+    KVANT-MA = WS-KVANTAL-MA                                                    
+    KVANT-SA = WS-KVANTAL-SA                                                    
+    PUT W61316D4                                                                
+    WS-KDFORP     = IN-KDFORP                                                   
+    WS-KVANTAL-ST = IN-KVANTAL-ST                                               
+    WS-KVANTAL-28 = IN-KVANTAL-28                                               
+    WS-KVANTAL-GR = IN-KVANTAL-GR                                               
+    WS-KVANTAL-MA = IN-KVANTAL-MA                                               
+    WS-KVANTAL-SA = IN-KVANTAL-SA                                               
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+A-INIT. PROC                                                                    
+                                                                                
+* INITIERAR COPYTEXT                                                            
+  UT-KVANTAL-ST = 0                                                             
+  UT-KVANTAL-28 = 0                                                             
+  UT-KVANTAL-GR = 0                                                             
+  UT-KVANTAL-MA = 0                                                             
+  UT-KVANTAL-SA = 0                                                             
+                                                                                
+                                                                                
+  DATUM         = SYSDATE                                                       
+  D-AA-FIX      = D-AA                                                          
+  D-MM-FIX      = D-MM                                                          
+  D-DD-FIX      = D-DD                                                          
+  DAGENS-DATUM  = DATUM-FIX                                                     
+                                                                                
+  DAT-KDDATFORM = 'AAMMDD'                                                      
+  DAT-I-TIDATUM = DAGENS-DATUM                                                  
+                                                                                
+  CALL WDATKONV USING (DAT-KDDATFORM, +                                         
+                       DAT-I-TIDATUM, +                                         
+                       DAT-O-TIDATUM, +                                         
+                       DAT-KDSVAR)                                              
+                                                                                
+  IF DAT-KDSVAR = ' '                                                           
+    WS-RP         = DAT-TIRP                                                    
+  ELSE                                                                          
+    DISPLAY 'FEL FRÅN DATKONV'                                                  
+    STOP EXECUTE                                                                
+  END-IF                                                                        
+                                                                                
+   LISTA1      = 'W61316-001 ANTAL SVS-FÖRPACKNINGAR ACC.  '                    
+   LISTA2      = WS-RP                                                          
+   LISTA3      = '             '                                                
+   PUT W61316D4                                                                 
+                                                                                
+   FP-KOD  = 'VARAV FP-KOD'                                                     
+   MELLAN1 = ';'                                                                
+   LIST-ST = 'STYCK  '                                                          
+   MELLAN2 = ';'                                                                
+   LIST-28 = '28     '                                                          
+   MELLAN3 = ';'                                                                
+   LIST-GR = 'GROV   '                                                          
+   MELLAN4 = ';'                                                                
+   LIST-MA = 'MASKIN '                                                          
+   MELLAN5 = ';'                                                                
+   LIST-SA = 'SATS   '                                                          
+   MELLAN6 = ';'                                                                
+   SLASK    = '   '                                                             
+   PUT W61316D4                                                                 
+   FP-BLANK = '        '                                                        
+                                                                                
+END-PROC                                                                        
+                                                                                
+Z-FINIT. PROC                                                                   
+                                                                                
+   UT-KDFORP     = WS-KDFORP                                                    
+   UT-KVANTAL-ST = WS-KVANTAL-ST                                                
+   UT-KVANTAL-28 = WS-KVANTAL-28                                                
+   UT-KVANTAL-GR = WS-KVANTAL-GR                                                
+   UT-KVANTAL-MA = WS-KVANTAL-MA                                                
+   UT-KVANTAL-SA = WS-KVANTAL-SA                                                
+   PUT W61316D3                                                                 
+                                                                                
+   KDFORP   = WS-KDFORP                                                         
+   KVANT-ST = WS-KVANTAL-ST                                                     
+   KVANT-28 = WS-KVANTAL-28                                                     
+   KVANT-GR = WS-KVANTAL-GR                                                     
+   KVANT-MA = WS-KVANTAL-MA                                                     
+   KVANT-SA = WS-KVANTAL-SA                                                     
+   PUT W61316D4                                                                 
+                                                                                
+END-PROC                                                                        

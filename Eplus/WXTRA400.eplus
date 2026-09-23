@@ -1,0 +1,219 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  WXTRD1                                                *        
+*                                                                      *        
+*  FUNKTION   :  KOMPLETTERAR FILEN WXTRA4 FÖR KOMPLETT UPPFÄLJNINGSFIL*        
+*                                                                               
+*                                                                      *        
+*  FÖRFATTARE :  G KJELLSON                                            *        
+*                                                                      *        
+*  INFILER    :  WXTR.WXTRD1.WXTRA4 (FAKT.RADER SOM SKALL KOMPLETTERAS)*        
+*             :  W483.W483V2.W48322 (FLLDCKND)                         *        
+*             :  W479.W479D1.W47997 (TIREPDAT)                         *        
+*             :  W413.W41301        (KDPRCGRP)                         *        
+*             :  W011.QASE.W01160   (KVULOAD)                          *        
+*             :  W011.NDC.W01184    (ADLAGOMR, KDARTURS, IDPSN-DC)     *        
+*                                                                      *        
+*  UTFILER    :  WXTR.WXTRD1.WXTRA5                                    *        
+*                                                                      *        
+*  ÄNDRING             DATUM    AVD                                    *        
+*                                                                      *        
+*                                                                      *        
+*  --------------      ------   ------                                 *        
+*  --------------      ------   ------                                 *        
+*                                                                      *        
+************************************************************************        
+FILE WXTRA4D1.               * INFIL FAKTURERADE RADER                          
+%WXTRA4 'IN-'                                                                   
+*                                                                               
+FILE WXTRA4D2.               * INFIL WDD2-INFO                                  
+%W4832201 'D2-'                                                                 
+*                                                                               
+FILE WXTRA4D3.           * INFIL WDQ2-INFO                                      
+%W479971 'Q2-'                                                                  
+*                                                                               
+FILE WXTRA4D4.               * INFIL PRC-INFO                                   
+%W41301   'PRC-'                                                                
+*                                                                               
+FILE WXTRA4D5.               * INFIL DLB-INFO                                   
+%W01160   'DLB-'                                                                
+*                                                                               
+FILE WXTRA4D6.               * INFIL DLB-INFO NDC                               
+%W01184   'NDC-'                                                                
+*                                                                               
+FILE WXTRA4D7 FB(395 31600). * UTFIL                                            
+%WXTRA4   'UT-'                                                                 
+*                                                                               
+*                                                                               
+FILE WXTRA4DA FB(395 31600).                                                    
+%WXTRA4   'T1-'                                                                 
+*                                                                               
+FILE WXTRA4DB FB(395 31600).                                                    
+%WXTRA4   'T2-'                                                                 
+*                                                                               
+FILE WXTRA4DC FB(395 31600).                                                    
+%WXTRA4   'T3-'                                                                 
+*                                                                               
+FILE WXTRA4DD FB(55 4400).                                                      
+%W479971  'T4-'                                                                 
+*                                                                               
+FILE WXTRA4DE FB(55 4400).                                                      
+%W479971  'T5-'                                                                 
+*                                                                               
+FILE WXTRA4DF FB(395 31600).                                                    
+%WXTRA4   'T6-'                                                                 
+*                                                                               
+FILE WXTRA4DG FB(395 31600).                                                    
+%WXTRA4   'T7-'                                                                 
+*                                                                               
+FILE WXTRA4DH FB(395 31600).                                                    
+%WXTRA4   'T8-'                                                                 
+*                                                                               
+FILE WXTRA4DI FB(395 31600).                                                    
+%WXTRA4   'T9-'                                                                 
+*                                                                               
+FILE WXTRA4DJ FB(395 31600).                                                    
+%WXTRA4   'T10-'                                                                
+*                                                                               
+FILE WXTRA4DK FB(395 31600).                                                    
+%WXTRA4   'T11-'                                                                
+*                                                                               
+*                                                                               
+***                                                                             
+*-IDPRODNR         W  7  N                                                      
+*-IDSHIPM          W  7  N                                                      
+W-IDDISTR          W  4  N                                                      
+W-IDKUNDNR         W  6  N                                                      
+W-IDORDER          W  7  N                                                      
+W-IDDC             W  2  A                                                      
+W-IDARTNR          W  8  N                                                      
+W-FLLDCKND         W  1  A                                                      
+*-TIUTSKR          W  6  N                                                      
+*-TISKEPPN         W  6  N                                                      
+*-TISKPTID         W  4  N                                                      
+*-TID4             W  4  N                                                      
+W-TIREPDAT         W  6  N                                                      
+W-IDPRC            W  4  A                                                      
+W-KDPRCGRP         W  5  A                                                      
+W-KVULOAD          W  7  N                                                      
+                                                                                
+***                                                                             
+SORT WXTRA4D1 TO WXTRA4DA USING (IN-IDDISTR  IN-IDKUNDNR)                       
+***                                                                             
+*                                                                               
+JOB INPUT (WXTRA4D2 KEY (D2-IDDISTR D2-IDKUNDNR) +                              
+           WXTRA4DA KEY (T1-IDDISTR T1-IDKUNDNR))                               
+                                                                                
+  IF MATCHED                                                                    
+                                                                                
+    W-IDDISTR      = T1-IDDISTR                                                 
+    W-IDKUNDNR     = T1-IDKUNDNR                                                
+    W-FLLDCKND     = D2-FLLDCKND                                                
+    T1-FLLDCKND    = D2-FLLDCKND                                                
+    PUT WXTRA4DB FROM WXTRA4DA                                                  
+                                                                                
+  ELSE                                                                          
+    IF WXTRA4DA                                                                 
+      IF T1-IDDISTR = W-IDDISTR AND T1-IDKUNDNR = W-IDKUNDNR                    
+         T1-FLLDCKND = W-FLLDCKND                                               
+      END-IF                                                                    
+      PUT WXTRA4DB FROM WXTRA4DA                                                
+    END-IF                                                                      
+  END-IF                                                                        
+***                                                                             
+SORT WXTRA4DB TO WXTRA4DC USING (T2-IDORDER)                                    
+***                                                                             
+*                                                                               
+*                                                                               
+JOB INPUT WXTRA4D3                                                              
+                                                                                
+  IF Q2-IDSEGM = 'WDQ201'                                                       
+    PUT WXTRA4DD FROM WXTRA4D3                                                  
+                                                                                
+  END-IF                                                                        
+***                                                                             
+SORT WXTRA4DD TO WXTRA4DE USING (T4-IDORDER)                                    
+***                                                                             
+JOB INPUT (WXTRA4DE KEY (T5-IDORDER) +                                          
+           WXTRA4DC KEY (T3-IDORDER))                                           
+                                                                                
+  IF MATCHED                                                                    
+                                                                                
+    W-IDORDER      = T5-TIREPDAT                                                
+    T3-TIREPDAT    = T5-TIREPDAT                                                
+    W-TIREPDAT     = T5-TIREPDAT                                                
+    T3-IDUSER-OREG = T5-IDUSER                                                  
+    T3-IDSYSTEM    = T5-IDSYSTEM                                                
+    PUT WXTRA4DF FROM WXTRA4DC                                                  
+                                                                                
+  ELSE                                                                          
+    IF WXTRA4DC                                                                 
+      IF T3-IDORDER     = W-IDORDER                                             
+         T3-TIREPDAT    = W-TIREPDAT                                            
+         T3-IDUSER-OREG = T5-IDUSER                                             
+         T3-IDSYSTEM    = T5-IDSYSTEM                                           
+      END-IF                                                                    
+      PUT WXTRA4DF FROM WXTRA4DC                                                
+    END-IF                                                                      
+  END-IF                                                                        
+***                                                                             
+SORT WXTRA4DF TO WXTRA4DG USING (T6-IDDC T6-IDPRC)                              
+***                                                                             
+JOB INPUT (WXTRA4D4 KEY (PRC-IDDC PRC-IDPRC) +                                  
+           WXTRA4DG KEY (T7-IDDC T7-IDPRC))                                     
+                                                                                
+  IF MATCHED                                                                    
+                                                                                
+    W-IDDC          = PRC-IDDC                                                  
+    W-IDPRC         = PRC-IDPRC                                                 
+    W-KDPRCGRP      = PRC-KDPRCGRP                                              
+    T7-KDPRCGRP     = PRC-KDPRCGRP                                              
+    PUT WXTRA4DH FROM WXTRA4DG                                                  
+                                                                                
+  ELSE                                                                          
+    IF WXTRA4DG                                                                 
+      IF T7-IDDC = W-IDDC AND T7-IDPRC = W-IDPRC                                
+         T7-KDPRCGRP = W-KDPRCGRP                                               
+      END-IF                                                                    
+      PUT WXTRA4DH FROM WXTRA4DG                                                
+    END-IF                                                                      
+  END-IF                                                                        
+***                                                                             
+SORT WXTRA4DH TO WXTRA4DI USING (T8-IDARTNR T8-IDDC)                            
+***                                                                             
+JOB INPUT (WXTRA4D5 KEY (DLB-CLAG-IDARTNR) +                                    
+           WXTRA4DI KEY (T9-IDARTNR))                                           
+                                                                                
+  IF MATCHED                                                                    
+    W-IDARTNR       = DLB-CLAG-IDARTNR                                          
+    W-KVULOAD       = DLB-CLAG-KVULOAD                                          
+    T9-KVULOAD      = DLB-CLAG-KVULOAD                                          
+    T9-IDSTATNR-3   = DLB-CLAG-IDSTATNR(3)                                      
+    PUT WXTRA4DJ FROM WXTRA4DI                                                  
+                                                                                
+  ELSE                                                                          
+    IF WXTRA4DI                                                                 
+      IF T9-IDDC = W-IDARTNR                                                    
+         T9-KVULOAD  = W-KVULOAD                                                
+      END-IF                                                                    
+      PUT WXTRA4DJ FROM WXTRA4DI                                                
+    END-IF                                                                      
+  END-IF                                                                        
+***                                                                             
+SORT WXTRA4DJ TO WXTRA4DK USING (T10-IDDC T10-IDARTNR)                          
+***                                                                             
+JOB INPUT (WXTRA4D6 KEY (NDC-SLAG-IDDC NDC-SLAG-IDARTNR) +                      
+           WXTRA4DK KEY (T11-IDDC T11-IDARTNR))                                 
+                                                                                
+  IF MATCHED                                                                    
+    T11-ADLAGOMR-DLB = NDC-SLAG-ADLAGOMR                                        
+    T11-KDARTURS     = NDC-SLAG-KDARTURS                                        
+    T11-IDPSN-DC     = NDC-SLAG-IDPSN-DC                                        
+    PUT WXTRA4D7 FROM WXTRA4DK                                                  
+                                                                                
+  ELSE                                                                          
+    IF WXTRA4DK                                                                 
+      PUT WXTRA4D7 FROM WXTRA4DK                                                
+    END-IF                                                                      
+  END-IF                                                                        

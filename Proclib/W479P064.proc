@@ -1,0 +1,29 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SENDS FILE WITH INVOICE INFO / WEEK AND DC TO D&P                          
+//*                                                                             
+//*  FREQUENCE:    WEEK                    RTN W479V2                           
+//*                                                                             
+//*  RESTART:      W47964    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P064 PROC STPLIB=&INDRTE..LOAD,CPU=1,                                     
+//             INDIN=&W479..W479V2                                              
+//*                                                                             
+//W47964   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W47964,W47964,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//************ INVOICE    FILE                                                  
+//W47964D1 DD  DSN=&INDIN..W47968(+0),DISP=SHR                                  
+//*                                                                             

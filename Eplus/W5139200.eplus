@@ -1,0 +1,157 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W513                                                  *        
+*                                                                      *        
+*  FUNKTION   :  LISTAR URVALSREGISTRET PER VVKL OCH LAGEROMRÅDE O     *        
+*                SUMMA STANDARD ((KVEFRS + KVAKS + KVLS) * PRARTSTD)   *        
+*                SAMT SUMMERAT PER LAGEROMRÅDE FÖR VVKL 0-3, 4-5 O TOT *        
+*                                                                      *        
+*  FÖRFATTARE :  PER ANDERS HELGEGREN                                  *        
+*                                                                      *        
+*  INFIL      :  W513.W51372(0)  URVALSFIL ALLA DC:N                   *        
+*                W011.W01172(+0) DAGLIG ARTIKELFIL                     *        
+*                                                                      *        
+*  UTFIL      :  W513OA FÖR INVENTERINGEN GÖTEBORG ONDEMAND            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+FILE W51392D1                                                                   
+*                                                                               
+%W51371    'I1-'                                                                
+*                                                                               
+FILE TPFIL1   FB (21 0)                                                         
+************* URVALSFIL DC=11,SORTERADE PER ARTNR OCH DC                        
+%W51371    'T1-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE W51392D2                                                                   
+*                                                                               
+%W011100   'L-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W51392D3  PRINTER FB(121 121)                                              
+*                                                                               
+R2-VVKL    W  1  P    HEADING 'VVKL'                                            
+R2-OMR     W  3  P    HEADING 'AREA'                                            
+R2-STD     W  7  P 2  HEADING '        QTY STANDARD'                            
+*                                                                               
+SUM-VVKL         W 3  P                                                         
+SUM-OMR          W 2  P                                                         
+SUM-ANT-VVKL-0-3 W 3  P 0                                                       
+SUM-STD-0-3      W 7  P 2                                                       
+SUM-ANT-VVKL-4-5 W 3  P 0                                                       
+SUM-STD-4-5      W 7  P 2                                                       
+SUM-ANT-VVKL-0-5 W 3  P 0                                                       
+SUM-STD-0-5      W 7  P 2                                                       
+*                                                                               
+W-DATUM          W          6 N                                                 
+W-AR             W-DATUM    2 N                                                 
+W-MAN            W-DATUM +2 2 N                                                 
+W-DAG            W-DATUM +4 2 N                                                 
+*                                                                               
+W-AAVV           W          4 N                                                 
+W-AA             W-AAVV     2 N                                                 
+W-VECKA          W-AAVV  +2 2 N                                                 
+*                                                                               
+PROGRAM-NAMN     W        8 A  VALUE 'W5139200'                                 
+DATUMKORT-ID     W        8 A  VALUE 'WDATUM  '                                 
+                                                                                
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*****************************                                                   
+* COPYTEXT                  *                                                   
+*****************************                                                   
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+*-----------------------------------------------------------------*             
+* SELEKTERAR DC 11 POSTER OCH SORTERAR DESSA PER ARTNR OCH DC                   
+*-----------------------------------------------------------------*             
+                                                                                
+SORT W51392D1 TO TPFIL1 USING (I1-IDARTNR) SIZE 8000 +                          
+                          BEFORE SORT-INIT                                      
+ SORT-INIT. PROC                                                                
+  IF I1-IDDC EQ CDC-SE                                                          
+    SELECT                                                                      
+  END-IF                                                                        
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+                                                                                
+JOB INPUT(TPFIL1   KEY (T1-IDARTNR ) +                                          
+          W51392D2 KEY (L-IDARTNR ))  NAME AKT01 START A-INIT                   
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+IF MATCHED                                                                      
+    R2-VVKL = L-KDVVKL                                                          
+    R2-OMR  = L-ADLAGOMR                                                        
+    R2-STD  = L-PRARTSTD *    +                                                 
+        (L-KVLS + L-KVAKS-CDC + L-KVAKS-PAV + L-KVAKS-T + L-KVEFRS)             
+    SUM-OMR  = L-ADLAGOMR                                                       
+    SUM-ANT-VVKL-0-5 = +1                                                       
+    SUM-STD-0-5 = L-PRARTSTD *  +                                               
+        (L-KVLS + L-KVAKS-CDC + L-KVAKS-PAV + L-KVAKS-T + L-KVEFRS)             
+    IF L-KDVVKL = 0 THRU 3                                                      
+      SUM-ANT-VVKL-0-3 = +1                                                     
+      SUM-STD-0-3 = SUM-STD-0-5                                                 
+      SUM-ANT-VVKL-4-5 = +0                                                     
+      SUM-STD-4-5 = +0                                                          
+    ELSE                                                                        
+      SUM-ANT-VVKL-0-3 = +0                                                     
+      SUM-STD-0-3 = +0                                                          
+      SUM-ANT-VVKL-4-5 = +1                                                     
+      SUM-STD-4-5 = SUM-STD-0-5                                                 
+    END-IF                                                                      
+    PRINT RAPPORT01                                                             
+    GO TO JOB                                                                   
+END-IF                                                                          
+                                                                                
+IF TPFIL1                                                                       
+    PRINT RAPPORT01                                                             
+END-IF                                                                          
+                                                                                
+A-INIT.  PROC                                                                   
+  CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                      
+  W-AR    = D-AAR                                                               
+  W-MAN   = D-MAANAD                                                            
+  W-DAG   = D-DAG                                                               
+  W-AA    = D-AAR                                                               
+  W-VECKA = D-VECKA                                                             
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------------------------*                                  
+*  RAPPORT01 LISTA ÅT INVENTERINGEN GÖTEBORG                                    
+*--------------------------------------------*                                  
+                                                                                
+REPORT   RAPPORT01                                 +                            
+         PRINTER W51392D3                          +                            
+         LINESIZE 120  SUMMARY                     +                            
+         NODATE                                    +                            
+         NOADJUST                                  +                            
+         NOPAGE                                                                 
+SEQUENCE SUM-OMR                                                                
+CONTROL  SUM-OMR                                                                
+TITLE COL  1  'W51392-001'                         +                            
+      COL  20 'VCCS'                               +                            
+      COL  40 'LIST OF SELECTIONREGISTER'          +                            
+      COL  90 'DC: '                               +                            
+      COL  94 T1-IDDC                              +                            
+      COL 100 'DATE: '                             +                            
+      COL 106 W-DATUM                              +                            
+      COL 113 'WEEK:'                              +                            
+      COL 118  W-VECKA                                                          
+HEADING SUM-OMR            ('AREA' ' ')                                         
+HEADING SUM-ANT-VVKL-0-3   ('QTY  '  'VVKL 0 - 3')                              
+HEADING SUM-STD-0-3        ('       SUM. STD' '        VVKL 0 - 3')             
+HEADING SUM-ANT-VVKL-4-5   ('QTY  '  'VVKL 4 - 5')                              
+HEADING SUM-STD-4-5        ('       SUM. STD' '        VVKL 4 - 5')             
+HEADING SUM-ANT-VVKL-0-5   ('QTY  '  'VVKL 0 - 5')                              
+HEADING SUM-STD-0-5        ('       SUM. STD' '        VVKL 0 - 5')             
+LINE SUM-OMR SUM-ANT-VVKL-0-3 SUM-STD-0-3 SUM-ANT-VVKL-4-5 +                    
+             SUM-STD-4-5 SUM-ANT-VVKL-0-5 SUM-STD-0-5                           

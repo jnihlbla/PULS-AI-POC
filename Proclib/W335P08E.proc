@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DAILY UPDATE COST OF SALES FILE                                            
+//*                                                                             
+//*  FREQUENCE: DAILY   RTN W335D6                                              
+//*                                                                             
+//*  RESTART:   W3358E    NORMAL                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W335P08E PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W335..W335D6,                                             
+//             INDIN1=&W011..NDC,                                               
+//             INDREG=&W335                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTARDC),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W01184(+0),DISP=SHR                                 
+//************ LAGERBAND FRÅN NDC:ERNA                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W011SORT,DISP=(NEW,PASS,DELETE),                           
+//************ SORTAT LAGERBAND FRÅN NDC:ERNA                                   
+//         DATACLAS=PSEN                                                        
+//*                                                                             
+//******************************************************************            
+//W3358E   EXEC PGM=V16459,PARM='W3358E/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W3358ED1 DD  DSN=&&W011SORT,DISP=(OLD,DELETE,DELETE)                          
+//************ SORTAT LAGERBAND FRÅN NDC:ERNA                                   
+//*                                                                             
+//W3358ED2 DD  DSN=&INDIN..W3358D(+0),DISP=SHR                                  
+//************ PRICEFILE WITH PRICES TO MONTLY RATE                             
+//*                                                                             
+//W3358ED3 DD  DSN=&INDREG..W3358E(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ PRICEFILE WITH PRICES TO MONTHLY RATE                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER FILER MED ARTIKLAR DÄR TIDISPIN SKALL OMRÄKNAS                       
+//*  SORTERAR OCH SKAPAR UTFIL MED EN POST PER ARTIKEL                          
+//*                                                                             
+//*  FREKVENS:     VECKA  RTN W218V1                                            
+//*                                                                             
+//*  ÅTERSTART:    W21801    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W218P001 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W222..W218V1,                                            
+//             INDIN2=&W221..W218V1,                                            
+//             INDUT=&W218..W218V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21801   EXEC PGM=W21801                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W21801D1 DD  DSN=&INDIN1..W22221C,DISP=SHR                                    
+//************ ARTIKLAR FÖR TIDISPINOMRÄKNING  PB-SEP  W222P021                 
+//*                                                                             
+//         DD  DSN=&INDIN2..W22148,DISP=SHR                                     
+//************ ARTIKLAR FÖR TIDISPINOMR PB-TPO TIDISPIN W221P022                
+//*                                                                             
+//W21801D2 DD  DSN=&INDUT..W21802(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ ARTIKLAR FÖR TIDISPINOMRÄKNING 1 POST/ARTIKEL                    
+//             SPACE=(5,(150,33),RLSE),AVGREC=K,                                
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,315 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2365800                                              *        
+*                                                                      *        
+*  FUNKTION   :  THIS PROGRAM SETS HIGH/LOW CODE KDOTFREK                       
+*                BASED ON ORDER HITS FOR EACH PART (AND THE PART'S              
+*                PREDECESSORS VIA SUPERSESSIONS, IF ANY) WITHIN THE             
+*                LATEST ROLLING 12 MONTHS                                       
+*                                                                      *        
+*  OVERVIEW   :  SELECT ALL RECORDS FROM FILE W2365701 FILE WHERE               
+*                THE CONCERNED PART IS NOT FINALLY SUPERSEDED                   
+*                (BECAUSE FINALLY SUPSEDED PARTS DON'T HAVE                     
+*                A WDK611-SEGMENT ANYMORE).                                     
+*                                                                               
+*                ANY SUCH PART HAVING KVOT-12-RULL-TOT > 510                    
+*                IS CONSIDERED TO BE HIGH-FREQUENCY. KDOTFREK IS THEN           
+*                SET TO 'H' AND THE PART IS WRITTEN DIRECTLY TO THE             
+*                UT1-OUTPUT-FILE SINCE IT DOES NOT NEED TO BE ANALYZED          
+*                FURTHER.                                                       
+*                                                                               
+*                ANY PART HAVING 510 OR LESS IS CHECKED TO SEE                  
+*                IF THE CONCERNED PART IS A SUPERSEDING PART:                   
+*                * IF NOT, THEN THE PART IS WRITTEN DIRECTLY TO                 
+*                  THE UT2-OUTPUT-FILE (WITH KDOTFREK='L')                      
+*                * IF THE PART IS A SUPERSEDING PART, THEN 3 LEVELS             
+*                  BACK IN THE SUPERSESSION-CHAIN ARE CHECKED TO SEE IF         
+*                  ORDER HITS EXIST FOR THE PRECEDING PARTS WITHIN THE          
+*                  LATEST 12 MONTHS. IF SO, THEN THE ORDER HITS FOR             
+*                  THE PRECEDING PARTS ARE ADDED TO THE ORDER HIT SUM           
+*                  FOR THE CONCERNED PART. IF THE RESULTING SUM IS              
+*                  > 510 THEN KDOTFREK IS SET TO 'H', OTHERWISE                 
+*                  KDOTFREK WILL BE 'L' FOR THE CONCERNED PART.                 
+*                  THE PART IS THEN WRITTEN TO UT3-OUTPUT-FILE.                 
+*                                                                      *        
+*  FÖRFATTARE :  CHESTER COUCH                                         *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W23658D0                                                                   
+* WDK6 DOWNLOAD, TO CHECK SUPERSESSION STATUS PER PART                          
+%W01160    'IN60-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W23658D1                                                                   
+* ORDER HITS (ROLLING 12 MONTHS) PER PART                                       
+%W2365701  'IN57-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W23658D2                                                                   
+* UNIQUE SUPERSEDING PARTS                                                      
+%WSUPERS   'SUPING-'                                                            
+                                                                                
+NEWPAGE                                                                         
+FILE W23658D3 FB(18 0)                                                          
+* HIGH                                                                          
+%W2365801  'UT1-'                                                               
+                                                                                
+FILE TEMPFIL1 FB (18 0)                                                         
+* CHECK IF THESE PARTS ARE SUPERSEDING PARTS                                    
+%W2365801 'TMP1-'                                                               
+                                                                                
+FILE W23658D4 FB(18 0)                                                          
+* NOT SUPSEDING PARTS, SO DEFINITELY NOT HIGH FREQUENCY                         
+* (I.E. LOW FREQUENCY. OR MAYBE MEDIUM IF/WHEN IMPLEMENTED)                     
+%W2365801  'UT2-'                                                               
+                                                                                
+FILE TEMPFIL2 FB (18 0)                                                         
+* FOR THESE PARTS, CHECK HITS ON PRECEDING PARTS IN SUPERSESSION CHAINS         
+%W2365801 'TMP2-'                                                               
+                                                                                
+FILE W23658D5                                                                   
+* UNIQUE SUPERSEDED PARTS                                                       
+%WSUPERS   'SUPED-'                                                             
+                                                                                
+FILE TEMPFIL3 FB (9 0)                                                          
+* ORDER HITS FOR SUPERSEDED PARTS                                               
+TMP3-AREA  1  9 A                                                               
+TMP3-IDARTNR-SUPED    1  5 P                                                    
+TMP3-KVOT-12-RULL-TOT 6  4 P 0                                                  
+                                                                                
+FILE SUPDTABL FB (9 0) TABLE 300000                                             
+* ORDER HITS FOR SUPERSEDED PARTS IN A TABLE                                    
+ARG 1 5 P. DESC 6 4 P 0                                                         
+                                                                                
+FILE W23658D6                                                                   
+* CROSS-REF SUPERSEDING PARTS TO PRECEDING (I.E. SUPERSEDED) PARTS              
+%WSUPERS   'SSXREF-'                                                            
+                                                                                
+W-IDARTNR-TILLK     W  9 P VALUE 0                                              
+W-SUPERS-SEQNR      W  2 P VALUE 0                                              
+                                                                                
+FILE TEMPFIL4 FB (12 0)                                                         
+* CROSS-REF SUPERSEDING PARTS TO PRECEDING (I.E. SUPERSEDED) PARTS              
+TMP4-AREA  1 12 A                                                               
+TMP4-IDARTNR-TILLK    1  5 P                                                    
+TMP4-SUPERS-SEQNR     6  2 P                                                    
+TMP4-IDARTNR          8  5 P                                                    
+                                                                                
+FILE SUPXREF  FB (12 0) TABLE 400000                                            
+* ORDER HITS FOR SUPERSEDED PARTS IN A TABLE                                    
+ARG 1 7 A. DESC 8 5 P                                                           
+                                                                                
+W-SUPXREF-ARG       W                7 A                                        
+W-SX-IDARTNR-TILLK  W-SUPXREF-ARG     5 P                                       
+W-SX-SUPERS-SEQNR   W-SUPXREF-ARG +5  2 P                                       
+                                                                                
+W-SX-IDARTNR-TILLK-BACK1  W  5 P                                                
+W-SX-SUPERS-SEQNR-BACK1   W  2 P                                                
+W-SX-IDARTNR-TILLK-BACK2  W  5 P                                                
+W-SX-SUPERS-SEQNR-BACK2   W  2 P                                                
+W-SX-IDARTNR-TILLK-BACK3  W  5 P                                                
+W-SX-SUPERS-SEQNR-BACK3   W  2 P                                                
+                                                                                
+                                                                                
+W-IDARTNR-SUPED           W  5 P                                                
+W-KVOT-12-RULL-TOT-SUPERS W  4 P 0                                              
+*                                                                               
+FILE W23658D7 FB(18 0)                                                          
+* FREQ WITH CONSIDERATION TAKEN TO PRECEDING PART VOLUMES (IF ANY)              
+* (I.E. CAN BE HIGH OR LOW. OR MAYBE MEDIUM IF/WHEN IMPLEMENTED)                
+%W2365801  'UT3-'                                                               
+**UT3-IDARTNR-SUPED    19 5 P 0                                                 
+                                                                                
+                                                                                
+                                                                                
+* FILE TEMPFILX FB (18 0)                                                       
+* * ORDER HITS FOR SUPERSEDED PARTS                                             
+* TMPX-AREA  1 15 A                                                             
+* TMPX-IDARTNR-TILLK    1  5 P                                                  
+* TMPX-IDARTNR          6  5 P                                                  
+* TMPX-TILLK-SEQNR     11  5 P                                                  
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*                                                                               
+* STEG 1. FIND PARTS THAT DIRECTLY QUALIFY AS HIGH-FREQUENCY                    
+*                                                                               
+JOB INPUT (W23658D1 KEY(IN57-IDARTNR)       +                                   
+           W23658D0 KEY(IN60-CLAG-IDARTNR)  +                                   
+          )                                                                     
+                                                                                
+   IF MATCHED                                                                   
+      IF  IN60-CLAG-KDERS-UTG < 21    +                                         
+      AND IN60-CLAG-KDERS     < 21                                              
+         IF IN57-KVOT-12-RULL-TOT > 510                                         
+            UT1-IDARTNR                  = IN57-IDARTNR                         
+            UT1-KDOTFREK                 = 'H'                                  
+            UT1-KVOT-12-RULL-TOT-PART    = IN57-KVOT-12-RULL-TOT                
+            UT1-KVOT-12-RULL-TOT-SUPERS  = -1                                   
+            UT1-KVOT-12-RULL-TOT-TOT     = IN57-KVOT-12-RULL-TOT                
+            PUT W23658D3                                                        
+         ELSE                                                                   
+            TMP1-IDARTNR                 = IN57-IDARTNR                         
+            TMP1-KDOTFREK                = '?'                                  
+            TMP1-KVOT-12-RULL-TOT-PART   = IN57-KVOT-12-RULL-TOT                
+            TMP1-KVOT-12-RULL-TOT-SUPERS = -1                                   
+            TMP1-KVOT-12-RULL-TOT-TOT    = IN57-KVOT-12-RULL-TOT                
+            PUT TEMPFIL1                                                        
+         END-IF                                                                 
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+*                                                                               
+* STEG 2. MATCH   TEMPFIL1 CONTAINING PARTS THAT ARE NOT HIGH-FREQ              
+*         WITH    DISTINCT SUPERSEDING PARTS                                    
+*         TO SEE IF THE PART'S ORDER HITS CAN POSSIBLY BE INCREASED             
+*         VIA SUPERSESSIONS.                                                    
+*                                                                               
+JOB INPUT (TEMPFIL1 KEY(TMP1-IDARTNR)    +                                      
+           W23658D2 KEY(SUPING-IDARTNR-TILLK) +                                 
+          )                                                                     
+                                                                                
+   IF MATCHED                                                                   
+      TMP2-IDARTNR                 = TMP1-IDARTNR                               
+      TMP2-KDOTFREK                = TMP1-KDOTFREK                              
+      TMP2-KVOT-12-RULL-TOT-PART   = TMP1-KVOT-12-RULL-TOT-PART                 
+      TMP2-KVOT-12-RULL-TOT-SUPERS = TMP1-KVOT-12-RULL-TOT-SUPERS               
+      TMP2-KVOT-12-RULL-TOT-TOT    = TMP1-KVOT-12-RULL-TOT-TOT                  
+      PUT TEMPFIL2                                                              
+   ELSE                                                                         
+      IF TEMPFIL1                                                               
+         UT2-IDARTNR                 = TMP1-IDARTNR                             
+*****    IF TMP1-KVOT-12-RULL-TOT >= ???                                        
+*****       UT2-KDOTFREK               = 'M'                                    
+*****    ELSE                                                                   
+            UT2-KDOTFREK               = 'L'                                    
+*****    END-IF                                                                 
+         UT2-KVOT-12-RULL-TOT-PART   = TMP1-KVOT-12-RULL-TOT-PART               
+         UT2-KVOT-12-RULL-TOT-SUPERS = TMP1-KVOT-12-RULL-TOT-SUPERS             
+         UT2-KVOT-12-RULL-TOT-TOT    = TMP1-KVOT-12-RULL-TOT-TOT                
+         PUT W23658D4                                                           
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+*                                                                               
+* STEG 3. MATCH   W23658D5 CONTAINING UNIQUE SUPERSEDED PARTS                   
+*         WITH    W23658D1 ORDER HITS PER PARTS                                 
+*         TO CREATE FILE OF ORDER HITS FOR SUPERSEDED PARTS                     
+*                                                                               
+JOB INPUT (W23658D5 KEY(SUPED-IDARTNR)    +                                     
+           W23658D1 KEY(IN57-IDARTNR) +                                         
+          )                                                                     
+                                                                                
+   IF MATCHED                                                                   
+      IF IN57-KVOT-12-RULL-TOT > 0                                              
+         TMP3-IDARTNR-SUPED           = IN57-IDARTNR                            
+         TMP3-KVOT-12-RULL-TOT        = IN57-KVOT-12-RULL-TOT                   
+         PUT TEMPFIL3                                                           
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+*                                                                               
+* STEG 4. SORTERAR TEMPFIL3 TILL TABELLEN SUPDTABL                              
+*                                                                               
+SORT TEMPFIL3 TO SUPDTABL USING TMP3-IDARTNR-SUPED                              
+                                                                                
+*                                                                               
+* STEG 5. ASSIGN SEQUENCE NUMBERS TO SUPERSEDING -> SUPERSEDED COMBOS           
+*                                                                               
+JOB INPUT  W23658D6                                                             
+                                                                                
+   IF W-IDARTNR-TILLK   = SSXREF-IDARTNR-TILLK                                  
+      W-SUPERS-SEQNR    = W-SUPERS-SEQNR + 1                                    
+   ELSE                                                                         
+      W-SUPERS-SEQNR    = 1                                                     
+      W-IDARTNR-TILLK   = SSXREF-IDARTNR-TILLK                                  
+   END-IF                                                                       
+                                                                                
+   TMP4-IDARTNR-TILLK   = SSXREF-IDARTNR-TILLK                                  
+   TMP4-SUPERS-SEQNR    = W-SUPERS-SEQNR                                        
+   TMP4-IDARTNR         = SSXREF-IDARTNR                                        
+   IF W-SUPERS-SEQNR < 6                                                        
+      PUT TEMPFIL4                                                              
+   END-IF                                                                       
+                                                                                
+*                                                                               
+* STEG 6. SORTERAR TEMPFIL4 TILL TABELLEN SUPXREF                               
+*                                                                               
+SORT TEMPFIL4 TO SUPXREF USING (TMP4-IDARTNR-TILLK TMP4-SUPERS-SEQNR)           
+                                                                                
+*                                                                               
+* STEG 7. FIND ORDER HITS FOR PRECEDING PARTS VIA SUPERSESSIONS.                
+*         CREATE A SUM OF THE ORDER HITS FOR PRECEDING PARTS, AND               
+*         THEN ADD THE SUM TO THE ORDER HITS FOR THE CONCERNED PART             
+*         TO CREATE THE TOTAL-TOTAL FOR THE CONCERNED PART. IF THE              
+*         TOTAL-TOTAL IS > 510, THE PART GETS KDOTFREK='H',                     
+*         OTHERWISE ='L'.                                                       
+*                                                                               
+JOB INPUT TEMPFIL2                                                              
+                                                                                
+   UT3-IDARTNR                 = TMP2-IDARTNR                                   
+   UT3-KVOT-12-RULL-TOT-PART   = TMP2-KVOT-12-RULL-TOT-PART                     
+                                                                                
+   UT3-KVOT-12-RULL-TOT-SUPERS = 0                                              
+                                                                                
+   W-SX-IDARTNR-TILLK-BACK1    = TMP2-IDARTNR                                   
+   W-SX-SUPERS-SEQNR-BACK1     = 1                                              
+   DO WHILE W-SX-SUPERS-SEQNR-BACK1 < 6                                         
+     W-SX-IDARTNR-TILLK       = W-SX-IDARTNR-TILLK-BACK1                        
+     W-SX-SUPERS-SEQNR        = W-SX-SUPERS-SEQNR-BACK1                         
+                                                                                
+     PERFORM B-SEARCH-TABLES-AND-ADD-HITS                                       
+     IF SUPXREF                                                                 
+       W-SX-IDARTNR-TILLK-BACK2 = W-IDARTNR-SUPED                               
+       W-SX-SUPERS-SEQNR-BACK2  = 1                                             
+       DO WHILE W-SX-SUPERS-SEQNR-BACK2 < 6                                     
+         W-SX-IDARTNR-TILLK       = W-SX-IDARTNR-TILLK-BACK2                    
+         W-SX-SUPERS-SEQNR        = W-SX-SUPERS-SEQNR-BACK2                     
+                                                                                
+         PERFORM B-SEARCH-TABLES-AND-ADD-HITS                                   
+         IF SUPXREF                                                             
+           W-SX-IDARTNR-TILLK-BACK3 = W-IDARTNR-SUPED                           
+           W-SX-SUPERS-SEQNR-BACK3  = 1                                         
+           DO WHILE W-SX-SUPERS-SEQNR-BACK3 < 6                                 
+             W-SX-IDARTNR-TILLK       = W-SX-IDARTNR-TILLK-BACK3                
+             W-SX-SUPERS-SEQNR        = W-SX-SUPERS-SEQNR-BACK3                 
+                                                                                
+             PERFORM B-SEARCH-TABLES-AND-ADD-HITS                               
+             W-SX-SUPERS-SEQNR-BACK3 = W-SX-SUPERS-SEQNR-BACK3 + 1              
+           END-DO                                                               
+         END-IF                                                                 
+         W-SX-SUPERS-SEQNR-BACK2 = W-SX-SUPERS-SEQNR-BACK2 + 1                  
+       END-DO                                                                   
+     END-IF                                                                     
+     W-SX-SUPERS-SEQNR-BACK1 = W-SX-SUPERS-SEQNR-BACK1 + 1                      
+   END-DO                                                                       
+                                                                                
+   UT3-KVOT-12-RULL-TOT-TOT    = TMP2-KVOT-12-RULL-TOT-PART  +                  
+                               + UT3-KVOT-12-RULL-TOT-SUPERS                    
+                                                                                
+   IF UT3-KVOT-12-RULL-TOT-TOT > 510                                            
+      UT3-KDOTFREK             = 'H'                                            
+   ELSE                                                                         
+      UT3-KDOTFREK             = 'L'                                            
+   END-IF                                                                       
+                                                                                
+   PUT W23658D7                                                                 
+                                                                                
+B-SEARCH-TABLES-AND-ADD-HITS. PROC                                              
+                                                                                
+   SEARCH SUPXREF  WITH W-SUPXREF-ARG           +                               
+                   GIVING W-IDARTNR-SUPED                                       
+                                                                                
+   IF SUPXREF                                                                   
+     SEARCH SUPDTABL WITH   W-IDARTNR-SUPED       +                             
+                     GIVING W-KVOT-12-RULL-TOT-SUPERS                           
+     IF SUPDTABL                                                                
+        UT3-KVOT-12-RULL-TOT-SUPERS = UT3-KVOT-12-RULL-TOT-SUPERS +             
+                                    +   W-KVOT-12-RULL-TOT-SUPERS               
+***     UT3-IDARTNR-SUPED            = W-IDARTNR-SUPED                          
+     END-IF                                                                     
+   END-IF                                                                       
+END-PROC                                                                        

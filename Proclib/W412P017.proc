@@ -1,0 +1,49 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERA EJ LÖSTA VOR-RADER MED SVENSK BENÄMNING.                       
+//*                                                                             
+//*  FREKVENS:     VECKA       RTN W412V3                                       
+//*                                                                             
+//*  ÅTERSTART:    W41217    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W412P017 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W412..W412V3,                                             
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDUT=&WXTR..W412V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT17   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W412PD17),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W41217,DISP=SHR                                      
+//************ EJ LÖSTA VOR-RADER FRÅN W412P013                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&&W41217,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE PER IDARTNR                                            
+//             SPACE=(65,(5,1),RLSE),AVGREC=K                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41217   EXEC PGM=V16459,PARM='W41217/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W41217D1 DD  DSN=&&W41217,DISP=(OLD,DELETE,DELETE)                            
+//************ EJ LÖSTA VOR-RADER FRÅN W412P013                                 
+//*                                                                             
+//W41217D2 DD  DSN=&INDIN2..W01174(+0),DISP=SHR                                 
+//************ "PROD-LB" MED SVENSK BENÄMNING                                   
+//*                                                                             
+//W41217D3 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ "PROD-LB" MED LEVNR                                              
+//*                                                                             
+//W41217D4 DD  DSN=&INDUT..WXTR20(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ EJ LÖSTA VOR-RADER KOMPLETTERADE MED SVENSK BENÄMNING            
+//             SPACE=(65,(5,1),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                

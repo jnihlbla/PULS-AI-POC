@@ -1,0 +1,117 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W3710600                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKRIVER AVVIKELSELISTA FÖR BYTES MELLAN FLEN          *        
+*                OCH MAASTRICHT FRÅN EN FIL.                           *        
+*                                                                      *        
+*  FÖRFATTARE :  RANDI BERG                                            *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W37106D1                                                                   
+*                                                                               
+%W3717B01  'IN-'                                                                
+ IN-IDFAKT-RED IN-IDFAKT     4   P MASK 'ZZZZZZ9'                               
+ IN-IDARTNR-RED IN-IDARTNR   5   P MASK 'ZZZZZZZZ9'                             
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W37106D2  PRINTER FB (121 0)                                               
+FILE W37106D3  PRINTER FB (121 0)                                               
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SKRIVER UT AVVIKELSER TILL SÄNDANDE LAGER                             
+*                                                                               
+JOB INPUT (W37106D1 +                                                           
+          )                                                                     
+  IF IN-IDDC = CDC-SE                                                           
+     PRINT RAPPORT01                                                            
+  ELSE                                                                          
+     IF IN-IDDC = SDC-NL-ET                                                     
+        PRINT RAPPORT02                                                         
+     END-IF                                                                     
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+REPORT RAPPORT01         +                                                      
+       PRINTER W37106D2  +                                                      
+       LINESIZE 120      +                                                      
+       NODATE            +                                                      
+       NOADJUST          +                                                      
+       NOHEADING                                                                
+                                                                                
+SEQUENCE IN-IDARTNR                                                             
+                                                                                
+                                                                                
+TITLE 1 +                                                                       
+COL  04 'W37106-001    ´ CHANGED STOCKBALANCE EXCHANGE' +                       
+COL  93 SYSDATE                                                                 
+                                                                                
+TITLE 2                  +                                                      
+COL  04 'DC'             +                                                      
+COL  08 IN-IDDC          +                                                      
+COL  12 'INVOICE NUMBER' +                                                      
+COL  30 IN-IDFAKT-RED                                                           
+                                                                                
+TITLE 3 '  '                                                                    
+                                                                                
+TITLE 4                  +                                                      
+COL 04 'CORE NO'         +                                                      
+COL 15 'SENT QTY'        +                                                      
+COL 30 'RECEIVED QTY'    +                                                      
+COL 45 'CHANGE QTY'                                                             
+                                                                                
+LINE 1                   +                                                      
+COL 04 IN-IDARTNR-RED    +                                                      
+COL 15 IN-KVLEVART       +                                                      
+COL 30 IN-KVANTMOT       +                                                      
+COL 45 IN-KVAVV-KVANT                                                           
+                                                                                
+REPORT RAPPORT02         +                                                      
+       PRINTER W37106D3  +                                                      
+       LINESIZE 120      +                                                      
+       NODATE            +                                                      
+       NOADJUST          +                                                      
+       NOHEADING                                                                
+                                                                                
+SEQUENCE IN-IDDC                                                                
+                                                                                
+                                                                                
+TITLE 1   +                                                                     
+COL  04 'W37106-001    ´ CHANGED STOCKBALANCE EXCHANGE' +                       
+COL  93 SYSDATE                                                                 
+                                                                                
+TITLE 2                  +                                                      
+COL  04 'DC'             +                                                      
+COL  08 IN-IDDC          +                                                      
+COL  12 'INVOICE NUMBER' +                                                      
+COL  30 IN-IDFAKT-RED                                                           
+                                                                                
+TITLE 3 '  '                                                                    
+                                                                                
+TITLE 4                  +                                                      
+COL 04 'CORE NO'         +                                                      
+COL 15 'SENT QTY'        +                                                      
+COL 30 'RECEIVED QTY'    +                                                      
+COL 45 'CHANGE QTY'                                                             
+                                                                                
+LINE 1                   +                                                      
+COL 04 IN-IDARTNR-RED    +                                                      
+COL 15 IN-KVLEVART       +                                                      
+COL 30 IN-KVANTMOT       +                                                      
+COL 45 IN-KVAVV-KVANT                                                           
+                                                                                

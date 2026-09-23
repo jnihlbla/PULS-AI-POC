@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE EXCEL FILE OUT OF FILE W91061, TO BE SENT TO                        
+//*  LOGENT, TEMPORARY SOLUTION                                                 
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W910V2                                         
+//*                                                                             
+//*  RESTART:      W9106A    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W911P07A PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W910..W910V2,                                             
+//             INDUT=&W910..W910V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W9106A   EXEC PGM=W9106A                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W9106AD1 DD  DSN=&INDIN..W9106C(+0),DISP=SHR                                  
+//************ NEW AND CHANGED PARTS                                            
+//*                                                                             
+//W9106AD2 DD  DSN=&INDUT..W9106A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ NEW AND CHANGED PARTS, EXCEL                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

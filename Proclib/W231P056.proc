@@ -1,0 +1,288 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR MEMO VARJE VECKA FRÅN ARTIKELSTATSTIK                               
+//*  OCH PARTINFO.                                                              
+//*                                                                             
+//*  FREKVENS:     VECKA   RTN W231V1                                           
+//*                                                                             
+//*  ÅTERSTART:    W23155    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W231P056 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W231..W231P1,                                             
+//             INDIN2=&W330..W330R1,                                            
+//             INDIN3=&W011,                                                    
+//             INDLDC=&W011..LDC,                                               
+//             INDSDC=&W011..SDC,                                               
+//             INDNDC=&W011..NDC,                                               
+//             INDIN5=&W225,                                                    
+//             INDIN6=&W225..W225V2,                                            
+//             INDUT=&W231..W231V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* EXTRACT ONLY DC61 AND DC62 RECORDS FROM NDC FILE                            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDNDC..W01184(+0),DISP=SHR                                 
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//** EXTRACT DC61 AND DC 62 RECORDS FROM NDC FILE                               
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD01),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23155   EXEC PGM=V16459,PARM='W23155/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD UNIT=WD,SPACE=(CYL,(30,5))                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//W23155D1 DD  DSN=&INDIN2..W33015(+0),DISP=SHR                                 
+//************ ARTIKELSTATISTIK                                                 
+//*                                                                             
+//W23155D2 DD  DSN=&INDIN3..W01177(+0),DISP=SHR                                 
+//************ VECKOLAGERBAND                                                   
+//*                                                                             
+//W23155D3 DD  DSN=&INDLDC..W01184(+0),DISP=SHR                                 
+//************ LAGERFILER FÖR ALLA DC:N                                         
+//         DD  DSN=&INDSDC..W01184(+0),DISP=SHR                                 
+//         DD  DSN=&&W01184,DISP=(OLD,DELETE,DELETE)                            
+//TPFIL3   DD  DSN=&&TEMP3,DISP=(NEW,PASS,DELETE),                              
+//************ S-LAGERBANDEN SORTERADE PÅ IDARTNR                               
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155D4 DD  DSN=&INDIN..W23123(+0),DISP=SHR                                  
+//************ NEDLÄST ORDERINGÅNG 8 PERIODER                                   
+//*                                                                             
+//W23155D5 DD  DSN=&&W2315A,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155D6 DD  DSN=&&W2315B,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155D7 DD  DSN=&&W2315C,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155D8 DD  DSN=&&W2315D,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155D9 DD  DSN=&&W2315E,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DA DD  DSN=&&W2315F,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DB DD  DSN=&&W2315G,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DC DD  DSN=&&W2315H,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DD DD  DSN=&&TFIL01,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL01                                                        
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DE DD  DSN=&&TFIL02,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL02                                                        
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DF DD  DSN=&&OIFIL,DISP=(NEW,PASS,DELETE),                              
+//************ TEMPFIL03 (OIFIL)                                                
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DG DD  DSN=&&STATFIL,DISP=(NEW,PASS,DELETE),                            
+//************ TEMPFIL04  (STATFIL)                                             
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DH DD  DSN=&&UTFIL01,DISP=(NEW,PASS,DELETE),                            
+//************ TEMPFIL05  (GAMMAL UTFIL)                                        
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DI DD  DSN=&INDIN5..W22509(+0),DISP=SHR                                 
+//************ SERVICEGRAD                                                      
+//*                                                                             
+//W23155DJ DD  DSN=&INDIN6..W22542(+0),DISP=SHR                                 
+//************ ARTIKLAR MED RESTORDER                                           
+//*                                                                             
+//W23155DK DD  DSN=&&TFIL,DISP=(NEW,PASS,DELETE),                               
+//************ TEMPFIL06                                                        
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DL DD  DSN=&&TFIL,DISP=(NEW,PASS,DELETE),                               
+//************ TEMPFIL07                                                        
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DM DD  DSN=&&TFIL,DISP=(NEW,PASS,DELETE),                               
+//************ TEMPFIL08                                                        
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DN DD  DSN=&&TFIL,DISP=(NEW,PASS,DELETE),                               
+//************ TEMPFIL09                                                        
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DO DD  DSN=&&TFIL,DISP=(NEW,PASS,DELETE),                               
+//************ TEMPFIL10                                                        
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DP DD  DSN=&&UTFIL02,DISP=(NEW,PASS,DELETE),                            
+//************ TEMPFIL11(NY UTFIL)                                              
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DR DD  DSN=&&W2315J,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DS DD  DSN=&&W2315K,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DT DD  DSN=&&W2315T,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DU DD  DSN=&&W2315U,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DV DD  DSN=&&W2315V,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DX DD  DSN=&&W2315X,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23155DZ DD  DSN=&&W2315Z,DISP=(NEW,PASS,DELETE),                             
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23156   EXEC PGM=V16459,PARM='W23156/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  UNIT=WD,SPACE=(CYL,(30,5))                                       
+//SORTMSG  DD  SYSOUT=*                                                         
+//W23156D1 DD  DSN=&&W2315A,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156D2 DD  DSN=&&W2315B,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156D3 DD  DSN=&&W2315C,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156D4 DD  DSN=&&W2315D,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156D5 DD  DSN=&&W2315E,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156D6 DD  DSN=&&W2315F,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156D7 DD  DSN=&&W2315G,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156D8 DD  DSN=&&W2315H,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156DJ DD  DSN=&&W2315J,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156DK DD  DSN=&&W2315K,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156DL DD  DSN=&&W2315T,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156DN DD  DSN=&&W2315U,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156DP DD  DSN=&&W2315V,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156DS DD  DSN=&&W2315X,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//W23156DT DD  DSN=&&W2315Z,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFIL                                                          
+//*                                                                             
+//W23156D9 DD  DSN=&INDUT..W2315A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DA DD  DSN=&INDUT..W2315B(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DB DD  DSN=&INDUT..W2315C(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DC DD  DSN=&INDUT..W2315D(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DD DD  DSN=&INDUT..W2315E(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DE DD  DSN=&INDUT..W2315F(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DF DD  DSN=&INDUT..W2315G(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DG DD  DSN=&INDUT..W2315H(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DH DD  DSN=&INDUT..W2315J(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DI DD  DSN=&INDUT..W2315K(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DM DD  DSN=&INDUT..W2315T(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DO DD  DSN=&INDUT..W2315U(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DR DD  DSN=&INDUT..W2315R(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DU DD  DSN=&INDUT..W2315L(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23156DV DD  DSN=&INDUT..W2315M(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MÅNDAGSANALYS                                                    
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,76 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  HISTORIK SKAPAR FILEN 'ORDER I ARBETE'                                     
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W479V2                                          
+//*                                                                             
+//*  ÅTERSTART:    W47953   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P053 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479V2,INDIN2=&W011,                                
+//             INDUT=&W479..W479V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//SORT52  EXEC PGM=SORT                                                         
+//*                                                                             
+//SYSOUT    DD SYSOUT=*                                                         
+//SORTMSG   DD SYSOUT=*                                                         
+//SYSUDUMP  DD SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSIN     DD DSN=&INDRTE..CONSTANT(W479P531),DISP=SHR                         
+//*  SORTAS PÅ DIST, KUND, KUNDREF, PRODNR OCH PURAD                            
+//SORTIN    DD DSN=&INDIN..W47952(+0),DISP=SHR                                  
+//SORTOUT   DD DSN=&&SORT52,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//************ TEMPORÄRFIL, SORTAD W47952                                       
+//*                                                                             
+//SORT63  EXEC PGM=SORT                                                         
+//*                                                                             
+//SYSOUT    DD SYSOUT=*                                                         
+//SORTMSG   DD SYSOUT=*                                                         
+//SYSUDUMP  DD SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSIN     DD DSN=&INDRTE..CONSTANT(W479P532),DISP=SHR                         
+//*  SORTAS PÅ DIST, KUND, KUNDREF, PRODNR OCH IDRADNR-KO                       
+//SORTIN    DD DSN=&INDIN..W47963(+0),DISP=SHR                                  
+//SORTOUT   DD DSN=&&SORT63,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//************ TEMPORÄRFIL, SORTAD W47963                                       
+//*                                                                             
+//W47953   EXEC PGM=V16459,PARM='W47953/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(20000,127))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W47953D1 DD  DSN=&&SORT52,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPORÄRFIL, EV ORDER I ARBETE                                   
+//*                                                                             
+//W47953D3 DD  DSN=&&SORT63,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPORÄRFIL, EV ORDER I ARBETE                                   
+//*                                                                             
+//W47953D5 DD  DSN=&INDIN2..W01172(+0),DISP=SHR                                 
+//************ DAGLIGA LAGER-BANDET                                             
+//*                                                                             
+//W47953D6 DD  DSN=&INDUT..W47953(+1),DISP=(NEW,CATLG,DELETE), -LIM(02)         
+//************ ORDER I ARBETE                                                   
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W47953D7 DD  DSN=&INDUT..W4795B(+1),DISP=(NEW,CATLG,DELETE), -LIM(01)         
+//************ FIL TILL JANNE P. (HITTA PÅ ETT BÄTTRE NAMN)                     
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W47953D8 DD  DSN=&INDUT..W47957(+1),DISP=(NEW,CATLG,DELETE), -LIM(09)         
+//************ FIL TILL DSP-AVSTÄMNINGEN                                        
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

@@ -1,0 +1,75 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  STANDARDPRISSYSTEM SPIS                               *        
+*                                                                      *        
+*  FUNKTION   :  SKAPA TRANSAKTIONER FÖR UPPDATERING PÅ ART.REG        *        
+*                AV PRARTSTD PRARTSJK PRINK PRDIRLON PRDMTRL PROVRPAL  *        
+*                UPPDATERINGEN SKER I W54020.                          *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON DECEMBER 1994                      *        
+*                                                                      *        
+*  INFIL      :  W551.W551B1.W55160(+0) ÅRETS SISTA FIL UR SYSTEM SPIS *        
+*                                                                      *        
+*  UTFILER    :  W551.W551Y1.W55138, TRANSAR FÖR ARTREG.UPPDATERING    *        
+*             :  W551.W551Y1.W55140, ÅRSFIL FÖR ANALYSER KOMMANDE ÅR   *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+FILE W55138D1                                                                   
+*----------------------------                                                   
+* SPIS ANALYSFIL                                                                
+*----------------------------                                                   
+*                                                                               
+%W551601  'SPIS-'                                                               
+NEWPAGE                                                                         
+*-----------------------------------------                                      
+* UPPDATERINGSPOSTER FÖR ARTIKELREGISTRET                                       
+*-----------------------------------------                                      
+*                                                                               
+FILE W55138D2 FB(23 0)                                                          
+%W55138   'UPPD-'                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W55138D4 FB(60 0)                                                          
+*-------------------------------------------------                              
+* ÅRETS GRUNDVÄRDEN FÖR STANDARDPRIS, ANALYSFIL                                 
+*-------------------------------------------------                              
+                                                                                
+%W55102   'YEAR-'                                                               
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------------------------------------------------*          
+* STEG 1  SKAPAR AV FIL FRÅN SPIS ÖVER NYA INKÖPSPRISER 2 FILER                 
+*       - EN UPPD-FIL SKAPAS MED PRINK OCH PÅLÄGG.                              
+*       - EN 990-FIL SKAPAS FÖR ANALYSER I SPIS KOMMANDE ÅR                     
+*         OCH FÖR EXTRAKTMILJÖN                                                 
+*--------------------------------------------------------------------*          
+                                                                                
+JOB INPUT W55138D1                                                              
+                                                                                
+***  SKAPA UPPDATERINGSPOSTER FÖR ARTIKELREGISTRET                              
+  UPPD-IDARTNR      = SPIS-IDARTNR                                              
+  UPPD-PRINK        = SPIS-PRINK-KOM                                            
+  UPPD-PRDIRLON     = SPIS-PRDIRLON-KOM                                         
+  UPPD-PRDMTRL      = SPIS-PRDMTRL-KOM                                          
+  UPPD-PROVRPAL     = SPIS-PROVRPAL-KOM                                         
+  PUT W55138D2                                                                  
+                                                                                
+***  SKAPA POSTER FÖR ANALYS                                                    
+  YEAR-IDPTYP       = '990'                                                     
+  YEAR-IDARTNR      = SPIS-IDARTNR                                              
+  YEAR-IDLEVNR      = SPIS-IDLEVNR                                              
+  YEAR-PRINK        = SPIS-PRINK-KOM                                            
+  YEAR-PRDIRLON-BD  = UPPD-PRDIRLON                                             
+  YEAR-PRDMTRL-BD   = UPPD-PRDMTRL                                              
+  YEAR-PROVRPAL-BD  = UPPD-PROVRPAL                                             
+  YEAR-PRARTBEL     = SPIS-PRARTBEL-PR                                          
+  YEAR-KDVTH        = 0                                                         
+  YEAR-FILLER01     = '    '                                                    
+  YEAR-RETULF       = SPIS-RETULF                                               
+  YEAR-KDVALISO     = SPIS-KDVALISO                                             
+  YEAR-PRKURS       = SPIS-PRKURS                                               
+  YEAR-IDINK        = '    '                                                    
+  PUT W55138D4                                                                  

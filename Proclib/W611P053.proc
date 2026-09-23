@@ -1,0 +1,105 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTAN AK BELÄGGNINGSLISTA                                          
+//*  SAMT   DEN ACCUMULERADE GENLOPPS/BELÄGGN-FILEN TILL VIOS                   
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611V1                                            
+//*                                                                             
+//*  ÅTERSTART:    W61153    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P053 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611V1,                                             
+//             INDIN2=&WXTR..W611V1,                                            
+//             INDIN3=&W611..W611D4,                                            
+//             INDIN4=&W930,                                                    
+//             INDUT=&WXTR..W611V1,                                             
+//             INDUT2=&W611..W611V1,                                            
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT50   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD52),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN3..W61150(+0),DISP=SHR                                 
+//************ BELÄGGNINGSFIL                                                   
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61150,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD BELÄGGNINGSFIL                                          
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT55   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD52),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61155(+0),DISP=SHR                                  
+//************ GENOMLOPPSTID FIL                                                
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61155,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD GENOMLOPPSTID FIL                                       
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61153   EXEC PGM=V16459,PARM='W61153/8/'                                     
+//STDCP    OUTPUT DEST=&DEST1,FORMDEF=SLSR6C,PAGEDEF=SLSR6C                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W61153D1 DD  DSN=&&W61150,DISP=(OLD,PASS,DELETE)                              
+//************ SORTERAD BELÄGGNINGSFIL                                          
+//*                                                                             
+//W61153D2 DD  DSN=&&W61155,DISP=(OLD,PASS,DELETE)                              
+//************ SORTERAD GENOMLOPPSTID FIL                                       
+//*                                                                             
+//W61153D3 DD  DSN=&&WXTRF1,DISP=(NEW,PASS,DELETE),                             
+//************ GENOMLOPPSTIDER OCH AK-BELÄGGNING FIL                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W61153D4 DD  DSN=&INDUT2..W61153(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//************ W61153-001 LISTA GENOMLOPPSTIDER OCH AK-BELÄGGNING               
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W61153D5 DD  DSN=&INDUT2..W61156(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//************ W61153-002/W61153-002S  WORK FLOW TIMES AND AK WORK LOAD         
+//************ DESTINATIONER I EXPRESSEN                                        
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W61153D6 DD  DSN=&INDIN4..W93001(+0),DISP=SHR                                 
+//************ VALUTAKURSER                                                     
+//*                                                                             
+//W61153D7 DD  DSN=&INDUT2..W61157(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W61153D8 DD  DSN=&INDUT2..W61158(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORTF1   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD53),DISP=SHR                         
+//*                                                                             
+//SORTIN   DD  DSN=&&WXTRF1,DISP=(OLD,DELETE,DELETE)                            
+//         DD  DSN=&INDIN2..WXTRF1(+0),DISP=SHR                                 
+//************ FÖRRA VECKANS FIL MED                                            
+//************ GENOMLOPPSTIDER OCH AK-BELÄGGNING                                
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WXTRF1(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ DENNA VECKANS FIL MED                                            
+//************ GENOMLOPPSTIDER OCH AK-BELÄGGNING                                
+//************ BÅDE DC=11 OCH DC=12                                             
+//             MGMTCLAS=&BACKUPC,                                               
+//             DATACLAS=PSEN                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

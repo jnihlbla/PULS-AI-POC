@@ -1,0 +1,46 @@
+***********************************************************************         
+* CREATED BY v0C3830   ON 03/09/30  AT 12:20                                    
+***********************************************************************         
+         TITLE '                                '                               
+         PRINT ON,NOGEN                                                         
+         ALPHA 'abcdefghijklmnopqrstuvwxyzˆÈ¸‰Â…'                               
+W9F117   FMT                                                                    
+         DEV   TYPE=(3270,2),                                          +        
+               FEAT=IGNORE,                                            +        
+               SYSMSG=FSYSMSG,                                         +        
+               DSCA=X'0080'                                                     
+         DIV   TYPE=INOUT                                                       
+DGI00001 DPAGE CURSOR=((3,2)),                                         +        
+               FILL=NONE                                                        
+INDATA   DFLD  POS=(3,2),LTH=36,                                       +        
+               ATTR=(NUM,NOPROT)                                                
+UTDATA   DFLD  POS=(4,2),LTH=178,                                      +        
+               ATTR=(PROT)                                                      
+FSYSMSG  DFLD  POS=(24,2),LTH=79,                                      +        
+               ATTR=(PROT)                                                      
+         FMTEND                                                                 
+W90117O1 MSG   TYPE=OUTPUT,                                            +        
+               SOR=(W9F117,IGNORE),                                    +        
+               OPT=2,                                                  +        
+               NXT=W90117I1,                                           +        
+               FILL=PT                                                          
+MOD      LPAGE SOR=DGI00001                                                     
+         SEG                                                                    
+         MFLD  UTDATA,                                                 +        
+               LTH=178                                                          
+         MFLD  (FSYSMSG,                                               +        
+               ' '),                                                   +        
+               LTH=1                                                            
+         MSGEND                                                                 
+W90117I1 MSG   TYPE=INPUT,                                             +        
+               SOR=(W9F117),                                           +        
+               OPT=2,                                                  +        
+               NXT=W90117O1                                                     
+MID      LPAGE SOR=(DGI00001)                                                   
+         SEG                                                                    
+         MFLD  'W90117T ',                                             +        
+               LTH=8                                                            
+         MFLD  INDATA,                                                 +        
+               LTH=36                                                           
+         MSGEND                                                                 
+         END                                                                    

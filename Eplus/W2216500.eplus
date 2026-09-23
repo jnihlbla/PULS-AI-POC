@@ -1,0 +1,101 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2216500                                              *        
+*                                                                      *        
+*  FUNKTION   :  REPORT - EXCEL VIA DISTRIBUTION PRINT                 *        
+*                CDC - PART UPDATED WITH STOP DATE FOR ALARM 223       *        
+*                                                                      *        
+*  FÖRFATTARE :  STENING INGER                                         *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W22165D1                                                                   
+%W01160  'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W221TMP FB(18 18) VIRTUAL                                                  
+*                                                                               
+%W22165    'TMP-'                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W22165D2 VB(39 0)                                                          
+UT-AREA                1 35 A                                                   
+                                                                                
+W-HEAD                        W 35 A                                            
+W-HEAD-IDDC          W-HEAD      2 A                                            
+W-HEAD-SEM1          W-HEAD  +3  1 A                                            
+W-HEAD-IDANSK        W-HEAD  +4  7 A                                            
+W-HEAD-SEM2          W-HEAD  +11  1 A                                           
+W-HEAD-IDLEVNR       W-HEAD  +12  5 A                                           
+W-HEAD-SEM3          W-HEAD  +17  1 A                                           
+W-HEAD-TISTODAT-LARM W-HEAD  +18  9 A                                           
+W-HEAD-SEM4          W-HEAD  +27  1 A                                           
+W-HEAD-IDARTNR       W-HEAD  +28  7 A                                           
+                                                                                
+W-LINE                         W 30 A                                           
+W-LINE-IDDC          W-LINE       2 A                                           
+W-LINE-SEM1          W-LINE   +3  1 A                                           
+W-LINE-IDANSK        W-LINE   +4  3 N                                           
+W-LINE-SEM2          W-LINE   +7  1 A                                           
+W-LINE-IDLEVNR       W-LINE   +8  5 A                                           
+W-LINE-SEM3          W-LINE  +13  1 A                                           
+W-LINE-TISTODAT-LARM W-LINE  +14  6 N                                           
+W-LINE-SEM4          W-LINE  +20  1 A                                           
+W-LINE-IDARTNR       W-LINE  +21  9 N                                           
+*                                                                               
+* --- VALID IDDC CODES                                                          
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+* STEG 1 SELECT PART WITH STOP DATE ALARM > 0 AND SUP.CODE < 21                 
+*                                                                               
+JOB INPUT W22165D1                                                              
+                                                                                
+  IF IN-CLAG-TISTODAT-LARM > +0                                                 
+     IF IN-CLAG-KDERS < 21                                                      
+        TMP-IDDC            = CDC-SE                                            
+        TMP-IDANSK          = IN-CLAG-IDANSK                                    
+        TMP-IDLEVNR         = IN-CLAG-IDLEVNR                                   
+        TMP-TISTODAT-LARM   = IN-CLAG-TISTODAT-LARM                             
+        TMP-IDARTNR         = IN-CLAG-IDARTNR                                   
+        PUT W221TMP                                                             
+     END-IF                                                                     
+  END-IF                                                                        
+*                                                                               
+* STEG 2 SORT W221TMP                                                           
+*                                                                               
+SORT W221TMP TO +                                                               
+     W221TMP USING (TMP-IDDC TMP-IDANSK TMP-IDLEVNR +                           
+                    TMP-TISTODAT-LARM TMP-IDARTNR)                              
+*                                                                               
+* STEG 3 CREATE OUTPUT FILE - EXCEL                                             
+*                                                                               
+JOB INPUT W221TMP START A-INIT                                                  
+                                                                                
+        W-LINE-IDDC          = TMP-IDDC                                         
+        W-LINE-IDANSK        = TMP-IDANSK                                       
+        W-LINE-IDLEVNR       = TMP-IDLEVNR                                      
+        W-LINE-TISTODAT-LARM = TMP-TISTODAT-LARM                                
+        W-LINE-IDARTNR       = TMP-IDARTNR                                      
+        W-LINE-SEM1          = ';'                                              
+        W-LINE-SEM2          = ';'                                              
+        W-LINE-SEM3          = ';'                                              
+        W-LINE-SEM4          = ';'                                              
+        UT-AREA              = W-LINE                                           
+        PUT W22165D2                                                            
+                                                                                
+A-INIT. PROC                                                                    
+        W-HEAD-IDDC          = 'DC'                                             
+        W-HEAD-IDANSK        = 'PROC NO'                                        
+        W-HEAD-IDLEVNR       = 'SUPPL'                                          
+        W-HEAD-TISTODAT-LARM = 'STOP DATE'                                      
+        W-HEAD-IDARTNR       = 'PART NO'                                        
+        W-HEAD-SEM1          = ';'                                              
+        W-HEAD-SEM2          = ';'                                              
+        W-HEAD-SEM3          = ';'                                              
+        W-HEAD-SEM4          = ';'                                              
+        UT-AREA              = W-HEAD                                           
+        PUT W22165D2                                                            
+END-PROC                                                                        

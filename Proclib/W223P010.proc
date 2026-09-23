@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UPPDATERING AV URSPRUNG                                                    
+//*                                                                             
+//*  FREKVENS:     EN GÅNG PER DAG    RTN W223D1                                
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                          NORMAL                                             
+//*                W22310    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W223P010 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W223..W223D1,                                            
+//             CPU=1,                                                           
+//             INDUT=&W223..W223D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W223PD11),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W22309(+0),DISP=SHR                                 
+//************ INFILER MED ARTIKELURSPRUNG                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&&W11135,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE ARTIKLAR                                               
+//         SPACE=(17,(1,33),RLSE),AVGREC=K                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22310   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W22310,W22310,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W22310D1 DD  DSN=&&W11135,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD INFIL MRD KDURLAND                                      
+//*                                                                             
+//W22310D2 DD  DSN=&INDUT..W22311(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ LARM-MEMO TILL OSS                                               
+//             SPACE=(80,(10,30),RLSE),AVGREC=U,                                
+//             MGMTCLAS=&DEL2BKPC                                               

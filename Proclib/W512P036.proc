@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KURSFIL FÖR VARULAGERVÄRDERINGEN                                           
+//*                                                                             
+//*  FREKVENS:   MÅNADSSLUT RTN W500M1                                          
+//*                                                                             
+//*  ÅTERSTART:    W51236    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P036 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W512..W500M1,                                             
+//             INDIN2=&WIN..W500M1,                                             
+//             INDUT=&W512..W500M1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51236   EXEC PGM=V16459,PARM='W51236/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W51236D1 DD  DSN=&INDIN..W51237(+0),DISP=SHR                                  
+//************ KURSER FRÅN TIDIGARE PERIODER                                    
+//*                                                                             
+//W51236D2 DD  DSN=&INDIN2..A11079,DISP=SHR                                     
+//************ NYA DAGSKURSER FRÅN VOLVO DATA                                   
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//TPFIL2   DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//TPFIL3   DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//W51236D3 DD  DSN=&INDUT..W51237(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ KURSER FÖR VARULAGERVÄRDERINGEN                                  
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  

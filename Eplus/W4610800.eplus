@@ -1,0 +1,101 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4610800                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR W47920-FIL OCH W44061 (RESTORDERFIL).         *        
+*                OM ORDER SOM RENSATS FINNS PÅ RESTORDERREGISTRET SKA  *        
+*                EJ RENSNINGSTRANS SKICKAS VIDARE TILL VIPS.           *        
+*                                                                      *        
+*  FÖRFATTARE :  ELAINE CURTSSON                                       *        
+*                                                                      *        
+*  DATUM      :  MAJ 93                                                *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*   RENSNINGSTRANSAR                   *                                        
+* -------------------------------------*                                        
+*                                                                               
+FILE W46108D1                                                                   
+%W461S051                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  W44061 RESTORDERREGISTER            *                                        
+* -------------------------------------*                                        
+FILE W46108D2                                                                   
+%W44060                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  TEMPFIL1                            *                                        
+* -------------------------------------*                                        
+FILE TEMPFIL1 VIRTUAL FB(61 27938)                                              
+%W461S051 'TEMP1-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  TEMPFIL2                            *                                        
+* -------------------------------------*                                        
+FILE TEMPFIL2 VIRTUAL FB(13 27989)                                              
+TEMP2-POST      1 13 A                                                          
+TEMP2-IDDISTR   1  3 P 0                                                        
+TEMP2-IDKUNDNR  4  4 P 0                                                        
+TEMP2-IDORDNR   8  4 P 0                                                        
+TEMP2-IDDC      12 2 A                                                          
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  UTFIL MED RENSNINGSTRANSAR          *                                        
+* -------------------------------------*                                        
+FILE W46108D3 VB(61 27938)                                                      
+%W461S051  'UT-'                                                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  PACKAR ORDERNR FRÅN RENSNINGSFILEN  *                                        
+* -------------------------------------*                                        
+*                                                                               
+JOB INPUT W46108D2                                                              
+*                                                                               
+     TEMP2-IDDISTR   = RAD-IDDISTR                                              
+     TEMP2-IDKUNDNR  = RAD-IDKUNDNR                                             
+     TEMP2-IDORDNR   = RAD-IDORDNR5                                             
+     TEMP2-IDDC      = RAD-IDDC                                                 
+     PUT TEMPFIL2                                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*--------------------------------------*                                        
+*  SORTERING                           *                                        
+* -------------------------------------*                                        
+*                                                                               
+SORT W46108D1 TO +                                                              
+     TEMPFIL1 USING (RENS-IDDISTR RENS-IDKUNDNR RENS-IDORDNR +                  
+                     RENS-IDDC)                                                 
+*                                                                               
+SORT TEMPFIL2 TO +                                                              
+     TEMPFIL2 USING (TEMP2-IDDISTR TEMP2-IDKUNDNR TEMP2-IDORDNR +               
+                     TEMP2-IDDC)                                                
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  MATCHAR TEMPFIL1 OCH TEMPFIL2       *                                        
+* -------------------------------------*                                        
+*                                                                               
+JOB INPUT (TEMPFIL1 KEY(TEMP1-RENS-IDDISTR TEMP1-RENS-IDKUNDNR      +           
+                        TEMP1-RENS-IDORDNR TEMP1-RENS-IDDC)         +           
+           TEMPFIL2 KEY(TEMP2-IDDISTR TEMP2-IDKUNDNR TEMP2-IDORDNR  +           
+                        TEMP2-IDDC))                                            
+                                                                                
+    IF NOT MATCHED                                                              
+       IF TEMPFIL1                                                              
+          PUT W46108D3 FROM TEMPFIL1                                            
+       END-IF                                                                   
+    END-IF                                                                      
+                                                                                

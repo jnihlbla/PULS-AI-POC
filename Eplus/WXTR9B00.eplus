@@ -1,0 +1,119 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WXTR9B00                                              *        
+*                                                                      *        
+*  FUNKTION   :  CHINESE VOLUME PLANNING FILE                          *        
+*                                                                      *        
+*  FÖRFATTARE :  RAGUR SATHEESH                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WXTR9BD1                                                                   
+*                                                                               
+%WXTR9B   'IN-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE WXTR9BD2 PRINTER VB (152 0)                                                
+*** FILE STRUCTURE                                                              
+*                                                                               
+UT1-IDARTNR       W   9   N                                                     
+UT1-KDERS         W   3   N                                                     
+UT1-IDARTNR-TILLK W   9   N                                                     
+UT1-IDDC          W   2   A                                                     
+UT1-BEART-ENG     W   25  A                                                     
+UT1-IDFKNGRP      W   5   N                                                     
+UT1-IDLEVNR       W   5   A                                                     
+UT1-TIFINLV       W   5   N                                                     
+UT1-KVDLTID-TOT   W   3   N                                                     
+UT1-STOCKOH       W   7   N 0    MASK   '------9'                               
+UT1-KVAKS-SDC     W   7   N                                                     
+UT1-KVAKS-PAV     W   7   N                                                     
+UT1-KVROS-BULK    W   7   N                                                     
+UT1-KVROS-DAG     W   7   N                                                     
+UT1-PRAVCOST      W   9   N 2    MASK   'ZZZZZZZ.99'                            
+UT1-SEM           W   1   A VALUE ';'                                           
+NEWPAGE                                                                         
+*--------------------------------------------------------------*                
+*                    WORKING STORAGE                           *                
+*--------------------------------------------------------------*                
+*                                                                               
+FIRST-LINE        S   1   A VALUE 'J'                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. READ INPUT FILE                                                       
+*                                                                               
+JOB INPUT (WXTR9BD1)                                                            
+*                                                                               
+             UT1-IDARTNR       = IN-IDARTNR                                     
+             UT1-KDERS         = IN-KDERS                                       
+             UT1-IDARTNR-TILLK = IN-IDARTNR-TILLK                               
+             UT1-IDDC          = IN-IDDC                                        
+             UT1-BEART-ENG     = IN-BEART-ENG                                   
+             UT1-IDFKNGRP      = IN-IDFKNGRP                                    
+             UT1-IDLEVNR       = IN-IDLEVNR                                     
+             UT1-TIFINLV       = IN-TIFINLV                                     
+             UT1-KVDLTID-TOT   = IN-KVDLTID-TOT                                 
+             UT1-STOCKOH       = IN-STOCKOH                                     
+             UT1-KVAKS-SDC     = IN-KVAKS-SDC                                   
+             UT1-KVAKS-PAV     = IN-KVAKS-PAV                                   
+             UT1-KVROS-BULK    = IN-KVROS-BULK                                  
+             UT1-KVROS-DAG     = IN-KVROS-DAG                                   
+             UT1-PRAVCOST      = IN-PRAVCOST                                    
+             PRINT REPORT1                                                      
+                                                                                
+NEWPAGE                                                                         
+    REPORT   REPORT1              +                                             
+             PRINTER WXTR9BD2     +                                             
+             PAGESIZE 32000       +                                             
+             LINESIZE 147         +                                             
+             SPACE 0              +                                             
+             NOHEADING            +                                             
+             NOSPREAD             +                                             
+             NOADJUST             +                                             
+             NOPAGE               +                                             
+             NODATE                                                             
+                                                                                
+    LINE     UT1-IDARTNR          +                                             
+             UT1-SEM              +                                             
+             UT1-KDERS            +                                             
+             UT1-SEM              +                                             
+             UT1-IDARTNR-TILLK    +                                             
+             UT1-SEM              +                                             
+             UT1-IDDC             +                                             
+             UT1-SEM              +                                             
+             UT1-BEART-ENG        +                                             
+             UT1-SEM              +                                             
+             UT1-IDFKNGRP         +                                             
+             UT1-SEM              +                                             
+             UT1-IDLEVNR          +                                             
+             UT1-SEM              +                                             
+             UT1-TIFINLV          +                                             
+             UT1-SEM              +                                             
+             UT1-KVDLTID-TOT      +                                             
+             UT1-SEM              +                                             
+             UT1-STOCKOH          +                                             
+             UT1-SEM              +                                             
+             UT1-KVAKS-SDC        +                                             
+             UT1-SEM              +                                             
+             UT1-KVAKS-PAV        +                                             
+             UT1-SEM              +                                             
+             UT1-KVROS-BULK       +                                             
+             UT1-SEM              +                                             
+             UT1-KVROS-DAG        +                                             
+             UT1-SEM +                                                          
+             UT1-PRAVCOST         +                                             
+             UT1-SEM                                                            
+                                                                                
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE = 'J'                                                           
+   DISPLAY '¤DAPWXTR9B-001'                                                     
+   DISPLAY '¤DAPWXTR9B'                                                         
+   DISPLAY 'PARTNUMBER;REPL CODE;REPLACING PART;DC;' +                          
+           'DESCRIPTION;FUNCTION GROUP;SUPPLIER;SOP DATE;LEADTIME;' +           
+           'STOCKOH;GIT AT INBOUND;GIT;BO STOCK;BO DAILY;AVG COST;'             
+    FIRST-LINE  = 'N'                                                           
+  END-IF                                                                        
+END-PROC                                                                        

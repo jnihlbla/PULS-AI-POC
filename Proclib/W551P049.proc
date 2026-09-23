@@ -1,0 +1,65 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR ARTIKELREGISTERFILEN MED S- OCH LDC-LAGERSALDON               
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W551B1                                      
+//*                                                                             
+//*  ÅTERSTART:    W55149    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W551P049 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W551..W551B1,                                             
+//             INDLDC=&W011..LDC,                                               
+//             INDSDC=&W011..SDC,                                               
+//             INDNDC=&W011..NDC,                                               
+//             INDUT=&W551..W551B1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* EXTRACT ONLY JP AND AU RECORDS FROM NDC FILE                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDNDC..W01184(+0),DISP=SHR                                 
+//SORTOUT  DD  DSN=&&NDCPAC,DISP=(NEW,PASS,DELETE),                             
+//** JP AND AU RECORDS FROM NDC FILE                                            
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W551PD50),DISP=SHR                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORTSLB  EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W551PD49),DISP=SHR                         
+//SORTIN   DD  DSN=&INDLDC..W01184(+0),DISP=SHR                                 
+//**           LDC DC'S                                                         
+//         DD  DSN=&INDSDC..W01184(+0),DISP=SHR                                 
+//**           SDC DC'S                                                         
+//         DD  DSN=&&NDCPAC,DISP=(OLD,DELETE,DELETE)                            
+//**           JP AND AU RECORDS FROM NDC FILE                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W55149,DISP=(NEW,PASS,DELETE),                             
+//************ S-LAGERBANDEN SORTERADE PÅ IDARTNR                               
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55149   EXEC PGM=V16459,PARM='W55149/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(2000,2000))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W55149D1 DD  DSN=&INDIN..W55142(+0),DISP=SHR                                  
+//************ ARTIKELREGISTEREXTRAKT (WDK6)                                    
+//*                                                                             
+//W55149D2 DD  DSN=&&W55149,DISP=(OLD,DELETE,DELETE)                            
+//************ DAG-LAGERBAND ALLA SDC SORTERADE PÅ IDARTNR                      
+//*                                                                             
+//W55149D3 DD  DSN=&INDUT..W55149(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ KOMPLETTERAT ARTIKELEXTRAKT                                      
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

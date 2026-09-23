@@ -1,0 +1,61 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W970 LISTAN                                           *        
+*                                                                      *        
+*  PROGRAM    :  W9700600                                              *        
+*                                                                      *        
+*  FUNKTION   :  GÖR SELEKTERINGAR AV W970.W970B1.W97005 - FILEN       *        
+*             :  OCH SKAPAR FILEN W970.W970B3.W97006                   *        
+*             :  DE POSTER SOM HAR HIX(1) = 'W' ELLER                  *        
+*             :  UKOD(3) = 'WVI' ELLER HIX FINNS I ACF2-FILEN          *        
+*             :  ELLER UKOD(4) = 'PVRS'                                *        
+*             :  ELLER UKOD = 'M54000'                                 *        
+*                                                                      *        
+*  INFILER    :  W970.W970B1.W97002(+0)  ACF2-FIL                      *        
+*             :  W970.W970B1.W97005(+0)  HIX-FIL                       *        
+*                                                                      *        
+*  UTFIL      :  W970.W970B3.W97006(+1)                                *        
+*                                                                      *        
+*  SKAPAD                                                              *        
+*  DATUM      :  930119                                                *        
+*  DATUM      :  931014 JA LAGT TILL UKOD = M54000                     *        
+*                                                                      *        
+*  FÖRFATTARE :  JAN AHLQVIST                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+ FILE INFILH                                                                    
+*                                                                               
+  INPOST   1   38   A                                                           
+  PREFIX   1    1   A                                                           
+  PREFIX7  1    7   A                                                           
+  UKOD3    9    3   A                                                           
+  UKOD4    9    4   A                                                           
+  UKOD6    9    6   A                                                           
+*                                                                               
+ FILE INFILA                                                                    
+*                                                                               
+ ACF2IN    1   7 A                                                              
+*                                                                               
+ FILE UTFIL                                                                     
+*                                                                               
+  UTPOST   1   38   A                                                           
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+ SORT INFILA TO INFILA USING ACF2IN                                             
+ SORT INFILH TO INFILH USING PREFIX7                                            
+*                                                                               
+ JOB INPUT(INFILA KEY(ACF2IN) INFILH KEY(PREFIX7))                              
+   IF MATCHED                                                                   
+         UTPOST = INPOST                                                        
+         PUT UTFIL                                                              
+   ELSE                                                                         
+      IF INFILH                                                                 
+         IF (UKOD3 = 'WME') OR (UKOD3 = 'WSE') OR (UKOD3 = 'WVI') +             
+           OR (UKOD4 = 'PVRS') OR (UKOD6 = 'M54000') OR PREFIX = 'W'            
+               UTPOST = INPOST                                                  
+               PUT UTFIL                                                        
+         END-IF                                                                 
+      END-IF                                                                    
+   END-IF                                                                       

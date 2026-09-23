@@ -1,0 +1,678 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W513                                                  *        
+*                                                                      *        
+*  FUNKTION   :  LISTAR URVALSREGISTRET PER LAGEROMRÅDE OCH            *        
+*                SUMMA STANDARD ((KVEFRS + KVAKS + KVLS) * PRARTSTD)   *        
+*                SAMT SUMMERAT TOTALLAGER FÖR SDCERNA                  *        
+*                                                                      *        
+*  FÖRFATTARE :  THOMAS LARSSON                                        *        
+*                                                                      *        
+*  INFILER    :  W513.DCXX.W51372(+0)                                  *        
+*                W011.PROD.W01160(+0) CDC LAGERBAND (PRARTSTD)         *        
+*                W011.*.W01184(+0) ALLA LAGERBAND UTOM CDC             *        
+*                                                                      *        
+*  UTDATA     :  LISTA W51393-021 FÖR SDC 21                           *        
+*                LISTA W51393-024 FÖR SDC 24                           *        
+*                LISTA W51393-025 FÖR SDC 25                           *        
+*                LISTA W51393-026 FÖR SDC 26                           *        
+*                LISTA W51393-061 FÖR SDC 61                           *        
+*                LISTA W51393-062 FÖR SDC 62                           *        
+*                FIL W51393       FÖR EXCEL-MAIL                       *        
+*                FIL W51394       FÖR LDC WEB                          *        
+*                FIL W513OB       FÖR ONDEMAND                         *        
+*                FIL W51395       FÖR NDC NA(D&P)                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+FILE W51393D1                                                                   
+************* ALLA SDC LAGERBAND                                                
+%W01184    'I1-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE W51393D2                                                                   
+************* URVALSFIL ALLA DC                                                 
+%W51371    'I2-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE TPFIL1   FB (21 0)                                                         
+************* URVALSFIL ALLA DC UTOM DC=11,SORTERADE PER ARTNR OCH DC           
+%W51371    'T1-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE TPFIL2   FB (20 0)                                                         
+TP-IDARTNR    1  5  P 0                                                         
+TP-IDDC       6  2  A                                                           
+TP-ADLAGOMR   8  2  P 0                                                         
+TP-QTY       10  1  P 0                                                         
+TP-LS        11  4  P 0                                                         
+TP-LS-TOT    15  4  P 0                                                         
+TP-KDPRODSL  19  2  N                                                           
+                                                                                
+FILE TPFIL3   FB (30 0)                                                         
+%W513951   'TP3-'                                                               
+                                                                                
+FILE TPFIL4   FB (22 0)                                                         
+T4-IDDC           1      2   A                                                  
+T4-SUSTD          3     10   P  2                                               
+T4-SUSTD-TOT     13     10   P  2                                               
+NEWPAGE                                                                         
+                                                                                
+FILE TPFIL5   FB (26 0)                                                         
+T5-IDDC           1      2  A                                                   
+T5-SUM-OMR        3      2  P                                                   
+T5-SUM-OMR-TOT    5      2  P                                                   
+T5-SUM-ANT        7      3  P 0                                                 
+T5-SUM-ANT-TOT    10     3  P 0                                                 
+T5-SUM-STD        13     7  P 2                                                 
+T5-SUM-STD-TOT    20     7  P 2                                                 
+NEWPAGE                                                                         
+                                                                                
+*--------------------------*                                                    
+* UTFIL TILL EXCEL         *                                                    
+*--------------------------*                                                    
+FILE W51393DF        VB(31 0)                                                   
+DF-POST               1 31 A                                                    
+                                                                                
+FX-FILE                 W 31 A                                                  
+FX-KDSORT    FX-FILE       1  A                                                 
+FILLERA      FX-FILE   +1  1  A  VALUE ';'                                      
+FX-IDDC      FX-FILE   +2  2  A                                                 
+FILLERB      FX-FILE   +4  1  A  VALUE ';'                                      
+FX-SUSTD     FX-FILE   +5  10 N                                                 
+FILLERC      FX-FILE   +15 1  A  VALUE ';'                                      
+FX-SUSTD-TOT FX-FILE   +16 10 N                                                 
+FILLERD      FX-FILE   +26 1  A  VALUE ';'                                      
+*--------------------------*                                                    
+*                                                                               
+FILE W51393D3                                                                   
+************* CDC-LAGERBAND FÖR ATT FÅ TAG I PRARTSTD                           
+*                                                                               
+%W01160    'LB-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE W51393D4  PRINTER FB(121 0)                                                
+* DC 21                                                                         
+FILE W51393D6  PRINTER FB(121 0)                                                
+* DC 24                                                                         
+FILE W51393D7  PRINTER FB(121 0)                                                
+* DC 25                                                                         
+FILE W51393D8  PRINTER FB(121 0)                                                
+* DC 26                                                                         
+FILE W51393D9  PRINTER FB(121 0)                                                
+* DC 61                                                                         
+FILE W51393DA  PRINTER FB(121 0)                                                
+* DC 62                                                                         
+                                                                                
+FILE W51393DW FB  (30 0)                                                        
+%W513951  'UT-'                                                                 
+* WEBFIL FÖR ALLA DC (FIL FÖR DAP). LDC-LISTORNA VASKAS                         
+* SEDAN FRAM UR DENNA FIL I FÖLJANDE PGM W5139400                               
+                                                                                
+FILE W51393DE  PRINTER FB(121 0)                                                
+* TILL ONDEMAND                                                                 
+FILE W51393DG  PRINTER FB(121 0)                                                
+* DC 91 ET                                                                      
+FILE W51393DH  PRINTER VB(125 0)                                                
+* DC 4X                                                                         
+*                                                                               
+SUM-OMR          W 2  P   MASK 'ZZ9'                                            
+SUM-OMR-TOT      W 2  P   MASK 'ZZ9'                                            
+SUM-ANT          W 3  P 0                                                       
+SUM-ANT-TOT      W 3  P 0                                                       
+SUM-STD          W 7  P 2                                                       
+SUM-STD-TOT      W 7  P 2                                                       
+TSUM-STD         W 7  P 2                                                       
+TSUM-STD-TOT     W 7  P 2                                                       
+                                                                                
+O-IDDC           W  2 A                                                         
+WS-IDAFPRCD      W 10 A                                                         
+WS-IDDC          W  2 A                                                         
+WS-ADLAGOMR      W  2 N                                                         
+WS-SUART-REM     W  5 N                                                         
+WS-SUART-TOT     W  5 N                                                         
+WS-FIRST-REC     W  1 A   VALUE 'J'                                             
+WS-IDDC-PREV     W  2 A                                                         
+WS-OMR-PREV      W  2 N   VALUE 0                                               
+WS-SUM-OMR       W  2  P                                                        
+WS-SUM-OMR-TOT   W  2  P                                                        
+WS-SUM-ANT       W  3  P 0                                                      
+WS-SUM-ANT-TOT   W  3  P 0                                                      
+WS-SUM-STD       W  7  P 2                                                      
+WS-SUM-STD-TOT   W  7  P 2                                                      
+                                                                                
+W-IDDC           W  2  N 0 MASK 'Z9'                                            
+W-SUM-OMR        W  2  N 0 MASK 'Z9'                                            
+W-SUM-OMR-TOT    W  2  N 0 MASK 'Z9'                                            
+W-SUM-ANT        W  5  N 0 MASK 'ZZZZ9'                                         
+W-SUM-ANT-TOT    W  5  N 0 MASK 'ZZZZ9'                                         
+W-SUM-STD        W 11  N 2 MASK '--------9.99'                                  
+W-SUM-STD-TOT    W 11  N 2 MASK '--------9.99'                                  
+W-SEM1           W  1  A   VALUE ';'                                            
+W-PREV-IDDC      W  2  A                                                        
+                                                                                
+W-PGMNAMN   W  6  A  VALUE 'W51393'                                             
+W-WDATUM    W  6  A  VALUE 'WDATUM'                                             
+                                                                                
+W-DATUM                W  6   N                                                 
+W-AAR     W-DATUM         2   N                                                 
+W-MM      W-DATUM    +2   2   N                                                 
+W-DD      W-DATUM    +4   2   N                                                 
+                                                                                
+WEB-DAAAVV             W  6   N                                                 
+WEB-SS WEB-DAAAVV         2   N                                                 
+WEB-AA WEB-DAAAVV     +2  2   N                                                 
+WEB-VV WEB-DAAAVV     +4  2   N                                                 
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    --- TO CHECK IF "WEB DC"                                                   
+*                                                                               
+%WL10WBDC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+                                                                                
+*-----------------------------------------------------------------*             
+* STEG 1 LÄSER IN URVALSREGISTER FÖR ALLA DC:N,                                 
+* SELEKTERAR ALLA ICKE DC=11 POSTER OCH SORTERAR PER ARTNR OCH DC               
+*-----------------------------------------------------------------*             
+                                                                                
+SORT W51393D2 TO TPFIL1 USING (I2-IDARTNR I2-IDDC) SIZE 350000 +                
+                          BEFORE SORT-INIT                                      
+ SORT-INIT. PROC                                                                
+  IF I2-IDDC NE CDC-SE                                                          
+    SELECT                                                                      
+  END-IF                                                                        
+ END-PROC                                                                       
+                                                                                
+*-----------------------------------------------------------*                   
+* STEG 2                                                                        
+* MATCHAR SUPPORTLAGERBAND MED URVALSFIL OCH SKAPAR TEMPFIL                     
+*-----------------------------------------------------------*                   
+JOB INPUT(W51393D1 KEY (I1-SLAG-IDARTNR I1-SLAG-IDDC) +                         
+          TPFIL1   KEY (T1-IDARTNR T1-IDDC))                                    
+                                                                                
+IF MATCHED                                                                      
+    TP-IDARTNR    = I1-SLAG-IDARTNR                                             
+    TP-IDDC       = I1-SLAG-IDDC                                                
+    TP-ADLAGOMR   = I1-SLAG-ADLAGOMR                                            
+    TP-QTY        = 1                                                           
+    TP-LS         = I1-SLAG-KVLS + I1-SLAG-KVAKS-SDC + +                        
+                    I1-SLAG-KVAKS-PAV + I1-SLAG-KVEFRS                          
+    TP-LS-TOT     = I1-SLAG-KVLS + I1-SLAG-KVAKS-SDC + +                        
+                    I1-SLAG-KVAKS-PAV + I1-SLAG-KVEFRS                          
+    TP-KDPRODSL   = T1-KDPRODSL                                                 
+    PUT TPFIL2                                                                  
+ELSE                                                                            
+  IF W51393D1                                                                   
+    TP-IDARTNR    = I1-SLAG-IDARTNR                                             
+    TP-IDDC       = I1-SLAG-IDDC                                                
+    TP-ADLAGOMR   = I1-SLAG-ADLAGOMR                                            
+    TP-QTY        = 0                                                           
+    TP-LS         = 0                                                           
+    TP-LS-TOT     = I1-SLAG-KVLS + I1-SLAG-KVAKS-SDC + +                        
+                    I1-SLAG-KVEFRS                                              
+    PUT TPFIL2                                                                  
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+NEWPAGE                                                                         
+*-------------------------------------------------------*                       
+* STEG 3                                                                        
+* SORTERAR TPFIL2 OCH MATCHAR DENNA MED ARTIKEL-                                
+* INFORMATION FÖR ATT HÄMTA STANDARDPRIS                                        
+*-------------------------------------------------------*                       
+                                                                                
+SORT TPFIL2 TO TPFIL2 USING (TP-IDARTNR) SIZE 650000                            
+                                                                                
+JOB INPUT(W51393D3  KEY (LB-CLAG-IDARTNR )  +                                   
+          TPFIL2    KEY (TP-IDARTNR )) START INIT3-PROC                         
+                                                                                
+IF MATCHED                                                                      
+    SUM-OMR     = TP-ADLAGOMR                                                   
+    SUM-OMR-TOT = TP-ADLAGOMR                                                   
+    SUM-STD-TOT = LB-CLAG-PRARTSTD * TP-LS-TOT                                  
+    SUM-ANT-TOT = 1                                                             
+    IF TP-QTY   = 1                                                             
+      SUM-ANT   = 1                                                             
+      SUM-STD   = LB-CLAG-PRARTSTD * TP-LS                                      
+      PERFORM PRINTA-LISTRAD                                                    
+    ELSE                                                                        
+      SUM-ANT   = 0                                                             
+      SUM-STD   = 0                                                             
+      IF SUM-STD-TOT NE 0                                                       
+        PERFORM PRINTA-LISTRAD                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+END-IF                                                                          
+                                                                                
+PRINTA-LISTRAD. PROC                                                            
+                                                                                
+    O-IDDC             = TP-IDDC                                                
+    IF TP-IDDC = SDC-NL-ET                                                      
+            PRINT RAPPORT91-ET                                                  
+    ELSE-IF TP-IDDC = SDC-NL                                                    
+            PRINT  RAPPORT21                                                    
+    ELSE-IF TP-IDDC = SDC-ES                                                    
+            PRINT RAPPORT24                                                     
+    ELSE-IF TP-IDDC = SDC-IT                                                    
+            PRINT RAPPORT25                                                     
+    ELSE-IF TP-IDDC = SDC-AT                                                    
+            PRINT RAPPORT26                                                     
+    ELSE-IF TP-IDDC = NDC-JP-61                                                 
+            PRINT RAPPORT61                                                     
+    ELSE-IF TP-IDDC = NDC-AU                                                    
+            PRINT RAPPORT62                                                     
+    END-IF                                                                      
+                                                                                
+    PERFORM S23-CHECK-TP-IDDC                                                   
+    IF TP-IDDC = NDC-US                                                         
+       PERFORM X-CHECK-IF-WEBDC                                                 
+       IF WBDC-FLWEBDC = 'N'                                                    
+          T5-IDDC        = TP-IDDC                                              
+          T5-SUM-OMR     = SUM-OMR                                              
+          T5-SUM-ANT     = SUM-ANT                                              
+          T5-SUM-STD     = SUM-STD                                              
+          T5-SUM-OMR-TOT = SUM-OMR-TOT                                          
+          T5-SUM-ANT-TOT = SUM-ANT-TOT                                          
+          T5-SUM-STD-TOT = SUM-STD-TOT                                          
+          PUT TPFIL5                                                            
+       END-IF                                                                   
+    END-IF                                                                      
+**** WEB-FILEN                                                                  
+    PERFORM  SKAPA-UTPOST-WEB-FIL                                               
+                                                                                
+**** ONDEMANDFILEN                                                              
+    PRINT RAPPORT06                                                             
+                                                                                
+**** PC EXCEL-FILEN                                                             
+    T4-SUSTD      = SUM-STD                                                     
+    T4-SUSTD-TOT  = SUM-STD-TOT                                                 
+    T4-IDDC       = O-IDDC                                                      
+    PUT TPFIL4                                                                  
+END-PROC                                                                        
+*    --- S23-CHECK-TP-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'TP-'                                                                   
+*                                                                               
+NEWPAGE                                                                         
+X-CHECK-IF-WEBDC. PROC                                                          
+   WBDC-IDDC = TP-IDDC                                                          
+   CALL WL10WBDC USING WBDC-AREA                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+                                                                                
+INIT3-PROC. PROC                                                                
+   CALL DATKORT USING (W-PGMNAMN W-WDATUM DATUMKORT)                            
+                                                                                
+   W-AAR  = D-AAR                                                               
+   W-MM   = D-MAANAD                                                            
+   W-DD   = D-DAG                                                               
+                                                                                
+   WEB-AA = D-AAR                                                               
+   WEB-VV = D-VECKA                                                             
+   WEB-SS = 20                                                                  
+END-PROC                                                                        
+                                                                                
+SKAPA-UTPOST-WEB-FIL. PROC                                                      
+  TP3-IDAFPRCD    = '1'                                                         
+  TP3-IDDC        = TP-IDDC                                                     
+  TP3-ADLAGOMR    = TP-ADLAGOMR                                                 
+  TP3-SUART-REM   = SUM-ANT                                                     
+  TP3-SUART-TOT   = SUM-ANT-TOT                                                 
+  TP3-DAAAVV      = WEB-DAAAVV                                                  
+  PUT TPFIL3                                                                    
+END-PROC                                                                        
+                                                                                
+*--------------------------------------------*                                  
+*  RAPPORT21 LISTA ÅT INVENTERINGEN HOLLAND                                     
+*--------------------------------------------*                                  
+                                                                                
+REPORT   RAPPORT21                                 +                            
+         PRINTER W51393D4                          +                            
+         LINESIZE 120  SUMMARY                                                  
+SEQUENCE SUM-OMR SUM-OMR-TOT                                                    
+CONTROL  SUM-OMR                                                                
+TITLE 1 'VCCS            W51393-021       '          +                          
+        'LIST OF SELECTIONREGISTER        DC 21  '                              
+TITLE 2 '  '                                                                    
+TITLE 3 '  '                                                                    
+TITLE 4 'REMAINS                            TOTAL STOCK VALUE '                 
+HEADING SUM-OMR            ('AREA')                                             
+HEADING SUM-ANT            ('     QTY')                                         
+HEADING SUM-STD            ('           SUM. STD')                              
+HEADING SUM-OMR-TOT        ('AREA')                                             
+HEADING SUM-ANT-TOT        ('     QTY')                                         
+HEADING SUM-STD-TOT        ('           SUM. STD')                              
+LINE SUM-OMR SUM-ANT SUM-STD SUM-OMR-TOT SUM-ANT-TOT SUM-STD-TOT                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------------------------*                                  
+*  RAPPORT91-ET LISTA ÅT INVENTERINGEN HOLLAND                                  
+*--------------------------------------------*                                  
+                                                                                
+REPORT   RAPPORT91-ET                              +                            
+         PRINTER W51393DG                          +                            
+         LINESIZE 120  SUMMARY                                                  
+SEQUENCE SUM-OMR SUM-OMR-TOT                                                    
+CONTROL  SUM-OMR                                                                
+TITLE 1 'VCCS            W51393-091       '          +                          
+        'LIST OF SELECTIONREGISTER        DC 91  '                              
+TITLE 2 '  '                                                                    
+TITLE 3 '  '                                                                    
+TITLE 4 'REMAINS                            TOTAL STOCK VALUE '                 
+HEADING SUM-OMR            ('AREA')                                             
+HEADING SUM-ANT            ('     QTY')                                         
+HEADING SUM-STD            ('           SUM. STD')                              
+HEADING SUM-OMR-TOT        ('AREA')                                             
+HEADING SUM-ANT-TOT        ('     QTY')                                         
+HEADING SUM-STD-TOT        ('           SUM. STD')                              
+LINE SUM-OMR SUM-ANT SUM-STD SUM-OMR-TOT SUM-ANT-TOT SUM-STD-TOT                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------------------------*                                  
+*  RAPPORT24 LISTA ÅT INVENTERINGEN SPANIEN                                     
+*--------------------------------------------*                                  
+                                                                                
+REPORT   RAPPORT24                                 +                            
+         PRINTER W51393D6                          +                            
+         LINESIZE 120  SUMMARY                                                  
+SEQUENCE SUM-OMR SUM-OMR-TOT                                                    
+CONTROL  SUM-OMR                                                                
+TITLE 1 'VCCS            W51393-024       '          +                          
+        'LIST OF SELECTIONREGISTER        DC 24  '                              
+TITLE 2 '  '                                                                    
+TITLE 3 '  '                                                                    
+TITLE 4 'REMAINS                            TOTAL STOCK VALUE '                 
+HEADING SUM-OMR            ('AREA')                                             
+HEADING SUM-ANT            ('     QTY')                                         
+HEADING SUM-STD            ('           SUM. STD')                              
+HEADING SUM-OMR-TOT        ('AREA')                                             
+HEADING SUM-ANT-TOT        ('     QTY')                                         
+HEADING SUM-STD-TOT        ('           SUM. STD')                              
+LINE SUM-OMR SUM-ANT SUM-STD SUM-OMR-TOT SUM-ANT-TOT SUM-STD-TOT                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------------------------*                                  
+*  RAPPORT25 LISTA ÅT INVENTERINGEN ITALIEN                                     
+*--------------------------------------------*                                  
+                                                                                
+REPORT   RAPPORT25                                 +                            
+         PRINTER W51393D7                          +                            
+         LINESIZE 120  SUMMARY                                                  
+SEQUENCE SUM-OMR SUM-OMR-TOT                                                    
+CONTROL  SUM-OMR                                                                
+TITLE 1 'VCCS            W51393-025       '          +                          
+        'LIST OF SELECTIONREGISTER        DC 25  '                              
+TITLE 2 '  '                                                                    
+TITLE 3 '  '                                                                    
+TITLE 4 'REMAINS                            TOTAL STOCK VALUE '                 
+HEADING SUM-OMR            ('AREA')                                             
+HEADING SUM-ANT            ('     QTY')                                         
+HEADING SUM-STD            ('           SUM. STD')                              
+HEADING SUM-OMR-TOT        ('AREA')                                             
+HEADING SUM-ANT-TOT        ('     QTY')                                         
+HEADING SUM-STD-TOT        ('           SUM. STD')                              
+LINE SUM-OMR SUM-ANT SUM-STD SUM-OMR-TOT SUM-ANT-TOT SUM-STD-TOT                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------------------------*                                  
+*  RAPPORT26 LISTA ÅT INVENTERINGEN ÖSTERRIKE                                   
+*--------------------------------------------*                                  
+                                                                                
+REPORT   RAPPORT26                                 +                            
+         PRINTER W51393D8                          +                            
+         LINESIZE 120  SUMMARY                                                  
+SEQUENCE SUM-OMR SUM-OMR-TOT                                                    
+CONTROL  SUM-OMR                                                                
+TITLE 1 'VCCS            W51393-026       '          +                          
+        'LIST OF SELECTIONREGISTER        DC 26  '                              
+TITLE 2 '  '                                                                    
+TITLE 3 '  '                                                                    
+TITLE 4 'REMAINS                            TOTAL STOCK VALUE '                 
+HEADING SUM-OMR            ('AREA')                                             
+HEADING SUM-ANT            ('     QTY')                                         
+HEADING SUM-STD            ('           SUM. STD')                              
+HEADING SUM-OMR-TOT        ('AREA')                                             
+HEADING SUM-ANT-TOT        ('     QTY')                                         
+HEADING SUM-STD-TOT        ('           SUM. STD')                              
+LINE SUM-OMR SUM-ANT SUM-STD SUM-OMR-TOT SUM-ANT-TOT SUM-STD-TOT                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------------------------*                                  
+*  RAPPORT61 LISTA ÅT INVENTERINGEN JAPAN                                       
+*--------------------------------------------*                                  
+                                                                                
+REPORT   RAPPORT61                                 +                            
+         PRINTER W51393D9                          +                            
+         LINESIZE 120  SUMMARY                                                  
+SEQUENCE SUM-OMR SUM-OMR-TOT                                                    
+CONTROL  SUM-OMR                                                                
+TITLE 1 'VCCS            W51393-061       '          +                          
+        'LIST OF SELECTIONREGISTER        DC 61  '                              
+TITLE 2 '  '                                                                    
+TITLE 3 '  '                                                                    
+TITLE 4 'REMAINS                            TOTAL STOCK VALUE '                 
+HEADING SUM-OMR            ('AREA')                                             
+HEADING SUM-ANT            ('     QTY')                                         
+HEADING SUM-STD            ('           SUM. STD')                              
+HEADING SUM-OMR-TOT        ('AREA')                                             
+HEADING SUM-ANT-TOT        ('     QTY')                                         
+HEADING SUM-STD-TOT        ('           SUM. STD')                              
+LINE SUM-OMR SUM-ANT SUM-STD SUM-OMR-TOT SUM-ANT-TOT SUM-STD-TOT                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------------------------*                                  
+*  RAPPORT62 LISTA ÅT INVENTERINGEN AUSTRALIEN                                  
+*--------------------------------------------*                                  
+                                                                                
+REPORT   RAPPORT62                                 +                            
+         PRINTER W51393DA                          +                            
+         LINESIZE 120  SUMMARY                                                  
+SEQUENCE SUM-OMR SUM-OMR-TOT                                                    
+CONTROL  SUM-OMR                                                                
+TITLE 1 'VCCS            W51393-062       '          +                          
+        'LIST OF SELECTIONREGISTER        DC 62  '                              
+TITLE 2 '  '                                                                    
+TITLE 3 '  '                                                                    
+TITLE 4 'REMAINS                            TOTAL STOCK VALUE '                 
+HEADING SUM-OMR            ('AREA')                                             
+HEADING SUM-ANT            ('     QTY')                                         
+HEADING SUM-STD            ('           SUM. STD')                              
+HEADING SUM-OMR-TOT        ('AREA')                                             
+HEADING SUM-ANT-TOT        ('     QTY')                                         
+HEADING SUM-STD-TOT        ('           SUM. STD')                              
+LINE SUM-OMR SUM-ANT SUM-STD SUM-OMR-TOT SUM-ANT-TOT SUM-STD-TOT                
+                                                                                
+NEWPAGE                                                                         
+*--------------------------------------------------                             
+*  RAPPORT06 FIL TILL ONDEMAND PER SDC                                          
+*--------------------------------------------------                             
+                                                                                
+REPORT   RAPPORT06                                 +                            
+         PRINTER W51393DE                          +                            
+         LINESIZE 120  SUMMARY NOADJUST NOPAGE NODATE                           
+SEQUENCE O-IDDC SUM-OMR SUM-OMR-TOT                                             
+CONTROL  FINAL NOPRINT O-IDDC  NEWPAGE SUM-OMR                                  
+TITLE 1 COL   1 'W51393-0'                              +                       
+        COL   9 TP-IDDC                                 +                       
+        COL  20 'VCCS'                                  +                       
+        COL  40 'LIST OF SELECTIONREGISTER SDC       '  +                       
+        COL  90 'DC: '                                  +                       
+        COL  94 O-IDDC                                  +                       
+        COL 100 'DATE: '                                +                       
+        COL 106 W-DATUM                                                         
+TITLE 2 '  '                                                                    
+TITLE 4 'REMAINS                            TOTAL STOCK VALUE '                 
+HEADING SUM-OMR            ('AREA')                                             
+HEADING SUM-ANT            ('     QTY')                                         
+HEADING SUM-STD            ('           SUM. STD')                              
+HEADING SUM-OMR-TOT        ('AREA')                                             
+HEADING SUM-ANT-TOT        ('     QTY')                                         
+HEADING SUM-STD-TOT        ('           SUM. STD')                              
+LINE SUM-OMR SUM-ANT SUM-STD SUM-OMR-TOT SUM-ANT-TOT SUM-STD-TOT                
+                                                                                
+*--------------------------------------------------                             
+*  STEG 4    SKAPA FIL FÖR PC BEHANDLING                                        
+*--------------------------------------------------                             
+                                                                                
+SORT TPFIL4 TO TPFIL4 USING (T4-IDDC) SIZE 500000                               
+                                                                                
+JOB INPUT NULL FINISH T4-AVSLUTA                                                
+  GET TPFIL4                                                                    
+  IF NOT EOF TPFIL4                                                             
+    FX-IDDC         = T4-IDDC                                                   
+    TSUM-STD        = 0                                                         
+    TSUM-STD-TOT    = 0                                                         
+    DO WHILE NOT EOF TPFIL4                                                     
+      IF FX-IDDC NQ T4-IDDC                                                     
+        IF FX-IDDC = SDC-NL SDC-ES SDC-IT +                                     
+                     SDC-AT NDC-JP-61 NDC-AU SDC-NL-ET                          
+          FX-KDSORT   = '1'                                                     
+        ELSE                                                                    
+          FX-KDSORT   = '2'                                                     
+        END-IF                                                                  
+        FX-SUSTD      = TSUM-STD                                                
+        FX-SUSTD-TOT  = TSUM-STD-TOT                                            
+        DF-POST       = FX-FILE                                                 
+        PUT W51393DF                                                            
+                                                                                
+        FX-IDDC       = T4-IDDC                                                 
+        TSUM-STD      = T4-SUSTD                                                
+        TSUM-STD-TOT  = T4-SUSTD-TOT                                            
+      ELSE                                                                      
+        TSUM-STD      = TSUM-STD     + T4-SUSTD                                 
+        TSUM-STD-TOT  = TSUM-STD-TOT + T4-SUSTD-TOT                             
+      END-IF                                                                    
+      GET TPFIL4                                                                
+    END-DO                                                                      
+  END-IF                                                                        
+STOP                                                                            
+                                                                                
+T4-AVSLUTA. PROC                                                                
+  FX-SUSTD          = TSUM-STD                                                  
+  FX-SUSTD-TOT      = TSUM-STD-TOT                                              
+  DF-POST           = FX-FILE                                                   
+  PUT W51393DF                                                                  
+END-PROC                                                                        
+                                                                                
+****************************************************                            
+* STEG 5                                                                        
+* SORTERAR TEMPFIL3 OCH SKAPAR SUMMERAD (PER DC)                                
+* RAD PÅ UTFIL TILL DAP (WEBBEN)                                                
+*****************************************************                           
+                                                                                
+SORT TPFIL3 TO TPFIL3 USING (TP3-IDDC TP3-ADLAGOMR)                             
+                                                                                
+JOB  INPUT (TPFIL3) START A5-INIT FINISH Z5-FINIT                               
+                                                                                
+IF UT-IDDC     = TP3-IDDC AND +                                                 
+   UT-ADLAGOMR = TP3-ADLAGOMR                                                   
+   UT-SUART-REM     = UT-SUART-REM + TP3-SUART-REM                              
+   UT-SUART-TOT     = UT-SUART-TOT + TP3-SUART-TOT                              
+ELSE                                                                            
+   IF UT-IDDC NE '  '                                                           
+     PUT W51393DW                                                               
+   END-IF                                                                       
+                                                                                
+   UT-IDAFPRCD      = TP3-IDAFPRCD                                              
+   UT-IDDC          = TP3-IDDC                                                  
+   UT-ADLAGOMR      = TP3-ADLAGOMR                                              
+   UT-SUART-REM     = TP3-SUART-REM                                             
+   UT-SUART-TOT     = TP3-SUART-TOT                                             
+   UT-DAAAVV        = TP3-DAAAVV                                                
+END-IF                                                                          
+                                                                                
+A5-INIT. PROC                                                                   
+   UT-IDDC          = '  '                                                      
+   UT-IDAFPRCD      = ' '                                                       
+   UT-ADLAGOMR      = 0                                                         
+   UT-SUART-REM     = 0                                                         
+   UT-SUART-TOT     = 0                                                         
+END-PROC                                                                        
+                                                                                
+Z5-FINIT. PROC                                                                  
+   PUT W51393DW                                                                 
+END-PROC                                                                        
+NEWPAGE                                                                         
+**** D&P REPORT FOR DC 4X                                                       
+SORT TPFIL5 TO TPFIL5 USING (T5-IDDC, T5-SUM-OMR)                               
+JOB INPUT TPFIL5 FINISH Z-FINIT                                                 
+                                                                                
+  IF T5-IDDC    = WS-IDDC-PREV AND +                                            
+     T5-SUM-OMR = WS-OMR-PREV                                                   
+    WS-SUM-ANT     = T5-SUM-ANT + WS-SUM-ANT                                    
+    WS-SUM-STD     = T5-SUM-STD + WS-SUM-STD                                    
+    WS-SUM-ANT-TOT = T5-SUM-ANT-TOT + WS-SUM-ANT-TOT                            
+    WS-SUM-STD-TOT = T5-SUM-STD-TOT + WS-SUM-STD-TOT                            
+  ELSE                                                                          
+    IF WS-FIRST-REC = 'N'                                                       
+       W-SUM-OMR     = WS-SUM-OMR                                               
+       W-SUM-ANT     = WS-SUM-ANT                                               
+       W-SUM-STD     = WS-SUM-STD                                               
+       W-SUM-OMR-TOT = WS-SUM-OMR-TOT                                           
+       W-SUM-ANT-TOT = WS-SUM-ANT-TOT                                           
+       W-SUM-STD-TOT = WS-SUM-STD-TOT                                           
+       PRINT RAPPORT4X                                                          
+    END-IF                                                                      
+    WS-IDDC-PREV   = T5-IDDC                                                    
+    WS-OMR-PREV    = T5-SUM-OMR                                                 
+    WS-SUM-OMR     = T5-SUM-OMR                                                 
+    WS-SUM-ANT     = T5-SUM-ANT                                                 
+    WS-SUM-STD     = T5-SUM-STD                                                 
+    WS-SUM-OMR-TOT = T5-SUM-OMR-TOT                                             
+    WS-SUM-ANT-TOT = T5-SUM-ANT-TOT                                             
+    WS-SUM-STD-TOT = T5-SUM-STD-TOT                                             
+    WS-FIRST-REC   = 'N'                                                        
+  END-IF                                                                        
+                                                                                
+  Z-FINIT. PROC                                                                 
+    IF WS-FIRST-REC = 'N'                                                       
+       W-SUM-OMR     = WS-SUM-OMR                                               
+       W-SUM-ANT     = WS-SUM-ANT                                               
+       W-SUM-STD     = WS-SUM-STD                                               
+       W-SUM-OMR-TOT = WS-SUM-OMR-TOT                                           
+       W-SUM-ANT-TOT = WS-SUM-ANT-TOT                                           
+       W-SUM-STD-TOT = WS-SUM-STD-TOT                                           
+       PRINT RAPPORT4X                                                          
+    END-IF                                                                      
+  END-PROC                                                                      
+************************************************************************        
+*** LIST FOR NDC-US DC 4X - SENT TO D&P                                         
+************************************************************************        
+REPORT   RAPPORT4X            +                                                 
+         PRINTER W51393DH     +                                                 
+         LINESIZE 120         +                                                 
+         SPACE 0              +                                                 
+         NOHEADING            +                                                 
+         NOSPREAD             +                                                 
+         NOADJUST             +                                                 
+         PAGESIZE 32767       +                                                 
+         NODATE                                                                 
+LINE  1  W-SUM-OMR            +                                                 
+         W-SEM1               +                                                 
+         W-SUM-ANT            +                                                 
+         W-SEM1               +                                                 
+         W-SUM-STD            +                                                 
+         W-SEM1               +                                                 
+         W-SUM-OMR-TOT        +                                                 
+         W-SEM1               +                                                 
+         W-SUM-ANT-TOT        +                                                 
+         W-SEM1               +                                                 
+         W-SUM-STD-TOT        +                                                 
+         W-SEM1                                                                 
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF WS-IDDC-PREV NE W-PREV-IDDC                                                 
+   DISPLAY '¤DAPSELECTION-REG'                                                  
+   DISPLAY '¤DAP' WS-IDDC-PREV                                                  
+   DISPLAY 'REMAINS AREA;REMAINS QTY;REMAINS SUM.STD;' +                        
+           'TOTAL STOCK VAL AREA; TOTAL STOCK VAL QTY;TOTAL STOCK' +            
+           'VAL SUM.STD;'                                                       
+   W-PREV-IDDC = WS-IDDC-PREV                                                   
+ END-IF                                                                         
+END-PROC                                                                        

@@ -1,0 +1,18 @@
+//W475TROK JOB (540W4750100W475TROK,W100),'RTN W475V1',                         
+//   CLASS=K                                                                    
+//PROC  JCLLIB ORDER=(W.QASE.PROCLIB)                                           
+//ENV  INCLUDE MEMBER=ENVQASE                                                   
+/*JOBPARM LINES=99,FORMS=1800,LINECT=0                                          
+/*ROUTE XEQ LOCAL                                                               
+/*ROUTE PRINT LOCAL                                                             
+//********************************************************************          
+//*                                                                  *          
+//*    ==> SUCCESSFULL <== FILEMON-TRANSFER.                         *          
+//*    (I.E SNOTIFOK RECEIVED FROM FILEMON TRANSFER)                 *          
+//*                                                                  *          
+//*    ÖVERFÖRING AV FIL W475TR TILL DEST(A743V2IN) HAR GÅTT BRA     *          
+//*                                                                  *          
+//********************************************************************          
+//*                                                                             
+//SOP     EXEC WSOPEND,PROCESS=W475TRFI                                         
+/*                                                                              

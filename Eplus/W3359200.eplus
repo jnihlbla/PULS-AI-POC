@@ -1,0 +1,46 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W3359200                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER VALUTAKURSFILEN W93001 FRÅN SAP-R3 OCH       *           
+*                SKAPAR W33592 VALUTAFIL                               *        
+*                                                                      *        
+*  FÖRFATTARE :  ELEONOR ÖSTRÖM                                        *        
+*                                                                      *        
+*  DATUM      :  MARS 03                                               *        
+*----------------------------------------------------------------------*        
+                                                                                
+*----------------------------------------------*                                
+*  W93001 VALUTAFIL FRÅN SAPR3                 *                                
+* ---------------------------------------------*                                
+FILE W33592D1                                                                   
+%W93001   'IN-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  W33592-FIL VALUTAKURSINFO UTFIL     *                                        
+* -------------------------------------*                                        
+FILE W33592D2 FB (15 0)                                                         
+%W33592   'UT-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*------------------------------------------------------------------*            
+* STEG 1. LÄSER VALUTAFIL W93001 OCH SKAPAR EN NY UTFIL W33592     *            
+*         (RÄKNAR OM PRKURS MED REVALUTA)                          *            
+* -----------------------------------------------------------------*            
+JOB INPUT W33592D1                                                              
+                                                                                
+   UT-KDVALISO        = IN-SAP-KDVALISO                                         
+   UT-REVALUTA        = IN-SAP-REVALUTA                                         
+   UT-TISTADAT        = IN-SAP-TISTADAT                                         
+   IF IN-SAP-REVALUTA NE 0                                                      
+     UT-PRKURS          = IN-SAP-PRKURS / IN-SAP-REVALUTA                       
+   ELSE                                                                         
+     UT-PRKURS          = IN-SAP-PRKURS                                         
+   END-IF                                                                       
+                                                                                
+   PUT W33592D2                                                                 
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+                                                                                

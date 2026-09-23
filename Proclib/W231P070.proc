@@ -1,0 +1,70 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR GRUNDFIL FÖR LISTA REFILL UPPFÖLJNING                               
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W231V2                                          
+//*                                                                             
+//*  ÅTERSTART:    W23170    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W231P070 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W271..W271V1,                                            
+//             INDIN2=&W011..LDC,                                               
+//             INDIN3=&W011..SDC,                                               
+//             INDUT=&W231..W231V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W231PD70),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W27120(+0),DISP=SHR                                 
+//************ SDC ARTIKLAR                                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27120,DISP=(NEW,PASS,DELETE),                             
+//************ SDC ARTIKLAR; SORT ON DC/PART                                    
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W231PD70),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W01184(+0),DISP=SHR                                 
+//         DD  DSN=&INDIN3..W01184(+0),DISP=SHR                                 
+//************ SDC ARTIKLAR                                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//************ SDC ARTIKLAR; SORT ON DC/PART                                    
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W231PD70),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W01186(+0),DISP=SHR                                 
+//         DD  DSN=&INDIN3..W01186(+0),DISP=SHR                                 
+//************ SDC ARTIKLAR                                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&&W01186,DISP=(NEW,PASS,DELETE),                             
+//************ SDC ARTIKLAR; SORT ON DC/PART                                    
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23170   EXEC PGM=V16459,PARM='W23170/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(CYL,(100,100))                                            
+//SORTMSG  DD  SYSOUT=*                                                         
+//W23170D1 DD  DSN=&&W27120,DISP=(OLD,DELETE,DELETE)                            
+//************ SDC ARTIKLAR                                                     
+//*                                                                             
+//W23170D3 DD  DSN=&&W01184,DISP=(OLD,DELETE,DELETE)                            
+//************ SORT DC/ART                                                      
+//*                                                                             
+//W23170D4 DD  DSN=&&W01186,DISP=(OLD,DELETE,DELETE)                            
+//************ SORT DC/ART                                                      
+//*                                                                             
+//W23170D5 DD  DSN=&INDUT..W23170(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ GRUNDFIL REFILL UPPFÖLJNING                                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  

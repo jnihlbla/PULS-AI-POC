@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  COPY A MVS FILE TO UNIX HFS                                                
+//*                                                                             
+//*  MODE = TEXT OR BINARY                                                      
+//*  CONV = NO (NO CONVERSION) OR BPXFX311 (CONVERT TO ASCII/ISO8859-1)         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W001HFSC PROC MODE=TEXT,CONV=NO,                                              
+//             DSIN=NULLFILE,                                                   
+//             DSIN2=NULLFILE,                                                  
+//             DSIN3=NULLFILE,                                                  
+//             PATHOUT=/DEV/NULL                                                
+//*                                                                             
+//TSO     EXEC PGM=IKJEFT01,DYNAMNBR=20,                                        
+// PARM='OCOPY INDD(INDD) OUTDD(OUTDD) &MODE CONVERT(&CONV) FROM1047'           
+//SYSHELP  DD  DUMMY                                                            
+//SYSEXEC  DD  DSN=&W..ISPF.EXEC,DISP=SHR                                       
+//         DD  DSN=&INDGRND..EXEC,DISP=SHR                                      
+//SYSPROC  DD  DSN=&W..ISPF.CLIST,DISP=SHR                                      
+//         DD  DSN=&INDGRND..CLIST,DISP=SHR                                     
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//CEEDUMP  DD  SYSOUT=*                         -- LE ABENDS                    
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SYSTSIN  DD  DUMMY                        -- NO TSO COMMANDS THIS WAY         
+//SYSTSPRT DD  SYSOUT=*                     -- TSO MESSAGES                     
+//SYSPRINT DD  SYSOUT=*,RECFM=FB,LRECL=132  -- REROUTED STDOUT OUTPUT           
+//SYSERROR DD  SYSOUT=*,RECFM=FB,LRECL=132  -- REROUTED STDERR MESSAGES         
+//*                                                                             
+//INDD     DD  DSN=&DSIN,DISP=SHR                                               
+//         DD  DSN=&DSIN2,DISP=SHR                                              
+//         DD  DSN=&DSIN3,DISP=SHR                                              
+//OUTDD    DD  PATH='&PATHOUT',PATHDISP=(KEEP,DELETE),                          
+//             PATHOPTS=(OCREAT,ORDWR),                                         
+//             PATHMODE=(SIRWXU,SIRWXG,SIRWXO)   - 777                          
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND   EXEC PGM=ABEND,COND=(4,GE,TSO),PARM='1234567890123456'                
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            

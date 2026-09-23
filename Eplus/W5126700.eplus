@@ -1,0 +1,187 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5126700                                              *        
+*                                                                      *        
+*  FUNCTION   :  INTERNAL GIT REPORT FOR ONLY SEVP                     *        
+*                                                                      *        
+*  AUTHOR     :  SATHEESH RAGUR                                        *        
+*                                                                      *        
+*  INPUT FILES:  INTERNAL GIT  FILE W51266                             *        
+*                                                                      *        
+*  UTDATA     :  EXCELFIL W51267                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W51267D1                                                                   
+%W51266  'IN-'                                                                  
+                                                                                
+*---------------------------------------------*                                 
+* TEMPFIL MED DIVERSE LISTTRANSAR, EJ SUMMERADE                                 
+*---------------------------------------------*                                 
+FILE TPFIL1 FB(38 0)                                                            
+T1-AREA            1 38 A                                                       
+T1-DC-GRP          1 5  A                                                       
+T1-IDDC            6 2  A                                                       
+T1-DC-TEXT         9 3  A                                                       
+T1-KDPRODSL       13 2  P                                                       
+T1-SUNETT         16 10 P 2                                                     
+T1-SUM            27 7  P 2                                                     
+                                                                                
+****** EXCELENS UTFIL                                                           
+FILE W51267D2 PRINTER VB(70 0)                                                  
+                                                                                
+****** EXCEL FILE STRUCTURE                                                     
+UT-DC-GRP     W  5  A                                                           
+UT-KDPRODSL   W  2  A                                                           
+UT-SUMMA      W  13 N 2 MASK ('ZZZZZZZZZ99.99-')                                
+UT-SUMMA1     W  13 N 2 MASK ('ZZZZZZZZZ99.99-')                                
+UT-SEMICOLON  W  1  A  VALUE ';'                                                
+                                                                                
+*-----------------*                                                             
+* WORKING STORAGE *                                                             
+*-----------------*                                                             
+W-DC-GRP                       W   5  A                                         
+W-IDDC           W-DC-GRP          2  A                                         
+W-DC-TEXT        W-DC-GRP    +2    3  A                                         
+                                                                                
+*-----------------*                                                             
+* OTHER VARIABLES *                                                             
+*-----------------*                                                             
+W-KDPRODSL       W   2 N                                                        
+W-SUNETT         W   8 P 2  MASK ('ZZZZZZZZZZZ99.99-')                          
+W-SUM            W   8 P 2  MASK ('ZZZZZZZZZZZ99.99-')                          
+FIRST-LINE1      S   1   A  VALUE 'J'                                           
+FIRST-LINE2      S   1   A  VALUE 'J'                                           
+W-COUNT          W   1   N  VALUE 0                                             
+W-AAMMDD         W   6   N                                                      
+W-AA   W-AAMMDD      2   N                                                      
+W-MM   W-AAMMDD  +2  2   N                                                      
+W-DD   W-AAMMDD  +4  2   N                                                      
+                                                                                
+NEWPAGE                                                                         
+*---------------------------------------------------------------*               
+* STEG 1. MATCHA SORTERAD FIL MED ARTIKELINFO O SKRIV TPFIL2    *               
+*---------------------------------------------------------------*               
+                                                                                
+JOB INPUT  W51267D1                                                             
+                                                                                
+  T1-DC-GRP     = IN-IDDC                                                       
+  T1-KDPRODSL   = IN-KDPRODSL                                                   
+  T1-SUNETT     = IN-SUNTO-TOT                                                  
+  T1-SUM        = IN-SUSTDTOT                                                   
+                                                                                
+  IF T1-SUNETT NE 0 AND T1-SUM NE 0                                             
+    PUT TPFIL1                                                                  
+    T1-DC-GRP   = 'TOTAL'                                                       
+    PUT TPFIL1                                                                  
+  END-IF                                                                        
+                                                                                
+*--------------------------------------------------------*                      
+* STEG 3 SORTERA TPFIL2 TILL TPFIL2 PER DC OCH PRODSL                           
+*        OCH SUMMERA SAMT SKRIV EXCELFIL                                        
+*--------------------------------------------------------*                      
+                                                                                
+SORT TPFIL1 TO TPFIL1 USING (T1-DC-GRP T1-KDPRODSL) SIZE 200000                 
+                                                                                
+JOB INPUT NULL                                                                  
+                                                                                
+  GET TPFIL1                                                                    
+  IF NOT EOF TPFIL1                                                             
+    W-COUNT      = W-COUNT + 1                                                  
+    W-DC-GRP     = T1-DC-GRP                                                    
+    W-KDPRODSL   = T1-KDPRODSL                                                  
+    W-SUNETT     = 0                                                            
+    W-SUM        = 0                                                            
+    DO WHILE NOT EOF TPFIL1                                                     
+      IF T1-DC-GRP = W-DC-GRP AND T1-KDPRODSL = W-KDPRODSL                      
+        W-SUNETT  = W-SUNETT  + T1-SUNETT                                       
+        W-SUM = W-SUM + T1-SUM                                                  
+      ELSE                                                                      
+        PERFORM SKRIV-EXCELPOST                                                 
+        W-DC-GRP           = T1-DC-GRP                                          
+        W-KDPRODSL         = T1-KDPRODSL                                        
+        W-SUNETT           = T1-SUNETT                                          
+        W-SUM              = T1-SUM                                             
+      END-IF                                                                    
+      GET TPFIL1                                                                
+    END-DO                                                                      
+  END-IF                                                                        
+  IF W-COUNT >= 1                                                               
+     PERFORM SKRIV-EXCELPOST                                                    
+  END-IF                                                                        
+  STOP                                                                          
+                                                                                
+SKRIV-EXCELPOST. PROC                                                           
+  IF W-DC-GRP    = 'TOTAL'                                                      
+     UT-DC-GRP   = W-DC-GRP                                                     
+     UT-KDPRODSL = W-KDPRODSL                                                   
+     UT-SUMMA    = W-SUNETT                                                     
+     UT-SUMMA1   = W-SUM                                                        
+     PRINT REPORT01                                                             
+  ELSE                                                                          
+     UT-DC-GRP   = W-IDDC                                                       
+     UT-KDPRODSL = W-KDPRODSL                                                   
+     UT-SUMMA    = W-SUNETT                                                     
+     UT-SUMMA1   = W-SUM                                                        
+     PRINT REPORT02                                                             
+  END-IF                                                                        
+END-PROC                                                                        
+                                                                                
+ NEWPAGE                                                                        
+   REPORT   REPORT01             +                                              
+            PRINTER W51267D2     +                                              
+            PAGESIZE 32000       +                                              
+            LINESIZE 65          +                                              
+            SPACE 0              +                                              
+            NOHEADING            +                                              
+            NOSPREAD             +                                              
+            NOADJUST             +                                              
+            NOPAGE               +                                              
+            NODATE                                                              
+                                                                                
+   LINE     UT-DC-GRP            +                                              
+            UT-SEMICOLON         +                                              
+            UT-KDPRODSL          +                                              
+            UT-SEMICOLON         +                                              
+            UT-SUMMA             +                                              
+            UT-SEMICOLON         +                                              
+            UT-SUMMA1            +                                              
+            UT-SEMICOLON                                                        
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE1 = 'J'                                                          
+    DISPLAY '¤DAPW51267-001'                                                    
+    DISPLAY '¤DAPW51267'                                                        
+    DISPLAY 'COMPANY;PRODUCT GROUP;TOTAL NET AMOUNT;TOTAL STD AMOUNT;'          
+    FIRST-LINE1  = 'N'                                                          
+  END-IF                                                                        
+END-PROC                                                                        
+   REPORT   REPORT02             +                                              
+            PRINTER W51267D2     +                                              
+            PAGESIZE 32000       +                                              
+            LINESIZE 65          +                                              
+            SPACE 0              +                                              
+            NOHEADING            +                                              
+            NOSPREAD             +                                              
+            NOADJUST             +                                              
+            NOPAGE               +                                              
+            NODATE                                                              
+                                                                                
+   LINE     UT-DC-GRP            +                                              
+            UT-SEMICOLON         +                                              
+            UT-KDPRODSL          +                                              
+            UT-SEMICOLON         +                                              
+            UT-SUMMA             +                                              
+            UT-SEMICOLON         +                                              
+            UT-SUMMA1            +                                              
+            UT-SEMICOLON                                                        
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE2 = 'J'                                                          
+    DISPLAY '¤DAPW51267-002'                                                    
+    DISPLAY '¤DAPW51267'                                                        
+    DISPLAY 'DC;PRODUCT GROUP;TOTAL NET; TOTAL STD;'                            
+    FIRST-LINE2  = 'N'                                                          
+  END-IF                                                                        
+END-PROC                                                                        

@@ -1,0 +1,90 @@
+*SÄNDNINGS REGISTER RETURER                                                     
+*                                                                               
+         DBD   NAME=WDA3,RMNAME=(V12008,10,2160),                      *        
+               ACCESS=(HDAM,OSAM)                                               
+         DATASET DD1=WDA3V,DEVICE=3390,SIZE=4096,SCAN=0                         
+*                                                                               
+         SEGM  NAME=WDA301,PARENT=0,BYTES=180,PTR=T                             
+         FIELD NAME=(WDA301KY,SEQ,U),BYTES=15,START=1,TYPE=X                    
+         FIELD NAME=(IDDC),BYTES=2,START=1,TYPE=X                               
+         FIELD NAME=(FILLERA),BYTES=13,START=3,TYPE=X                           
+         FIELD NAME=(DAREGDAT),BYTES=8,START=3,TYPE=X                           
+         FIELD NAME=(TIKLOCK),BYTES=5,START=11,TYPE=P                           
+         FIELD NAME=(FILLERB),BYTES=14,START=35,TYPE=X                          
+         FIELD NAME=(IDDISTR),BYTES=03,START=35,TYPE=P                          
+         FIELD NAME=(IDKUNDNR),BYTES=04,START=38,TYPE=P                         
+         FIELD NAME=(IDRAPPNR),BYTES=07,START=42,TYPE=X                         
+         FIELD NAME=(IDKOLLI),BYTES=03,START=79,TYPE=P                          
+         FIELD NAME=(IDPERSON),BYTES=02,START=82,TYPE=P                         
+         FIELD NAME=(IDRETSND),BYTES=06,START=84,TYPE=X                         
+         FIELD NAME=(IDRT),BYTES=03,START=84,TYPE=X                             
+         FIELD NAME=(IDRTLOP),BYTES=03,START=87,TYPE=X                          
+         FIELD NAME=(KDARBTYP),BYTES=08,START=90,TYPE=X                         
+         FIELD NAME=(KDRETSTA),BYTES=01,START=99,TYPE=X                         
+         FIELD NAME=(KVKOLAAF),BYTES=03,START=100,TYPE=P                        
+         FIELD NAME=(KVRADER),BYTES=03,START=109,TYPE=P                         
+         FIELD NAME=(DASNDDAT),BYTES=08,START=144,TYPE=X                        
+         FIELD NAME=(DARETANK),BYTES=08,START=152,TYPE=X                        
+         FIELD NAME=(IDRTTR),BYTES=03,START=160,TYPE=X                          
+*                                                                               
+         LCHILD NAME=(WDA3A1,WDA3A),PTR=INDX                                    
+         XDFLD NAME=WDA3ASEQ,SEGMENT=WDA301,                           *        
+               SRCH=(IDRT,IDDC,IDDISTR,IDKUNDNR,IDRAPPNR),             *        
+               SUBSEQ=(DAREGDAT,TIKLOCK),                              *        
+               EXTRTN=WDA3AEXT                                                  
+* EXIT IDKOLLI=0                                                                
+*                                                                               
+         LCHILD NAME=(WDA3B1,WDA3B),PTR=INDX                                    
+         XDFLD NAME=WDA3BSEQ,SEGMENT=WDA301,                           *        
+               SRCH=(IDRT,IDDC,IDRTLOP,IDKOLLI),                       *        
+               SUBSEQ=(DAREGDAT,TIKLOCK)                                        
+*                                                                               
+         LCHILD NAME=(WDA3C1,WDA3C),PTR=INDX                                    
+         XDFLD NAME=WDA3CSEQ,SEGMENT=WDA301,                           *        
+               SRCH=(IDDC,KDRETSTA,DARETANK,IDRETSND),                 *        
+               SUBSEQ=(IDDISTR,IDKUNDNR,IDRAPPNR,DAREGDAT,TIKLOCK),    *        
+               EXTRTN=WDA3CEXT                                                  
+* EXIT IDRTLOP>0                                                                
+*                                                                               
+         LCHILD NAME=(WDA3D1,WDA3D),PTR=INDX                                    
+         XDFLD NAME=WDA3DSEQ,SEGMENT=WDA301,                           *        
+               SRCH=(IDDC,KDRETSTA,KDARBTYP,IDPERSON),                 *        
+               SUBSEQ=(DARETANK,IDRT,DASNDDAT,FILLERB,FILLERA),        *        
+               DDATA=(KVRADER,IDRTLOP,KVKOLAAF)                                 
+*                                                                               
+         LCHILD NAME=(WDA3E1,WDA3E),PTR=INDX                                    
+         XDFLD NAME=WDA3ESEQ,SEGMENT=WDA301,                           *        
+               SRCH=(IDDC,IDRT,IDDISTR,IDKUNDNR,IDRAPPNR),             *        
+               SUBSEQ=(DAREGDAT,TIKLOCK),                              *        
+               DDATA=(IDKOLLI),                                        *        
+               EXTRTN=WDA3EEXT                                                  
+* EXIT IDRTLOP=0                                                                
+*                                                                               
+         LCHILD NAME=(WDA3F1,WDA3F),PTR=INDX                                    
+         XDFLD NAME=WDA3FSEQ,SEGMENT=WDA301,                           *        
+               SRCH=(IDDC,IDDISTR,IDKUNDNR,IDRAPPNR),                  *        
+               SUBSEQ=(IDRT,IDRTLOP,IDKOLLI,DAREGDAT,TIKLOCK)                   
+*                                                                               
+         LCHILD NAME=(WDA3G1,WDA3G),PTR=INDX                                    
+         XDFLD NAME=WDA3GSEQ,SEGMENT=WDA301,                           *        
+               SRCH=(IDDC,KDRETSTA,KDARBTYP,IDPERSON),                 *        
+               SUBSEQ=(DARETANK,IDRT,IDRTLOP,IDKOLLI,FILLERA),         *        
+               DDATA=(IDRTTR)                                                   
+*                                                                               
+         LCHILD NAME=(WDA3H1,WDA3H),PTR=INDX                                    
+         XDFLD NAME=WDA3HSEQ,SEGMENT=WDA301,                           *        
+               SRCH=(IDRT,KDRETSTA),                                   *        
+               SUBSEQ=(DAREGDAT,TIKLOCK,IDDISTR,IDKUNDNR),             *        
+               DDATA=(IDDC)                                                     
+*                                                                               
+         LCHILD NAME=(WDA3I1,WDA3I),PTR=INDX                                    
+         XDFLD NAME=WDA3ISEQ,SEGMENT=WDA301,                           *        
+               SRCH=(IDRTTR,KDRETSTA),                                 *        
+               SUBSEQ=(DAREGDAT,TIKLOCK,IDDISTR,IDKUNDNR),             *        
+               DDATA=(IDDC),                                           *        
+               EXTRTN=WDA3IEXT                                                  
+* EXIT IDRTTR>SPACE                                                             
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTTRANSAR TILL USAS ÅRLIGA LIFO-LISTOR                            
+//*                                                                             
+//*  FREKVENS:     ÅRSRUTIN  RTN W560Y1 (KÖRNING NOV OCH DEC)                   
+//*                                                                             
+//*  ÅTERSTART:    W56064    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W560P064 PROC INDIN=&W560..W560Y1,                                            
+//             INDUT=&W560..W560Y1,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56064   EXEC PGM=V16459,PARM='W56064/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(10000,4000))                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W56064D1 DD  DSN=&INDIN..W56062(-3),DISP=SHR                                  
+//************ ARTIKELEXTRAKT FRÅN FÖREGÅENDE ÅR SAMMA TID SOM NU               
+//*                                                                             
+//W56064D2 DD  DSN=&INDIN..W56062(+0),DISP=SHR                                  
+//************ ARTIKELEXTRAKT FRÅN DETTA KÖRNINGSTILLFÄLLE                      
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//************ TEMPORÄR TRANSAKTIONSFIL FÖR SORTERINGEN                         
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W56064D3 DD  DSN=&INDUT..W56064(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ LISTTRASAR                                                       
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                

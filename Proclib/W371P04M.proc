@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*                                                                             
+//*  FREKVENS:     YEAR        RTN W371D3                                       
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W3714M    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P04M PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W371..W371D3,                                             
+//             INDUT=&W371..W371D3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W371PD4M),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W3714K(+0),DISP=SHR                                  
+//************ UPPFÖLJNINGS UNDERLAG TILL BYTES BORN                            
+//*                                                                             
+//SORTOUT  DD  DSN=&&W371SORT,DISP=(NEW,PASS,DELETE),                           
+//************ SORTAT UPPFÖLJNINGSUNDERLAG TILL BORN BYTES                      
+//         SPACE=(42,(50,10),RLSE),AVGREC=K                                     
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W3714M   EXEC PGM=W3714M                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W3714MD1 DD  DSN=&&W371SORT,DISP=(OLD,DELETE,DELETE)                          
+//************ BYTES UPPFÖLJNING TILL BORN                                      
+//*                                                                             
+//W3714MD2 DD  DSN=&INDUT..W3714M(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UPPFÖLJNING TILL BORN LITE MER KOMPRIMERAD                       
+//             SPACE=(42,(50,10),RLSE),AVGREC=K,                                
+//             MGMTCLAS=&DEL2BKPC                                               

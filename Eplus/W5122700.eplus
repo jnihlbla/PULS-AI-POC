@@ -1,0 +1,172 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5122700                                              *        
+*                                                                      *        
+*  FUNKTION   :  MERGE FILE FROM WF102500 AND WF102600                 *        
+*                                                                      *        
+*  FÖRFATTARE :  BARSHARANI BISHOYE                                    *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W51227D1                                                                   
+*                                                                               
+%W51293  'IN1-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51227D2                                                                   
+*                                                                               
+%W51293  'IN2-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51227D3                                                                   
+*                                                                               
+%W51293  'IN3-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51227D4                                                                   
+*                                                                               
+%W51293  'IN4-'                                                                 
+NEWPAGE                                                                         
+FILE W51227D5                                                                   
+*                                                                               
+%W51293  'IN5-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51227D6                                                                   
+*                                                                               
+%W51293  'IN6-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51227D7                                                                   
+*                                                                               
+%W51293  'IN7-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51227D8                                                                   
+%W51293  'IN8-'                                                                 
+NEWPAGE                                                                         
+FILE W51227DA FB (61 0)                                                         
+%W51293  'UT1-'                                                                 
+NEWPAGE                                                                         
+FILE W51227DB FB (61 0)                                                         
+%W51293  'UT2-'                                                                 
+NEWPAGE                                                                         
+FILE W51227DC FB (61 0)                                                         
+%W51293  'UT3-'                                                                 
+NEWPAGE                                                                         
+FILE W51227DD FB (61 0)                                                         
+%W51293  'UT4-'                                                                 
+*********WORKING STORAGE *************                                          
+  SORT W51227D1 TO W51227D1 USING (IN1-IDDC                          +          
+                                   IN1-IDARTNR-FINANCE) SIZE 9000000            
+  SORT W51227D5 TO W51227D5 USING (IN5-IDDC                          +          
+                                   IN5-IDARTNR-FINANCE) SIZE 9000000            
+  JOB INPUT (W51227D1 KEY(IN1-IDDC IN1-IDARTNR-FINANCE)              +          
+             W51227D5 KEY(IN5-IDDC IN5-IDARTNR-FINANCE))                        
+                                                                                
+  IF MATCHED                                                                    
+    UT1-IDLEGSEL          =   IN1-IDLEGSEL                                      
+    UT1-IDDC              =   IN1-IDDC                                          
+    UT1-IDARTNR-FINANCE   =   IN1-IDARTNR-FINANCE                               
+    UT1-SULEVANT          =   IN1-SULEVANT + IN5-SULEVANT                       
+    PUT W51227DA                                                                
+ ELSE                                                                           
+   IF W51227D1                                                                  
+    UT1-IDLEGSEL          =   IN1-IDLEGSEL                                      
+    UT1-IDDC              =   IN1-IDDC                                          
+    UT1-IDARTNR-FINANCE   =   IN1-IDARTNR-FINANCE                               
+    UT1-SULEVANT          =   IN1-SULEVANT                                      
+    PUT W51227DA                                                                
+   ELSE                                                                         
+     IF W51227D5                                                                
+       UT1-IDLEGSEL          =   IN5-IDLEGSEL                                   
+       UT1-IDDC              =   IN5-IDDC                                       
+       UT1-IDARTNR-FINANCE   =   IN5-IDARTNR-FINANCE                            
+       UT1-SULEVANT          =   IN5-SULEVANT                                   
+       PUT W51227DA                                                             
+     END-IF                                                                     
+   END-IF                                                                       
+ END-IF                                                                         
+  SORT W51227D2 TO W51227D2 USING (IN2-IDDC IN2-IDARTNR-FINANCE      +          
+                                   IN2-IDLEGSEL)       SIZE 9000000             
+  SORT W51227D6 TO W51227D6 USING (IN6-IDDC IN6-IDARTNR-FINANCE      +          
+                                   IN6-IDLEGSEL)       SIZE 9000000             
+  JOB INPUT (W51227D2 KEY(IN2-IDDC IN2-IDARTNR-FINANCE IN2-IDLEGSEL) +          
+             W51227D6 KEY(IN6-IDDC IN6-IDARTNR-FINANCE IN6-IDLEGSEL))           
+  IF MATCHED                                                                    
+    UT2-IDLEGSEL          =   IN2-IDLEGSEL                                      
+    UT2-IDDC              =   IN2-IDDC                                          
+    UT2-IDARTNR-FINANCE   =   IN2-IDARTNR-FINANCE                               
+    UT2-SULEVANT          =   IN2-SULEVANT + IN6-SULEVANT                       
+    PUT W51227DB                                                                
+ ELSE                                                                           
+   IF W51227D2                                                                  
+    UT2-IDLEGSEL          =   IN2-IDLEGSEL                                      
+    UT2-IDDC              =   IN2-IDDC                                          
+    UT2-IDARTNR-FINANCE   =   IN2-IDARTNR-FINANCE                               
+    UT2-SULEVANT          =   IN2-SULEVANT                                      
+    PUT W51227DB                                                                
+   ELSE                                                                         
+     IF W51227D6                                                                
+       UT2-IDLEGSEL          =   IN6-IDLEGSEL                                   
+       UT2-IDDC              =   IN6-IDDC                                       
+       UT2-IDARTNR-FINANCE   =   IN6-IDARTNR-FINANCE                            
+       UT2-SULEVANT          =   IN6-SULEVANT                                   
+       PUT W51227DB                                                             
+     END-IF                                                                     
+   END-IF                                                                       
+ END-IF                                                                         
+  SORT W51227D3 TO W51227D3 USING (IN3-IDARTNR-FINANCE               +          
+                                   IN3-IDLEGSEL)        SIZE 9000000            
+  SORT W51227D7 TO W51227D7 USING (IN7-IDARTNR-FINANCE               +          
+                                   IN7-IDLEGSEL)        SIZE 9000000            
+  JOB INPUT (W51227D3 KEY(IN3-IDARTNR-FINANCE IN3-IDLEGSEL)          +          
+             W51227D7 KEY(IN7-IDARTNR-FINANCE IN7-IDLEGSEL))                    
+  IF MATCHED                                                                    
+    UT3-IDLEGSEL          =   IN3-IDLEGSEL                                      
+    UT3-IDARTNR-FINANCE   =   IN3-IDARTNR-FINANCE                               
+    UT3-SULEVANT          =   IN3-SULEVANT + IN7-SULEVANT                       
+    PUT W51227DC                                                                
+ ELSE                                                                           
+   IF W51227D3                                                                  
+    UT3-IDLEGSEL          =   IN3-IDLEGSEL                                      
+    UT3-IDARTNR-FINANCE   =   IN3-IDARTNR-FINANCE                               
+    UT3-SULEVANT          =   IN3-SULEVANT                                      
+    PUT W51227DC                                                                
+   ELSE                                                                         
+     IF W51227D7                                                                
+       UT3-IDLEGSEL          =   IN7-IDLEGSEL                                   
+       UT3-IDARTNR-FINANCE   =   IN7-IDARTNR-FINANCE                            
+       UT3-SULEVANT          =   IN7-SULEVANT                                   
+       PUT W51227DC                                                             
+     END-IF                                                                     
+   END-IF                                                                       
+ END-IF                                                                         
+  SORT W51227D4 TO W51227D4 USING (IN4-IDARTNR-FINANCE               +          
+                                   IN4-IDLEGSEL)        SIZE 9000000            
+  SORT W51227D8 TO W51227D8 USING (IN8-IDARTNR-FINANCE               +          
+                                   IN8-IDLEGSEL)        SIZE 9000000            
+  JOB INPUT (W51227D4 KEY(IN4-IDARTNR-FINANCE IN4-IDLEGSEL)        +            
+             W51227D8 KEY(IN8-IDARTNR-FINANCE IN8-IDLEGSEL))                    
+  IF MATCHED                                                                    
+    UT4-IDLEGSEL          =   IN4-IDLEGSEL                                      
+    UT4-IDARTNR-FINANCE   =   IN4-IDARTNR-FINANCE                               
+    UT4-SULEVANT          =   IN4-SULEVANT + IN8-SULEVANT                       
+    PUT W51227DD                                                                
+ ELSE                                                                           
+   IF W51227D4                                                                  
+    UT4-IDLEGSEL          =   IN4-IDLEGSEL                                      
+    UT4-IDARTNR-FINANCE   =   IN4-IDARTNR-FINANCE                               
+    UT4-SULEVANT          =   IN4-SULEVANT                                      
+    PUT W51227DD                                                                
+   ELSE                                                                         
+     IF W51227D8                                                                
+       UT4-IDLEGSEL          =   IN8-IDLEGSEL                                   
+       UT4-IDARTNR-FINANCE   =   IN8-IDARTNR-FINANCE                            
+       UT4-SULEVANT          =   IN8-SULEVANT                                   
+       PUT W51227DD                                                             
+     END-IF                                                                     
+   END-IF                                                                       
+ END-IF                                                                         

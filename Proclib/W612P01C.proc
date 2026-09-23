@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FOLLOW UP LIST LDC PARTS WITH NO STOCK                                     
+//*                                                                             
+//*  FREKVENS:     VECKA                                                        
+//*                                                                             
+//*  ÅTERSTART:    NORMAL                                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P0IC PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W488..W488S3,                                             
+//             INDIN2=&W011,                                                    
+//             INDUT=&W612..W612V8                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT84  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN2..LDC.W01184(+0),DISP=SHR                             
+//         DD  DSN=&INDIN2..SDC.W01184(+0),DISP=SHR                             
+//         DD  DSN=&INDIN2..NDC.W01184(+0),DISP=SHR                             
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//**************  SORTERAD W01184 FIL                               ***         
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTDCAR),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT88  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN..W48881(+0),DISP=SHR                                  
+//SORTOUT  DD  DSN=&&W48881,DISP=(NEW,PASS,DELETE),                             
+//**************  SORTERAD W48881 FIL                               ***         
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD1B),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W6121C   EXEC PGM=V16459,PARM='W6121C/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(500,500))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W6121CD1 DD  DSN=&&W01184,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKELINFO LDC                                                  
+//*                                                                             
+//W6121CD2 DD  DSN=&&W48881,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKELINFO WDD8                                                 
+//*                                                                             
+//W6121CD3 DD  DSN=&INDUT..W6121C(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ ARTINFO                                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

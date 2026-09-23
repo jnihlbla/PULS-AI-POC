@@ -1,0 +1,124 @@
+                                                                                
+* W8500400 *************************************************************        
+* LÄSER IN FÖREGÅENDE GEN. AV W85004 OCH MATCHAR MED VLB ***************        
+* GRUNDDATA TILL VSOP-SYSTEMET *****************************************        
+* ÄNDRAT 890912 PGA KONVERTERADE VSOPKODER PÅ ARTIKELREG.                       
+*               ÄNDRADE KONTROLLER SAMT TILLBAKAKONV. FÖR ATT                   
+*               GAMLA VSOP PGM SKALL FUNGERA.                                   
+************************************************************************        
+FILE W85004D1                                                                   
+*                                                                               
+%W011200  'VLB-'                                                                
+*                                                                               
+FILE W85004D2                                                                   
+*                                                                               
+%W850004E 'IN-'                                                                 
+*                                                                               
+FILE W85004D4 VIRTUAL FB(60 6180)                                               
+*                                                                               
+%W850004E 'UT-'                                                                 
+UT-FILLER1   23   4   P 0                                                       
+UT-FILLER2   57   1   P 0                                                       
+UT-FILLER3   58   3   P 0                                                       
+*                                                                               
+FILE W85004D3 FB(60 6180)                                                       
+*                                                                               
+*-------------*                                                                 
+* ARBETSAREOR *                                                                 
+*-------------*                                                                 
+W-KDVSOP         W      3   N 0                                                 
+W-KDVSOP1  W-KDVSOP    1   N 0                                                  
+W-KDVSOP2  W-KDVSOP +1 1   N 0                                                  
+W-KDVSOP3  W-KDVSOP +2 1   N 0                                                  
+FLAGGA-FEL       W      1   A   VALUE 'N'                                       
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT W85004D1                                                              
+*                                                                               
+W-KDVSOP = VLB-KDVSOP                                                           
+PERFORM KOLLA-VSOPKOD                                                           
+IF FLAGGA-FEL = 'J'                                                             
+  MOVE SPACE TO UT-KDVSOP                                                       
+ELSE                                                                            
+  PERFORM KONV-VSOPKOD                                                          
+  UT-KDVSOP1 = W-KDVSOP1                                                        
+  UT-KDVSOP2 = W-KDVSOP2                                                        
+  UT-KDVSOP3 = W-KDVSOP3                                                        
+END-IF                                                                          
+*                                                                               
+UT-RECTYP = 004                                                                 
+UT-IDARTNR = VLB-IDARTNR                                                        
+UT-IDFKNGRP = VLB-IDFKNGRP                                                      
+UT-VLARTNTO = VLB-VLARTNTO                                                      
+UT-VKART = VLB-VKART                                                            
+UT-BEART-SVE = VLB-BEART-SVE                                                    
+UT-BEART-ENG = VLB-BEART-ENG                                                    
+MOVE ZEROES TO UT-FILLER1 UT-FILLER2 UT-FILLER3                                 
+PUT W85004D4                                                                    
+*                                                                               
+KOLLA-VSOPKOD.  PROC                                                            
+  FLAGGA-FEL = 'N'                                                              
+  IF W-KDVSOP1 = 3 5 6 7 8 9                                                    
+     FLAGGA-FEL = 'J'                                                           
+  ELSE                                                                          
+    IF W-KDVSOP1 = 0 +                                                          
+      AND W-KDVSOP3 > 4                                                         
+       FLAGGA-FEL = 'J'                                                         
+    ELSE                                                                        
+      IF W-KDVSOP1 = 1 +                                                        
+        AND W-KDVSOP3 > 6                                                       
+         FLAGGA-FEL = 'J'                                                       
+      ELSE                                                                      
+        IF W-KDVSOP1 = 2 +                                                      
+          AND W-KDVSOP3 = 0                                                     
+           FLAGGA-FEL = 'J'                                                     
+        ELSE                                                                    
+          IF W-KDVSOP2 = 0 4 5 6 7 8 9                                          
+             FLAGGA-FEL = 'J'                                                   
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+KONV-VSOPKOD.  PROC                                                             
+  IF W-KDVSOP1 = 0                                                              
+    IF W-KDVSOP3 = 1 2 3                                                        
+      W-KDVSOP3 = 1                                                             
+    ELSE                                                                        
+      IF W-KDVSOP3 = 4                                                          
+        W-KDVSOP3 = 2                                                           
+      END-IF                                                                    
+    END-IF                                                                      
+    W-KDVSOP1 = 1                                                               
+    W-KDVSOP2 = 1                                                               
+  ELSE                                                                          
+    IF W-KDVSOP1 = 1                                                            
+      W-KDVSOP3 = W-KDVSOP3 + 3                                                 
+    ELSE                                                                        
+      IF W-KDVSOP1 = 2                                                          
+        IF W-KDVSOP3 = 1                                                        
+          W-KDVSOP3 = 2                                                         
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+JOB INPUT (W85004D4 KEY(UT-IDARTNR) W85004D2 KEY(IN-IDARTNR))                   
+*                                                                               
+  IF MATCHED                                                                    
+    PUT W85004D3 FROM W85004D4                                                  
+  ELSE                                                                          
+    IF W85004D2                                                                 
+      PUT W85004D3 FROM W85004D2                                                
+    ELSE                                                                        
+      IF W85004D4                                                               
+        PUT W85004D3 FROM W85004D4                                              
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+*                                                                               

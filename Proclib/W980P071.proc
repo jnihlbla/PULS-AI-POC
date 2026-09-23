@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FÖDER PDS W.PROD.RDRIFT MED DRIFT-INFO FRÅN DATAMANAGER                    
+//*                                                                             
+//*  FREKVENS:     PLANERINGSPERIOD    RTN W980P1                               
+//*                                                                             
+//*  ÅTERSTART:    EJ DIREKT ÅTERSTARTBAR OM DEL1-STEGET HAR GÅTT               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W980P071 PROC INDIN=&W980..W980P1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//VBTOFB  EXEC  PGM=V164D0                                                      
+//SYSPRINT DD SYSOUT=*                                                          
+//SYSIN    DD DUMMY,DCB=BLKSIZE=100                                             
+//IN       DD DSN=&INDIN..W98070,DISP=SHR                                       
+//*                                                                             
+//UT       DD DSN=&&TEMP,DISP=(NEW,PASS,DELETE),                                
+//           DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160),                              
+//           SPACE=(TRK,(20,20),RLSE)                                           
+//*                                                                             
+//*                                                                             
+//DEL1    EXEC PGM=IEFBR14                                                      
+//DD1      DD DSN=&INDGRND..RDRIFT,DISP=(OLD,DELETE)                            
+//*                                                                             
+//UPD     EXEC PGM=IEBUPDTE,PARM=NEW,REGION=50K                                 
+//SYSPRINT DD SYSOUT=(A,,7DUB),DEST=&CPRINT                                     
+//*           (FORM = 7991 )                                                    
+//SYSUT1   DD DUMMY                                                             
+//SYSUT2   DD DSN=&INDGRND..RDRIFT,DISP=(NEW,CATLG,DELETE),                     
+//           DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160),                              
+//           MGMTCLAS=&BACKUP7,SPACE=(6160,(800,300,250))                       
+//SYSIN    DD DSN=&&TEMP,DISP=(OLD,DELETE)                                      
+//*                                                                             
+//DEL2    EXEC PGM=IEFBR14,COND=(4,LT,UPD)                                      
+//DD1      DD DSN=&INDIN..W98070,DISP=(OLD,DELETE)                              

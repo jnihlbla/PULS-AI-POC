@@ -1,0 +1,152 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4408400                                              *        
+*                                                                      *        
+*  FUNKTION   :  BACKORDER LATEST WEEK TOP 30 PARTS                    *        
+*                DATA TO USE IN W4408700 (COBOL)                       *        
+*                PROC. SORT & SUM FIELDS                               *        
+*                (CONSTANT W440PD84)                                   *        
+*                                                                      *        
+*  FÖRFATTARE :  NILSSON LINDA                                         *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+*INFIL W4408A FR. W44083-PGM                                                    
+NEWPAGE                                                                         
+FILE W44084D1                                                                   
+*                                                                               
+%W440083  'IN-'                                                                 
+*                                                                               
+*TEMPFIL1 W4408A SORTERAD PÅ ARTNR                                              
+NEWPAGE                                                                         
+FILE TEMPFIL1   FB (113 0)                                                      
+*                                                                               
+%W440083  'T1-'                                                                 
+*                                                                               
+*LAGERBANDET                                                                    
+NEWPAGE                                                                         
+FILE W44084D2                                                                   
+*                                                                               
+%W01160                                                                         
+                                                                                
+*ARTIKELINFO                                                                    
+NEWPAGE                                                                         
+FILE W44084D3                                                                   
+*                                                                               
+%W91042   'ART-'                                                                
+                                                                                
+*TEMPFIL2 INFIL + DATA FRÅN LAGERBANDET MATCHAS M. W91042                       
+NEWPAGE                                                                         
+FILE TEMPFIL2   FB (113 0)                                                      
+*                                                                               
+%W440083  'T2-'                                                                 
+TX-FLSPARR     64 1 A                                                           
+TX-FLSALDCH    65 1 A                                                           
+                                                                                
+*TEMPUT FÖR SORT + SUMMERING I PROC. INNAN SORTUT W44084                        
+NEWPAGE                                                                         
+FILE TEMPUT     FB (113 0)                                                      
+*                                                                               
+%W440083  'TUT-'                                                                
+*                                                                               
+%WWDIST79  WORK ''                                                              
+*                                                                               
+NEWPAGE                                                                         
+                                                                                
+WS-PRARTNTO          W  5 P 2                                                   
+WS-PRARTNTO-LOC      W  5 P 2                                                   
+WS-PRARTNTO-LOCPREL  W  5 P 2                                                   
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORT                                                                  
+*                                                                               
+                                                                                
+ SORT W44084D1 TO TEMPFIL1 USING (IN-IDARTNR)                                   
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. MATCHA SORTFIL MED W01160                                             
+*                                                                               
+                                                                                
+JOB INPUT (W44084D2 KEY(CLAG-IDARTNR) TEMPFIL1 KEY(T1-IDARTNR))                 
+                                                                                
+  IF MATCHED                                                                    
+                                                                                
+    IF T1-PRARTNTO-LOCPREL EQ 0                                                 
+      IF T1-PRARTNTO-LOC EQ 0                                                   
+        IF T1-PRARTNTO EQ 0                                                     
+          IF DIST79-DEALER-PRICE EQ 'J'                                         
+             WS-PRARTNTO-LOCPREL = CLAG-PRARTSTD * 4                            
+             T1-PRARTNTO-LOCPREL = WS-PRARTNTO-LOCPREL * T1-KVBEART-Q           
+          ELSE                                                                  
+            WS-PRARTNTO = CLAG-PRARTSTD * 2                                     
+            T1-PRARTNTO = WS-PRARTNTO * T1-KVBEART-Q                            
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+    IF CLAG-KVUTRS > 0                                                          
+      TX-FLSALDCH = 'Y'                                                         
+    ELSE                                                                        
+      TX-FLSALDCH = 'N'                                                         
+    END-IF                                                                      
+    IF CLAG-KDLEVSP = 20                                                        
+      TX-FLSPARR = 'Y'                                                          
+    ELSE                                                                        
+      TX-FLSPARR = 'N'                                                          
+    END-IF                                                                      
+    T2-IDARTNR          = T1-IDARTNR                                            
+    T2-IDLEVNR          = CLAG-IDLEVNR                                          
+    T2-KDPRODSL         = T1-KDPRODSL                                           
+    T2-KVBEART-Q        = T1-KVBEART-Q                                          
+    T2-IDLANDX3         = T1-IDLANDX3                                           
+    T2-DARODAT          = T1-DARODAT                                            
+    T2-KVRADER          = T1-KVRADER                                            
+    T2-PRARTNTO-LOCPREL = T1-PRARTNTO-LOCPREL                                   
+    T2-PRARTNTO-LOC     = T1-PRARTNTO-LOC                                       
+    T2-PRARTNTO         = T1-PRARTNTO                                           
+    T2-SUORDV           = T1-SUORDV                                             
+    T2-TEASTRIX         = ' '                                                   
+    T2-BEART            = ' '                                                   
+    T2-TIAAVVD (1)      = 0                                                     
+    T2-TIAAVVD (2)      = 0                                                     
+    T2-TIAAVVD (3)      = 0                                                     
+    T2-IDFKNGRP         = 0                                                     
+                                                                                
+    PUT TEMPFIL2                                                                
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 3. MATCHA SORTFIL MED W91042                                             
+*                                                                               
+                                                                                
+JOB INPUT (W44084D3 KEY(ART-IDARTNR) TEMPFIL2 KEY(T2-IDARTNR))                  
+  IF MATCHED                                                                    
+    TUT-BEART             = ART-BEART (4)                                       
+    TUT-IDFKNGRP          = ART-IDFKNGRP                                        
+    TUT-IDARTNR           = T2-IDARTNR                                          
+    TUT-IDLEVNR           = T2-IDLEVNR                                          
+    TUT-KDPRODSL          = T2-KDPRODSL                                         
+    TUT-KVBEART-Q         = T2-KVBEART-Q                                        
+    TUT-IDLANDX3          = T2-IDLANDX3                                         
+    TUT-TEASTRIX          = T2-TEASTRIX                                         
+    TUT-TIAAVVD (1)       = T2-TIAAVVD (1)                                      
+    TUT-TIAAVVD (2)       = T2-TIAAVVD (2)                                      
+    TUT-TIAAVVD (3)       = T2-TIAAVVD (3)                                      
+    TUT-DARODAT           = T2-DARODAT                                          
+    TUT-KVRADER           = T2-KVRADER                                          
+    TUT-PRARTNTO-LOCPREL  = T2-PRARTNTO-LOCPREL                                 
+    TUT-PRARTNTO-LOC      = T2-PRARTNTO-LOC                                     
+    TUT-PRARTNTO          = T2-PRARTNTO                                         
+    TUT-SUORDV            = T2-SUORDV                                           
+    TUT-FLSALDCH          = TX-FLSALDCH                                         
+    TUT-FLSPARR           = TX-FLSPARR                                          
+                                                                                
+    PUT TEMPUT                                                                  
+  END-IF                                                                        
+*                                                                               

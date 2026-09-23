@@ -1,0 +1,40 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MQ FILE TRANSFER. (SEND FILE)                                              
+//*                                                                             
+//*  FILE CAN BE A FB/VB FILE WITH LENGTH NOT GREATER THAN 3000                 
+//*                                                                             
+//*  FREQUENCE:    N/A                                                          
+//*                                                                             
+//*  RESTART:      WZ1122    NORMAL                                             
+//*                                                                             
+//*  ARGUMENTS:    RTEGRP   - RUNTIME ENVIRONMENT (DEVE,IGRT ...)               
+//*                           (DEFAULT VALUE FROM ENVXXXX INCLUDE)              
+//*                                                                             
+//*                ABSADDRS - ABSTRACT ADDRESS IN WZ01ATAB                      
+//*                                                                             
+//*                QMGR     - NORMALLY SET IN THE PROGRAM.                      
+//*                           CAN BE OVERRIDED HERE (DURING TESTS).             
+//*                                                                             
+//*                DSIN     - FILE TO BE SENT                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ11P022 PROC STPLIB=&INDRTE..LOAD,                                           
+//             ABSADDRS=NO-ADDRESS,                                             
+//             QMGR=NULL,                                                       
+//             DSIN=NULLFILE                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ1122   EXEC PGM=WZ1122,PARM='&RTEGRP.&QMGR.&ABSADDRS'                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//FILDD1   DD  DSN=&DSIN,DISP=SHR                                               
+//*                                                                             
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             

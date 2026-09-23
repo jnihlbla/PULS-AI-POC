@@ -1,0 +1,387 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W1168700                                              *        
+*                                                                      *        
+*  FUNKTION   :  PLOCKAR UT ARTIKLAR TILL VIPS OCH PRICE               *        
+*                SÅ KALLADE AKTIVA ARTIKLAR                            *        
+*                ANVÄNDER LAGERBAND W01160                             *        
+*                                                                      *        
+*  FÖRFATTARE :  MARKUS ASPFJÄLL                                       *        
+*                                                                      *        
+*  DATUM      :  SEP     2008                                          *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+*--------------------------------------*                                        
+*  LAGERBAND                           *                                        
+*--------------------------------------*                                        
+FILE W11687D1                                                                   
+%W01160   'LB-'                                                                 
+NEWPAGE                                                                         
+*                                                                               
+*--------------------------------------*                                        
+*  UTFIL                               *                                        
+*--------------------------------------*                                        
+FILE W11687D2 FB (37  0)                                                        
+%W11687    'UT-'                                                                
+*UT-IDARTNR       1  5 P 0                                                      
+*UT-KDPRODSL      6  2 P 0                                                      
+*UT-KDPSLLOC      8  2 N                                                        
+*UT-KDERS        10  2 P 0                                                      
+*UT-ANTAL-POSTER 12  7 N                                                        
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  TEMPFIL                             *                                        
+*--------------------------------------*                                        
+FILE TPFIL1 FB (37  0) VIRTUAL                                                  
+%W11687  'TP1-'                                                                 
+*TP1-IDARTNR       1  5 P 0                                                     
+*TP1-KDPRODSL      6  2 P 0                                                     
+*TP1-KDPSLLOC      8  2 N                                                       
+*TP1-KDERS        10  2 P 0                                                     
+*TP1-ANTAL-POSTER 12  7 N                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  PARAMETRAR TILL WDATKONV            *                                        
+*--------------------------------------*                                        
+%WDATAREA                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  ARBETSFÄLT                          *                                        
+*--------------------------------------*                                        
+*                                                                               
+ W-ORDERING               W  5 P 0 OCCURS 8                                     
+ W-SUORDERTRAFF           W  5 P 0 VALUE 0                                      
+ W-SUORDERING             W  5 P 0 VALUE 0                                      
+ W-DISP-TOT               W  4 P   VALUE 0                                      
+ W-KVLS-TOT               W  4 P   VALUE 0                                      
+ W-KVAKS-TOT              W  4 P   VALUE 0                                      
+ W-KVOKS-TOT              W  5 P   VALUE 0                                      
+ W-KDBBCL                 W  1 N                                                
+ JA                       W  1 A   VALUE 'J'                                    
+ NEJ                      W  1 A   VALUE 'N'                                    
+ IX1                      W  2 N   VALUE 0                                      
+ IX2                      W  1 N   VALUE 0                                      
+                                                                                
+ DAGENS-DATUM             W  5 N                                                
+ DD-YY     DAGENS-DATUM      2 N                                                
+ DD-WW     DAGENS-DATUM +2   2 N                                                
+ DD-DAY    DAGENS-DATUM +4   1 N                                                
+                                                                                
+ DATUM1                   W  8 A                                                
+ AA1     DATUM1              2 A                                                
+ MM1     DATUM1 +3           2 A                                                
+ DD1     DATUM1 +6           2 A                                                
+                                                                                
+ DATUM2                   W  6 A                                                
+ AA2     DATUM2              2 A                                                
+ MM2     DATUM2 +2           2 A                                                
+ DD2     DATUM2 +4           2 A                                                
+ DATUM   DATUM2              6 N                                                
+ DATUM-NUM  DATUM2           6 N                                                
+                                                                                
+ DATUM-3AR                  W  8 N                                              
+ SEKEL-3        DATUM-3AR      2 N                                              
+ DATUM-3-AAVVD  DATUM-3AR +2   5 N                                              
+                                                                                
+ DATUM-10AR                   W  8 N                                            
+ SEKEL-10        DATUM-10AR      2 N                                            
+ DATUM-10-AAVVD  DATUM-10AR +2   5 N                                            
+                                                                                
+ DATUM-1AR                   W  8 N                                             
+ SEKEL-1AR        DATUM-1AR      2 N                                            
+ DATUM-1AR-AAVVD  DATUM-1AR +2   5 N                                            
+                                                                                
+ W-TIERSDAT                    W  8 N                                           
+ W-TIERSDAT-SEKEL  W-TIERSDAT     2 N                                           
+ W-TIERSDAT-AAVVDD W-TIERSDAT +2  5 N                                           
+                                                                                
+ HELP-DATE                W  5 N                                                
+ HELP-YY   HELP-DATE         2 N                                                
+ HELP-WW   HELP-DATE +2      2 N                                                
+ HELP-DAY  HELP-DATE +4      1 N                                                
+                                                                                
+ WS-TIFINLV               W  5 N                                                
+ WS-YY     WS-TIFINLV        2 N                                                
+ WS-WW     WS-TIFINLV  +2    2 N                                                
+ WS-DAY    WS-TIFINLV  +4    1 N                                                
+                                                                                
+ KOLL-TIFINLV             W  5 N                                                
+ KOLL-YY   KOLL-TIFINLV      2 N                                                
+ KOLL-WW   WS-TIFINLV  +2    2 N                                                
+ KOLL-DAY  WS-TIFINLV  +4    1 N                                                
+                                                                                
+ FKNGRP-BUYBACK           W  1 A   VALUE 'N'                                    
+ PRODSLAG-BUYBACK1        W  1 A   VALUE 'N'                                    
+ PRODSLAG-BUYBACK2        W  1 A   VALUE 'N'                                    
+ PRODSLAG-BUYBACK3        W  1 A   VALUE 'N'                                    
+ WDATKONV                 W  8 A   VALUE 'WDATKONV'                             
+ W-IDFKNGRP               W  4 N                                                
+ W-IDFKNGRP-SERIE W-IDFKNGRP 2 N                                                
+ WS-VECKOR-TILL-TIFINLV   W  2 P                                                
+                                                                                
+ W-ANTAL-POSTER           W  7 N                                                
+ W-ANTAL-DISPLAY          W  7 N  VALUE 0                                       
+ W-ANTAL-DISPLAY-FEL      W  7 N  VALUE 0                                       
+ W-IDARTNR-DISPLAY        W  9 N  VALUE 0                                       
+                                                                                
+ WS-IDARTNR                     W 20 A                                          
+ WS-IDARTNR-BLANK WS-IDARTNR      11 A                                          
+ WS-IDARTNR-ALFA  WS-IDARTNR  +11  9 A                                          
+                                                                                
+ SPAR-IDARTNR-NUM             W   9 N 0 VALUE  0                                
+   SPAR-IDARTNR  SPAR-IDARTNR-NUM   9 A                                         
+     SPAR-IDARTNR1 SPAR-IDARTNR       1 A                                       
+     SPAR-IDARTNR2 SPAR-IDARTNR +1    1 A                                       
+     SPAR-IDARTNR3 SPAR-IDARTNR +2    1 A                                       
+     SPAR-IDARTNR4 SPAR-IDARTNR +3    1 A                                       
+     SPAR-IDARTNR5 SPAR-IDARTNR +4    1 A                                       
+     SPAR-IDARTNR6 SPAR-IDARTNR +5    1 A                                       
+     SPAR-IDARTNR7 SPAR-IDARTNR +6    1 A                                       
+     SPAR-IDARTNR8 SPAR-IDARTNR +7    1 A                                       
+     SPAR-IDARTNR9 SPAR-IDARTNR +8    1 A                                       
+*                                                                               
+                                                                                
+%WY2000W2                                                                       
+*                                                                               
+%WWPRODSL  'LB-CLAG-' WORK ''                                                   
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+* STEG 1. LÄSER LB BANDET                                          *            
+*------------------------------------------------------------------*            
+*                                                                               
+ JOB INPUT W11687D1 START A-INIT                                                
+ PERFORM S25-CHECK-LB-CLAG-KDPRODSL                                             
+* RENSADE ARTIKLAR                                                              
+ IF LB-CLAG-KDPRODSL NE KDPRODSL-LYNK                                           
+   IF (LB-CLAG-KDERS-UTG EQ 21 THRU 28) AND                      +              
+      (LB-CLAG-IDFKNGRP > 0)            AND                      +              
+      (LB-CLAG-KDPRODSL EQ GOOD-KDPRODSL)                                       
+      IF LB-CLAG-TIERSDAT > 50000                                               
+        W-TIERSDAT-SEKEL EQ 19                                                  
+      ELSE                                                                      
+        W-TIERSDAT-SEKEL EQ 20                                                  
+      END-IF                                                                    
+      IF DATUM-10AR < W-TIERSDAT                                                
+        PERFORM S01-SKRIV-POST                                                  
+      END-IF                                                                    
+   ELSE                                                                         
+                                                                                
+   IF LB-CLAG-FLLSRDEL EQ 'Y' 'J'                                               
+    IF LB-CLAG-PRARTSTD > 0 AND LB-CLAG-PRARTSJK > 0                            
+     IF LB-CLAG-IDFKNGRP > 0                                                    
+       IF LB-CLAG-KDPRODSL EQ GOOD-KDPRODSL                                     
+         IF LB-CLAG-KDERS-UTG = 0                                               
+***        IF LB-CLAG-KDUART NE 'M'                                             
+***          IF LB-CLAG-KDUART EQ 'S' OR LB-CLAG-KDUART EQ ' '                  
+              IF LB-CLAG-KDERS GT 20                                            
+                IF LB-CLAG-TIERSDAT > 50000                                     
+                  W-TIERSDAT-SEKEL EQ 19                                        
+                ELSE                                                            
+                  W-TIERSDAT-SEKEL EQ 20                                        
+                END-IF                                                          
+                W-TIERSDAT-AAVVDD = LB-CLAG-TIERSDAT                            
+                                                                                
+                IF LB-CLAG-KDERS EQ 29                                          
+                 IF DATUM-3AR < W-TIERSDAT                                      
+                  PERFORM S01-SKRIV-POST                                        
+                 END-IF                                                         
+                END-IF                                                          
+                                                                                
+                IF LB-CLAG-KDERS EQ 21 THRU 28                                  
+                 IF DATUM-10AR < W-TIERSDAT                                     
+                  PERFORM S01-SKRIV-POST                                        
+                 END-IF                                                         
+                END-IF                                                          
+                                                                                
+                IF LB-CLAG-KDERS EQ 52                                          
+                 IF DATUM-1AR < W-TIERSDAT                                      
+                  PERFORM S01-SKRIV-POST                                        
+                 END-IF                                                         
+                END-IF                                                          
+                W-TIERSDAT-AAVVDD EQ 0                                          
+              ELSE                                                              
+                IF LB-CLAG-KDERS EQ 0                                           
+                 PERFORM B-KOLLA-TIFINLEV                                       
+                 IF WS-VECKOR-TILL-TIFINLV < 40                                 
+                   PERFORM S01-SKRIV-POST                                       
+                 END-IF                                                         
+                ELSE                                                            
+                 IF LB-CLAG-KDERS LT 21                                         
+                   PERFORM S01-SKRIV-POST                                       
+                 END-IF                                                         
+                END-IF                                                          
+              END-IF                                                            
+*****        END-IF                                                             
+*****      END-IF                                                               
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+    ELSE                                                                        
+**   PRIS SAKNAS KOLLA OM DET ÄR INKOMMANDE ARTIKLAR                            
+     IF LB-CLAG-IDFKNGRP > 0                                       +            
+     AND (LB-CLAG-KDPRODSL EQ GOOD-KDPRODSL)                       +            
+     AND LB-CLAG-KDERS-UTG EQ 0                                    +            
+     AND LB-CLAG-KDERS EQ 0                                                     
+     PERFORM B-KOLLA-TIFINLEV                                                   
+      IF WS-VECKOR-TILL-TIFINLV EQ 1 THRU 40                                    
+        PERFORM S01-SKRIV-POST                                                  
+      END-IF                                                                    
+     END-IF                                                                     
+    END-IF                                                                      
+   END-IF                                                                       
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+*-----------------------------------------------------------------*             
+ A-INIT.  PROC                                                                  
+*-----------------------------------------------------------------*             
+ W-ANTAL-POSTER EQ 0                                                            
+ DATUM1  = SYSDATE                                                              
+ AA2 = AA1                                                                      
+ MM2 = MM1                                                                      
+ DD2 = DD1                                                                      
+                                                                                
+ DAT-I-TIDATUM = DATUM                                                          
+ DAT-KDDATFORM = 'AAMMDD'                                                       
+ CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM, DAT-O-TIDATUM,  +           
+                      DAT-KDSVAR)                                               
+                                                                                
+*** HELP-DATE ANVÄNDS VID UTRÄKNING AV RETUR-STATUSKOD                          
+ HELP-DATE = DAT-TIAAVVD                                                        
+ HELP-DAY  = 1                                                                  
+                                                                                
+ SEKEL-3   EQ 20                                                                
+ SEKEL-10  EQ 20                                                                
+ SEKEL-1AR EQ 20                                                                
+                                                                                
+ DATUM-3-AAVVD  = DAT-TIAAVVD                                                   
+ DATUM-3-AAVVD  = DATUM-3-AAVVD  - 3000                                         
+                                                                                
+ DATUM-10-AAVVD  = DAT-TIAAVVD                                                  
+ DISPLAY ' DATUM-10AR  INNAN OMRÄKNING ' DATUM-10AR                             
+ DATUM-10AR      = DATUM-10AR   - 100000                                        
+                                                                                
+ DATUM-1AR-AAVVD  = DAT-TIAAVVD                                                 
+ DISPLAY ' DATUM-1AR ' DATUM-1AR                                                
+ DATUM-1AR      = DATUM-1AR   - 10000                                           
+                                                                                
+ DISPLAY ' DATUMNUM   ' DATUM-NUM                                               
+ DISPLAY ' DATUM1     ' DATUM1                                                  
+ DISPLAY ' DATUM-1AR  ' DATUM-1AR                                               
+ DISPLAY ' DATUM-3AR  ' DATUM-3AR                                               
+ DISPLAY ' DATUM-10AR ' DATUM-10AR                                              
+ DISPLAY ' HELPDATE   ' HELP-DATE                                               
+ END-PROC                                                                       
+NEWPAGE                                                                         
+                                                                                
+*-----------------------------------------------------------------*             
+ B-KOLLA-TIFINLEV. PROC                                                         
+*-----------------------------------------------------------------*             
+                                                                                
+ WS-TIFINLV = LB-CLAG-TIFINLV                                                   
+                                                                                
+ TMP1-YYWWD = HELP-DATE                                                         
+ TMP2-YYWWD = WS-TIFINLV                                                        
+ PERFORM WY2000P2                                                               
+ DAGENS-DATUM = TMP1-YYWWD                                                      
+ KOLL-TIFINLV = TMP2-YYWWD                                                      
+                                                                                
+ IF KOLL-YY > DD-YY                                                             
+    WS-VECKOR-TILL-TIFINLV = WS-WW + 53 - HELP-WW                               
+ ELSE                                                                           
+   IF HELP-YY = WS-YY                                                           
+     IF WS-WW > HELP-WW                                                         
+        WS-VECKOR-TILL-TIFINLV = WS-WW - HELP-WW                                
+     ELSE                                                                       
+        WS-VECKOR-TILL-TIFINLV = 0                                              
+     END-IF                                                                     
+   ELSE                                                                         
+     WS-VECKOR-TILL-TIFINLV = 0                                                 
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+ END-PROC                                                                       
+NEWPAGE                                                                         
+*-----------------------------------------------------------------*             
+ S01-SKRIV-POST.  PROC                                                          
+*-----------------------------------------------------------------*             
+    PERFORM S02-RED-SKRIV-UTPOST                                                
+    W-ANTAL-POSTER = W-ANTAL-POSTER + 1                                         
+    TP1-ANTAL-POSTER = W-ANTAL-POSTER                                           
+    PUT TPFIL1                                                                  
+                                                                                
+ END-PROC                                                                       
+NEWPAGE                                                                         
+*-----------------------------------------------------------------*             
+ S02-RED-SKRIV-UTPOST.  PROC                                                    
+*-----------------------------------------------------------------*             
+    PERFORM S03-BEARBETA-ARTIKELNR                                              
+    TP1-KDPRODSL      = LB-CLAG-KDPRODSL                                        
+    TP1-KDPSLLOC      = LB-CLAG-KDPSLLOC                                        
+    TP1-KDERS         = LB-CLAG-KDERS                                           
+    TP1-FLLSRDEL      = LB-CLAG-FLLSRDEL                                        
+    TP1-IDARTNR20     = WS-IDARTNR                                              
+ END-PROC                                                                       
+*                                                                               
+%WY2000P2                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*-----------------------------------------------------------------*             
+S03-BEARBETA-ARTIKELNR.   PROC                                                  
+*-----------------------------------------------------------------*             
+                                                                                
+   SPAR-IDARTNR-NUM = LB-CLAG-IDARTNR                                           
+   IF SPAR-IDARTNR1 = '0'                                                       
+     SPAR-IDARTNR1 = ' '                                                        
+     IF SPAR-IDARTNR2 = '0'                                                     
+       SPAR-IDARTNR2 = ' '                                                      
+       IF SPAR-IDARTNR3 = '0'                                                   
+         SPAR-IDARTNR3 = ' '                                                    
+         IF SPAR-IDARTNR4 = '0'                                                 
+           SPAR-IDARTNR4 = ' '                                                  
+           IF SPAR-IDARTNR5 = '0'                                               
+             SPAR-IDARTNR5 = ' '                                                
+             IF SPAR-IDARTNR6 = '0'                                             
+               SPAR-IDARTNR6 = ' '                                              
+               IF SPAR-IDARTNR7 = '0'                                           
+                 SPAR-IDARTNR7 = ' '                                            
+                 IF SPAR-IDARTNR8 = '0'                                         
+                   SPAR-IDARTNR8 = ' '                                          
+                   IF SPAR-IDARTNR9 = '0'                                       
+                     SPAR-IDARTNR9 = ' '                                        
+                   END-IF                                                       
+                 END-IF                                                         
+               END-IF                                                           
+             END-IF                                                             
+           END-IF                                                               
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+   END-IF                                                                       
+   WS-IDARTNR-BLANK = ' '                                                       
+   WS-IDARTNR-ALFA  = SPAR-IDARTNR                                              
+                                                                                
+END-PROC                                                                        
+*                                                                               
+%WWPRODSL 'LB-CLAG-' PROC ''                                                    
+*------------------------------------------------------------------*            
+* STEG 3. SKRIV UT POSTERNA IFRÅN TEMPFILEN                        *            
+*------------------------------------------------------------------*            
+*                                                                               
+JOB INPUT  TPFIL1                                                               
+  UT-IDPTYP       EQ 'WD1'                                                      
+  UT-ANTAL-POSTER EQ W-ANTAL-POSTER                                             
+  UT-IDARTNR20    EQ TP1-IDARTNR20                                              
+  UT-KDPRODSL     EQ TP1-KDPRODSL                                               
+  UT-KDPSLLOC     EQ TP1-KDPSLLOC                                               
+  UT-KDERS        EQ TP1-KDERS                                                  
+  UT-FLLSRDEL     EQ TP1-FLLSRDEL                                               
+  PUT  W11687D2                                                                 
+*                                                                               

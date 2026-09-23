@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UPPDATERING AV DATAMANAGER MED MODUL-INFORMATION                           
+//*  EXTRAHERA DATA OM ALLA EPLUSPROGAM                                         
+//*                                                                             
+//*  FREKVENS:     VECKA  RTN WDMRV6                                            
+//*                                                                             
+//*  ÅTERSTART:    WDMR23    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMRP023 PROC INDIN=&WDMR..WDMRV6,                                            
+//             INDUT=&WDMR..WDMRV6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMR23   EXEC PGM=IKJEFT01,DYNAMNBR=20,                                       
+//             PARM='ISPSTART CMD(%WDMR23)'                                     
+//*                                                                             
+//ISPPROF  DD  DSN=&&PROF,DISP=(NEW,DELETE),                                    
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160),                            
+//             SPACE=(6160,(5,,5))                                              
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSEXEC  DD  DSN=&INDRTE..EXEC,DISP=SHR                                       
+//         DD  DSN=&INDLIB2..EXEC,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..EXEC,DISP=SHR                                      
+//         DD  DSN=&INDGRND..EXEC,DISP=SHR                                      
+//         DD  DSN=SYS2.F1TS00.EXEC,DISP=SHR                                    
+//ISPPLIB  DD  DSN=SYS1.ISP.SISPPENU,DISP=SHR                                   
+//ISPTLIB  DD  DSN=SYS1.ISP.SISPTENU,DISP=SHR                                   
+//ISPSLIB  DD  DSN=SYS1.ISP.SISPSLIB,DISP=SHR                                   
+//ISPMLIB  DD  DSN=SYS1.ISP.SISPMENU,DISP=SHR                                   
+//ISPLLIB  DD  DSN=SYS1.ISP.SISPLOAD,DISP=SHR                                   
+//*                                                                             
+//WDMR23D1 DD  DSN=&INDIN..WDMR20(+0),DISP=SHR                                  
+//************ EPLUS-SOURCE                                                     
+//*                                                                             
+//WDMR23D2 DD  DSN=&INDUT..WDMR23(+1),DISP=(NEW,CATLG,DELETE),  -LIM(2)         
+//************ EXTRAHERAD MODUL-INFO                                            
+//             RECFM=FB,LRECL=136,   --DCB FOR REXX                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

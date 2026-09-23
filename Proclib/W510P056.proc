@@ -1,0 +1,40 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      LISTAR LAGERVÄRDE FÖR ALLA ARTIKLAR MED FORDLEVERANTÖRSNR.   *         
+//*                                                                   *         
+//*      PERIODICITET: MÅNAD                                          *         
+//*                                                                   *         
+//*      ÅTERSTART:    W51056   NORMAL                                *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W510P016 PROC INDIN=&W510..W510D4,                                            
+//             INDREG=&W011,                                                    
+//             INDUT=&W510..W500M1,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51056  EXEC PGM=W51056                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//W51056D1 DD  DSN=&INDIN..W51053(+0),DISP=SHR                                  
+//************** ARTIKELINFORMATION ALLA DC:N UTOM CDC              ***         
+//*                                                                             
+//W51056D2 DD  DSN=&INDREG..W01172(+0),DISP=SHR                                 
+//************** ARTIKELINFORMATION CDC                             ***         
+//*                                                                             
+//W51056D3 DD  DSN=&INDUT..W51056(+1),DISP=(NEW,CATLG,DELETE), -LIM(01)         
+//************** LISTA ALLA ARTIKLAR MED FORD-LEVERANTÖR            ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//************ SORTERAD ARTIKELFIL ALLA DC:N UTOM CDC                           
+//             DATACLAS=PSEN                                                    

@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LISTA/MAIL URVAL FAKTURERADE RADER                                         
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W479V2                                          
+//*                                                                             
+//*  ≈TERSTART:    W4796100 NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P061 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479V2,                                             
+//             INDUT=&W479..W479V2,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47961   EXEC PGM=W47961                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR            -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W47961D1 DD  DSN=&INDIN..W47955(+0),DISP=SHR                                  
+//************ VECKANS FAKTURARADER                                             
+//*W47961D1 DD  DSN=&W020..V≈≈VV.FAKTRAD,DISP=SHR                               
+//*            VID OMK÷RNING ANV D1 ALT 2                                       
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W47961D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ LISTA W47961-001 DANZAS FAKTURARADER                             
+//             DCB=(RECFM=FBA,LRECL=100,BLKSIZE=100)                            
+//*                                                                             
+//W47961D3 DD  DSN=&INDUT..W47967(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             

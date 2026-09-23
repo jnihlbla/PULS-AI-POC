@@ -1,0 +1,128 @@
+                                                                                
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*             
+* W4797300                                                        *             
+* SLÅR IHOP PACKUNDERLAG - HUVUD, KOLLI OCH RADER TILL EN FIL     *             
+*                                                                 *             
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*             
+FILE W47973D1                                                                   
+%W479A01 'INA01-'                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE SORTFIL  VB (442 0)                                                        
+%W479A01 'SRTA01-'                                                              
+NEWPAGE                                                                         
+                                                                                
+%W479A11  'SRTA11-'                                                             
+NEWPAGE                                                                         
+                                                                                
+%W479A21  'SRTA21-'                                                             
+NEWPAGE                                                                         
+*                                                                               
+FILE W47973D2 VB (442 0)                                                        
+*                                                                               
+%W479A01 'UTA01-'                                                               
+NEWPAGE                                                                         
+                                                                                
+%W479A11  'UTA11-'                                                              
+NEWPAGE                                                                         
+                                                                                
+%W479A21  'UTA21-'                                                              
+NEWPAGE                                                                         
+*                                                                               
+JA                     W   1 A     VALUE 'J'                                    
+NEJ                    W   1 A     VALUE 'N'                                    
+SKRIV-02-POST-SW       W   1 A     VALUE 'N'                                    
+SPAR-IDPRODNR          W   7 P  0  VALUE +0                                     
+*                                                                               
+ARB-KDORDKL            W   1 P  0                                               
+ARB-IDLOTNR            W   2 P  0                                               
+ARB-KDORDLOT           W   2 A                                                  
+ARB-KDPERSON           W   2 P  0                                               
+ARB-KDFRAKT            W   2 P  0                                               
+ARB-KVORDRAD           W   3 P  0                                               
+ARB-TIBEGPAC           W   4 P  0                                               
+ARB-VLORDNTO           W   4 P  3                                               
+ARB-VKORDNTO           W   4 P  1                                               
+ARB-IDUSER             W   8 A                                                  
+*                                                                               
+ARB-IDKUNDRF           W  10 A                                                  
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+SORT W47973D1 TO SORTFIL USING (INA01-IDDISTR      +                            
+                                INA01-IDKUNDNR     +                            
+                                INA01-IDPRODNR     +                            
+                                INA01-IDPTYP       +                            
+                                INA01-IDPURAD      +                            
+                                INA01-IDKOLLI)                                  
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT SORTFIL                                                               
+                                                                                
+IF SRTA01-IDPTYP = 'A01'                                                        
+  SPAR-IDPRODNR = SRTA01-IDPRODNR                                               
+  SKRIV-02-POST-SW    = JA                                                      
+END-IF                                                                          
+                                                                                
+IF SKRIV-02-POST-SW = JA                                                        
+  MOVE SPACE      TO UTA01-W479A01                                              
+                                                                                
+  IF SRTA01-IDPTYP = 'A01'                                                      
+    PERFORM B-FLYTTA-A01-POST                                                   
+  ELSE                                                                          
+    IF SRTA01-IDPTYP = 'A02'                                                    
+      PERFORM C-FLYTTA-A02-POST                                                 
+    END-IF                                                                      
+  END-IF                                                                        
+ELSE                                                                            
+  IF SRTA01-IDPRODNR = SPAR-IDPRODNR                                            
+    IF SRTA11-IDPTYP = 'A11'                                                    
+      UTA11-W479A11             = SRTA11-W479A11                                
+      UTA11-IDKUNDRF            = ARB-IDKUNDRF                                  
+      PUT W47973D2                                                              
+    ELSE                                                                        
+      IF SRTA21-IDPTYP = 'A21'                                                  
+        UTA21-W479A21           = SRTA21-W479A21                                
+        PUT W47973D2                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+END-IF                                                                          
+NEWPAGE                                                                         
+*                                                                               
+B-FLYTTA-A01-POST. PROC                                                         
+                                                                                
+  ARB-KDORDKL         = SRTA01-KDORDKL                                          
+  ARB-IDLOTNR         = SRTA01-IDLOTNR                                          
+  ARB-KDORDLOT        = SRTA01-KDORDLOT                                         
+  ARB-KDPERSON        = SRTA01-KDPERSON                                         
+  ARB-KDFRAKT         = SRTA01-KDFRAKT                                          
+  ARB-KVORDRAD        = SRTA01-KVORDRAD                                         
+  ARB-TIBEGPAC        = SRTA01-TIBEGPAC                                         
+  ARB-VLORDNTO        = SRTA01-VLORDNTO                                         
+  ARB-VKORDNTO        = SRTA01-VKORDNTO                                         
+  ARB-IDUSER          = SRTA01-IDUSER                                           
+END-PROC                                                                        
+SKIP 2                                                                          
+*                                                                               
+C-FLYTTA-A02-POST. PROC                                                         
+  UTA01-W479A01       = SRTA01-W479A01                                          
+  UTA01-IDPTYP        = 'A01'                                                   
+  ARB-IDKUNDRF        = SRTA01-IDKUNDRF                                         
+                                                                                
+  UTA01-KDORDKL       = ARB-KDORDKL                                             
+  UTA01-IDLOTNR       = ARB-IDLOTNR                                             
+  UTA01-KDORDLOT      = ARB-KDORDLOT                                            
+  UTA01-KDPERSON      = ARB-KDPERSON                                            
+  UTA01-KDFRAKT       = ARB-KDFRAKT                                             
+  UTA01-KVORDRAD      = ARB-KVORDRAD                                            
+  UTA01-TIBEGPAC      = ARB-TIBEGPAC                                            
+  UTA01-VLORDNTO      = ARB-VLORDNTO                                            
+  UTA01-VKORDNTO      = ARB-VKORDNTO                                            
+  UTA01-IDUSER        = ARB-IDUSER                                              
+  SKRIV-02-POST-SW    = NEJ                                                     
+  PUT W47973D2                                                                  
+END-PROC                                                                        
+NEWPAGE                                                                         
+*                                                                               

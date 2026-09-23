@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER BASER OCH SKAPAR FIL MED REFILLPUNKTER FÖR UPD I                     
+//*  W2722100                                                                   
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W271D1                                         
+//*                WEEKLY        W271V1                                         
+//*                                                                             
+//*  RESTART:      W27220    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W272P020 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=SAKNAS                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27220   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W27220,W27220,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W27220D1 DD  DSN=&INDUT..W27220(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)          
+//************ FIL TILL W27221 FÖR UPD AV REFILLPUNKTER                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

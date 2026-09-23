@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR EN RENSNINGSFIL MED UPGIFTER FRÅN WDM7                              
+//*                                                                             
+//*  FREKVENS:     1 GÅNG PER DAG        RTN W476D8                             
+//*                                                                             
+//*  ÅTERSTART:    W47684      NORMAL                                           
+//*                LÄSER        WDM7                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W476P084 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W476..W476D8                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47684   EXEC PGM=DFSRRC00,REGION=6M,                                         
+//             PARM=('&DBB,W47684,W47684,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                    -- ABEND         
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDM7     INCLUDE MEMBER=WDM7                                                  
+//W47684D1 DD  DSN=&INDUT..W4768A(+1),                        -LIM(255)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ NYCKLAR FÖR RENSNING AV TULL-DB                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               

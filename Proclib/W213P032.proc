@@ -1,0 +1,84 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LEVERANTÖRSBYTE                                                            
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W200D1                                            
+//*                                                                             
+//*  ÅTERSTART:    W21332 NORMAL                                                
+//*                       LÄSER  WDK6 WDD9 WDF1 WDB6                            
+//*                              WDK7 WDK9 WDR2 WDD7                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W213P032 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W213..W200D1,                                             
+//             INDIN2=&W212..W200D1,                                            
+//             INDIN3=&W217..W200D1,                                            
+//             INDIN4=&W092..W200D1,                                            
+//             INDUT=&W213..W200D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21332   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W21332,W21332,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//WDF1     INCLUDE MEMBER=WDF1                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDK9     INCLUDE MEMBER=WDK9                                                  
+//WDR2     INCLUDE MEMBER=WDR2                                                  
+//WDD7     INCLUDE MEMBER=WDD7                                                  
+//*                                                                             
+//W21332D1 DD  DSN=&INDIN..W21331,DISP=SHR                                      
+//************ R01:OR FRÅN W213P030 (KAN VARA FLERA GENERATIONER!)              
+//*                                                                             
+//         DD  DSN=&INDIN2..W21231(+0),DISP=SHR                                 
+//************ R01:OR FRÅN W212P002                                             
+//*                                                                             
+//         DD  DSN=&INDIN3..W21731(+0),DISP=SHR                                 
+//************ R01:OR FRÅN W217P002                                             
+//*                                                                             
+//         DD  DSN=&INDIN4..W09251,DISP=SHR                                     
+//************ R01:OR FRÅN TRATTEN                                              
+//*                                                                             
+//         DD  DSN=&INDIN4..W0924A,DISP=SHR                                     
+//************ R01:OR FRÅN STANSBILD                                            
+//*                                                                             
+//W21332D2 DD  DSN=&INDUT..W21333(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FELTRANSAR TILL TRATTEN                                          
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W21332D4 DD  DSN=&INDUT..W21334(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ DB-ÄNDRINGAR TILL W213P034                                       
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W21332D5 DD  DSN=&INDUT..W21332(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UPPDATERINGAR TILL HÄNDELSEBASER   TILL W213P035                 
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W21332D6 DD  DSN=&INDUT..W21350(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ ARTIKLAR SOM BYTT TILL REFILL PÅ CDC                             
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             

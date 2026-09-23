@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  NEDLÄSNING WDF5                                                            
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W116V1                                         
+//*                                                                             
+//*  RESTART:      W11685      NORMAL                                           
+//*                READS        WDF5                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P085 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W116..W116V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11685   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W11685,W11685,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDF5     INCLUDE MEMBER=WDF5                                                  
+//*                                                                             
+//W11685D1 DD  DSN=&&W11685,DISP=(NEW,PASS,DELETE),                             
+//************  NEDLÄST WDF5 CROSSINDEX                                         
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PD85),DISP=SHR                         
+//SORTIN   DD  DSN=&&W11685,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD PER ARTIKELNR LEVNR BENNR                               
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W11685(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ SORTERING PER ARTIKEL LEVNR BENNR                                
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=NOBACKUP                                                
+//*                                                                             

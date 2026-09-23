@@ -1,0 +1,173 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6114400                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCNING AV DB-EXTRAKT (ETIKETT-REG.) SAMT LAGERBAND  *        
+*                                                                      *        
+*  FÖRFATTARE :  JOHAN LINDKVIST                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     990525      JOHAN LINDKVIST          9232          Y2K-ÄNDRING   *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61144D1                                                                   
+*                                                                               
+%W011100  'LB-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W61144D2 FB(439 0)                                                         
+*                                                                               
+%W011100  'TMP-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61144D3                                                                   
+*                                                                               
+%W61142  'IN-'                                                                  
+*                                                                               
+WS-REGDAT-2      IN-DAREGDAT   +2  6  N                                         
+*                                                                               
+WS-REGDAT-AAVV-A W                 4  A                                         
+WS-REGDAT-AAVV   WS-REGDAT-AAVV-A  4  N                                         
+*                                                                               
+NEWPAGE                                                                         
+FILE W61144D4  FB(8 0)                                                          
+*                                                                               
+%W61144  'UT-'                                                                  
+                                                                                
+* ----------------                                                              
+* WORKING STORAGE                                                               
+* ----------------                                                              
+JA           W  1  A  VALUE 'J'                                                 
+NEJ          W  1  A  VALUE 'N'                                                 
+*                                                                               
+WS-UPDATE    W  1  A                                                            
+*                                                                               
+DAGENS-AAVV  W              4  N                                                
+DAGENS-AAR   DAGENS-AAVV    2  N                                                
+DAGENS-VECKA DAGENS-AAVV +2 2  N                                                
+                                                                                
+*                                                                               
+*--------------------------*                                                    
+* AREOR FÖR SUBPROGRAM     *                                                    
+*--------------------------*                                                    
+DATKORT           W   8   A   VALUE 'DATKORT '                                  
+W009VADD          W   8   A   VALUE 'W009VADD'                                  
+* ----------------                                                              
+%WDATAREA                                                                       
+* ----------------                                                              
+PROGRAM-NAMN      W   6   A   VALUE 'W61144'                                    
+DATUMKORT-ID      W   6   A   VALUE 'WDATUM'                                    
+%WDATKORT 'DATKORT-'                                                            
+* ----------------                                                              
+DATUM-AAVV        W   3   P                                                     
+ANTAL-VECKOADD    W   2   P 0                                                   
+* ----------------                                                              
+                                                                                
+%WWPRODSL  'LB-' WORK ''                                                        
+                                                                                
+%WY2000W3                                                                       
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SELEKTERAR LAGERBANDET                                                
+*                                                                               
+JOB INPUT (W61144D1 +                                                           
+          ) +                                                                   
+    NAME STEP1                                                                  
+                                                                                
+  IF LB-BEFT = 1 THRU 97                                                        
+     IF LB-KDERS < 20                                                           
+        PERFORM S25-CHECK-LB-KDPRODSL                                           
+        IF LB-KDPRODSL = KDPRODSL-VOLVO-ALL                                     
+           PUT W61144D2 FROM W61144D1                                           
+        END-IF                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+                                                                                
+%WWPRODSL 'LB-' PROC ''                                                         
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. SORTERAR DATABAS-EXTRAKTET (ETIKETT-REGISTRET)                        
+*                                                                               
+ SORT W61144D3 TO +                                                             
+      W61144D3 USING (IN-IDARTNR) +                                             
+     NAME STEP2                                                                 
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 3. MATCHNING AV SELEKTERAT LAGERBAND & ETIKETTREG.                       
+*                                                                               
+JOB INPUT (W61144D2 KEY(TMP-IDARTNR) +                                          
+          W61144D3 KEY(IN-IDARTNR) +                                            
+          ) +                                                                   
+    START (A-INIT) +                                                            
+    NAME STEP3                                                                  
+IF MATCHED                                                                      
+   CONTINUE                                                                     
+ELSE                                                                            
+   IF W61144D2                                                                  
+      PERFORM NEW-ON-DATABASE                                                   
+   ELSE                                                                         
+      PERFORM DELETE-FROM-DATABASE                                              
+   END-IF                                                                       
+END-IF                                                                          
+                                                                                
+A-INIT. PROC                                                                    
+  CALL DATKORT  USING (PROGRAM-NAMN +                                           
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+                                                                                
+  DAGENS-AAR   =  DATKORT-D-AAR                                                 
+  DAGENS-VECKA =  DATKORT-D-VECKA                                               
+  DATUM-AAVV   =  DAGENS-AAVV                                                   
+  ANTAL-VECKOADD = -2                                                           
+  CALL W009VADD USING (DATUM-AAVV ANTAL-VECKOADD)                               
+                                                                                
+END-PROC                                                                        
+                                                                                
+NEW-ON-DATABASE. PROC                                                           
+* NYUPPLÄGG PÅ ETIKETT-REGISTRET                                                
+   UT-IDPTYP = 'NEW'                                                            
+   UT-IDARTNR  = TMP-IDARTNR                                                    
+   PUT W61144D4                                                                 
+END-PROC                                                                        
+                                                                                
+DELETE-FROM-DATABASE. PROC                                                      
+* BORTTAG FRÅN ETIKETT-REGISTRET                                                
+  WS-UPDATE = NEJ                                                               
+  PERFORM CHECK-FOR-NEWLY-MADE                                                  
+  IF WS-UPDATE = JA                                                             
+     UT-IDPTYP = 'DEL'                                                          
+     UT-IDARTNR = IN-IDARTNR                                                    
+     PUT W61144D4                                                               
+  END-IF                                                                        
+END-PROC                                                                        
+                                                                                
+CHECK-FOR-NEWLY-MADE. PROC                                                      
+   DAT-I-TIDATUM = WS-REGDAT-2                                                  
+   DAT-KDDATFORM = 'AAMMDD'                                                     
+   CALL WDATKONV USING (DAT-KDDATFORM  +                                        
+                        DAT-I-TIDATUM  +                                        
+                        DAT-O-TIDATUM  +                                        
+                        DAT-KDSVAR)                                             
+   IF DAT-KDSVAR = ' '                                                          
+      WS-REGDAT-AAVV-A = DAT-TIAAVV-GRP                                         
+   ELSE                                                                         
+      DISPLAY 'FEL FRÅN DATKONV'                                                
+      STOP EXECUTE                                                              
+   END-IF                                                                       
+                                                                                
+   TMP1-YYWW = DATUM-AAVV                                                       
+   TMP2-YYWW = WS-REGDAT-AAVV                                                   
+   PERFORM WY2000P3                                                             
+   IF (TMP1-YYWW > TMP2-YYWW )                                                  
+      WS-UPDATE = JA                                                            
+   END-IF                                                                       
+END-PROC                                                                        
+ NEWPAGE                                                                        
+%WY2000P3                                                                       

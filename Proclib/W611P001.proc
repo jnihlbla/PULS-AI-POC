@@ -1,0 +1,34 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TAR EMOT ODETTE FIL OCH LÄGGER UPP AVISERINGAR                             
+//*  PÅ INLVERANSREGISTRET                                                      
+//*                                                                             
+//*  FREKVENS:     FLERA GGR PER DAG    RTN W611S1                              
+//*                                                                             
+//*  ÅTERSTART:    W61101    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P001 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W611..W611S1,                                             
+//             INDUT=&W611..W611S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61101   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W61101,W61101,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W61101D1 DD  DSN=&INDIN..W61101(+0),DISP=SHR                                  
+//************ ODETTE FIL                                                       
+//W61101D2 DD  DSN=&INDUT..W61101F(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ FELKONTROLLSFIL TILL W611S1RE                                    
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  

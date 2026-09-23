@@ -1,0 +1,51 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  COMPARE STOCK WDK711 WDK728 DC87                                           
+//*                                                                             
+//*  FREQUENCE:    WEEK      RTN W612VB                                         
+//*                                                                             
+//*  RESTART:      NORMAL                                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P01G PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W011,                                                     
+//             INDUT=&W612..W612VB                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT84   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD04),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..NDC.W01184(+0),DISP=SHR                              
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED W01184 FILE                                               
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//SORT88   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD05),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..NDC.W01188(+0),DISP=SHR                              
+//SORTOUT  DD  DSN=&&W01188,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED W01188 FILE                                               
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W6121G   EXEC PGM=V16459,PARM='W6121G/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W6121GD1 DD  DSN=&&W01184,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTED W01184                                                    
+//*                                                                             
+//W6121GD2 DD  DSN=&&W01188,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTED W01188                                                    
+//*                                                                             
+//W6121GD3 DD  DSN=&INDUT..W6121A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ OUTFILE                                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

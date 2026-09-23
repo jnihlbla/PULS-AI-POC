@@ -1,0 +1,144 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W55332                                                *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR LISTA MED ARTIKLAR SOM BYTT NOLLPRISER MOT     *        
+*                NYA PRISER FÖR PRINK PRARTSTD PRARTBES PRARTSJK,      *        
+*                PÅ BILD 2133.                                         *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON                                    *        
+*                                                                      *        
+*  INFIL      :  W553.W553V1.W55324     LOGGPOSTER (KDPRIVEH = A)      *        
+*                                                                      *        
+*  LISTA      :  W55332-001 FÖRÄNDRADE NOLL-PRISER PÅ ARTIKLAR I PULS  *        
+*                                                                      *        
+*  SKAPAD FÖR ETRACKER NO 1456859, INSTALLERAD 2004-11-07              *        
+*  ÄNDRAD FÖR ETRACKER NO 1546881, INSTALLERAD 2004-11-15              *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W55332D1                                                                   
+%W55324                                                                         
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W55332D2  PRINTER FB(121 0)                                                
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------*                                                    
+*     WORKING STORAGE      *                                                    
+*--------------------------*                                                    
+                                                                                
+W-DATUM         W              6    N                                           
+   W-AR         W-DATUM        2    N                                           
+   W-MAN        W-DATUM +2     2    N                                           
+   W-DAG        W-DATUM +4     2    N                                           
+                                                                                
+W-VECKA         S              2    N                                           
+                                                                                
+W-IDUSER        W              8    A                                           
+W-IDARTNR       W              8    N    MASK 'ZZZZZZZ9'                        
+W-IDLEVNR       W              5    A                                           
+W-RETULF        W              5    N 4  MASK '9.9999'                          
+W-DADATUM       W              8    A                                           
+   W-TIDATUM    W-DADATUM  +2  6    N                                           
+W-N-PRINK       W              8    N 2  MASK 'ZZZZZ9,99'                       
+W-N-PRARTSTD    W              8    N 2  MASK 'ZZZZZ9,99'                       
+W-N-PRARTSJK    W              8    N 2  MASK 'ZZZZZ9,99'                       
+W-N-PRARTBES    W              8    N 2  MASK 'ZZZZZ9,99'                       
+                                                                                
+PROGRAM-NAMN    W              8    A           VALUE 'W5533200'                
+DATUMKORT-ID    W              8    A           VALUE 'WDATUM  '                
+                                                                                
+*--------------------------*                                                    
+* COPYTEXT                 *                                                    
+*--------------------------*                                                    
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+*---------------*                                                               
+*   JOB INPUT   *                                                               
+*---------------*                                                               
+                                                                                
+JOB INPUT W55332D1  START A-INIT                                                
+                                                                                
+IF KDPRIBEH EQ 'A'                                                              
+                                                                                
+   W-IDUSER                = IDUSER                                             
+   W-IDARTNR               = IDARTNR                                            
+   W-IDLEVNR               = N-IDLEVNR-PR                                       
+** W-RETULF                = N-RETULF                                           
+   W-RETULF                = 0                                                  
+   W-DADATUM               = DAREGDAT                                           
+   W-N-PRINK               = N-PRINK                                            
+   W-N-PRARTSTD            = N-PRARTSTD                                         
+   W-N-PRARTSJK            = N-PRARTSJK                                         
+   W-N-PRARTBES            = N-PRARTBES                                         
+                                                                                
+   PRINT RAPPORT01                                                              
+                                                                                
+END-IF                                                                          
+                                                                                
+A-INIT.  PROC                                                                   
+                                                                                
+   CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                     
+                                                                                
+   W-AR    = D-AAR                                                              
+   W-MAN   = D-MAANAD                                                           
+   W-DAG   = D-DAG                                                              
+   W-VECKA = D-VECKA                                                            
+                                                                                
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+*-------------------*                                                           
+* REPORT W55332-001                                                             
+*-------------------*                                                           
+                                                                                
+REPORT    RAPPORT01                         +                                   
+          SUMSPACE   0                      +                                   
+          PRINTER W55332D2                  +                                   
+          LINESIZE  99                      +                                   
+          SPACE      1                      +                                   
+          NOHEADING                         +                                   
+          NOADJUST                          +                                   
+          NOSPREAD                          +                                   
+          NODATE                            +                                   
+          NOPAGE                            +                                   
+          TITLESKIP 0                                                           
+                                                                                
+SEQUENCE  W-IDARTNR   W-TIDATUM                                                 
+                                                                                
+CONTROL   FINAL NOPRINT W-IDARTNR NEWPAGE NOPRINT                               
+                                                                                
+TITLE 1   COL  1   'W55332-001'             +                                   
+          COL 20   'VCCS           '        +                                   
+          COL 52   'NYA ARTIKLARS PRISER'   +                                   
+          COL 85   'VECKA '                 +                                   
+          COL 91   W-VECKA                                                      
+                                                                                
+TITLE 2   COL  1   'ARTNR: '                +                                   
+          COL 10   W-IDARTNR                +                                   
+          COL 26   'DATUM: '                +                                   
+          COL 33   W-DATUM                  +                                   
+          COL 40   'NYA ARTIKLARS PRISER'   +                                   
+          COL 74  'ÄNDRAD AV:'              +                                   
+          COL 85   W-IDUSER                                                     
+                                                                                
+TITLE 3  COL   3 'ARTIKELNR'                +                                   
+         COL  16 'DATUM'                    +                                   
+         COL  24 'LEVNR'                    +                                   
+         COL  32 'INK PRIS'                 +                                   
+         COL  44 'STD PRIS'                 +                                   
+         COL  56 'BES PRIS'                 +                                   
+         COL  68 'SJK PRIS'                                                     
+                                                                                
+LINE 1   COL   4  W-IDARTNR                 +                                   
+         COL  15  W-TIDATUM                 +                                   
+         COL  24  W-IDLEVNR                 +                                   
+         COL  31  W-N-PRINK                 +                                   
+         COL  43  W-N-PRARTSTD              +                                   
+         COL  55  W-N-PRARTBES              +                                   
+         COL  67  W-N-PRARTSJK                                                  

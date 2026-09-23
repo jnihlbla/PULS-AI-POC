@@ -1,0 +1,122 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6118700                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR CD-ARTIKLAR/DC MED SKAPADE ORDRAR OCH SKRIVER *        
+*                EN LISTA ÖVER ANDEL SOM STYRT MOT CD-LAGER.           *        
+*                                                                      *        
+*  FÖRFATTARE :  KENT JEBSEN                                           *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61187D1                                                                   
+*                                                                               
+%W6113801  'ART-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W61187D2                                                                   
+*                                                                               
+%W6113901  'ORD-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W61187D3  FB (38 0)                                                        
+SKRIV-DATA 1 38 A                                                               
+                                                                                
+TITLE-DATA   W   38 A VALUE 'VCCS  W61187-001 FÖRDELN CD/PLOCKPLATS'            
+RUB-DATA     W   38 A                                                           
+  RUB-IDARTNR    RUB-DATA      9 A  VALUE 'ARTNR    '                           
+  RUB-TECKEN1    RUB-DATA  +9  1 A  VALUE ';'                                   
+  RUB-IDDC       RUB-DATA  +10 2 A  VALUE 'DC'                                  
+  RUB-TECKEN2    RUB-DATA  +12 1 A  VALUE ';'                                   
+  RUB-KVBEART    RUB-DATA  +13 9 A  VALUE 'PL.PLATS '                           
+  RUB-TECKEN3    RUB-DATA  +22 1 A  VALUE ';'                                   
+  RUB-KVBEART-CD RUB-DATA  +23 9 A  VALUE 'CD-LAGER '                           
+  RUB-TECKEN4    RUB-DATA  +32 1 A  VALUE ';'                                   
+  RUB-CD-PROC    RUB-DATA  +33 4 A  VALUE 'CD% '                                
+                                                                                
+UT-DATA     W   38 A                                                            
+  UT-IDARTNR    UT-DATA  9     N                                                
+  UT-TECKEN1    UT-DATA +9  1  A                                                
+  UT-IDDC       UT-DATA +10 2  A                                                
+  UT-TECKEN2    UT-DATA +12 1  A                                                
+  UT-KVBEART    UT-DATA +13 9  N    VALUE 0                                     
+  UT-TECKEN3    UT-DATA +22 1  A                                                
+  UT-KVBEART-CD UT-DATA +23 9  N    VALUE 0                                     
+  UT-TECKEN4    UT-DATA +32 1  A                                                
+  UT-CD-PROC    UT-DATA +33 4  N    VALUE 0                                     
+                                                                                
+KVBEART-TOT    W 9  N 0                                                         
+SPAR-IDARTNR   W 9  N 0                                                         
+SPAR-IDDC      W 2  A                                                           
+FL-FOERSTA     W 1  A                     VALUE 'J'                             
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. MATCHAR CD-ARTIKLAR/DC MED UTSKRIVNA ORDRAR                           
+*                                                                               
+JOB INPUT (W61187D1 KEY(ART-IDARTNR, ART-IDDC) +                                
+          W61187D2 KEY(ORD-IDARTNR, ORD-IDDC)) +                                
+          FINISH Z-FINIT                                                        
+IF MATCHED                                                                      
+  IF FL-FOERSTA = 'J'                                                           
+    SPAR-IDARTNR = ART-IDARTNR                                                  
+    SPAR-IDDC    = ART-IDDC                                                     
+    FL-FOERSTA = 'N'                                                            
+    SKRIV-DATA = TITLE-DATA                                                     
+    PUT W61187D3                                                                
+    SKRIV-DATA = RUB-DATA                                                       
+    PUT W61187D3                                                                
+  END-IF                                                                        
+  IF SPAR-IDARTNR = ART-IDARTNR AND SPAR-IDDC = ART-IDDC                        
+    UT-KVBEART    = UT-KVBEART + ORD-KVBEART                                    
+    UT-KVBEART-CD = UT-KVBEART-CD + ORD-KVBEART-CD                              
+  ELSE                                                                          
+    UT-IDARTNR = SPAR-IDARTNR                                                   
+    UT-IDDC    = SPAR-IDDC                                                      
+    KVBEART-TOT = UT-KVBEART + UT-KVBEART-CD                                    
+    IF KVBEART-TOT > 0                                                          
+      UT-CD-PROC = (UT-KVBEART-CD / KVBEART-TOT) * 100                          
+    ELSE                                                                        
+      UT-CD-PROC = 0                                                            
+    END-IF                                                                      
+    UT-TECKEN1 = ';'                                                            
+    UT-TECKEN2 = ';'                                                            
+    UT-TECKEN3 = ';'                                                            
+    UT-TECKEN4 = ';'                                                            
+    SKRIV-DATA = UT-DATA                                                        
+    PUT W61187D3                                                                
+    SPAR-IDARTNR  = ART-IDARTNR                                                 
+    SPAR-IDDC     = ART-IDDC                                                    
+    UT-KVBEART    = ORD-KVBEART                                                 
+    UT-KVBEART-CD = ORD-KVBEART-CD                                              
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+Z-FINIT. PROC                                                                   
+  UT-IDARTNR = SPAR-IDARTNR                                                     
+  UT-IDDC    = SPAR-IDDC                                                        
+  KVBEART-TOT = UT-KVBEART + UT-KVBEART-CD                                      
+  IF KVBEART-TOT > 0                                                            
+    UT-CD-PROC = (UT-KVBEART-CD / KVBEART-TOT) * 100                            
+  ELSE                                                                          
+    UT-CD-PROC = 0                                                              
+  END-IF                                                                        
+  UT-TECKEN1 = ';'                                                              
+  UT-TECKEN2 = ';'                                                              
+  UT-TECKEN3 = ';'                                                              
+  UT-TECKEN4 = ';'                                                              
+  SKRIV-DATA = UT-DATA                                                          
+  PUT W61187D3                                                                  
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*EPORT W61187  PRINTER W61187D3 LINESIZE 75 DTLCTL FIRST                        
+*ITLE 1  'VCCS  W61187-001   FÖRDELNING CD-LAGER/PLOCKPLATS'                    
+*EADING  UT-IDARTNR    'ART'                                                    
+*EADING  UT-IDDC       'DC'                                                     
+*EADING  UT-KVBEART    'PL.PLATS'                                               
+*EADING  UT-KVBEART-CD 'CD-LAGER'                                               
+*EADING  UT-CD-PROC    'CD-PROC'                                                
+*INE  1  UT-IDARTNR UT-IDDC UT-KVBEART UT-KVBEART-CD UT-CD-PROC                 

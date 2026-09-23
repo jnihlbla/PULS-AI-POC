@@ -1,0 +1,107 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  INVENTERINGEN.                                                             
+//*                                                                             
+//*  LISTAR ARTIKLAR MED NEGATIVA LAGERSALDON.                                  
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W500V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W51346    NORMAL                                             
+//*                                                                             
+//W513P046 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..&RTEGRP.,                                           
+//             INDREG=&W011,                                                    
+//             DEST2=&R3130144,                                                 
+//             DEST4=&CPRINT,DEST5=&QIT10024,                                   
+//             DEST6=&RSE77069,DEST7=&QJP20109,DEST8=&QAU10012,                 
+//             DEST12=&R3130060,                                                
+//             INDUT=&W513..W500V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51346   EXEC PGM=V16459,PARM='W51346/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR            -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W51346D1 DD  DSN=&INDIN..W51053(+0),DISP=SHR                                  
+//************ EKONOMI-ARTIKELSALDOFIL                                          
+//*                                                                             
+//W51346D2 DD  DSN=&INDREG..W01172(+0),DISP=SHR                                 
+//************ ARTIKELEXTRAKT WDK6                                              
+//*                                                                             
+//W51346DH DD  DSN=&INDIN..W51052(+0),DISP=SHR                                  
+//************ ARTIKELINFO NDC-NA                                               
+//*                                                                             
+//W51346DI DD  DSN=&INDIN..W5105C(+0),DISP=SHR                                  
+//************ ARTIKELINFO NDC-CN                                               
+//*                                                                             
+//W51346DJ DD  DSN=&INDIN..W5105D(+0),DISP=SHR                                  
+//************ ARTIKELINFO NDC-IN                                               
+//*                                                                             
+//TEMP1    DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//TEMP2    DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W51346D3 DD  SYSOUT=(A,,F001),DEST=&DEST2,                                    
+//************ W51346-021 LISTAR ARTIKLAR MED NEG. LAGERSALDO DC 21             
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W51346D5 DD  SYSOUT=(A,,STD),DEST=&DEST4,                                     
+//************ W51346-024 LISTAR ARTIKLAR MED NEG. LAGERSALDO DC 24             
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W51346D6 DD  SYSOUT=(A,,STD),DEST=&DEST5,                                     
+//************ W51346-025 LISTAR ARTIKLAR MED NEG. LAGERSALDO DC 25             
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W51346D7 DD  SYSOUT=(A,,STD),DEST=&DEST6,                                     
+//************ W51346-026 LISTAR ARTIKLAR MED NEG. LAGERSALDO DC 26             
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W51346D8 DD  SYSOUT=(A,,STD),DEST=&DEST7,                                     
+//************ W51346-061 LISTAR ARTIKLAR MED NEG. LAGERSALDO DC 61             
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W51346D9 DD  SYSOUT=(A,,STD),DEST=&DEST8,                                     
+//************ W51346-062 LISTAR ARTIKLAR MED NEG. LAGERSALDO DC 62             
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W51346DW DD  DSN=&INDUT..W51346(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ W51346-0XX LISTAR ARTIKLAR MED NEG. LAGERSALDO WEB LDC           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//W51346DD DD  DSN=&INDUT..W513O6(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************  LISTA W51346-0XX NEGATIVA LAGERSALDO   TILL ONDEMAND            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//W51346DE DD  SYSOUT=(A,,F001),DEST=&DEST12,                                   
+//************ W51346-091 LISTAR ARTIKLAR MED NEG. LAGERSALDO DC 91 (ET)        
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W51346DF DD  DSN=&&W513O6A,DISP=(NEW,PASS,DELETE),           -LIM(3)          
+//************  TEMP FILE TILL SNOWFLAKE                            ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//W51347  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&W513O6A,DISP=(OLD,DELETE,DELETE)                           
+//************** TEMP FILE TILL SNOWFLAKE                           ***         
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W513O6A(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************  LISTA W51346-0XX NEGATIVA LAGERSALDO TILL SNOWFLAKE             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB,RECFM=FB                         
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W513PD46),DISP=SHR                         
+//*                                                                             

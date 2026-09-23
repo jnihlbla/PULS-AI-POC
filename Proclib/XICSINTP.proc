@@ -1,0 +1,88 @@
+//XICSINTP PROC COMPANY=VPUBV1,      LIBRARY NAME LEVEL 1                       
+//*                                                                             
+//*          **************************************                             
+//*          *   XICS -  VERSION 5.0  JULY 1984   *                             
+//*          *            INTERPRETER             *                             
+//*          **************************************                             
+//*                                                                             
+//        LOAD=XICS50,               LOAD LIBRARY NAME LEVEL 2                  
+//        LIB=LOAD,                  LOAD LIBRARY NAME LEVEL 3                  
+//        PROG=XWXINT,               PROGRAM NAME                               
+//        VSAM=VPUBV1V,              VSAM NAME LEVEL 1                          
+//        VPROJ=XICS,                VSAM NAME LEVEL 2                          
+//        SYSTEM=XICS50,             SYSTEM LIBRARY NAME LEVEL 2                
+//        CONTROL=SYSTEM,            SYSTEM LIBRARY NAME LEVEL 3                
+//        GROUP=VPUBV1,              USER LIBRARY NAME LEVEL 1                  
+//        PROJ=XICS50,               USER LIBRARY NAME LEVEL 2                  
+//        USER=SYSTEM,               USER LIBRARY NAME LEVEL 3                  
+//        DEST=NJOXRX,               OUTPUT DEST FOR 9700 PRINT FILE            
+//        FORM=7005,                 FORM NUMBER                                
+//        DCLIB1=DCLIBX,             DCLIB 1 NAME LEVEL 3                       
+//        DCLIB2=DCLIBY,             DCLIB 2 NAME LEVEL 3                       
+//        DCLIB3=DCLIBZ,             DCLIB 3 NAME LEVEL 3                       
+//        CNF=XRXEURO,               CONFIG MEMBER NAME IN SYSTEM LIB           
+//        PDEF=XICSPDEF,             PDEF MEMBER NAME IN USER LIB               
+//        OCLASS='*',                OUTPUT CLASS FOR ERROR LOG FILE            
+//        ONLINE=A,                  OUTPUT CLASS FOR 9700 PRINT FILE           
+//        RUN=1,                     RUN NUMBER FOR META FILE                   
+//        P=                                                                    
+//*                                                                             
+//*                                                                             
+//*    *****************                                                        
+//*    *  INTERPRETER  *                                                        
+//*    *****************                                                        
+//*                                                                             
+//INTERP  EXEC PGM=&PROG,                                                       
+//             PARM='&P',                                                       
+//             COND=(4,LT)                                                      
+//STEPLIB   DD DSN=&COMPANY..&LOAD..&LIB,DISP=SHR                               
+//CSSIN     DD DSN=&&META&RUN,DISP=(OLD,DELETE)            META                 
+//CSS03     DD SYSOUT=(&ONLINE,,&FORM),                                         
+//             DCB=(RECFM=UA,BLKSIZE=150),DEST=&DEST       OUTPUT               
+//CSS04     DD SPACE=(TRK,(300,300),RLSE),                 S/S IMP SCR          
+//             DCB=(RECFM=VB,LRECL=2200,BLKSIZE=3200)                           
+//FT03F001  DD DSN=&COMPANY..&SYSTEM..&CONTROL(&CNF),      CONFIG               
+//             LABEL=(,,,IN),DISP=SHR                                           
+//FT04F001  DD SPACE=(400,(50,50),RLSE),                   IMAGE LOG            
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=400)                              
+//FT05F001  DD DDNAME=SYSIN                                OPTION               
+//FT06F001  DD DSN=&&TEMP1,DISP=(NEW,PASS,DELETE),         LOG                  
+//             DCB=(RECFM=VBA,LRECL=125,BLKSIZE=129),                           
+//             SPACE=(129,(7000,700),RLSE)                                      
+//FT07F001  DD SPACE=(2048,(400,400),RLSE),                                     
+//             DCB=(BLKSIZE=2048,RECFM=F)                  TEMP 1               
+//FT08F001  DD DSN=&GROUP..&PROJ..&USER(&PDEF),            PDEF                 
+//             LABEL=(,,,IN),DISP=SHR                                           
+//FT13F001  DD SPACE=(CYL,(5,1)),                          MIMP SCRATCH         
+//             DCB=(RECFM=F,BLKSIZE=8180)                                       
+//VSRN01    DD DSN=&VSAM..&VPROJ..&DCLIB1,DISP=SHR         DCLIB 1              
+//VSRN03    DD DSN=&VSAM..&VPROJ..&DCLIB2,DISP=SHR         DCLIB 2              
+//VSRN02    DD DSN=&VSAM..&VPROJ..&DCLIB3,DISP=SHR         DCLIB 3              
+//V10150D0  DD DSN=V128V1.V12850(0),DISP=SHR                                    
+//SYSIN     DD DUMMY,DCB=BLKSIZE=80                        OPTION               
+//*                                                                             
+//*    **********************                                                   
+//*    *  DEBITERING STEG 1 *                                                   
+//*    **********************                                                   
+//*                                                                             
+//V34425   EXEC PGM=V34425                                                      
+//STEPLIB   DD DSN=V344V1.PROD.LOAD,DISP=SHR                                    
+//V34425D1  DD DSN=&&TEMP1,DISP=(OLD,PASS)                                      
+//V34425D2  DD DSN=&&TEMP2,DISP=(NEW,PASS,DELETE),                              
+//             DCB=(RECFM=VB,LRECL=125,BLKSIZE=129),                            
+//             SPACE=(129,(7000,700),RLSE)                                      
+//V34425D3  DD SYSOUT=(A,INTRDR)                                                
+//BATCHLOG  DD DUMMY,DCB=BLKSIZE=120                                            
+//SYSOUT    DD SYSOUT=*                                                         
+//SYSUDUMP  DD SYSOUT=(D,,7991),DEST=NJOXRX                                     
+//SYSDBOUT  DD SYSOUT=*                                                         
+//*                                                                             
+//*    **********************                                                   
+//*    *  DEBITERING STEG 2 *                                                   
+//*    **********************                                                   
+//*                                                                             
+//IEBGEN   EXEC PGM=V16459,PARM='ICEGENER/4/'                                   
+//SYSPRINT  DD SYSOUT=*                                                         
+//SYSIN     DD DUMMY                                                            
+//SYSUT1    DD DSN=&&TEMP2,DISP=(OLD,PASS)                                      
+//SYSUT2    DD SYSOUT=&OCLASS                                                   

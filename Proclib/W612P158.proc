@@ -1,0 +1,49 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LISTAR ICKE PLATSSATTA ARTIKLAR                                            
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W612D5                                       
+//*                                                                             
+//*  ÅTERSTART:    W61258    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P058 PROC STPLIB=&INDRTE..LOAD,                                           
+//             DEST1=&CPRINT,                                                   
+//             INDIN=&W612..W612D5,                                             
+//             INDUT=&W612..W612D5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD58),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61255(+0),DISP=SHR                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61255,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(73,(3,2),RLSE),AVGREC=K                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61258   EXEC PGM=V16459,PARM='W61258/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//A4LF  OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                    
+//************ A4 LANDSCAPE, SINGLE SIDE, RASTER  (FOLDED PAPER)                
+//W61258D1 DD  DSN=&&W61255,DISP=OLD                                            
+//************ INFIL                                                            
+//*                                                                             
+//W61258D2 DD  SYSOUT=(A,,STD),DEST=&DEST1,OUTPUT=(*.A4LF)                      
+//************ W612581  UTLISTA TILL XPRESS DEL.                                
+//*                                                                             
+//W61258D3 DD  DSN=&INDUT..W61259(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ W61258-001                                                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

@@ -1,0 +1,33 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR SUMMERAD EFR HISTORIK                                               
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W483V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W48314   NORMAL                                              
+//*                DFUP   NORMAL                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W483P014 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W479..W483V1,                                            
+//             INDUT=&W483..W483V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W48314   EXEC PGM=V16459,PARM='W48314/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(500,200))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W48314D1 DD  DSN=&INDIN2..W47953,DISP=SHR                                     
+//************ EFRFIL VECKOSLUT                                                 
+//*                                                                             
+//W48314D2 DD  DSN=&INDUT..W48314(+1),DISP=(NEW,CATLG,DELETE), -LIM(52)         
+//************ SUMMERAD EFR-FIL                                                 
+//             MGMTCLAS=&BACKUPC,SPACE=(27962,(8,2),RLSE)                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

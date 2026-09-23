@@ -1,0 +1,52 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  INVENTERINGEN.                                                             
+//*                                                                             
+//*  MATCHAR POSTER MED LAGERBAND FÖR ATT KOMPLETTERA MED PRIS                  
+//*  SEDAN SUMMERAS POSTERNA PÅ IDDC, ADLAGOMR OCH IDURVAL-INV                  
+//*  FÖR LISTA W51316-011 BARA CDC POSTER                                       
+//*  FREKVENS:     VECKA     RTN W513V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W51316    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P016 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W513..W513D2,                                             
+//             INDIN1=&W513,                                                    
+//             INDREG=&W011,                                                    
+//             INDUT=&W513..W513V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51316   EXEC PGM=V16459,PARM='W51316/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(2000,2000))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR            -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W51316D1 DD  DSN=&INDIN1..W51372(+0),DISP=SHR                                 
+//************ EKONOMI-ARTIKELSALDOFIL                                          
+//*                                                                             
+//W51316D2 DD  DSN=&INDIN..W51316(+0),DISP=SHR                                  
+//************ ALLA POSTER SOM SKA INVENTERAS I ÅR                              
+//*                                                                             
+//W51316D3 DD  DSN=&INDREG..W01172(+0),DISP=SHR                                 
+//************ ARTIKELEXTRAKT                                                   
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51316D4 DD  DSN=&INDUT..W51317(+1),DISP=(NEW,CATLG,DELETE),  -LIM(10)        
+//************  UTFIL MED SUMMERADE POSTER TILL ONDEMAND                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

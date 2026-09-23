@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      HÖGLAGRET:  MATCHAR CENTRALT OCH LOKALT SALDOREGISTER.       *         
+//*                                                                   *         
+//*      PERIODICITET:  VECKA                                         *         
+//*                                                                   *         
+//*      ÅTERSTART:    W48834    NORMAL                               *         
+//*                    DFUP      NORMAL                               *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W488P034 PROC INDIN=&W488..W488V1,INDUT=&W488..W488V1,                        
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W48834 EXEC PGM=W48834                                                        
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//SYSOUT   DD  SYSOUT=*                                    (DISPLAY)            
+//SORTMSG  DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//PRNTOUT  DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                    (POSTSUM)            
+//*                                                                             
+//W48834D1 DD DSN=&INDIN..W48833(+0),DISP=SHR                                   
+//************  CENTRALT SALDOREG                                               
+//*                                                                             
+//W48834D2 DD DSN=&INDIN..W48831(+0),DISP=SHR                                   
+//************  LOKALT SALDOREG                                                 
+//*                                                                             
+//W48834D3 DD  DSN=&INDUT..W48835(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************** KORRIGERINGSTRANSAR FÖR WDD8                                   
+//             SPACE=(6225,(200,20),RLSE),                                      
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W48834D4 DD  DSN=&INDUT..W48837(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************** FELLISTPOSTER, SALDOAVVIKELSER                                 
+//             SPACE=(6210,(200,20),RLSE),                                      
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      HÖGLAGRET:  KONTROLLERAR INDATAN FRÅN PDP:N                  *         
+//*                                                                   *         
+//*      PERIODICITET: VECKA                                          *         
+//*                                                                   *         
+//*      ÅTERSTART:    W48830    NORMAL                               *         
+//*                    DFUP      NORMAL                               *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W488P030 PROC INDIN=&WIN..PDP,INDUT=&W488..PDP,                               
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W48830  EXEC PGM=W48830                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//SYSOUT   DD  SYSOUT=*                                    (DISPLAY)            
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//PRNTOUT  DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                    (POSTSUM)            
+//*                                                                             
+//W48830D1 DD DSN=&INDIN..W48829(+0),DISP=SHR                                   
+//************  LOKALT SALDOREG                                                 
+//*                                                                             
+//W48830D2 DD  DSN=&INDUT..W48830(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************** FELPOSTER FRÅN SALDOREGISTRET                                  
+//             SPACE=(6230,(200,20),RLSE),                                      
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W48830D3 DD  DSN=&INDUT..W48831(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************** FRÅN LOKALT REGISTER FÖR MATCHNING                             
+//             SPACE=(6225,(200,20),RLSE),                                      
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

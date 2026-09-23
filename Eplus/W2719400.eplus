@@ -1,0 +1,106 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2719400                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFAN ÅSGÅRDEN                                       *        
+*                                                                      *        
+*  DATUM      :  OKT 2002                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET SKAPAR MEMO FÖR LEDTIDSUPPFÖLJNING         *        
+*                                                                      *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W27194D1                                                                   
+*                                                                               
+%W27187       'IN-'                                                             
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W27194D3 VB (75 0) PRINTER                                                 
+*                                                                               
+*                                                                               
+  UT-VECKA             W  4  N                                                  
+  UT-FILLER1           W  1  A                                                  
+  UT-IDDISTR           W  4  N      MASK 'ZZZ9'                                 
+  UT-FILLER2           W  1  A                                                  
+  UT-VLORDBTO-KOLLI    W  5  N  1   MASK 'ZZZ9,9'                               
+                                                                                
+  SW-FIRST         W  1  A  VALUE 'J'                                           
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1  A   VALUE 'J'                                
+  NEJ                       W   1  A   VALUE 'N'                                
+  W-TAB                     W   1  A   VALUE X'05'                              
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT W27194D1 +                                                          
+      NAME   STEG01                                                             
+                                                                                
+     UT-VECKA            = IN-VECKA                                             
+     UT-IDDISTR          = IN-IDDISTR                                           
+     UT-VLORDBTO-KOLLI   = IN-VLORDBTO-KOLLI                                    
+     UT-FILLER1          = W-TAB                                                
+     UT-FILLER2          = W-TAB                                                
+                                                                                
+        PRINT RAPPORT01                                                         
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    REPORT SECTION                              *              
+*----------------------------------------------------------------*              
+*                                                                               
+    REPORT RAPPORT01 PRINTER W27194D3                            +              
+                     LINESIZE      70                            +              
+                     PAGESIZE      60                            +              
+                     NODATE                                      +              
+                     NOHEADING                                   +              
+                     NOADJUST                                    +              
+                     NOSPREAD                                    +              
+                     SPACE          3                                           
+*                                                                               
+    SEQUENCE UT-IDDISTR                                                         
+    CONTROL                                                      +              
+              FINAL          NOPRINT                                            
+*                                                                               
+    TITLE 1  '¤DAPW27194-001'                                                   
+    TITLE 2  '¤DAPW27194'                                                       
+*                                                                               
+    TITLE 3  'VECKA'                +                                           
+             W-TAB                  +                                           
+             'DISTR'                +                                           
+             W-TAB                  +                                           
+             'VOLYM'                                                            
+*                                                                               
+    LINE  1  UT-VECKA               +                                           
+             UT-FILLER1             +                                           
+             UT-IDDISTR             +                                           
+             UT-FILLER2             +                                           
+             UT-VLORDBTO-KOLLI                                                  
+*                                                                               

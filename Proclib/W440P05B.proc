@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  BESTÄMMER ORDERNS KORTASTE KLARDAG, DVS HUR LÄNGE HAR                      
+//*  DEN SENASTE KLARA RADEN VARIT KLAR.                                        
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W440V3                                         
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W4405B    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P05B PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W440..W440V3,                                             
+//             INDUT=&W440..W440V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W440PD5B),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W4405B(+0),DISP=SHR                                  
+//************ RADER FRÅN WDA6                                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W4405C,DISP=(NEW,PASS,DELETE),                             
+//************ HOPSORTERADE PÅ ORDERID OCR REGDAT                               
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W4405B   EXEC PGM=W4405B                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                    -- ABEND         
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//W4405BD1 DD  DSN=&&W4405C,DISP=(OLD,DELETE,DELETE)                            
+//************ HOPSORTERADE PÅ ORDERID OCR REGDAT                               
+//*                                                                             
+//W4405BD2 DD  DSN=&INDUT..W4405C(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ EV RENSNINGSPOSTER. LÄGSTA KLARDAT PÅ ARTNR = 0                  
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 

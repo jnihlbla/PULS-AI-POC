@@ -1,0 +1,172 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6129200                                              *        
+*                                                                      *        
+*  FUNKTION   :  LIST SUMMARY OR/AND DETAIL FREE LOCATION INFO         *        
+*                                                                      *        
+*  FÖRFATTARE :  MARTIEN HOMPES                                        *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*    970610       KENT JEBSEN.......       50653                       *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61292D1                                                                   
+*                                                                               
+%W01184    'NDC-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W61292D2                                                                   
+*                                                                               
+%W48881  'BUF-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W61292D3 FB(20 0)                                                          
+*                                                                               
+%W61292  'KOMB-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61292D4                                                                   
+*                                                                               
+%W61290  'LOC-'                                                                 
+NEWPAGE                                                                         
+FILE W61292D5  PRINTER FB (81 0)                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61292D7  PRINTER FB (81 0)                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61292D8  PRINTER FB (81 0)                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61292D9  PRINTER FB (81 0)                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61292DA  PRINTER FB (81 0)                                                
+                                                                                
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. MERGE PART FIX LOCATION WITH PART BUF LOCATION                        
+*                                                                               
+JOB INPUT NULL                                                                  
+                                                                                
+  GET W61292D1                                                                  
+  DO UNTIL EOF W61292D1                                                         
+     IF NDC-SLAG-ADLAGOMR NE 0 AND NDC-SLAG-ADPLATS NE 0                        
+        KOMB-IDDC        = NDC-SLAG-IDDC                                        
+        KOMB-ADLAGOMR    = NDC-SLAG-ADLAGOMR                                    
+        KOMB-ADGANG      = NDC-SLAG-ADGANG                                      
+        KOMB-ADPLATS     = NDC-SLAG-ADPLATS                                     
+        KOMB-IDARTNR     = NDC-SLAG-IDARTNR                                     
+        PUT W61292D3                                                            
+     END-IF                                                                     
+     GET W61292D1                                                               
+  END-DO                                                                        
+                                                                                
+  GET W61292D2                                                                  
+  DO UNTIL EOF W61292D2                                                         
+     IF BUF-ADBUFFOMR NE 0 AND BUF-ADBUFFPL NE 0                                
+        KOMB-IDDC        = BUF-IDDC                                             
+        KOMB-ADLAGOMR    = BUF-ADBUFFOMR                                        
+        KOMB-ADGANG      = BUF-ADBUFFGANG                                       
+        KOMB-ADPLATS     = BUF-ADBUFFPL                                         
+        KOMB-IDARTNR     = BUF-IDARTNR                                          
+        PUT W61292D3                                                            
+     END-IF                                                                     
+     GET W61292D2                                                               
+  END-DO                                                                        
+                                                                                
+  STOP                                                                          
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. SORT THE MERGE FILE ON LOCTION                                        
+SORT W61292D3 TO W61292D3 USING (KOMB-IDDC, KOMB-ADLAGOMR, KOMB-ADGANG +        
+                                                         , KOMB-ADPLATS)        
+NEWPAGE                                                                         
+*                                                                               
+* STEG 3. LIST LOCATION                                                         
+*                                                                               
+JOB INPUT (W61292D4 KEY (LOC-IDDC, LOC-ADLAGOMR, LOC-ADGANG,       +            
+                                                 LOC-ADPLATS)      +            
+           W61292D3 KEY (KOMB-IDDC, KOMB-ADLAGOMR, KOMB-ADGANG,    +            
+                                                   KOMB-ADPLATS))               
+                                                                                
+  IF MATCHED                                                                    
+     CONTINUE                                                                   
+   ELSE                                                                         
+     IF W61292D4                                                                
+       IF LOC-IDDC = NDC-US-RU                                                  
+         PRINT RAPPORT01                                                        
+       END-IF                                                                   
+**     IF LOC-IDDC = NDC-US-AT                                                  
+**       PRINT RAPPORT02                                                        
+**     END-IF                                                                   
+       IF LOC-IDDC = NDC-US-LA                                                  
+         PRINT RAPPORT03                                                        
+       END-IF                                                                   
+       IF LOC-IDDC = NDC-CA                                                     
+         PRINT RAPPORT04                                                        
+       END-IF                                                                   
+       IF LOC-IDDC = NDC-JP-61                                                  
+         PRINT RAPPORT05                                                        
+       END-IF                                                                   
+       IF LOC-IDDC = NDC-AU                                                     
+         PRINT RAPPORT06                                                        
+       END-IF                                                                   
+     END-IF                                                                     
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+REPORT RAPPORT01 PRINTER W61292D5 LINESIZE 80 DTLCTL FIRST                      
+TITLE 1  'VOLVO CAR PARTS       W61292-001'                                     
+TITLE 2  'FREE LOCATIONS ON DC 41 '                                             
+HEADING  LOC-ADLAGOMR         'AREA'                                            
+HEADING  LOC-ADGANG           'AISLE'                                           
+HEADING  LOC-ADPLATS          'LOCATION'                                        
+LINE  1  LOC-ADLAGOMR LOC-ADGANG LOC-ADPLATS                                    
+*                                                                               
+REPORT RAPPORT03 PRINTER W61292D7 LINESIZE 80 DTLCTL FIRST                      
+TITLE 1  'VOLVO CAR PARTS       W61292-003'                                     
+TITLE 2  'FREE LOCATIONS ON DC 43 '                                             
+HEADING  LOC-ADLAGOMR         'AREA'                                            
+HEADING  LOC-ADGANG           'AISLE'                                           
+HEADING  LOC-ADPLATS          'LOCATION'                                        
+LINE  1  LOC-ADLAGOMR LOC-ADGANG LOC-ADPLATS                                    
+*                                                                               
+REPORT RAPPORT04 PRINTER W61292D8 LINESIZE 80 DTLCTL FIRST                      
+TITLE 1  'VOLVO CAR PARTS       W61292-004'                                     
+TITLE 2  'FREE LOCATIONS ON DC 51 '                                             
+HEADING  LOC-ADLAGOMR         'AREA'                                            
+HEADING  LOC-ADGANG           'AISLE'                                           
+HEADING  LOC-ADPLATS          'LOCATION'                                        
+LINE  1  LOC-ADLAGOMR LOC-ADGANG LOC-ADPLATS                                    
+*                                                                               
+REPORT RAPPORT05 PRINTER W61292D9 LINESIZE 80 DTLCTL FIRST                      
+TITLE 1  'VOLVO CAR PARTS       W61292-005'                                     
+TITLE 2  'FREE LOCATIONS ON DC 61 '                                             
+HEADING  LOC-ADLAGOMR         'AREA'                                            
+HEADING  LOC-ADGANG           'AISLE'                                           
+HEADING  LOC-ADPLATS          'LOCATION'                                        
+LINE  1  LOC-ADLAGOMR LOC-ADGANG LOC-ADPLATS                                    
+*                                                                               
+REPORT RAPPORT06 PRINTER W61292DA LINESIZE 80 DTLCTL FIRST                      
+TITLE 1  'VOLVO CAR PARTS       W61292-006'                                     
+TITLE 2  'FREE LOCATIONS ON DC 62 '                                             
+HEADING  LOC-ADLAGOMR         'AREA'                                            
+HEADING  LOC-ADGANG           'AISLE'                                           
+HEADING  LOC-ADPLATS          'LOCATION'                                        
+LINE  1  LOC-ADLAGOMR LOC-ADGANG LOC-ADPLATS                                    
+*                                                                               

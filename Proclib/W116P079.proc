@@ -1,0 +1,80 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  EXECUTES W11679                                                            
+//*  SKICKAR ERSÄTTNINGSMEDDELANDEN TILL VIPS.                                  
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W116D4                                         
+//*                                                                             
+//*  RESTART:      W11679      NORMAL                                           
+//*                READS        WDK7 WDK6 WDD7 WDL6 WDB6                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P079 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W116..W116D4,                                             
+//             INDREG=&W116,                                                    
+//             INDUT=&W116..W116D4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN..W11661(+0),DISP=SHR                                  
+//SORTOUT  DD  DSN=&&W11661,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PD79),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11679   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W11679,W11679,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDD7     INCLUDE MEMBER=WDD7                                                  
+//WDL6     INCLUDE MEMBER=WDL6                                                  
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W11679D1 DD  DSN=&&W11661,DISP=(OLD,DELETE,DELETE)                            
+//************ SUPERSESSIONS                                                    
+//*                                                                             
+//W11679D2 DD  DSN=&&W11679,DISP=(NEW,PASS,DELETE),                             
+//************ SUPERSESSIONS FOR NEXT SURVEILLANCE ROUND                        
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W11679D3 DD  DSN=&INDUT..W1167B(+1),DISP=(NEW,CATLG,DELETE), -LIM(2)          
+//************ SUPERSESSIONS TO VIPS/NDCS                                       
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W11679D4 DD  DSN=&INDUT..W1167C(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ SUPERSESSIONINFO TO INVENTORY ROUTINE W513D1                     
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W11679D5 DD  DSN=&INDUT..W1167D(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ SUPERSESSIONINFO TO BE UPDATED BY PGM W1167D                     
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//SORT02   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PE79),DISP=SHR                         
+//SORTIN   DD  DSN=&&W11679,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//SORTOUT  DD  DSN=&INDREG..W11679(+1),DISP=(NEW,CATLG,DELETE), -LIM(03)        
+//************ SUPERSESSIONS FOR NEXT SURVEILLANCE ROUND                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  WEEKLY UPDATE OF COSTS SENT TO S&T VIA VCOM                                
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W335V6                                         
+//*                                                                             
+//*  RESTART:      W33597    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W335P097 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W335,                                                    
+//             INDIN=&W335..W335D6,                                             
+//             INDIN1=&W011..NDC,                                               
+//             INDUT=&W335..W335V6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33597   EXEC PGM=V16459,PARM='W33597/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//SORTMSG  DD  SYSOUT=*                                                         
+//W33597D1 DD  DSN=&INDREG..W33588(+0),DISP=SHR                                 
+//************ PRICFILE WITH PRICES FROM CDC AND NDC                            
+//*                                                                             
+//W33597D3 DD  DSN=&INDIN..W33592(+0),DISP=SHR                                  
+//************ KURSFIL MED MÅNAD                                                
+//*                                                                             
+//W33597D4 DD  DSN=&INDIN1..W01184(+0),DISP=SHR                                 
+//************ NDC FILE                                                         
+//*                                                                             
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TPFIL2,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W33597D2 DD  DSN=&INDUT..W33597(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ COST FILE TO S&T                                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  

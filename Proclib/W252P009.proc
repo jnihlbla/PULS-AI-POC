@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PART INFORMATION FROM PROCURMENT                                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W252XX                                         
+//*                                                                             
+//*  RESTART:      W25209    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W252P009 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W011..NDC,                                               
+//             INDUT=&W252..W252D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W252PD09),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W01184(+0),DISP=SHR                                 
+//************ LAGERBAND FRÅN NDC:ERNA                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W25209   EXEC PGM=W25209                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W25209D1 DD  DSN=&&W01184,DISP=SHR                                            
+//************ LAGERBAND FRÅN NDC:ERNA                                          
+//*                                                                             
+//W25209D2 DD  DSN=&INDUT..W25209(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ PART INFORMATION                                                 
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

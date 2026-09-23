@@ -1,0 +1,49 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  INTERNT ERSÄTTNINGSREG NDC RENSAS FRÅN BORTTAGNA                           
+//*  ARTIKLAR.NDC-NA, NDC-PF OCH NDC-CN                                         
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W122B1                                         
+//*                                                                             
+//*  RESTART:      W11617    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P017 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W116,                                                    
+//             INDIN=&W122..W122B1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11617   EXEC PGM=V16459,PARM='W11617/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W11617D1 DD  DSN=&INDREG..W11635(+0),DISP=SHR                                 
+//************ W11635                                                           
+//*                                                                             
+//W11617D2 DD  DSN=&INDREG..W11635(+1),DISP=(NEW,CATLG,DELETE), -LIM(05)        
+//************ W11635                                                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W11617D3 DD  DSN=&INDIN..W12207(+0),DISP=SHR                                  
+//************ W12207                                                           
+//*                                                                             
+//W11617D4 DD  DSN=&INDREG..W11665(+0),DISP=SHR                                 
+//************ W11665                                                           
+//*                                                                             
+//W11617D5 DD  DSN=&INDREG..W11665(+1),DISP=(NEW,CATLG,DELETE), -LIM(05)        
+//************ W11665                                                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W11617D6 DD  DSN=&INDREG..W11679(+0),DISP=SHR                                 
+//************ W11665                                                           
+//*                                                                             
+//W11617D7 DD  DSN=&INDREG..W11679(+1),DISP=(NEW,CATLG,DELETE), -LIM(05)        
+//************ W11665                                                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

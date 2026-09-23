@@ -1,0 +1,56 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR DAGLIG FAKTURAHSITORIK MED IDPRC FRÅN WDQ3                    
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W479D2                                       
+//*                                                                             
+//*  ÅTERSTART:    W4795M    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P05M PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479D2,                                             
+//             INDIN2=&W413,                                                    
+//             INDUT=&W479..W479D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//SORTQ3   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479P5M1),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W41302(+0),DISP=SHR                                 
+//SORTOUT  DD  DSN=&&Q3,DISP=(NEW,PASS,DELETE),                                 
+//             DATACLAS=PSEB                                                    
+//************  WDQ3 NEDLÄST MHA SB (CBL W41302, -P002)                         
+//************  SORTAS PÅ                                                       
+//************  DISTR, KUND, ORDER, DC, PRODNR OCH PLOCKLISTA                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W4795M   EXEC PGM=V16459,PARM='W4795M/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W4795MD1 DD  DSN=&INDIN..W4795K(+0),DISP=SHR                                  
+//************ DAGLIG FAKTURAHISTORIK                                           
+//*                                                                             
+//W4795MD2 DD  DSN=&&Q3,DISP=(OLD,DELETE,DELETE)                                
+//************ WDQ3 NEDLÄST MHA SB (CBL W41302, -P002)                          
+//*                                                                             
+//W4795MD3 DD  DSN=&&W4795M,DISP=(NEW,PASS,DELETE),                             
+//************ DAGLIG FAKTURAHISTORIK KOMPLETTERAD MED IDPRC                    
+//             DATACLAS=PSEB                                                    
+//SORT5M   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479P5M2),DISP=SHR                         
+//SORTIN   DD  DSN=&&W4795M,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W4795M(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//************  DAGLIG FAKTURAHISTORIK KOMPLETTERAD MED IDPRC                   
+//************  SORTAD PÅ DC, IDART                                             

@@ -1,0 +1,80 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4268300                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAM SOM LÄSER CDC-ARTIKLEINFO                     *        
+*                FÖR ATT HITTA DE ARTIKLAR SOM HAR LEVERANSSPÄRR = 20  *        
+*                                                                      *        
+*  FÖRFATTARE :  EVA LUNDELL                                           *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W42683D1                                                                   
+*                                                                               
+%W01160   'CDC01-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W42683D2                                                                   
+*                                                                               
+%W01162 'CDC25-'                                                                
+                                                                                
+*NEWPAGE                                                                        
+*FILE TEMPCDC FB (49 0) VIRTUAL RETAIN                                          
+*%W4268301  'TCDC-'                                                             
+                                                                                
+                                                                                
+*                                                                               
+FILE W42683D3 FB (49 0)                                                         
+*                                                                               
+%W4268301 'UT-'                                                                 
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+* JOB INPUT W42683D1                                                            
+*                                                                               
+*  IF CDC01-CLAG-KDLEVSP > +0                                                   
+*                                                                               
+*      TCDC-IDARTNR = CDC01-CLAG-IDARTNR                                        
+*      TCDC-IDANSK = CDC01-CLAG-IDANSK                                          
+*      TCDC-KDLEVSP = CDC01-CLAG-KDLEVSP                                        
+*      MOVE SPACE TO TCDC-TEARTNOT                                              
+*      PUT TEMPCDC                                                              
+*  END-IF                                                                       
+NEWPAGE                                                                         
+                                                                                
+  JOB INPUT (W42683D1 KEY (CDC01-CLAG-IDARTNR)                  +               
+             W42683D2 KEY (CDC25-NOT-IDARTNR)              )                    
+   IF MATCHED                                                                   
+     IF CDC01-CLAG-KDLEVSP > +0                                                 
+        IF CDC25-NOT-KDNOTTYP = +4                                              
+           UT-IDARTNR = CDC01-CLAG-IDARTNR                                      
+           UT-IDANSK  = CDC01-CLAG-IDANSK                                       
+           UT-KDLEVSP = CDC01-CLAG-KDLEVSP                                      
+           UT-TEARTNOT  = CDC25-NOT-TEARTNOT                                    
+           PUT W42683D3                                                         
+        END-IF                                                                  
+     END-IF                                                                     
+   ELSE                                                                         
+       IF W42683D2                                                              
+         IF CDC01-CLAG-KDLEVSP > +0                                             
+             IF CDC25-NOT-KDNOTTYP = +4                                         
+                 UT-IDARTNR = CDC01-CLAG-IDARTNR                                
+                 UT-IDANSK  = CDC01-CLAG-IDANSK                                 
+                 UT-KDLEVSP = CDC01-CLAG-KDLEVSP                                
+                 UT-TEARTNOT  = CDC25-NOT-TEARTNOT                              
+                 PUT W42683D3                                                   
+             END-IF                                                             
+         END-IF                                                                 
+       END-IF                                                                   
+   END-IF                                                                       
+NEWPAGE                                                                         
+                                                                                

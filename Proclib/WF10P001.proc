@@ -1,0 +1,130 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RECEIVES DAILY FILE FROM SAP/R3 (VIA W510 AND W570)                        
+//*                                                                             
+//*  FREKVENS:     DAY       RTN WF10D1                                         
+//*                                                                             
+//*  ÅTERSTART:    WF1001    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF10P001 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..WF10D1,                                             
+//             INDIN2=&W570..WF10D1,                                            
+//             INDIN3=&W515..WF10D1,                                            
+//             INDIN4=&W561..WF10D1,                                            
+//             INDIN5=&WF10..WF10D1,                                            
+//             INDUT=&WF10..WF10D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF1001   EXEC PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                               
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                     -- DISPLAY          
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//SYSTSIN  DD  DUMMY                                                            
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                                         
+//WF1001D1 DD  DSN=&INDIN..W51013(+0),DISP=SHR                                  
+//************ INPUT FILE WITH DAILY TRANSACTIONS FROM SAP/R3                   
+//WF1001D7 DD  DSN=&INDIN2..W57013(+0),DISP=SHR                                 
+//************ INPUT FILE WITH DAILY TRANSACTIONS FROM SAP/R3                   
+//WF1001D8 DD  DSN=&INDIN3..W51513(+0),DISP=SHR                                 
+//************ INPUT FILE WITH DAILY TRANSACTIONS FROM SAP/R3                   
+//WF1001D9 DD  DSN=&INDIN4..W56113(+0),DISP=SHR                                 
+//************ INPUT FILE WITH DAILY TRANSACTIONS FROM SAP/R3                   
+//WF1001DB DD  DSN=&INDIN5..WF1053(+0),DISP=SHR                                 
+//************ INPUT FILE WITH DAILY TRANSACTIONS FROM SAP/R3                   
+//*                                                                             
+//WF1001D2 DD  DSN=&&WF1002,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(44,(50,10),RLSE),AVGREC=K                                 
+//************ TEMPFILE WITH ACCOUNTS                                           
+//*                                                                             
+//WF1001D3 DD  DSN=&&WF1003,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(34,(50,10),RLSE),AVGREC=K                                 
+//************ TEMPFILE WITH COST CENTERS                                       
+//*                                                                             
+//WF1001D4 DD  DSN=&&WF1004,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(36,(300,66),RLSE),AVGREC=K                                
+//************ TEMPFILE WITH ORDER NUMBERS                                      
+//*                                                                             
+//WF1001D5 DD  DSN=&&WF1005,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(87,(2,2),RLSE),AVGREC=K                                   
+//************ TEMPFILE WITH VAT INFO                                           
+//*                                                                             
+//WF1001D6 DD  DSN=&&WF1006,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(449,(50,10),RLSE),AVGREC=K                                
+//************ TEMPFILE WITH FINANCIAL CUSTOMER INFO                            
+//*                                                                             
+//WF1001DA DD  DSN=&INDUT..WF1005A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ ERROR FILE WITH MISSING COUNTRIES INFO *****                     
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *        
+//WF10S1  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&WF1002,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFILE WITH ACCOUNTS                                           
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WF1002(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************** OUTPUT FILE WITH ACCOUNTS                          ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF10PD01),DISP=SHR                         
+//*                                                                             
+//*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *        
+//WF10S2  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&WF1003,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFILE WITH COST CENTERS                                       
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WF1003(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************** OUTPUT FILE WITH COST CENTERS                      ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF10PD02),DISP=SHR                         
+//*                                                                             
+//*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *        
+//WF10S3  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&WF1004,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFILE WITH ORDER NUMBERS                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WF1004(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************** OUTPUT FILE WITH ORDER NUMBERS                     ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF10PD03),DISP=SHR                         
+//*                                                                             
+//*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *        
+//WF10S4  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&WF1005,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFILE WITH VAT INFO                                           
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WF1005(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************** OUTPUT FILE WITH VAT INFO                          ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF10PD04),DISP=SHR                         
+//*                                                                             
+//*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *        
+//WF10S5  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&WF1006,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFILE WITH FINANCIAL CUSTOMER INFO                            
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WF1006(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************** OUTPUT FILE WITH FINANCIAL CUSTOMER INFO           ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF10PD05),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456',                              
+//             COND=(4,GE,WF1001)                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

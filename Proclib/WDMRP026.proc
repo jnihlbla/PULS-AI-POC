@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UPPDATERING AV DATAMANAGER MED MODUL-INFORMATION.                          
+//*  SKAPA DMR-KOMMANDON FÖR UPPDATERING AV COBOL-MODULER                       
+//*  UTGÅENDE FRÅN FIL MED DATA OM ÄNDRADE COBOLPROGRAM                         
+//*                                                                             
+//*  FREKVENS:     VECKA  RTN WDMRV6                                            
+//*                                                                             
+//*  ÅTERSTART:    WDMR26    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMRP026 PROC INDIN=&WDMR..WDMRV6,                                            
+//             INDUT=&WDMR..WDMRV6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMR26   EXEC PGM=IKJEFT01,DYNAMNBR=20,                                       
+//             PARM='ISPSTART CMD(%WDMR26)'                                     
+//*                                                                             
+//ISPPROF  DD  DSN=&&PROF,DISP=(NEW,DELETE),                                    
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160),                            
+//             SPACE=(6160,(5,,5))                                              
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSEXEC  DD  DSN=&INDRTE..EXEC,DISP=SHR                                       
+//         DD  DSN=&INDLIB2..EXEC,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..EXEC,DISP=SHR                                      
+//         DD  DSN=&INDGRND..EXEC,DISP=SHR                                      
+//         DD  DSN=SYS2.F1TS00.EXEC,DISP=SHR                                    
+//ISPPLIB  DD  DSN=SYS1.ISP.SISPPENU,DISP=SHR                                   
+//ISPTLIB  DD  DSN=SYS1.ISP.SISPTENU,DISP=SHR                                   
+//ISPSLIB  DD  DSN=SYS1.ISP.SISPSLIB,DISP=SHR                                   
+//ISPMLIB  DD  DSN=SYS1.ISP.SISPMENU,DISP=SHR                                   
+//ISPLLIB  DD  DSN=SYS1.ISP.SISPLOAD,DISP=SHR                                   
+//*                                                                             
+//WDMR26D1 DD  DSN=&INDIN..WDMR25(+0),DISP=SHR                                  
+//************ MODULDATA-FILEN                                                  
+//*                                                                             
+//WDMR26D2 DD  DSN=&INDUT..WDMR26(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ DMR-KOMMANDON                                                    
+//             LRECL=80,RECFM=FB,                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

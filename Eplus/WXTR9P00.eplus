@@ -1,0 +1,82 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WXTR9P00                                              *        
+*                                                                      *        
+*  FUNKTION   :  ADD BINNING DATE FROM WDL6 FILE TO NDC EXTRACT        *        
+*                AND CHINA EXTRACT                                     *        
+*                                                                      *        
+*  FÖRFATTARE :  ARCHANA BHAT                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WXTR9PD1                                                                   
+*                                                                               
+%WNDCPART  'N1-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE WXTR9PD2                                                                   
+*                                                                               
+%WNDCPARC  'CN1-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE WXTR9PD3                                                                   
+*                                                                               
+%W61271A   'WDL6-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE TPFIL1 FB(11 0)                                                            
+*                                                                               
+%W61271A   'T1-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE WXTR9PD4 FB(642 0)                                                         
+*                                                                               
+%WNDCPART                                                                       
+                                                                                
+NEWPAGE                                                                         
+FILE WXTR9PD5 FB(875 0)                                                         
+*                                                                               
+%WNDCPARC                                                                       
+                                                                                
+NEWPAGE                                                                         
+*----------------------------------                                             
+* STEP 1. SORT WDL6 EXTRACT                                                     
+*----------------------------------                                             
+SORT WXTR9PD3 TO TPFIL1                                 +                       
+            USING (WDL6-IDARTNR, WDL6-IDDC)                                     
+*------------------------------------------------------------------*            
+* STEP 2. MATCH TPFIL1 WITH NDC EXTRACT                            *            
+* -----------------------------------------------------------------*            
+JOB INPUT(WXTR9PD1 KEY (N1-IDARTNR, N1-IDDC)            +                       
+          TPFIL1 KEY (T1-IDARTNR, T1-IDDC))                                     
+                                                                                
+IF MATCHED                                                                      
+                                                                                
+   N1-TIINLINL            = T1-TIINLINL                                         
+   PUT WXTR9PD4 FROM WXTR9PD1                                                   
+ELSE                                                                            
+   IF WXTR9PD1                                                                  
+      PUT WXTR9PD4 FROM WXTR9PD1                                                
+   END-IF                                                                       
+END-IF                                                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+* STEP 3. MATCH TPFIL1 WITH CN  EXTRACT                            *            
+* -----------------------------------------------------------------*            
+JOB INPUT(WXTR9PD2 KEY (CN1-IDARTNR, CN1-IDDC)          +                       
+          TPFIL1 KEY (T1-IDARTNR, T1-IDDC))                                     
+                                                                                
+IF MATCHED                                                                      
+                                                                                
+   CN1-TIINLINL            = T1-TIINLINL                                        
+   PUT WXTR9PD5 FROM WXTR9PD2                                                   
+ELSE                                                                            
+   IF WXTR9PD2                                                                  
+      PUT WXTR9PD5 FROM WXTR9PD2                                                
+   END-IF                                                                       
+END-IF                                                                          
+*                                                                               

@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SUBTRAHERAR KVPB-REF FRÅN NDC:ER MED LEVNR<>1441                           
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W488D1                                           
+//*                                                                             
+//*  ÅTERSTART:    W48852    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W488P052 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W011..NDC,                                               
+//             INDIN=&W488..W488D1,                                             
+//             INDUT=&W488..W488D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W48852   EXEC PGM=V16459,PARM='W48852/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(2500,1700))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//W48852D1 DD DSN=&INDIN1..W01184(+0),DISP=SHR                                  
+//************ ALLA NDC-FILER                                                   
+//*                                                                             
+//W48852D2 DD  DSN=&&W0118N,DISP=(NEW,PASS,DELETE),                             
+//************ TEMP-FIL MED ALLA NDC-POSTER, ICKE-LEVNR-1441                    
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             
+//W48852D3 DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//************ TEMP-FIL MED ALLA NDC-POSTER, SORTADE PÅ ARTIKEL                 
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             
+//W48852D4 DD  DSN=&INDIN..W48852A(+0),DISP=SHR                                 
+//************ TOTAL HL-FIL FÖRE NDC-LOCAL-KVPB-SUBTRAHERING                    
+//*                                                                             
+//W48852D5 DD  DSN=&INDUT..W48852(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ HL-FIL MED KVPB SOM ENBART BERÖR CDC-HÖGLAGER                    
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 

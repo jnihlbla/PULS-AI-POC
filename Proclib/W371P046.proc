@@ -1,0 +1,89 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SB, SKAPAR BYTESUPPFÖLJNING FÖR ALLA DC                                    
+//*                                                                             
+//*  FREKVENS:     DAG                 RTN W371D3                               
+//*                                                                             
+//*  ÅTERSTART:    W37146   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P046 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W371..W371D3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W37146   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W37146,W37146,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//WDM6     INCLUDE MEMBER=WDM6                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W37146D1 DD  DSN=&INDUT..W3714A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ BYTESRAPPORTER I STATUS 2 TILL VECKUPPFÖLJNING                   
+//             SPACE=(22,(10,5),RLSE),AVGREC=K,                                 
+//             MGMTCLAS=&NOBACKUP                                               
+//W37146D2 DD  DSN=&INDUT..W3714B(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ BYTESRAPPORTER I STATUS 3 VISAR DISTRIKT OCH ANTAL               
+//             SPACE=(11,(10,5),RLSE),AVGREC=K,                                 
+//             MGMTCLAS=&NOBACKUP                                               
+//W37146D3 DD  DSN=&INDUT..W3714C(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ LKLKLKLKLKL                                                      
+//             SPACE=(10,(10,5),RLSE),AVGREC=K,                                 
+//             MGMTCLAS=&NOBACKUP                                               
+//W37146D4 DD  DSN=&INDUT..W3714D(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ ANTAL ARBETSDAGAR DET TAR ATT GODKÄNNA BYTESRAPPORTER            
+//             SPACE=(10,(10,5),RLSE),AVGREC=K,                                 
+//             MGMTCLAS=&NOBACKUP                                               
+//W37146D5 DD  DSN=&INDUT..W3714E(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ LKLKLKLKLKL                                                      
+//             SPACE=(11,(10,5),RLSE),AVGREC=K,                                 
+//             MGMTCLAS=&NOBACKUP                                               
+//W37146D6 DD  DSN=&INDUT..W3714F(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ LKLKLKLKLKL                                                      
+//             SPACE=(23,(10,5),RLSE),AVGREC=K,                                 
+//             MGMTCLAS=&NOBACKUP                                               
+//W37146D7 DD  DSN=&INDUT..W3714G(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ LKLKLKLKLKL                                                      
+//             SPACE=(18,(10,5),RLSE),AVGREC=K,                                 
+//             MGMTCLAS=&NOBACKUP                                               
+//W37146D8 DD  DSN=&INDUT..W3714J(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ UPPFÖLJNING TILL BORN                                            
+//             SPACE=(42,(10,5),RLSE),AVGREC=K,                                 
+//             MGMTCLAS=&BACKUPC                                                
+//W37146D9 DD  DSN=&INDUT..W3714N(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ BYTESRAPPORTER I STATUS 4 MED DISTRIKT OCH RAPPORTNR             
+//************ UPPFÖLJNING TILL BORN                                            
+//             SPACE=(9,(10,5),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                
+//W37146DA DD  DSN=&INDUT..W3714R(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ BYTESRAPPORTER I STATUS 3 MED DISTRIKT OCH RAPPORTNR             
+//************ UPPFÖLJNING TILL BORN                                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//W37146DB DD  DSN=&INDUT..W3714X(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ BYTESRAPPORTER I STATUS 4 (UPPFÖLJNING TILL MAASTRICHT)          
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

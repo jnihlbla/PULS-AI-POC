@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LEVERANSPRECISION                                                          
+//*  DETALJLISTA - ARTIKELNIVÅ                                                  
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W236V2                                         
+//*                                                                             
+//*  ÅTERSTART:    W23640      NORMAL                                           
+//*                LÄSER        WDP3                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W236P040 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W236..W236V2,                                             
+//             DEST1=&CPRINT,                                                   
+//             INDUT=&W236..W236V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23640   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W23640,W23640,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDP3     INCLUDE MEMBER=WDP3                                                  
+//A4LF  OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                    
+//************ A4 LANDSCAPE, SINGLE SIDE, RASTER  (FOLDED PAPER)                
+//W23640D1 DD  DSN=&INDIN..W23636(+0),DISP=SHR                                  
+//************ INFIL                                                            
+//*                                                                             
+//W23640D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF)                     
+//************ W23640-001  LISTA LEVERANSPRECISION                              
+//*                                                                             
+//W23640D3 DD  DSN=&INDUT..W23641(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LISTA TILL MEMO                                                  
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 

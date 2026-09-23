@@ -1,0 +1,459 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W512                                                  *        
+*                                                                      *        
+*  FUNKTION   :  CREATE 310 AND R31 US REPORT                                   
+*                                                                      *        
+*  FÖRFATTARE :  BARSHARANI BISHOYE                                    *        
+*                                                                      *        
+*  INFILER    :  W512.W512M2.W51280R                                   *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W5128SD1                                                                   
+%W51281  'IN-'                                                                  
+                                                                                
+FILE W5128SD2                                                                   
+%W01160                                                                         
+                                                                                
+*---------------------------------------------*                                 
+*TEMPFIL FÖR SORTADE ARTIKELFILER             *                                 
+*---------------------------------------------*                                 
+FILE TPFIL1 FB(66 0)                                                            
+%W51281  'T1-'                                                                  
+                                                                                
+*---------------------------------------------*                                 
+* TEMPFIL MED DIVERSE LISTTRANSAR, EJ SUMMERADE                                 
+*---------------------------------------------*                                 
+FILE TPFIL2 FB(21 0)                                                            
+T2-AREA            1 17 A                                                       
+T2-IDDC            1 2  A                                                       
+T2-KDTRADP         3 4  A                                                       
+T2-KDPRODSL        7 2  P                                                       
+T2-SUNETT          9 10 P 2                                                     
+                                                                                
+*---------------------------------------------*                                 
+* TEMPFIL MED DIVERSE LISTTRANSAR, EJ DETAIL                                    
+*---------------------------------------------*                                 
+FILE TPFIL3 FB(68 0)                                                            
+%W51281  'T3-'                                                                  
+T3-KDPRODSL       67 2 P                                                        
+*                                                                               
+****** EXCELENS UTFIL                                                           
+FILE W5128SD3 PRINTER VB(57   0)                                                
+                                                                                
+****** EXCELENS 2:A TOM X:TE RAD                                                
+UT-IDDC          W   2  A                                                       
+UT-KDPRODSL      W   2  A                                                       
+UT-KDTRADP       W   4  A                                                       
+UT-TEXT          W   30 A                                                       
+UT-SUMMA-N       W   11 N                                                       
+UT-SUMMA-D       W   2  N                                                       
+                                                                                
+****** EXCELENS UTFIL                                                           
+FILE W5128SD4 PRINTER VB(141  0)                                                
+                                                                                
+UT1-IDPTYP          W 3  A                                                      
+UT1-IDARTNR         W 9  N                                                      
+UT1-IDDC            W 2  A                                                      
+UT1-IDLEVNR         W 5  A                                                      
+UT1-KDPRODSL        W 2  N                                                      
+UT1-DAREGDAT        W 8  N                                                      
+UT1-KVAVIS          W 7  N                                                      
+UT1-PRARTNTO-N      W 11 N                                                      
+UT1-PRARTNTO-D      W 2  N                                                      
+UT1-PRKURS-N        W 6  N                                                      
+UT1-PRKURS-D        W 5  N                                                      
+UT1-PRARTNTO-SEK-N  W 11 N                                                      
+UT1-PRARTNTO-SEK-D  W 2  N                                                      
+UT1-SUNTO-TOT-N     W 13 N                                                      
+UT1-SUNTO-TOT-D     W 2  N                                                      
+UT1-IDFAKT          W 9  N                                                      
+                                                                                
+****** EXCELENS FÖRSTA RAD                                                      
+RUB-DATUM        W   6  N                                                       
+RUB-MÅNAD        W   2  N                                                       
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+*-------------*                                                                 
+* ARBETSAREOR *                                                                 
+*-------------*                                                                 
+W-KDVALISO       W   3 A                                                        
+W-IDDC           W   2 A                                                        
+W-KDPRODSL       W   2 N                                                        
+W-KDTRADP        W   4 A                                                        
+W-SUNETT         W   8 P 2  MASK ('ZZZZZZZZZZZ99.99-')                          
+W-PRARTNTO-M     W   8 P 2  MASK ('ZZZZZZZZZZZ99.99')                           
+W-PRKURS-M       W   6 P 5  MASK ('ZZZZZ9.99999')                               
+W-KVANTAL        W   5 P 0                                                      
+IX               W   2 P 0                                                      
+W-SEM            W   1 A    VALUE ';'                                           
+W-DECIMAL        W   1 A    VALUE '.'                                           
+                                                                                
+W-SUNETT-FMT                     W  13  N 2                                     
+W-SUNETT-N       W-SUNETT-FMT       11  N                                       
+W-SUNETT-D       W-SUNETT-FMT +11   2   N                                       
+                                                                                
+W-PRARTNTO-FMT                   W  13  N 2                                     
+W-PRARTNTO-N     W-PRARTNTO-FMT     11  N                                       
+W-PRARTNTO-D     W-PRARTNTO-FMT +11  2  N                                       
+                                                                                
+W-SUNTO-TOT                      W  13  N 2                                     
+W-SUNTO-TOT-N    W-SUNTO-TOT     11  N                                          
+W-SUNTO-TOT-D    W-SUNTO-TOT +11  2  N                                          
+                                                                                
+W-PRARTNTO-SEK                    W  13  N 2                                    
+W-PRARTNTO-SEK-N  W-PRARTNTO-SEK     11  N                                      
+W-PRARTNTO-SEK-D  W-PRARTNTO-SEK +11  2  N                                      
+                                                                                
+W-PRKURS-FMT                      W  11  N 5                                    
+W-PRKURS-N      W-PRKURS-FMT          6  N                                      
+W-PRKURS-D      W-PRKURS-FMT     +6   5  N                                      
+                                                                                
+FIRST-LINE1                       W   1  A   VALUE 'J'                          
+FIRST-LINE2                       W   1  A   VALUE 'J'                          
+                                                                                
+PROGRAM-NAMN                      W   6   A  VALUE 'W5128S'                     
+DATUMKORT-ID                      W   6   A  VALUE 'WDATUM'                     
+                                                                                
+W-AAMMDD                          W   6   N                                     
+W-AA   W-AAMMDD                       2   N                                     
+W-MM   W-AAMMDD                   +2  2   N                                     
+W-DD   W-AAMMDD                   +4  2   N                                     
+                                                                                
+BEPRODSL                          W  27   A  OCCURS 98                          
+BEPRODSL-PS  BEPRODSL                 2   A                                     
+BEPRODSL-TXT BEPRODSL             +3  24  A                                     
+                                                                                
+NEWPAGE                                                                         
+*---------------------------------------------------------------*               
+* STEG 1.SORTERA  ARTIKELSALDOPOSTER ALLA DC PER ARTIKELNUMMER  *               
+*---------------------------------------------------------------*               
+SORT W5128SD1 TO TPFIL1 USING(IN-IDARTNR)  SIZE 900000                          
+                                                                                
+*---------------------------------------------------------------*               
+* STEG 2. MATCHA SORTERAD FIL MED ARTIKELINFO O SKRIV TPFIL2    *               
+*---------------------------------------------------------------*               
+                                                                                
+JOB INPUT (W5128SD2 KEY (CLAG-IDARTNR) TPFIL1 KEY (T1-IDARTNR)) +               
+          START A-INIT                                                          
+                                                                                
+IF MATCHED                                                                      
+  IF (T1-IDPTYP = '310' OR                    +                                 
+      T1-IDPTYP = 'R31')                                                        
+                                                                                
+    T2-IDDC       = T1-IDDC                                                     
+    T2-KDPRODSL   = CLAG-KDPRODSL                                               
+    T2-KDTRADP    = T1-KDTRADP                                                  
+    T2-SUNETT     = T1-SUNTO-TOT                                                
+    IF T2-SUNETT NE 0                                                           
+      PUT TPFIL2                                                                
+    END-IF                                                                      
+                                                                                
+    T3-IDPTYP     = T1-IDPTYP                                                   
+    T3-IDDC       = T1-IDDC                                                     
+    T3-IDLEVNR    = T1-IDLEVNR                                                  
+    T3-IDARTNR    = T1-IDARTNR                                                  
+    T3-KDPRODSL   = CLAG-KDPRODSL                                               
+    T3-DAREGDAT   = T1-DAREGDAT                                                 
+    T3-KVAVIS     = T1-KVAVIS                                                   
+    T3-PRARTNTO   = T1-PRARTNTO                                                 
+    T3-PRKURS     = T1-PRKURS                                                   
+    T3-PRARTNTO-SEK = T1-PRARTNTO-SEK                                           
+    T3-SUNTO-TOT  = T1-SUNTO-TOT                                                
+    T3-KDTRADP    = T1-KDTRADP                                                  
+    T3-KDVALISO   = T1-KDVALISO                                                 
+    T3-IDFAKT     = T1-IDFAKT                                                   
+    T3-IDLOPNRM   = T1-IDLOPNRM                                                 
+    IF T3-SUNTO-TOT NE 0                                                        
+      PUT TPFIL3                                                                
+    END-IF                                                                      
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+A-INIT. PROC                                                                    
+  CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                      
+  W-AA       = D-AAR                                                            
+  W-MM       = D-MAANAD                                                         
+  W-DD       = D-DAG                                                            
+  RUB-DATUM  = W-AAMMDD                                                         
+  RUB-MÅNAD  = W-MM                                                             
+                                                                                
+****  INITIERA TABELLER ******                                                  
+  BEPRODSL(01) =       '11 SPARE PARTS VCC'                                     
+  BEPRODSL(02) =       '12                '                                     
+  BEPRODSL(03) =       '13 CHEMICALS VCCS'                                      
+  BEPRODSL(04) =       '14 EXCHANGE VCC'                                        
+  BEPRODSL(05) =       '15 ACCESSORIES VCC'                                     
+  BEPRODSL(06) =       '16 RADIO VCC/COMPLETE WHEELS'                           
+  BEPRODSL(07) =       '17 TELEPHONES VCC'                                      
+  BEPRODSL(08) =       '18 TOOLS VCC'                                           
+  BEPRODSL(09) =       '19 PACKAGING VCC'                                       
+  BEPRODSL(10) =       '20              '                                       
+  BEPRODSL(11) =       '21 SPARE PARTS 300/400'                                 
+  BEPRODSL(12) =       '22                    '                                 
+  BEPRODSL(13) =       '23 CHEMICALS 300/400'                                   
+  BEPRODSL(14) =       '24 EXCHANGE 300/400'                                    
+  BEPRODSL(15) =       '25 ACCESSORIES 300/400'                                 
+  BEPRODSL(16) =       '26 RADIO 300/400'                                       
+  BEPRODSL(17) =       '27 AUDIO 300/400'                                       
+  BEPRODSL(18) =       '28 TELEPHONES 300/400'                                  
+  BEPRODSL(19) =       '29 PACKAGING 300/400'                                   
+  BEPRODSL(20) =       '30                  '                                   
+  BEPRODSL(21) =       '31 SPARE PARTS RENAULT'                                 
+  BEPRODSL(22) =       '32                    '                                 
+  BEPRODSL(23) =       '33 CHEMICALS RENAULT'                                   
+  BEPRODSL(24) =       '34 EXCHANGE RENAULT'                                    
+  BEPRODSL(25) =       '35 ACCESSORIES RENAULT'                                 
+  BEPRODSL(26) =       '36                    '                                 
+  BEPRODSL(27) =       '37                    '                                 
+  BEPRODSL(28) =       '38 TOOLS RENAULT'                                       
+  BEPRODSL(29) =       '39              '                                       
+  BEPRODSL(30) =       '40              '                                       
+  BEPRODSL(31) =       '41              '                                       
+  BEPRODSL(32) =       '42              '                                       
+  BEPRODSL(33) =       '43              '                                       
+  BEPRODSL(34) =       '44              '                                       
+  BEPRODSL(35) =       '45              '                                       
+  BEPRODSL(36) =       '46              '                                       
+  BEPRODSL(37) =       '47              '                                       
+  BEPRODSL(38) =       '48              '                                       
+  BEPRODSL(39) =       '49              '                                       
+  BEPRODSL(40) =       '50              '                                       
+  BEPRODSL(41) =       '51 PARTS POLESTAR'                                      
+  BEPRODSL(42) =       '52               '                                      
+  BEPRODSL(43) =       '53 CHEMICAL POLES'                                      
+  BEPRODSL(44) =       '54 EXCHANGE POLESTAR'                                   
+  BEPRODSL(45) =       '55 ACCESSORIES POL'                                     
+  BEPRODSL(46) =       '56 AUDIO POLESTAR'                                      
+  BEPRODSL(47) =       '57 TELEPHONES POLE'                                     
+  BEPRODSL(48) =       '58 TOOLS POLESTAR'                                      
+  BEPRODSL(49) =       '59 PACKING POLESTA'                                     
+  BEPRODSL(50) =       '60                '                                     
+  BEPRODSL(51) =       '61 SPARE PARTS LAND ROVER'                              
+  BEPRODSL(52) =       '62                '                                     
+  BEPRODSL(53) =       '63 CHEMICALS LAND ROVER'                                
+  BEPRODSL(54) =       '64 EXCHANGE LAND ROVER'                                 
+  BEPRODSL(55) =       '65 ACCESSORIES LAND ROVER'                              
+  BEPRODSL(56) =       '66 RADIO LAND ROVER'                                    
+  BEPRODSL(57) =       '67 TELEPHONES LAND ROVER'                               
+  BEPRODSL(58) =       '68 TOOLS LAND ROVER'                                    
+  BEPRODSL(59) =       '69 PACKAGING LAND ROVER'                                
+  BEPRODSL(60) =       '70                 '                                    
+  BEPRODSL(61) =       '71 CONSUMPTION BIMA'                                    
+  BEPRODSL(62) =       '72 CONSUMER BIMA'                                       
+  BEPRODSL(63) =       '73 DEX BIMA'                                            
+  BEPRODSL(64) =       '74 TOOLS BIMA'                                          
+  BEPRODSL(65) =       '75           '                                          
+  BEPRODSL(66) =       '76           '                                          
+  BEPRODSL(67) =       '77           '                                          
+  BEPRODSL(68) =       '78           '                                          
+  BEPRODSL(69) =       '79           '                                          
+  BEPRODSL(70) =       '80           '                                          
+  BEPRODSL(71) =       '81           '                                          
+  BEPRODSL(72) =       '82           '                                          
+  BEPRODSL(73) =       '83           '                                          
+  BEPRODSL(74) =       '84           '                                          
+  BEPRODSL(75) =       '85           '                                          
+  BEPRODSL(76) =       '86           '                                          
+  BEPRODSL(77) =       '87           '                                          
+  BEPRODSL(78) =       '88           '                                          
+  BEPRODSL(79) =       '89           '                                          
+  BEPRODSL(80) =       '90           '                                          
+  BEPRODSL(81) =       '91 SPARE PARTS LOC'                                     
+  BEPRODSL(82) =       '92           '                                          
+  BEPRODSL(83) =       '93 CHEMICALS LOC'                                       
+  BEPRODSL(84) =       '94 EXCHANGE LOC'                                        
+  BEPRODSL(85) =       '95 ACCESSORIES LOC'                                     
+  BEPRODSL(86) =       '96 RADIO LOC'                                           
+  BEPRODSL(87) =       '97 TELEPHONES LOC'                                      
+  BEPRODSL(88) =       '98 TOOLS LOC'                                           
+  BEPRODSL(89) =       '99 PACKAGING LOC'                                       
+END-PROC                                                                        
+                                                                                
+*--------------------------------------------------------*                      
+* STEG 3 SORTERA TPFIL2 TILL TPFIL2 PER DC OCH PRODSL                           
+*        OCH SUMMERA SAMT SKRIV EXCELFIL                                        
+*--------------------------------------------------------*                      
+                                                                                
+SORT TPFIL2 TO TPFIL2 USING (T2-IDDC T2-KDPRODSL T2-KDTRADP) +                  
+                             SIZE 200000                                        
+JOB INPUT NULL                                                                  
+                                                                                
+  GET TPFIL2                                                                    
+  IF NOT EOF TPFIL2                                                             
+    W-IDDC             = T2-IDDC                                                
+    W-KDPRODSL         = T2-KDPRODSL                                            
+    W-KDTRADP          = T2-KDTRADP                                             
+    W-SUNETT           = 0                                                      
+    DO WHILE NOT EOF TPFIL2                                                     
+      IF T2-IDDC = W-IDDC AND T2-KDPRODSL = W-KDPRODSL +                        
+      AND T2-KDTRADP = W-KDTRADP                                                
+        W-SUNETT = W-SUNETT + T2-SUNETT                                         
+      ELSE                                                                      
+        PERFORM SKRIV-EXCELPOST-1                                               
+        PRINT REPORT01                                                          
+        W-IDDC             = T2-IDDC                                            
+        W-KDPRODSL         = T2-KDPRODSL                                        
+        W-KDTRADP          = T2-KDTRADP                                         
+        W-SUNETT           = T2-SUNETT                                          
+      END-IF                                                                    
+      GET TPFIL2                                                                
+    END-DO                                                                      
+  END-IF                                                                        
+  PERFORM SKRIV-EXCELPOST-1                                                     
+  IF W-KDTRADP NE ' '                                                           
+    PRINT REPORT01                                                              
+  END-IF                                                                        
+                                                                                
+  STOP                                                                          
+                                                                                
+SKRIV-EXCELPOST-1. PROC                                                         
+                                                                                
+  UT-IDDC     = W-IDDC                                                          
+  UT-KDPRODSL = W-KDPRODSL                                                      
+  UT-KDTRADP  = W-KDTRADP                                                       
+  UT-TEXT     = 'OTHERS'                                                        
+  IX = 1                                                                        
+  DO WHILE IX LE 98                                                             
+    IF BEPRODSL-PS(IX) EQ UT-KDPRODSL                                           
+      UT-TEXT     = BEPRODSL-TXT(IX)                                            
+      IX = 99                                                                   
+    END-IF                                                                      
+    IX = IX + 1                                                                 
+  END-DO                                                                        
+  W-SUNETT-FMT  = W-SUNETT                                                      
+  UT-SUMMA-N    = W-SUNETT-N                                                    
+  UT-SUMMA-D    = W-SUNETT-D                                                    
+END-PROC                                                                        
+                                                                                
+************************************************************************        
+*** LIST FOR US-SENT TO D&P                                                     
+************************************************************************        
+  REPORT   REPORT01             +                                               
+           PRINTER W5128SD3     +                                               
+           LINESIZE 52          +                                               
+           SPACE 0              +                                               
+           NOHEADING            +                                               
+           NOSPREAD             +                                               
+           NOADJUST             +                                               
+           PAGESIZE 32767       +                                               
+           NODATE                                                               
+LINE  1  UT-IDDC              +                                                 
+         W-SEM                +                                                 
+         UT-KDPRODSL          +                                                 
+         W-SEM                +                                                 
+         UT-TEXT              +                                                 
+         W-SEM                +                                                 
+         UT-SUMMA-N           +                                                 
+         W-DECIMAL            +                                                 
+         UT-SUMMA-D           +                                                 
+         W-SEM                                                                  
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF FIRST-LINE1 = 'J'                                                           
+   DISPLAY '¤DAPW51280S-001'                                                    
+   DISPLAY '¤DAPW51280S'                                                        
+   DISPLAY 'DATE' RUB-DATUM ';PERIOD' RUB-MÅNAD ';'                             
+   FIRST-LINE1  = 'N'                                                           
+ END-IF                                                                         
+END-PROC                                                                        
+*--------------------------------------------------------*                      
+* STEG 4 SORTERA TPFIL3 TILL TPFIL3 PER DC OCH IDARTNR                          
+*--------------------------------------------------------*                      
+                                                                                
+SORT TPFIL3 TO TPFIL3 USING (T3-IDDC T3-IDARTNR T3-KDTRADP) +                   
+                             SIZE 200000                                        
+JOB INPUT TPFIL3                                                                
+                                                                                
+  W-KDTRADP      = T3-KDTRADP                                                   
+  W-KDVALISO     = T3-KDVALISO                                                  
+                                                                                
+  UT1-IDPTYP     = T3-IDPTYP                                                    
+  UT1-IDDC       = T3-IDDC                                                      
+  UT1-IDLEVNR    = T3-IDLEVNR                                                   
+  UT1-IDARTNR    = T3-IDARTNR                                                   
+  UT1-KDPRODSL   = T3-KDPRODSL                                                  
+  UT1-DAREGDAT   = T3-DAREGDAT                                                  
+  UT1-KVAVIS     = T3-KVAVIS                                                    
+                                                                                
+  W-PRARTNTO-FMT = T3-PRARTNTO                                                  
+  UT1-PRARTNTO-N = W-PRARTNTO-N                                                 
+  UT1-PRARTNTO-D = W-PRARTNTO-D                                                 
+                                                                                
+  W-PRKURS-FMT   = T3-PRKURS                                                    
+  UT1-PRKURS-N   = W-PRKURS-N                                                   
+  UT1-PRKURS-D   = W-PRKURS-D                                                   
+                                                                                
+  W-PRARTNTO-SEK   = T3-PRARTNTO-SEK                                            
+  UT1-PRARTNTO-SEK-N = W-PRARTNTO-SEK-N                                         
+  UT1-PRARTNTO-SEK-D = W-PRARTNTO-SEK-D                                         
+                                                                                
+  W-SUNTO-TOT     = T3-SUNTO-TOT                                                
+  UT1-SUNTO-TOT-N = W-SUNTO-TOT-N                                               
+  UT1-SUNTO-TOT-D = W-SUNTO-TOT-D                                               
+                                                                                
+  IF T3-IDPTYP = 'R31'                              +                           
+  AND  T3-IDFAKT  EQ  0                                                         
+    UT1-IDFAKT      = T3-IDLOPNRM                                               
+  ELSE                                                                          
+    UT1-IDFAKT      = T3-IDFAKT                                                 
+  END-IF                                                                        
+  PRINT REPORT02                                                                
+                                                                                
+************************************************************************        
+*** LIST FOR US- SENT TO D&P - PART LEVEL                                       
+************************************************************************        
+  REPORT   REPORT02             +                                               
+           PRINTER W5128SD4     +                                               
+           LINESIZE 120         +                                               
+           SPACE 0              +                                               
+           NOHEADING            +                                               
+           NOSPREAD             +                                               
+           NOADJUST             +                                               
+           PAGESIZE 32767       +                                               
+           NODATE                                                               
+LINE  1  UT1-IDPTYP             +                                               
+         W-SEM                  +                                               
+         UT1-IDARTNR            +                                               
+         W-SEM                  +                                               
+         UT1-IDDC               +                                               
+         W-SEM                  +                                               
+         UT1-IDLEVNR            +                                               
+         W-SEM                  +                                               
+         UT1-KDPRODSL           +                                               
+         W-SEM                  +                                               
+         UT1-DAREGDAT           +                                               
+         W-SEM                  +                                               
+         UT1-KVAVIS             +                                               
+         W-SEM                  +                                               
+         UT1-PRARTNTO-N         +                                               
+         W-DECIMAL              +                                               
+         UT1-PRARTNTO-D         +                                               
+         W-SEM                  +                                               
+         UT1-PRARTNTO-SEK-N     +                                               
+         W-DECIMAL              +                                               
+         UT1-PRARTNTO-SEK-D     +                                               
+         W-SEM                  +                                               
+         UT1-PRKURS-N           +                                               
+         W-DECIMAL              +                                               
+         UT1-PRKURS-D           +                                               
+         W-SEM                  +                                               
+         UT1-SUNTO-TOT-N        +                                               
+         W-DECIMAL              +                                               
+         UT1-SUNTO-TOT-D        +                                               
+         W-SEM                  +                                               
+         UT1-IDFAKT             +                                               
+         W-SEM                                                                  
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF FIRST-LINE2 = 'J'                                                           
+   DISPLAY '¤DAPW51280S-002'                                                    
+   DISPLAY '¤DAPW51280S'                                                        
+   DISPLAY 'TYPE;PART NO;DC;SUPPLIER;PRODUCT GRP;DATE;QTY;PRICE SEK; +          
+            SUM SEK;CURRENCY RATE;SUM ' W-KDVALISO ';INVOICE NO;'               
+   FIRST-LINE2  = 'N'                                                           
+ END-IF                                                                         
+END-PROC                                                                        

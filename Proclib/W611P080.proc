@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOPIERAR BLIVANDE MRHIST TILL GENERATIONSDATASET                           
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W611V1                                          
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P080 PROC INDIN=&W611..W611V1,                                            
+//             INDUT=&W611,                                                     
+//             INDUT2=&W611..W611V1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGENER EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDIN..W61179(+0),DISP=SHR                                  
+//************ MRHIST                                                           
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W61180(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ GEN DATASET AV MRHIST                                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=NOBACKUP                                                
+//*                                                                             
+//ICEGEN2  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDIN..W61179(+0),DISP=SHR                                  
+//************ MRHIST                                                           
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..W6118K(+1),                        -LIM(53)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ INLEVERANS HISTORIK                                              
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                

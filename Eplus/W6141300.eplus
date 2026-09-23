@@ -1,0 +1,220 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6141300                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR LISTA KVALITETS SPÄRRADE ARTKLAR.              *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL                                         *        
+*  DATUM:        FEBRUARI 2001                                         *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+FILE W61413D1                                                                   
+%W61410     'IN-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W61413D2  PRINTER FB (121 0)                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W61413D3  PRINTER FB (121 0)                                               
+NEWPAGE                                                                         
+                                                                                
+  WS-BLOCKED-VALUE          W  11  N  2                                         
+  WS-BLOCKED-VALUE-TOT      W  11  N  2                                         
+  WS-KVROS-VALUE            W  11  N  2                                         
+  WS-KVROS-VALUE-TOT        W  11  N  2                                         
+  WS-IDARTNR                W   9  N  MASK 'ZZZZZZZZ9'                          
+  WS-IDFKNGRP               W   4  N  MASK 'ZZZ9'                               
+  WS-KVLS                   W   7  N  MASK 'ZZZZZZ9'                            
+  WS-KDLEVSP                W   2  N  MASK 'Z9'                                 
+  WS-KVROS                  W   7  N  MASK 'ZZZZZZ9'                            
+  WS-KVSPARR-KVAL           W   7  N  MASK 'ZZZZZZ9'                            
+  WS-BEART                  W  20  A                                            
+  WS-IDDC                   W   2  A                                            
+  TEST-USD                  W   1  A                                            
+  SWITCH                    W   1  N                                            
+  WS-IDFK-TEST              W   5  N                                            
+  WS-IDFKN  WS-IDFK-TEST        3  N                                            
+  WS-RESTEN WS-IDFK-TEST   +2   2  N                                            
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+NEWPAGE                                                                         
+***********************************************************************         
+*                                                                               
+* LÄSER INFIL SKAPAR LISTA.                                                     
+***********************************************************************         
+*                                                                               
+JOB INPUT W61413D1                                                              
+                                                                                
+     IF SWITCH = 0                                                              
+        MOVE IN-IDDC-BEST TO WS-IDDC                                            
+        PERFORM S23-CHECK-WS-IDDC                                               
+                                                                                
+*** OM BESTÄLLANDE DC ÄR 4X/51 KONTROLLERAS OM DET DC SOM                       
+*** LISTAS ÄR 4X ELLER 51 (USD ELLER CAD AVERAGE COST)                          
+                                                                                
+        IF WS-IDDC = NDC-NA                                                     
+           MOVE IN-IDDC TO WS-IDDC                                              
+           PERFORM S23-CHECK-WS-IDDC                                            
+           IF WS-IDDC = NDC-US                                                  
+              TEST-USD = 'J'                                                    
+           ELSE                                                                 
+              TEST-USD = 'N'                                                    
+           END-IF                                                               
+           MOVE IN-IDDC-BEST TO WS-IDDC                                         
+           PERFORM S23-CHECK-WS-IDDC                                            
+        END-IF                                                                  
+        MOVE 1 TO SWITCH                                                        
+     END-IF                                                                     
+                                                                                
+     IF IN-KDLEVSP > 0                                                          
+        IF IN-KVLS = 0                                                          
+           WS-BLOCKED-VALUE = 0                                                 
+        ELSE                                                                    
+           IF WS-IDDC = NDC-NA                                                  
+              WS-BLOCKED-VALUE = IN-KVLS * IN-PRAVCOST                          
+           ELSE                                                                 
+              WS-BLOCKED-VALUE = IN-KVLS * IN-PRARTSTD                          
+           END-IF                                                               
+        END-IF                                                                  
+     ELSE                                                                       
+        IF IN-KVSPARR-KVAL = 0                                                  
+           WS-BLOCKED-VALUE = 0                                                 
+        ELSE                                                                    
+           IF WS-IDDC = NDC-NA                                                  
+              WS-BLOCKED-VALUE = IN-KVSPARR-KVAL * IN-PRAVCOST                  
+           ELSE                                                                 
+              WS-BLOCKED-VALUE = IN-KVSPARR-KVAL * IN-PRARTSTD                  
+           END-IF                                                               
+        END-IF                                                                  
+     END-IF                                                                     
+                                                                                
+     IF IN-KVROS > 0                                                            
+        IF WS-IDDC = NDC-NA                                                     
+           WS-KVROS-VALUE = IN-KVROS * IN-PRAVCOST                              
+        ELSE                                                                    
+           WS-KVROS-VALUE = IN-KVROS * IN-PRARTSTD                              
+        END-IF                                                                  
+     ELSE                                                                       
+        WS-KVROS-VALUE = 0                                                      
+     END-IF                                                                     
+                                                                                
+     IF WS-IDDC = CDC-SE                                                        
+        MOVE IN-BEART-SVE TO WS-BEART                                           
+     ELSE                                                                       
+        MOVE IN-BEART-ENG TO WS-BEART                                           
+     END-IF                                                                     
+                                                                                
+     WS-KDLEVSP       = IN-KDLEVSP                                              
+     WS-IDFKNGRP      = IN-IDFKNGRP                                             
+     WS-IDFK-TEST     = IN-IDFKNGRP                                             
+     WS-IDARTNR       = IN-IDARTNR                                              
+     WS-KVLS          = IN-KVLS                                                 
+     WS-KVROS         = IN-KVROS                                                
+     WS-KVSPARR-KVAL  = IN-KVSPARR-KVAL                                         
+                                                                                
+     PRINT RAPPORT02                                                            
+*                                                                               
+NEWPAGE                                                                         
+%WWDC02  'WS-'                                                                  
+NEWPAGE                                                                         
+*                                                                               
+REPORT RAPPORT02 PRINTER W61413D3 LINESIZE 120 PAGESIZE 41 +                    
+       NOADJUST NOSPREAD TITLESKIP 2 NOHEADING SUMCTL NONE                      
+                                                                                
+CONTROL  FINAL NOPRINT NEWPAGE                                                  
+                                                                                
+SUM      WS-BLOCKED-VALUE             +                                         
+         WS-KVROS-VALUE                                                         
+                                                                                
+TITLE 1  COL 12  'VCCS W61413-001'    +                                         
+         COL 39  'QUALITY BLOCKED PARTS '                                       
+                                                                                
+TITLE 2  ' '                                                                    
+                                                                                
+TITLE 3  COL 02  'FG'                 +                                         
+         COL 08  'PART NO.'           +                                         
+         COL 17  'DC'                 +                                         
+         COL 23  'DESCRIPTION'        +                                         
+         COL 39  'CODE'               +                                         
+         COL 45  'BL.QTY'             +                                         
+         COL 52  'ST.BAL.'            +                                         
+         COL 65  'BLOCKED VALUE'      +                                         
+         COL 80  'BO QTY'             +                                         
+         COL 89  'BACK ORDER VALUE'   +                                         
+         COL 108 'DATE'               +                                         
+         COL 114 'USER'                                                         
+                                                                                
+LINE  1  COL 02  WS-IDFKNGRP          +                                         
+         COL 07  WS-IDARTNR           +                                         
+         COL 17  IN-IDDC              +                                         
+         COL 20  WS-BEART             +                                         
+         COL 41  WS-KDLEVSP           +                                         
+         COL 44  WS-KVSPARR-KVAL      +                                         
+         COL 52  WS-KVLS              +                                         
+         COL 61  WS-BLOCKED-VALUE     +                                         
+         COL 79  WS-KVROS             +                                         
+         COL 88  WS-KVROS-VALUE       +                                         
+         COL 106 IN-TISPARR-KVAL      +                                         
+         COL 113 IN-IDUSER-SPKVAL                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+BEFORE-BREAK.  PROC                                                             
+                                                                                
+      WS-BLOCKED-VALUE-TOT = WS-BLOCKED-VALUE                                   
+      WS-KVROS-VALUE-TOT = WS-KVROS-VALUE                                       
+                                                                                
+      IF WS-IDDC = NDC-NA                                                       
+         IF TEST-USD  = 'J'                                                     
+           DISPLAY ' '                                                          
+           DISPLAY ' '                                                          
+           DISPLAY +                                                            
+            COL 030   'TOTAL BLOCKED VALUE  '          +                        
+            COL 051   ',   USD:'                         +                      
+            COL 064   WS-BLOCKED-VALUE-TOT                                      
+         ELSE                                                                   
+           DISPLAY ' '                                                          
+           DISPLAY ' '                                                          
+           DISPLAY +                                                            
+            COL 030   'TOTAL BLOCKED VALUE  '          +                        
+            COL 051   ',   CAD:'                         +                      
+            COL 064   WS-BLOCKED-VALUE-TOT                                      
+         END-IF                                                                 
+      ELSE                                                                      
+        DISPLAY ' '                                                             
+        DISPLAY ' '                                                             
+        DISPLAY +                                                               
+         COL 030   'TOTAL BLOCKED VALUE  '             +                        
+         COL 051   ',   SEK:'                            +                      
+         COL 064    WS-BLOCKED-VALUE-TOT                                        
+      END-IF                                                                    
+                                                                                
+      IF WS-IDDC = NDC-NA                                                       
+         IF TEST-USD  = 'J'                                                     
+           DISPLAY ' '                                                          
+           DISPLAY ' '                                                          
+           DISPLAY +                                                            
+            COL 030   'TOTAL BACK ORDER VALUE'         +                        
+            COL 053   ', USD:'                         +                        
+            COL 091   WS-KVROS-VALUE-TOT                                        
+         ELSE                                                                   
+           DISPLAY ' '                                                          
+           DISPLAY ' '                                                          
+           DISPLAY +                                                            
+            COL 030   'TOTAL BACK ORDER VALUE'         +                        
+            COL 053   ', CAD:'                         +                        
+            COL 091   WS-KVROS-VALUE-TOT                                        
+         END-IF                                                                 
+      ELSE                                                                      
+        DISPLAY ' '                                                             
+        DISPLAY ' '                                                             
+        DISPLAY +                                                               
+         COL 030   'TOTAL BACK ORDER VALUE'            +                        
+         COL 053   ', SEK:'                            +                        
+         COL 091    WS-KVROS-VALUE-TOT                                          
+      END-IF                                                                    
+END-PROC                                                                        

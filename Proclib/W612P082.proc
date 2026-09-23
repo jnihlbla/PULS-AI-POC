@@ -1,0 +1,54 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LISTAR INVENTORY VALUE PER DC OCH BUYER-INTERVALL                          
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W612V4                                         
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W6128200  NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P082 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W612..W612V4,                                             
+//             INDUT=&W612..W612V4,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD82),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61280(+0),DISP=SHR                                  
+//************ SUMMERAD AK-FIL                                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61280,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD / DC OCH BUYERINTERVALL                                 
+//         DATACLAS=PSEN                                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61282 EXEC PGM=V16459,PARM='W61282/8/'                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//A4LF  OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                    
+//************ A4 LANDSCAPE, SINGLE SIDE, RASTER  (FOLDED PAPER)                
+//W61282D1 DD  DSN=&&W61280,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD / DC OCH BUYERINTERVALL                                 
+//*                                                                             
+//W61282D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF)                     
+//************ W61282  INVENTORY VALUE PER DC OCH BUYERINTERVALL                
+//W61282D3 DD  DSN=&INDUT..W61282(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ INVENTORY VALUE - WEB FOLLOW UP PER DC                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W61282D4 DD  DSN=&INDUT..W61282A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ TOTAL INVENTORY VALUE - WEB                                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

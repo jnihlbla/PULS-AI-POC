@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SELEKTERAR ALLA ARTIKLAR MED ERSÄTTNINGSKOD > 20                           
+//*  PÅ W01160.                                                                 
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES VIA VCOM     RTN W116S1                            
+//*                                                                             
+//*  ÅTERSTART:    W11648    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P048 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W011..&RTEGRP.,                                          
+//             INDREG2=&W116.,                                                  
+//             INDUT=&W116..W116S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11648   EXEC PGM=V16459,PARM='W11648/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W11648D1 DD  DSN=&INDREG..W01160(+0),DISP=SHR                                 
+//************ URVAL AV WDK6                                                    
+//*                                                                             
+//W11648D2 DD  DSN=&INDREG2..W11642(+0),DISP=SHR                                
+//************ SUPERSESSION STATUS EU FROM ROUTINE W116D3 INCL PREL             
+//*                                                                             
+//W11648D3 DD  DSN=&INDREG2..W11645(+0),DISP=SHR                                
+//************ SUPERSESSION STATUS EU FROM ROUTINE W116D3 ONLY DEF              
+//*                                                                             
+//W11648D4 DD  DSN=&INDUT..W11648(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ DE ARTIKLAR SOM HAR ERSÄTTNINGSKOD > 20                          
+//             MGMTCLAS=&DEL2BKPC,                                              
+//             DATACLAS=PSEN                                                    

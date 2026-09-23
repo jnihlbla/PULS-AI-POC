@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  ON DAILY BASIS SCAN THE SYSTEM FOR ORDERS WITH                             
+//*  REPAIR-DATE, DISTRICT 778, DC 11, TODAY'S RFS DATE                         
+//*  AND THAT ARE IN 'P' STATUS.                                                
+//*                                                                             
+//*  THE PROGRAM READS     WDE6C                                                
+//*                        WDE4                                                 
+//*                        WDQ2                                                 
+//*                                                                             
+//*  FREQUENCY:    DAILY          RTN W412D8                                    
+//*                                                                             
+//*    RESTART:    W41220   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W412P020 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W412..W412D8                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41220   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W41220,W41220,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDE6     INCLUDE MEMBER=WDE6                                                  
+//WDE4     INCLUDE MEMBER=WDE4                                                  
+//WDQ2     INCLUDE MEMBER=WDQ2                                                  
+//W41220D1 DD  DSN=&INDUT..W41220(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ UTFIL STATUS P ORDERS                                            
+//             DATACLAS=PSEN                                                    

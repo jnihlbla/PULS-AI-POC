@@ -1,0 +1,115 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W8101300                                              *        
+*                                                                      *        
+*  FUNKTION   :  PACKED LINES PER DC                                   *        
+*                                                                      *        
+*  FÖRFATTARE :  KUMAR LOVISH                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*--------------------------------------------------------------------*          
+* UPPGIFT: LISTAR ANTALET PACKADE RADER PER SVERIGE LDC OCH          *          
+*          SKICKAR DETTA PÅ MAIL TILL KONTAKTPERSONER                *          
+*                                                                    *          
+*--------------------------------------------------------------------*          
+FILE W81013D1                                                                   
+%WXTRA0                                                                         
+*                                                                               
+FILE W81013D2 FB (142 0)                                                        
+%WXTRA0 'SORT-'                                                                 
+*                                                                               
+FILE W81013D3 FB (36 0)                                                         
+A-IDDC        1  2 A                                                            
+A-IDDIST      3  4 N                                                            
+A-IDPLOCK     7  6 N                                                            
+A-TIPACKN    13  6 N                                                            
+A-KDORDKL    19  1 N                                                            
+A-ADLAGOMR   20  2 N                                                            
+A-TALLY      22 10 P 0                                                          
+*                                                                               
+***************************************************                             
+FILE W81013D4 PRINTER VB(61 0)                                                  
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+U-IDPLOCK     W  6 N                                                            
+U-TIPACKN     W  6 N                                                            
+U-KDORDKL     W  1 N                                                            
+U-ADLAGOMR    W  2 N                                                            
+U-TALLY       W  7 N 0                                                          
+U-DIST        W  4 N VALUE 0                                                    
+U-SEM         W  1 A VALUE ';'                                                  
+IDDC-PREV     W  2 A                                                            
+*                                                                               
+SORT W81013D1 TO W81013D2 USING (IDDC IDDISTR)                                  
+                                                                                
+JOB INPUT W81013D2                                                              
+    A-IDDC      = SORT-IDDC                                                     
+    A-IDDIST    = SORT-IDDISTR                                                  
+    A-IDPLOCK   = SORT-IDPLOCK                                                  
+    A-TIPACKN   = SORT-TIPACKN                                                  
+    A-KDORDKL   = SORT-KDORDKL                                                  
+    A-ADLAGOMR  = SORT-ADLAGOMR                                                 
+      PRINT SUM01                                                               
+                                                                                
+ *                                                                              
+   REPORT SUM01 SUMMARY SUMFILE W81013D3 NOPAGE NODATE NOHEADING                
+ *                                                                              
+   SEQUENCE   A-IDDC A-IDDIST A-IDPLOCK A-TIPACKN +                             
+              A-KDORDKL A-ADLAGOMR                                              
+ *                                                                              
+   CONTROL    A-IDDC NOPRINT A-IDDIST NOPRINT A-IDPLOCK NOPRINT +               
+              A-TIPACKN NOPRINT A-KDORDKL NOPRINT A-ADLAGOMR NOPRINT            
+ *                                                                              
+   LINE       A-IDDC           +                                                
+              A-IDDIST         +                                                
+              A-IDPLOCK        +                                                
+              A-TIPACKN        +                                                
+              A-KDORDKL        +                                                
+              A-ADLAGOMR       +                                                
+              TALLY                                                             
+                                                                                
+JOB INPUT W81013D3                                                              
+     U-IDPLOCK  = A-IDPLOCK                                                     
+     U-TIPACKN  = A-TIPACKN                                                     
+     U-KDORDKL  = A-KDORDKL                                                     
+     U-ADLAGOMR = A-ADLAGOMR                                                    
+     U-TALLY    = A-TALLY                                                       
+     U-DIST     = A-IDDIST                                                      
+      PRINT REPORT1                                                             
+                                                                                
+ REPORT        REPORT1          +                                               
+               PRINTER W81013D4 +                                               
+               PAGESIZE 32767   +                                               
+               LINESIZE 56      +                                               
+               SPACE 0          +                                               
+               NOADJUST         +                                               
+               NOSPREAD         +                                               
+               NOPAGE           +                                               
+               NODATE           +                                               
+               NOHEADING                                                        
+                                                                                
+ LINE         U-DIST           +                                                
+              U-SEM            +                                                
+              U-IDPLOCK        +                                                
+              U-SEM            +                                                
+              U-TIPACKN        +                                                
+              U-SEM            +                                                
+              U-KDORDKL        +                                                
+              U-SEM            +                                                
+              U-ADLAGOMR       +                                                
+              U-SEM            +                                                
+              U-TALLY          +                                                
+              U-SEM            +                                                
+                                                                                
+BEFORE-LINE. PROC                                                               
+ IF IDDC-PREV NE A-IDDC                                                         
+   IDDC-PREV = A-IDDC                                                           
+   DISPLAY '¤DAPW81013'                                                         
+   DISPLAY '¤DAP' IDDC-PREV                                                     
+   DISPLAY 'DIST;PICKER;DATE;ORDER CLASS;WAREHOUSE AREA;NO.OF LINES;'           
+                                                                                
+ END-IF                                                                         
+END-PROC                                                                        

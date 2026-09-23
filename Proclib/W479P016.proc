@@ -1,0 +1,76 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER RENSNINGSPOSTER, SKRIVER TRANSAKTIONER TILL                          
+//*  ANDRA SYSTEM SAMT SKRIVER RENSNINGSFIL TILL W479P013.                      
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W479V3                                          
+//*                                                                             
+//*  ÅTERSTART:    W47916 NORMAL                                                
+//*                LÄSER  WDQ1 WDQ2                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P016 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479V3,                                             
+//             INDUT=&W479..W479V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W479PD16),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W47910(+0),DISP=SHR                                  
+//************ FÄRDIGA ORDER FRÅN E4, E6, E7    (W479P010)                      
+//************ SORTERAS PÅ IDORDER, IDPRODNR, IDPLKLST                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47911,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE POSTER                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47916   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W47916,W47916,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDQ1     INCLUDE MEMBER=WDQ1                                                  
+//WDQ2     INCLUDE MEMBER=WDQ2                                                  
+//W47916D1 DD  DSN=&&W47911,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERADE POSTER FRÅN E4, E6, E7                                 
+//*                                                                             
+//W47916D2 DD  DSN=&INDIN..W47917(+0),DISP=SHR                                  
+//************ ORDERHUVUD DÄR LIGGTID GÅTT UT   (W479P017)                      
+//*                                                                             
+//W47916D3 DD  DSN=&INDIN..W47914(+0),DISP=SHR                                  
+//************ ORDER I STATUS "E".              (W479P014)                      
+//*                                                                             
+//W47916D4 DD  DSN=&INDUT..W47918(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UPPDATERINGSPOSTER TILL WDL1     (W479P076)                      
+//             DATACLAS=PSEN,MGMTCLAS=&DEL2BKPC                                 
+//*                                                                             
+//W47916D6 DD  DSN=&INDUT..W47920(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ TRANSAR RENSADE ORDER TILL NOAC  (W461P120)                      
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47916D7 DD  DSN=&INDUT..W47921(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RENSNINGSPOSTER                  (W479P013)                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

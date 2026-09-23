@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LEVERANSANM. - DIREKTLEVERANSARTIKLAR SOM SKALL UT PÅ                      
+//*                 VIR-RAPPORT TILL LEVERANTÖR.                                
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W418D2                                           
+//*                                                                             
+//*  ÅTERSTART:    W41843    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W418P043 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W418..W418D2,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41843   EXEC PGM=V16459,PARM='W41843/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//W41843D1 DD  DSN=&INDIN..W41843(+0),DISP=SHR                                  
+//************ DIRLEV-ARTIKLAR FRÅN DDC.                                        
+//*                                                                             
+//         DD  DSN=&INDIN..W418AJ,DISP=SHR                                      
+//************ DIRLEV-ARTIKLAR DDC FRÅN RUTIN W418S2 / BILL-IT                  
+//*                                                                             
+//A4LF  OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                    
+//************ A4 LANDSCAPE, SINGLE SIDE, RASTER  (FOLDED PAPER)                
+//*                                                                             
+//W41843D2 DD  SYSOUT=(E,,3803),DEST=&DEST1,OUTPUT=(*.A4LF)                     
+//************ LISTA W41843-001   KREDIT FÖR DL-ARTIKLAR                        
+//*                                                                             
+//W41843D3 DD  SYSOUT=(E,,3803),DEST=&DEST1,OUTPUT=(*.A4LF)                     
+//************ LISTA W41843-002   DEBIT FÖR DL-ARTIKLAR                         
+//*                                                                             
+//W41843D4 DD  SYSOUT=(E,,3803),DEST=&DEST1,OUTPUT=(*.A4LF)                     
+//************ LISTA W41843-003   INFORMATION TILL LEV FÖR DL-ART               
+//*                                                                             

@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SORTERAR INFIL  SKRIVER LARMRAPPORTLISTA                                   
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W214D1                                            
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W214P002 PROC STPLIB=&INDRTE..LOAD,DEST1=&CPRINT,                             
+//             INDIN=&W214..W214D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W214PD02),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W21411(+0),DISP=SHR                                  
+//************ LARMPOSTER FRÅN W214P002                                         
+//*                                                                             
+//SORTOUT  DD  DSN=&&W21411,DISP=(NEW,PASS,DELETE),                             
+//************ LARMPOSTER SORTERADE; IDANSK, IDFTG, IDLEVNR, IDARTNR            
+//             SPACE=(23440,(1,1),RLSE)                                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21420   EXEC PGM=V16459,PARM='W21420/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W21420D1 DD  DSN=&&W21411,DISP=(OLD,DELETE,DELETE)                            
+//************ LARMPOSTER SORTERADE; IDANSK, IDFTG, IDLEVNR, IDARTNR            
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W21420D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF)                     
+//************ W21420-001  LARMRAPPORT                                          
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

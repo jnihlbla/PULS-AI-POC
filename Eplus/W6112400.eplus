@@ -1,0 +1,90 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6112400                                              *        
+*                                                                      *        
+*  FUNKTION   :  LOGGADE R34-TRANSAR                                   *        
+*                LISTA ÖVER GJORDA R34-TRANSAR SENASTE VECKAN          *        
+*                                                                      *        
+*  FÖRFATTARE :  EVA LUNDELL                                           *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61124D1                                                                   
+*                                                                               
+%W601R34A  'IN-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE W61124D2  PRINTER VB (180   0)                                             
+                                                                                
+                                                                                
+WS-SEM           W   1  A VALUE ';'                                             
+WS-PREV-IDDC     W   2  A                                                       
+WS-IDPTYP        W   3  A                                                       
+WS-IDDC          W   2  A                                                       
+WS-IDARTNR       W   5  P  MASK 'ZZZZZZZZZ' VALUE 0                             
+WS-IDLEVNR       W   5  A                                                       
+WS-KDRT          W   2  P  MASK 'ZZZ' VALUE 0                                   
+WS-IDAVINR       W   4  P  MASK 'ZZZZZZZ' VALUE 0                               
+WS-TIAVIDAT      W   4  P  MASK 'ZZZZZZZ' VALUE 0                               
+WS-KVAVIS        W   4  P  MASK 'ZZZZZZZ' VALUE 0                               
+WS-IDKONTO       W   6  P  MASK 'ZZZZZZZZZZZ' VALUE 0                           
+WS-IDARTNR-FROM  W   5  P  MASK 'ZZZZZZZZZ' VALUE 0                             
+WS-SIGNON-USERID W   8  A                                                       
+JA              W   1  A  VALUE 'J'                                             
+NEJ             W   1  A  VALUE 'N'                                             
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LISTA ÖVER GJORDA R34-TRANSAR SENASTE VECKAN                          
+*                                                                               
+SORT W61124D1 TO W61124D1 USING (IN-IDDC)                                       
+JOB INPUT W61124D1 FINISH Z-FINISH                                              
+                                                                                
+ PERFORM S23-CHECK-IN-IDDC                                                      
+ IF IN-IDDC = NDC-NA                                                            
+      WS-IDPTYP = IN-IDPTYP                                                     
+      WS-IDDC   = IN-IDDC                                                       
+      WS-IDLEVNR = IN-IDLEVNR                                                   
+      WS-KDRT   = IN-KDRT                                                       
+      WS-IDAVINR = IN-IDAVINR                                                   
+      WS-KVAVIS = IN-KVAVIS                                                     
+      WS-TIAVIDAT = IN-TIAVIDAT                                                 
+      WS-IDARTNR = IN-IDARTNR                                                   
+      WS-IDARTNR-FROM = IN-IDARTNR-FROM                                         
+      WS-IDKONTO = IN-IDKONTO                                                   
+      WS-SIGNON-USERID = IN-SIGNON-USERID                                       
+                                                                                
+      PRINT LISTA-R34-DAP                                                       
+ END-IF                                                                         
+                                                                                
+Z-FINISH.  PROC                                                                 
+END-PROC                                                                        
+                                                                                
+*    --- S23-CHECK-IN-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'IN-'                                                                   
+                                                                                
+NEWPAGE                                                                         
+REPORT LISTA-R34-DAP PRINTER W61124D2 LINESIZE 175 NODATE NOADJUST +            
+                 SPACE 0 PAGESIZE 32767 NOSPREAD NOHEADING                      
+LINE 1   WS-IDLEVNR WS-SEM WS-KDRT WS-SEM WS-IDAVINR               +            
+         WS-SEM WS-TIAVIDAT WS-SEM WS-IDARTNR WS-SEM WS-KVAVIS     +            
+         WS-SEM WS-IDKONTO WS-SEM WS-IDARTNR-FROM WS-SEM           +            
+         WS-SIGNON-USERID                                                       
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF WS-IDDC NE WS-PREV-IDDC   +                                                 
+ AND WS-IDDC NE ' '                                                             
+   DISPLAY '¤DAPR34-TRANS'                                                      
+   DISPLAY '¤DAP' WS-IDDC                                                       
+   DISPLAY 'SUPP.; AT;ADVNO;ADVDATE; PARTNO;ADVICED QTY;ACCOUNT;' +             
+           'FROM PARTNO;USERID;'                                                
+   WS-PREV-IDDC = WS-IDDC                                                       
+ END-IF                                                                         
+END-PROC                                                                        

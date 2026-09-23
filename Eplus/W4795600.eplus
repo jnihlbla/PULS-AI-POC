@@ -1,0 +1,37 @@
+                                                                                
+*******************************************************************             
+* W4795600                                                        *             
+* SORTERAR W47958 OCH MATCHAR DEN MED DLB                         *             
+* BENÄMNING FÖR ARTIKELN HÄMTAS                                   *             
+* SKRIVER W4795A, PACKUNDERLAG, HISTORIK - RADER                  *             
+*******************************************************************             
+FILE W47956D1                                                                   
+%W479A21  'A21-'                                                                
+NEWPAGE                                                                         
+*                                                                               
+FILE SORTFIL  FB (97 0)                                                         
+%W479A21  'SRT-'                                                                
+NEWPAGE                                                                         
+*                                                                               
+FILE W47956D2                                                                   
+%W011100  'DLB-'                                                                
+NEWPAGE                                                                         
+*                                                                               
+FILE W47956D3 VB (102 0)                                                        
+%W479A21  'UT-'                                                                 
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+SORT W47956D1 TO SORTFIL USING (A21-IDARTNR A21-IDDC) SIZE 10000000             
+*                                                                               
+JOB INPUT (W47956D2 KEY (DLB-IDARTNR )    +                                     
+           SORTFIL  KEY (SRT-IDARTNR ))                                         
+                                                                                
+IF MATCHED                                                                      
+  UT-W479A21   = SRT-W479A21                                                    
+  UT-BEART-SVE = DLB-BEART-SVE                                                  
+  PUT W47956D3                                                                  
+END-IF                                                                          
+*                                                                               
+NEWPAGE                                                                         

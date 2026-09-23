@@ -1,0 +1,86 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  SYSTEM     :  W412                                                  *        
+*                                                                      *        
+*  PROCEDUR   :  W412P032                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR TVÅ INFILER OCH SORTERAR DEM.                 *        
+*                                                                      *        
+*  FÖRFATTARE :  GERRY CARMICHAEL                                      *        
+*                                                                      *        
+*  INFILER    :  R.W412D2.W41231                                       *        
+*                R.W412D2.W41235                                       *        
+*                                                                      *        
+*  UTFILER    :  R.W412D2.W41232                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVD                         *        
+*                                                                      *        
+*     ..-..-..    ....................     ..............              *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W41232D1                                                                   
+%W412031  'INNEW-'                                                              
+*                                                                               
+FILE W41232D2                                                                   
+%W412031  'INOLD-'                                                              
+*                                                                               
+FILE TEMP1 FB  (30 0) VIRTUAL RETAIN                                            
+%W412031  'TEMP1-'                                                              
+*                                                                               
+FILE W41232D3 FB  (30 0)                                                        
+%W412031  'UT-'                                                                 
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+SORT W41232D1 TO TEMP1 USING (INNEW-IDDISTR                      +              
+                              INNEW-IDKUNDNR                     +              
+                              INNEW-IDKUNDRF)                    +              
+                                               NAME AKT01                       
+*                                                                               
+NEWPAGE                                                                         
+JOB INPUT (W41232D2 KEY (INOLD-IDDISTR                           +              
+                         INOLD-IDKUNDNR                          +              
+                         INOLD-IDKUNDRF)                         +              
+              TEMP1 KEY (TEMP1-IDDISTR                           +              
+                         TEMP1-IDKUNDNR                          +              
+                         TEMP1-IDKUNDRF))      NAME AKT02        +              
+                                                                                
+   IF MATCHED                                                                   
+     CONTINUE                                                                   
+   ELSE                                                                         
+     IF TEMP1                                                                   
+        PERFORM A-FLYTTA-TEMP1-TILL-UTPOST                                      
+      ELSE                                                                      
+        PERFORM B-FLYTTA-INOLD-TILL-UTPOST                                      
+      END-IF                                                                    
+                                                                                
+      PUT  W41232D3                                                             
+   END-IF                                                                       
+*                                                                               
+NEWPAGE                                                                         
+  A-FLYTTA-TEMP1-TILL-UTPOST. PROC                                              
+     UT-IDDISTR  = TEMP1-IDDISTR                                                
+     UT-IDKUNDNR = TEMP1-IDKUNDNR                                               
+     UT-IDKUNDRF = TEMP1-IDKUNDRF                                               
+     UT-IDORDER  = TEMP1-IDORDER                                                
+     UT-IDPTYP   = TEMP1-IDPTYP                                                 
+     UT-TIREGDAT = TEMP1-TIREGDAT                                               
+     UT-KDORDKL  = TEMP1-KDORDKL                                                
+     UT-KDBEKALT = TEMP1-KDBEKALT                                               
+  END-PROC                                                                      
+*                                                                               
+ NEWPAGE                                                                        
+   B-FLYTTA-INOLD-TILL-UTPOST. PROC                                             
+      UT-IDDISTR  = INOLD-IDDISTR                                               
+      UT-IDKUNDNR = INOLD-IDKUNDNR                                              
+      UT-IDKUNDRF = INOLD-IDKUNDRF                                              
+      UT-IDORDER  = INOLD-IDORDER                                               
+      UT-IDPTYP   = INOLD-IDPTYP                                                
+      UT-TIREGDAT = INOLD-TIREGDAT                                              
+      UT-KDORDKL  = INOLD-KDORDKL                                               
+      UT-KDBEKALT = INOLD-KDBEKALT                                              
+   END-PROC                                                                     
+*                                                                               

@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      FUNKTION:     ANVÄNDS FÖR ATT KÖRA COBOL-PGM I BATCH         *         
+//*                    UNDER TSO MOT DB2                              *         
+//*                                                                   *         
+//*      ÅTERSTART:    NORMAL                                         *         
+//*                                                                   *         
+//*      ANSVARIG:     36500                                          *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WG02TSO  PROC DBSYS=&DB2SYS,PROG=SAKNAS,                                      
+//             OPTION=,                                                         
+//             STPLIB=&INDRTE..LOAD                                             
+//*                                                                             
+//CARDGEN EXEC PGM=V12340,                                                      
+// PARM=(' DSN SYS(&DBSYS)**',                                                  
+//      'RUN PROG(&PROG) PLAN(&PROG&OPTION) LIB(''&STPLIB'')**',                
+//      'END')                                                                  
+//V12340D1 DD  DUMMY,DCB=BLKSIZE=80                                             
+//V12340D2 DD  DSN=&&CARDS,DISP=(NEW,PASS,DELETE),                              
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=240),                             
+//             SPACE=(TRK,1)                                                    
+//*                                                                             
+//TSO     EXEC PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                                
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSIN  DD  DSN=&&CARDS,DISP=(OLD,DELETE,DELETE)                             
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=*                                                         
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//*                                                                             
+//ABEND   EXEC PGM=ABEND,COND=(4,GE,TSO),PARM='1234567890123456'                

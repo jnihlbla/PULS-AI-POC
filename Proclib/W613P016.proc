@@ -1,0 +1,37 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SUMMERAR VAD SOM PACKATS PÅ SVS SENASTE PERIODEN.                          
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD     RTN W613R1                            
+//*                                                                             
+//*  ÅTERSTART:    W61316    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W613P016 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W613..W613R1,                                             
+//             INDUT=&W613..W613R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61316   EXEC PGM=V16459,PARM='W61316/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61316D1 DD  DSN=&INDIN..W61314,DISP=SHR                                      
+//************ VECKOFILER FÖRPACKNING SVS                                       
+//*                                                                             
+//W61316D2 DD  DSN=&&TEMPFIL,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W61316D3 DD  DSN=&INDUT..W61316(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ SUMMERAT PÅ PERIOD.                                              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W61316D4 DD  DSN=&INDUT..W61317(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ SUMMERAD PÅ PERIOD I LISTFORMAT.                                 
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  

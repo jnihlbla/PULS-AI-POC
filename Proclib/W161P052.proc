@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TO UPDARE BIMA PARTS                                                       
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN W161S2                           
+//*                                                                             
+//*  RESTART:      W16152    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W161P052 PROC STPLIB=&INDRTE..LOAD,                                           
+//*                                                                             
+//             INDIN=&W161..W161S2,                                             
+//             INDUT=&W161..W161S2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W16152   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W16152,W16152,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W16152D1 DD  DSN=&INDIN..W16152(+0),DISP=SHR                                  
+//************ INPUT FILE FROM BIMA                                             
+//*                                                                             
+//W16152D2 DD  DSN=&INDUT..W16153(+1),DISP=(NEW,CATLG,DELETE), -LIM(01)         
+//************ PROCESSING RESULTS BACK TO BIMA                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W16152D3 DD  DSN=&INDUT..W16154(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ 985-POSTER FILE TO W553D2                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

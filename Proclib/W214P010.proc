@@ -1,0 +1,52 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER W01160, SKAPAR FIL MED LARMPOSTER SAMT FIL MED                       
+//*  POSTER SOM SKA UPPDATERA WDK6                                              
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W214D1                                            
+//*                                                                             
+//*  ÅTERSTART:    NORMAL. W21410 LÄSER WDD3, WDK6                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W214P010 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDUT=&W214..W214D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21410   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W21410,W21410,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//W21410D1 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ ARTIKELFIL                                                       
+//*                                                                             
+//W21410D2 DD  DSN=&INDUT..W21411(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LARMPOSTER                                                       
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//W21410D3 DD  DSN=&INDUT..W21410(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UPPDATERINGSPOSTER FLLARM-BUF                                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               

@@ -1,0 +1,150 @@
+MACRO PREF                                                                      
+   &PREF.SOP-PARM-AREA                               W  1079 A                  
+*                                 ANVÄNDS VID ANROP AV SOPSUB                   
+*                                 USED AT CALLS TO SOPSUB                       
+*                                 ------------------------------                
+*                                 THE FIRST 2 FIELDS MUST ALWAYS                
+*                                 BE SPECIFIED   (SPACE = NO                    
+*                                 PREFIX)  AND "PROC-NAME" MUST                 
+*                                 ALWAYS BE SPECIFIED EXCEPT FOR                
+*                                 FUNCTION "K".                                 
+*                                                                               
+*                                 "ACTPASS-DATE" IS USED BY                     
+*                                 FUNCTION "O", "C" AND "K"                     
+*                                 DATE=000000 MEANS CURRENT DATE.               
+*                                 DATE=000001 MEANS TOMORROW.                   
+*                                                                               
+*                                 THE FIELDS BETWEEN "START-TYPE"               
+*                                 AND "OUT-TIME-LIMIT" ARE                      
+*                                 RETURNED BY FUNCTION "I".                     
+*                                 "CATALOG" WILL CONTAIN A STRING               
+*                                 OF CATALOG WORDS SEPARATED BY                 
+*                                 A SPACE. IF STATUS IS "WAITING"               
+*                                 "PREDECESSORS"  WILL CONTAIN A                
+*                                 SIMILAR STRING OF PROCESSES                   
+*                                 WHICH ARE PREVENTING IT FROM                  
+*                                 STARTING. OTHERWISE IT WILL                   
+*                                 CONTAIN THE DIRECT PREDECES-                  
+*                                 SORS PREFIXED BY A "<".                       
+*                                 IF THE PROCESS IS "WAITING"                   
+*                                 OR "STARTED", "SUCCESSORS"                    
+*                                 WILL CONTAIN A SIMILAR LIST OF                
+*                                 PROCESSES WHICH ARE WAITING FOR               
+*                                 THIS PROCESS TO END.                          
+*                                 OTHERWISE IT WILL CONTAIN THE                 
+*                                 DIRECT SUCCESSORS PREFIXED BY                 
+*                                 A ">".                                        
+*                                 "ACT-QUEUE" WILL CONTAIN A                    
+*                                 STRING OF DATES TO WHICH THE                  
+*                                 PROCESS HAS BEEN ORDERED.                     
+*                                 "PASS-QUEUE" WILL CONTAIN THE                 
+*                                 DATES TO WHICH IT HAS BEEN                    
+*                                 CANCELLED.                                    
+*                                                                               
+*                                 AT RETURN FROM SOP, "RETCODE"=                
+*                                 0 - 16 DEPENDING ON THE RESULT                
+*                                 OF THE CALL.  IF RETCODE > 0                  
+*                                 "MSGCODE" CONTAINS AN ERROR                   
+*                                 NUMBER.                                       
+     &PREF.SOP-DDPREFIX &PREF.SOP-PARM-AREA                2 A                  
+*                                 PREFIX PÅ DD-NAMN (0-2 TECKEN)                
+*                                 PREFIX ON DD NAMES (0-2 CHARS)                
+     &PREF.SOP-SOPFUNC &PREF.SOP-PARM-AREA          +2     1 A                  
+*     88 SOP-ORDER-PROC      VALUE 'O'.                                         
+*     88 SOP-CANCEL-PROC     VALUE 'C'.                                         
+*     88 SOP-ACTIVATE-PROC   VALUE 'A'.                                         
+*     88 SOP-PASSIVATE-PROC  VALUE 'P'.                                         
+*     88 SOP-START-PROC      VALUE 'S'.                                         
+*     88 SOP-END-PROC        VALUE 'E'.                                         
+*     88 SOP-HOLD-PROC       VALUE 'H'.                                         
+*     88 SOP-RELEASE-PROC    VALUE 'R'.                                         
+*     88 SOP-PROC-INFO       VALUE 'I'.                                         
+*     88 SOP-CALENDAR-INFO   VALUE 'K'.                                         
+*     88 SOP-ABEND-PROC      VALUE 'Z'.                                         
+*     88 SOP-SET-SYMB-VAL    VALUE 'V'.                                         
+*                                 FUNKTIONSTYP TILL SOP PROGRAM                 
+*                                 ACTION TYPE FOR SOP PROGRAM                   
+     &PREF.SOP-PROC-NAME &PREF.SOP-PARM-AREA        +3    10 A                  
+*                                 PROCESSNAMN                                   
+*                                 PROCESS NAME                                  
+     &PREF.SOP-ACTPASS-DATE &PREF.SOP-PARM-AREA    +13     4 P  0               
+*                                 AKTIVERINGS- PASSIVERINGS-DATUM               
+*                                 (ÅÅMMDD)                                      
+*                                 ACTIVATION / PASSIVATION DATE                 
+*                                 (YYMMDD)                                      
+     &PREF.SOP-RETCODE &PREF.SOP-PARM-AREA         +17     2 B                  
+*                                 RETURKOD                                      
+*                                 RETURN CODE                                   
+     &PREF.SOP-MSGCODE &PREF.SOP-PARM-AREA         +19     2 P  0               
+*                                 MEDDELANDEKOD                                 
+*                                 MESSAGE CODE                                  
+     &PREF.SOP-START-TYPE &PREF.SOP-PARM-AREA      +21     4 A                  
+*                                 STARTTYP                                      
+*                                 START-TYPE                                    
+     &PREF.SOP-PROC-STATUS &PREF.SOP-PARM-AREA     +25     1 A                  
+*     88 SOP-PASSIVE-STATUS  VALUE 'P'.                                         
+*     88 SOP-WAITING-STATUS  VALUE 'W'.                                         
+*     88 SOP-STARTED-STATUS  VALUE 'S'.                                         
+*     88 SOP-ENDED-STATUS    VALUE 'E'.                                         
+*                                 PROCESS-STATUS                                
+*                                 PROCESS STATUS                                
+     &PREF.SOP-CATALOG &PREF.SOP-PARM-AREA         +26   100 A                  
+     &PREF.SOP-PREDECESSORS &PREF.SOP-PARM-AREA   +126   100 A                  
+     &PREF.SOP-SUCCESSORS &PREF.SOP-PARM-AREA     +226   100 A                  
+     &PREF.SOP-LAST-ACTPASS-DATE &PREF.SOP-PARM-AREA +326  4 P  0               
+*                                 AKTIVERINGS- PASSIVERINGS-DATUM               
+*                                 (ÅÅMMDD)                                      
+*                                 ACTIVATION / PASSIVATION DATE                 
+*                                 (YYMMDD)                                      
+     &PREF.SOP-LAST-EXEC-DATE &PREF.SOP-PARM-AREA +330     4 P  0               
+*                                 EXEKVERINGSDATUM     (ÅÅMMDD)                 
+*                                 EXECUTION DATE       (YYMMDD)                 
+     &PREF.SOP-LAST-START-TIME &PREF.SOP-PARM-AREA +334    3 P  0               
+*                                 STARTTID    (HH.MM)                           
+*                                 START TIME  (HH.MM)                           
+     &PREF.SOP-LAST-END-TIME &PREF.SOP-PARM-AREA  +337     3 P  0               
+*                                 STOPPTID  (HH.MM)                             
+*                                 END TIME  (HH.MM)                             
+     &PREF.SOP-LAST-EXEC-TIME &PREF.SOP-PARM-AREA +340     3 P  0               
+*                                 KÖRNINGSTID (MINUTER)                         
+*                                 EXECUTION TIME (MINUTES)                      
+     &PREF.SOP-MEAN-EXEC-TIME &PREF.SOP-PARM-AREA +343     3 P  0               
+*                                 KÖRNINGSTID (MINUTER)                         
+*                                 EXECUTION TIME (MINUTES)                      
+     &PREF.SOP-ACT-QUEUE &PREF.SOP-PARM-AREA      +346   100 A                  
+     &PREF.SOP-PASS-QUEUE &PREF.SOP-PARM-AREA     +446   100 A                  
+     &PREF.SOP-PROC-HOLD &PREF.SOP-PARM-AREA      +546     1 A                  
+*                                 ÄR PROCESSEN I HOLD?                          
+*                                 IS THE PROCESS HELD?                          
+     &PREF.SOP-ATTN-TEXT &PREF.SOP-PARM-AREA      +547    15 A                  
+*                                 OBSERVERA-TEXT                                
+*                                 ATTENTION TEXT                                
+     &PREF.SOP-PARENT-PROC-NAME &PREF.SOP-PARM-AREA +562  10 A                  
+*                                 PROCESSNAMN                                   
+*                                 PROCESS NAME                                  
+     &PREF.SOP-PROC-TYPE &PREF.SOP-PARM-AREA      +572     1 A                  
+*     88 SOP-SYSTEM-PROCESS  VALUE 'S'.                                         
+*     88 SOP-ROUTINE-PROCESS VALUE 'R'.                                         
+*     88 SOP-JOB-PROCESS     VALUE 'J'.                                         
+*     88 SOP-PROCEDURE-PROCESS                                                  
+*                            VALUE 'P'.                                         
+*                                 PROCESSTYP                                    
+*                                 PROCESS TYPE                                  
+     &PREF.SOP-PROC-PRIO &PREF.SOP-PARM-AREA      +573     1 A                  
+*                                 PRIORITETSKOD                                 
+*                                 PRIORITY CODE                                 
+     &PREF.SOP-VD-OUTPUT &PREF.SOP-PARM-AREA      +574     1 A                  
+*     88 SOP-PAPER-OUTPUT    VALUE 'P'.                                         
+*     88 SOP-COM-OUTPUT      VALUE 'C'.                                         
+*     88 SOP-PAPER-COM-OUTPUT                                                   
+*                            VALUE 'B'.                                         
+*     88 SOP-NO-OUTPUT       VALUE ' '.                                         
+*                                 TYP AV OUTPUT PÅ VOLVODATA                    
+*                                 TYPE OF OUTPUT AT VOLVODATA                   
+     &PREF.SOP-TEMP-JCL-DURATION &PREF.SOP-PARM-AREA +575  4 P  0               
+*                                 VARAKTIGHET PÅ TEMPÄNDRING                    
+*                                 (ÅÅMMDD ELLER ANTAL GGR 1-99)                 
+*                                 DURATION OF TEMPORARY CHANGE                  
+*                                 (YYMMDD OR NBR OF TIMES 1-99)                 
+     &PREF.SOP-SYMBOLIC-VARIABLES &PREF.SOP-PARM-AREA +579  500 A               
+*** END COPY WSOPAREA                LENGTH =     1079                          

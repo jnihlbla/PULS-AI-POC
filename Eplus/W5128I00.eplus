@@ -1,0 +1,291 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5128I00                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATES R30, R31 AND 310 REPORTS                      *        
+*                                                                      *        
+*  FÖRFATTARE :  SARASWATHY S                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W5128ID1                                                                   
+*                                                                               
+%W5128H  'IN1-'                                                                 
+                                                                                
+FILE TPFIL1 FB(14 0)                                                            
+%W5128H  'T1-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W5128ID2                                                                   
+%W01160  'IN2-'                                                                 
+                                                                                
+FILE TPFIL2 FB(29 0)                                                            
+T2-IDPTYP    1  3 A                                                             
+T2-IDARTNR   4  5 P 0                                                           
+T2-IDDC      9  2 A                                                             
+T2-KVAVIS   11  5 P 0                                                           
+T2-PRARTSTD 16  5 P 2                                                           
+T2-SUM      21  9 P 2                                                           
+                                                                                
+FILE TPFIL3 FB(29 0)                                                            
+T3-IDPTYP    1  3 A                                                             
+T3-IDARTNR   4  5 P 0                                                           
+T3-IDDC      9  2 A                                                             
+T3-KVAVIS   11  5 P 0                                                           
+T3-PRARTSTD 16  5 P 2                                                           
+T3-SUM      21  9 P 2                                                           
+                                                                                
+FILE TPFIL4 FB(29 0)                                                            
+T4-IDPTYP    1  3 A                                                             
+T4-IDARTNR   4  5 P 0                                                           
+T4-IDDC      9  2 A                                                             
+T4-KVAVIS   11  5 P 0                                                           
+T4-PRARTSTD 16  5 P 2                                                           
+T4-SUM      21  9 P 2                                                           
+                                                                                
+****** EXCEL UTFIL1                                                             
+FILE W5128ID3 PRINTER VB(70 0)                                                  
+                                                                                
+****** EXCEL FILE STRUCTURE                                                     
+UT1-IDPTYP     W  3  A                                                          
+UT1-IDARTNR    W  5  N 0 MASK ('ZZZZ9')                                         
+UT1-IDDC       W  2  A                                                          
+UT1-KVAVIS     W  7  N 0 MASK ('ZZZZZZ9')                                       
+UT1-STDPRICE   W  13 N 2 MASK ('ZZZZZZZZZ99.99-')                               
+UT1-SUM        W  13 N 2 MASK ('ZZZZZZZZZ99.99-')                               
+                                                                                
+****** EXCEL UTFIL2                                                             
+FILE W5128ID4 PRINTER VB(70 0)                                                  
+                                                                                
+****** EXCEL FILE STRUCTURE                                                     
+UT2-IDPTYP     W  3  A                                                          
+UT2-IDARTNR    W  5  N 0 MASK ('ZZZZ9')                                         
+UT2-IDDC       W  2  A                                                          
+UT2-KVAVIS     W  7  N 0 MASK ('ZZZZZZ9')                                       
+UT2-STDPRICE   W  13 N 2 MASK ('ZZZZZZZZZ99.99-')                               
+UT2-SUM        W  13 N 2 MASK ('ZZZZZZZZZ99.99-')                               
+                                                                                
+****** EXCEL UTFIL3                                                             
+FILE W5128ID5 PRINTER VB(70 0)                                                  
+                                                                                
+****** EXCEL FILE STRUCTURE                                                     
+UT3-IDPTYP     W  3  A                                                          
+UT3-IDARTNR    W  5  N 0 MASK ('ZZZZ9')                                         
+UT3-IDDC       W  2  A                                                          
+UT3-KVAVIS     W  7  N 0 MASK ('ZZZZZZ9')                                       
+UT3-STDPRICE   W  13 N 2 MASK ('ZZZZZZZZZ99.99-')                               
+UT3-SUM        W  13 N 2 MASK ('ZZZZZZZZZ99.99-')                               
+                                                                                
+                                                                                
+WS-SEMICOLON   W  1  A   VALUE ';'                                              
+WS-KVAVIS      W  8  P 0 VALUE 0                                                
+FIRST-LINE1    W  1  A   VALUE 'J'                                              
+FIRST-LINE2    W  1  A   VALUE 'J'                                              
+FIRST-LINE3    W  1  A   VALUE 'J'                                              
+NEWPAGE                                                                         
+**********************************************************                      
+* STEP 1. SORTS W5128H ON IDARTNR                                               
+**********************************************************                      
+SORT W5128ID1 TO TPFIL1 USING (IN1-IDARTNR)                                     
+                                                                                
+NEWPAGE                                                                         
+**********************************************************                      
+* STEP 2. COMPARES W5128H AND W01160 TO GET THE STD PRICE                       
+**********************************************************                      
+                                                                                
+JOB INPUT (W5128ID2 KEY(IN2-CLAG-IDARTNR)                     +                 
+           TPFIL1   KEY(T1-IDARTNR))                                            
+IF MATCHED                                                                      
+       IF (T1-IDPTYP = '310' )                                                  
+         T2-IDPTYP        = T1-IDPTYP                                           
+         T2-IDARTNR       = T1-IDARTNR                                          
+         T2-IDDC          = T1-IDDC                                             
+         T2-KVAVIS        = T1-KVAVIS                                           
+         T2-PRARTSTD      = IN2-CLAG-PRARTSTD                                   
+         T2-SUM           = IN2-CLAG-PRARTSTD * T1-KVAVIS                       
+         PUT TPFIL2                                                             
+       ELSE                                                                     
+        IF (T1-IDPTYP = 'R30' )                                                 
+          T3-IDPTYP       = T1-IDPTYP                                           
+          T3-IDARTNR      = T1-IDARTNR                                          
+          T3-IDDC         = T1-IDDC                                             
+          T3-KVAVIS       = T1-KVAVIS                                           
+          T3-PRARTSTD     = IN2-CLAG-PRARTSTD                                   
+          T3-SUM          = IN2-CLAG-PRARTSTD * T1-KVAVIS                       
+          PUT TPFIL3                                                            
+        ELSE                                                                    
+         IF (T1-IDPTYP = 'R31' )                                                
+           T4-IDPTYP        = T1-IDPTYP                                         
+           T4-IDARTNR       = T1-IDARTNR                                        
+           T4-IDDC          = T1-IDDC                                           
+           T4-KVAVIS        = T1-KVAVIS                                         
+           T4-PRARTSTD      = IN2-CLAG-PRARTSTD                                 
+           T4-SUM           = IN2-CLAG-PRARTSTD * T1-KVAVIS                     
+           PUT TPFIL4                                                           
+         END-IF                                                                 
+        END-IF                                                                  
+       END-IF                                                                   
+END-IF                                                                          
+**********************************************************                      
+* STEP 3. SORTS TPFIL2 ON IDARTNR AND IDDC                                      
+**********************************************************                      
+SORT TPFIL2   TO TPFIL2 USING (T2-IDARTNR T2-IDDC)                              
+                                                                                
+**********************************************************                      
+* STEP 4. READS TPFIL2 (310 FROM WDL2)                                          
+**********************************************************                      
+JOB INPUT (TPFIL2   KEY(T2-IDARTNR T2-IDDC))                                    
+                                                                                
+       WS-KVAVIS    = WS-KVAVIS + T2-KVAVIS                                     
+       IF LAST-DUP TPFIL2  OR NOT DUPLICATE TPFIL2                              
+         UT1-IDPTYP        = T2-IDPTYP                                          
+         UT1-IDARTNR       = T2-IDARTNR                                         
+         UT1-IDDC          = T2-IDDC                                            
+         UT1-KVAVIS        = T2-KVAVIS                                          
+         UT1-STDPRICE      = T2-PRARTSTD                                        
+         UT1-SUM           = T2-SUM                                             
+         PRINT REPORT01                                                         
+       END-IF                                                                   
+ NEWPAGE                                                                        
+   REPORT   REPORT01             +                                              
+            PRINTER W5128ID3     +                                              
+            PAGESIZE 32000       +                                              
+            LINESIZE 65          +                                              
+            SPACE 0              +                                              
+            NOHEADING            +                                              
+            NOSPREAD             +                                              
+            NOADJUST             +                                              
+            NOPAGE               +                                              
+            NODATE                                                              
+                                                                                
+   LINE     UT1-IDPTYP           +                                              
+            WS-SEMICOLON         +                                              
+            UT1-IDARTNR          +                                              
+            WS-SEMICOLON         +                                              
+            UT1-IDDC             +                                              
+            WS-SEMICOLON         +                                              
+            UT1-KVAVIS           +                                              
+            WS-SEMICOLON         +                                              
+            UT1-STDPRICE         +                                              
+            WS-SEMICOLON         +                                              
+            UT1-SUM              +                                              
+            WS-SEMICOLON                                                        
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE1 = 'J'                                                          
+    DISPLAY '¤DAPW5128I-001'                                                    
+    DISPLAY '¤DAPW5128I'                                                        
+    DISPLAY 'IDTYP;PART NUMBER;DC;QUANTITY;STD PRICE;TOTAL PRICE;'              
+    FIRST-LINE1  = 'N'                                                          
+  END-IF                                                                        
+END-PROC                                                                        
+                                                                                
+**********************************************************                      
+* STEP 5. SORTS TPFIL3 ON IDARTNR AND IDDC                                      
+**********************************************************                      
+SORT TPFIL3   TO TPFIL3 USING (T3-IDARTNR T3-IDDC)                              
+                                                                                
+**********************************************************                      
+* STEP 6. READS TPFIL2 (R30 FROM WDL2)                                          
+**********************************************************                      
+JOB INPUT (TPFIL3   KEY(T3-IDARTNR T3-IDDC))                                    
+                                                                                
+       WS-KVAVIS    = WS-KVAVIS + T3-KVAVIS                                     
+       IF LAST-DUP TPFIL3  OR NOT DUPLICATE TPFIL3                              
+         UT1-IDPTYP        = T3-IDPTYP                                          
+         UT1-IDARTNR       = T3-IDARTNR                                         
+         UT1-IDDC          = T3-IDDC                                            
+         UT1-KVAVIS        = T3-KVAVIS                                          
+         UT1-STDPRICE      = T3-PRARTSTD                                        
+         UT1-SUM           = T3-SUM                                             
+         PRINT REPORT02                                                         
+       END-IF                                                                   
+ NEWPAGE                                                                        
+   REPORT   REPORT02             +                                              
+            PRINTER W5128ID4     +                                              
+            PAGESIZE 32000       +                                              
+            LINESIZE 65          +                                              
+            SPACE 0              +                                              
+            NOHEADING            +                                              
+            NOSPREAD             +                                              
+            NOADJUST             +                                              
+            NOPAGE               +                                              
+            NODATE                                                              
+                                                                                
+   LINE     UT2-IDPTYP           +                                              
+            WS-SEMICOLON         +                                              
+            UT2-IDARTNR          +                                              
+            WS-SEMICOLON         +                                              
+            UT2-IDDC             +                                              
+            WS-SEMICOLON         +                                              
+            UT2-KVAVIS           +                                              
+            WS-SEMICOLON         +                                              
+            UT2-STDPRICE         +                                              
+            WS-SEMICOLON         +                                              
+            UT2-SUM              +                                              
+            WS-SEMICOLON                                                        
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE2 = 'J'                                                          
+    DISPLAY '¤DAPW5128I-002'                                                    
+    DISPLAY '¤DAPW5128I'                                                        
+    DISPLAY 'IDTYP;PART NUMBER;DC;QUANTITY;STD PRICE;TOTAL PRICE;'              
+    FIRST-LINE2  = 'N'                                                          
+  END-IF                                                                        
+END-PROC                                                                        
+                                                                                
+**********************************************************                      
+* STEP 7. SORTS TPFIL4 ON IDARTNR AND IDDC                                      
+**********************************************************                      
+SORT TPFIL4   TO TPFIL4 USING (T4-IDARTNR T4-IDDC)                              
+                                                                                
+**********************************************************                      
+* STEP 8. READS TPFIL4 (R31 FROM WDL2)                                          
+**********************************************************                      
+JOB INPUT (TPFIL4   KEY(T4-IDARTNR T4-IDDC))                                    
+                                                                                
+       WS-KVAVIS    = WS-KVAVIS + T4-KVAVIS                                     
+       IF LAST-DUP TPFIL4  OR NOT DUPLICATE TPFIL4                              
+         UT3-IDPTYP        = T4-IDPTYP                                          
+         UT3-IDARTNR       = T4-IDARTNR                                         
+         UT3-IDDC          = T4-IDDC                                            
+         UT3-KVAVIS        = T4-KVAVIS                                          
+         UT3-STDPRICE      = T4-PRARTSTD                                        
+         UT3-SUM           = T4-SUM                                             
+         PRINT REPORT03                                                         
+       END-IF                                                                   
+ NEWPAGE                                                                        
+   REPORT   REPORT03             +                                              
+            PRINTER W5128ID5     +                                              
+            PAGESIZE 32000       +                                              
+            LINESIZE 65          +                                              
+            SPACE 0              +                                              
+            NOHEADING            +                                              
+            NOSPREAD             +                                              
+            NOADJUST             +                                              
+            NOPAGE               +                                              
+            NODATE                                                              
+                                                                                
+   LINE     UT3-IDPTYP           +                                              
+            WS-SEMICOLON         +                                              
+            UT3-IDARTNR          +                                              
+            WS-SEMICOLON         +                                              
+            UT3-IDDC             +                                              
+            WS-SEMICOLON         +                                              
+            UT3-KVAVIS           +                                              
+            WS-SEMICOLON         +                                              
+            UT3-STDPRICE         +                                              
+            WS-SEMICOLON         +                                              
+            UT3-SUM              +                                              
+            WS-SEMICOLON                                                        
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE3 = 'J'                                                          
+    DISPLAY '¤DAPW5128I-003'                                                    
+    DISPLAY '¤DAPW5128I'                                                        
+    DISPLAY 'IDTYP;PART NUMBER;DC;QUANTITY;STD PRICE;TOTAL PRICE;'              
+    FIRST-LINE3  = 'N'                                                          
+  END-IF                                                                        
+END-PROC                                                                        

@@ -1,0 +1,374 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2615200                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER W26154 WDQ4-EXTRAKT FÖR DIST 81 KUND 11, 111    *        
+*                LÄSER W26156 EFR-RADER    FÖR DIST 81 KUND 11, 111    *        
+*                                                                      *        
+*  FÖRFATTARE :  CONNY EGHOLT                                          *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+FILE W26152D1                                                                   
+*FILE INFIL01                                                                   
+%W26154                                                                         
+ORADX-IDDISTR   50  3  P                                                        
+ORADX-IDKUNDNR  53  4  P                                                        
+ORADX-IDANSK   224  2  P                                                        
+*              BASLIST AV WDQ4 KOMPL MED ANSKINFO PÅ DISTR 81                   
+*                                                                               
+FILE W26152D2                                                                   
+*FILE INFIL02       EFR-RADER PÅ DISTR 81                                       
+%W26156    'EFR-'                                                               
+EFRX-IDDISTR    1  3  P                                                         
+EFRX-IDKUNDNR   4  4  P                                                         
+EFRX-IDANSK   168  2  P                                                         
+*                                                                               
+FILE TFIL01  FB (47 0)                                                          
+*                       TEMPFIL FÖR SUMMARY                                     
+*                       FÄLT-1 = BRYTBEGREPP-1 ...OSV.                          
+*                       FÄLT-N = BRYTBEGREPP-N                                  
+*                       FÄLT-N+1 = INTERNT E+ = ALLTID 10 POS                   
+*                       ÖVRIGA FÄLT ALLTID 10 POS                               
+*                       ALLA BRYT-BEGREPP SKALL ANGES I CONTROL                 
+T01-DISTR       1  3  P                                                         
+T01-KUND        4  4  P                                                         
+T01-TALLY       8 10  P                                                         
+T01-VÄRDE      18 10  P  2                                                      
+T01-AVÄRDE     28 10  P  2                                                      
+T01-ATALLY     38 10  P                                                         
+*                                                                               
+FILE TFIL02  FB (47 0)                                                          
+*                       TEMPFIL FÖR SUMMARY                                     
+T02-DISTR       1  3  P                                                         
+T02-KUND        4  4  P                                                         
+T02-TALLY       8 10  P                                                         
+T02-VÄRDE      18 10  P  2                                                      
+T02-AVÄRDE     28 10  P  2                                                      
+T02-ATALLY     38 10  P                                                         
+*                                                                               
+FILE TFIL03  FB (47 0)                                                          
+*                       TEMPFIL FÖR SUMMARY                                     
+T03-GRPINT      1  7  A                                                         
+T03-TALLY       8 10  P                                                         
+T03-VÄRDE      18 10  P  2                                                      
+T03-AVÄRDE     28 10  P  2                                                      
+T03-ATALLY     38 10  P                                                         
+*                                                                               
+FILE TFIL04  FB (47 0)                                                          
+*                       TEMPFIL FÖR SUMMARY                                     
+T04-GRPINT      1  7  A                                                         
+T04-TALLY       8 10  P                                                         
+T04-VÄRDE      18 10  P  2                                                      
+T04-AVÄRDE     28 10  P  2                                                      
+T04-ATALLY     38 10  P                                                         
+*                                                                               
+FILE TFIL05  FB (42 0)                                                          
+T05-ANSK       1   2  P                                                         
+T05-TALLY      3  10  P                                                         
+T05-VÄRDE      13 10  P  2                                                      
+T05-AVÄRDE     23 10  P  2                                                      
+T05-ATALLY     33 10  P                                                         
+*                                                                               
+FILE TFIL06  FB (42 0)                                                          
+T06-ANSK       1   2  P                                                         
+T06-TALLY      3  10  P                                                         
+T06-VÄRDE      13 10  P  2                                                      
+T06-AVÄRDE     23 10  P  2                                                      
+T06-ATALLY     33 10  P                                                         
+*                                                                               
+FILE W26152D3 PRINTER  VB (86 0) ASA                                            
+*                                                                               
+*--------------------------*                                                    
+* DATUMKORT                *                                                    
+*--------------------------*                                                    
+                                                                                
+%WDATKORT 'DATKORT-'                                                            
+                                                                                
+  PROGRAM-NAMN          W  6 A   VALUE 'W26152'                                 
+  DATUMKORT-ID          W  6 A   VALUE 'WDATUM'                                 
+*                                                                               
+***************************************                                         
+*****       HJÄLP AREOR           *****                                         
+***************************************                                         
+W-LIST-VECKA   W  2  N                                                          
+                                                                                
+W-DISTR        W  3  P                                                          
+W-KUND         W  4  P                                                          
+W-ANSK         W  3  N                                                          
+W-GRPINT       W  7  A                                                          
+W-VARDE        W  7  P 2   MASK ('-- --- --- --9,99')                           
+W-AVARDE       W  7  P 2   MASK ('-- --- --- --9,99')                           
+W-ANTAL        W  9  N 0   MASK ('--------9')                                   
+W-AANTAL       W  9  N 0   MASK ('--------9')                                   
+VARDE          W  9  P 2                                                        
+AVARDE         W  9  P 2                                                        
+SW1            W  1  P                                                          
+*                                                                               
+*-------------------- SKAPA TFIL01  FÖR  RAPPORT01 ---                          
+JOB INPUT  W26152D1                                                             
+         VARDE = ORAD-KVBEART-Q * ORAD-PRARTNTO                                 
+         IF ORAD-FLSKROT-AUTO = 'J'                                             
+            AVARDE = VARDE                                                      
+         ELSE                                                                   
+            AVARDE = 0                                                          
+         END-IF                                                                 
+         PRINT RAPP01                                                           
+                                                                                
+REPORT   RAPP01    SUMMARY   SUMFILE TFIL01 SPACE 0                             
+SEQUENCE ORADX-IDDISTR   +                                                      
+         ORADX-IDKUNDNR                                                         
+CONTROL  ORADX-IDDISTR NOPRINT  +                                               
+         ORADX-IDKUNDNR NOPRINT                                                 
+LINE     VARDE AVARDE                                                           
+* -----------------------------------------------------                         
+*                                                                               
+* ------------------- SKAPA TFIL02  FÖR  RAPPORT01 ---                          
+JOB INPUT  W26152D2                                                             
+         VARDE = (EFR-KVEFRS-PACK + EFR-KVEFRS-OPACK) * EFR-PRARTNTO            
+         IF EFR-FLSKROT-AUTO = 'J'                                              
+            AVARDE = VARDE                                                      
+         ELSE                                                                   
+            AVARDE = 0                                                          
+         END-IF                                                                 
+         PRINT RAPP02                                                           
+                                                                                
+REPORT   RAPP02  SUMMARY  SUMFILE TFIL02 SPACE 0                                
+SEQUENCE EFRX-IDDISTR +                                                         
+         EFRX-IDKUNDNR                                                          
+CONTROL  EFRX-IDDISTR NOPRINT  +                                                
+         EFRX-IDKUNDNR NOPRINT                                                  
+LINE     VARDE AVARDE                                                           
+* -----------------------------------------------------                         
+*                                                                               
+*                                                                               
+*-------------------- SKAPA TFIL03  FÖR  RAPPORT02 ---                          
+JOB INPUT  W26152D1                                                             
+         VARDE = ORAD-KVBEART-Q * ORAD-PRARTNTO                                 
+         IF ORAD-FLSKROT-AUTO = 'J'                                             
+            AVARDE = VARDE                                                      
+         ELSE                                                                   
+            AVARDE = 0                                                          
+         END-IF                                                                 
+         PRINT RAPP03                                                           
+                                                                                
+REPORT   RAPP03    SUMMARY   SUMFILE TFIL03 SPACE 0                             
+SEQUENCE ORAD-GRP-INT                                                           
+CONTROL  ORAD-GRP-INT NOPRINT                                                   
+LINE     VARDE AVARDE                                                           
+* -----------------------------------------------------                         
+*                                                                               
+*                                                                               
+* ------------------- SKAPA TFIL04  FÖR  RAPPORT02 ---                          
+JOB INPUT  W26152D2                                                             
+         VARDE = (EFR-KVEFRS-PACK + EFR-KVEFRS-OPACK) * EFR-PRARTNTO            
+         IF EFR-FLSKROT-AUTO = 'J'                                              
+            AVARDE = VARDE                                                      
+         ELSE                                                                   
+            AVARDE = 0                                                          
+         END-IF                                                                 
+         PRINT RAPP04                                                           
+                                                                                
+REPORT   RAPP04  SUMMARY  SUMFILE TFIL04 SPACE 0                                
+SEQUENCE EFR-GRP-INT                                                            
+CONTROL  EFR-GRP-INT NOPRINT                                                    
+LINE     VARDE AVARDE                                                           
+* -----------------------------------------------------                         
+*                                                                               
+*-------------------- SKAPA TFIL05  FÖR  RAPPORT03 ---                          
+JOB INPUT  W26152D1                                                             
+         VARDE = ORAD-KVBEART-Q * ORAD-PRARTNTO                                 
+         IF ORAD-FLSKROT-AUTO = 'J'                                             
+            AVARDE = VARDE                                                      
+         ELSE                                                                   
+            AVARDE = 0                                                          
+         END-IF                                                                 
+         PRINT RAPP05                                                           
+                                                                                
+REPORT   RAPP05    SUMMARY   SUMFILE TFIL05 SPACE 0                             
+SEQUENCE ORADX-IDANSK                                                           
+CONTROL  ORADX-IDANSK  NOPRINT                                                  
+LINE     VARDE AVARDE                                                           
+* -----------------------------------------------------                         
+*                                                                               
+* ------------------- SKAPA TFIL06  FÖR  RAPPORT03 ---                          
+JOB INPUT  W26152D2                                                             
+         VARDE = (EFR-KVEFRS-PACK + EFR-KVEFRS-OPACK) * EFR-PRARTNTO            
+         IF EFR-FLSKROT-AUTO = 'J'                                              
+            AVARDE = VARDE                                                      
+         ELSE                                                                   
+            AVARDE = 0                                                          
+         END-IF                                                                 
+         PRINT RAPP06                                                           
+                                                                                
+REPORT   RAPP06  SUMMARY  SUMFILE TFIL06 SPACE 0                                
+SEQUENCE EFRX-IDANSK                                                            
+CONTROL  EFRX-IDANSK  NOPRINT                                                   
+LINE     VARDE AVARDE                                                           
+* -----------------------------------------------------                         
+*                                                                               
+*                                                                               
+*                                                                               
+*                                                                               
+*                                                                               
+*-------------------- SKRIVA RAPPORT01 (PER DIST/KUND)                          
+*                                                                               
+JOB INPUT ( TFIL01 KEY ( T01-DISTR T01-KUND ) +                                 
+            TFIL02 KEY ( T02-DISTR T02-KUND ) ) +                               
+START A-INIT                                                                    
+                                                                                
+IF MATCHED                                                                      
+   W-DISTR = T01-DISTR                                                          
+   W-KUND  = T01-KUND                                                           
+   W-VARDE = T01-VÄRDE + T02-VÄRDE                                              
+   W-AVARDE = T01-AVÄRDE + T02-AVÄRDE                                           
+   W-ANTAL = T01-TALLY + T02-TALLY                                              
+   PRINT RAPPORT01                                                              
+ELSE                                                                            
+   IF TFIL01                                                                    
+      W-DISTR = T01-DISTR                                                       
+      W-KUND  = T01-KUND                                                        
+      W-VARDE = T01-VÄRDE                                                       
+      W-AVARDE = T01-AVÄRDE                                                     
+      W-ANTAL = T01-TALLY                                                       
+      PRINT RAPPORT01                                                           
+   ELSE                                                                         
+      IF TFIL02                                                                 
+         W-DISTR = T02-DISTR                                                    
+         W-KUND  = T02-KUND                                                     
+         W-VARDE = T02-VÄRDE                                                    
+         W-AVARDE = T02-AVÄRDE                                                  
+         W-ANTAL = T02-TALLY                                                    
+         PRINT RAPPORT01                                                        
+      END-IF                                                                    
+   END-IF                                                                       
+END-IF                                                                          
+*                                                                               
+A-INIT. PROC                                                                    
+*  HÄMTA DATUM FRÅN DATKORT                                                     
+   CALL DATKORT USING (PROGRAM-NAMN +                                           
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+   MOVE DATKORT-D-VECKA TO W-LIST-VECKA                                         
+END-PROC                                                                        
+* -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -                    
+* -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -                    
+                                                                                
+REPORT RAPPORT01 PRINTER W26152D3 SUMMARY NOPAGE +                              
+       NOADJUST NOHEADING NODATE LINESIZE 71 PAGESIZE 67                        
+SEQUENCE  W-DISTR W-KUND                                                        
+CONTROL   W-DISTR NOPRINT W-KUND                                                
+TITLE 1  ' '                                                                    
+TITLE 2  COL 12  'SKROTUPPFÖLJNING AV EFR, FÖR VECKA'   +                       
+         COL 47  W-LIST-VECKA                          +                        
+         COL 49  ', KÖRT'                             +                         
+         COL 56  SYSDATE                                                        
+TITLE 3  COL 52  'W26152-001'                                                   
+                                                                                
+TITLE 5  COL  4  'DISTR'         +                                              
+         COL 12  'KUND '         +                                              
+         COL 26  'VÄRDE NETTO'   +                                              
+         COL 49  'VARAV AUT'     +                                              
+         COL 61  'ANTAL RADER'                                                  
+                                                                                
+LINE     COL  4  W-DISTR         +                                              
+         COL  9  W-KUND          +                                              
+         COL 16  W-VARDE         +                                              
+         COL 37  W-AVARDE        +                                              
+         COL 59  W-ANTAL                                                        
+*-------------------------------------------------                              
+*                                                                               
+*                                                                               
+*                                                                               
+*-------------------- SKRIVA RAPPORT02 (PER GRUPP) ---                          
+*                                                                               
+JOB INPUT ( TFIL03 KEY ( T03-GRPINT ) +                                         
+            TFIL04 KEY ( T04-GRPINT ) )                                         
+IF MATCHED                                                                      
+   W-GRPINT = T03-GRPINT                                                        
+   W-VARDE = T03-VÄRDE + T04-VÄRDE                                              
+   W-AVARDE = T03-AVÄRDE + T04-AVÄRDE                                           
+   W-ANTAL = T03-TALLY + T04-TALLY                                              
+   PRINT RAPPORT02                                                              
+ELSE                                                                            
+   IF TFIL03                                                                    
+      W-GRPINT = T03-GRPINT                                                     
+      W-VARDE = T03-VÄRDE                                                       
+      W-AVARDE = T03-AVÄRDE                                                     
+      W-ANTAL = T03-TALLY                                                       
+      PRINT RAPPORT02                                                           
+   ELSE                                                                         
+      IF TFIL04                                                                 
+         W-GRPINT = T04-GRPINT                                                  
+         W-VARDE = T04-VÄRDE                                                    
+         W-AVARDE = T04-AVÄRDE                                                  
+         W-ANTAL = T04-TALLY                                                    
+         PRINT RAPPORT02                                                        
+      END-IF                                                                    
+   END-IF                                                                       
+END-IF                                                                          
+                                                                                
+REPORT RAPPORT02 PRINTER W26152D3 SUMMARY NOPAGE +                              
+       NOADJUST NOHEADING NODATE LINESIZE 71 PAGESIZE 67                        
+SEQUENCE  W-GRPINT                                                              
+CONTROL   W-GRPINT                                                              
+TITLE 1  ' '                                                                    
+TITLE 5  COL  5  'ANSK-GRUPP'    +                                              
+         COL 26  'VÄRDE NETTO'   +                                              
+         COL 49  'VARAV AUT'     +                                              
+         COL 61  'ANTAL RADER'                                                  
+                                                                                
+LINE     COL 08  W-GRPINT        +                                              
+         COL 16  W-VARDE         +                                              
+         COL 37  W-AVARDE        +                                              
+         COL 59  W-ANTAL                                                        
+*                                                                               
+*-------------------- SKRIVA RAPPORT03 (PER ANSK ) ---                          
+*                                                                               
+JOB INPUT ( TFIL05 KEY ( T05-ANSK  ) +                                          
+            TFIL06 KEY ( T06-ANSK  ) )                                          
+IF MATCHED                                                                      
+   W-ANSK  = T05-ANSK                                                           
+   W-VARDE = T05-VÄRDE + T06-VÄRDE                                              
+   W-AVARDE = T05-AVÄRDE + T06-AVÄRDE                                           
+   W-ANTAL = T05-TALLY + T06-TALLY                                              
+   PRINT RAPPORT03                                                              
+ELSE                                                                            
+   IF TFIL05                                                                    
+      W-ANSK  = T05-ANSK                                                        
+      W-VARDE = T05-VÄRDE                                                       
+      W-AVARDE = T05-AVÄRDE                                                     
+      W-ANTAL = T05-TALLY                                                       
+      PRINT RAPPORT03                                                           
+   ELSE                                                                         
+      IF TFIL06                                                                 
+         W-ANSK  = T06-ANSK                                                     
+         W-VARDE = T06-VÄRDE                                                    
+         W-AVARDE = T06-AVÄRDE                                                  
+         W-ANTAL = T06-TALLY                                                    
+         PRINT RAPPORT03                                                        
+      END-IF                                                                    
+   END-IF                                                                       
+END-IF                                                                          
+*                                                                               
+REPORT RAPPORT03 PRINTER W26152D3 SUMMARY NOPAGE +                              
+       NOADJUST NOHEADING NODATE LINESIZE 71 PAGESIZE 67                        
+SEQUENCE  W-ANSK                                                                
+CONTROL   W-ANSK                                                                
+TITLE 1  ' '                                                                    
+TITLE 5  COL  5  'ANSKAFFARE'    +                                              
+         COL 26  'VÄRDE NETTO'   +                                              
+         COL 49  'VARAV AUT'     +                                              
+         COL 61  'ANTAL RADER'                                                  
+                                                                                
+LINE     COL 12  W-ANSK          +                                              
+         COL 16  W-VARDE         +                                              
+         COL 37  W-AVARDE        +                                              
+         COL 59  W-ANTAL                                                        

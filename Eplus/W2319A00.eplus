@@ -1,0 +1,44 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2319A00                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATE A FILE FOR SERVICEGRAD.                        *        
+*  FÖRFATTARE :  JOHAN NIHLBLAD                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W2319AD1                                                                   
+%W23194    'IN1-'                                                               
+                                                                                
+FILE W2319AD2 FB(31 0)                                                          
+%W23190    'UT-'                                                                
+                                                                                
+*                                                                               
+JOB INPUT W2319AD1                                                              
+                                                                                
+  IF IN1-IDDC EQ '71' '72' '73' '74'                                            
+    IF IN1-SUINKORD = 0                                                         
+      UT-IDARTNR     = IN1-IDARTNR                                              
+      UT-IDDC        = IN1-IDDC                                                 
+      UT-SUINKORD    = IN1-SUINKORD                                             
+      UT-SUFYSAVP    = IN1-SUFYSAVP                                             
+      UT-SUAVBRP     = IN1-SUAVBRP                                              
+      UT-RESERVG-BTO = 100                                                      
+      UT-RESERVG-NTO = 100                                                      
+      PUT W2319AD2                                                              
+    ELSE                                                                        
+      UT-IDARTNR     = IN1-IDARTNR                                              
+      UT-IDDC        = IN1-IDDC                                                 
+      UT-SUINKORD    = IN1-SUINKORD                                             
+      UT-SUFYSAVP    = IN1-SUFYSAVP                                             
+      UT-SUAVBRP     = IN1-SUAVBRP                                              
+      UT-RESERVG-BTO = (IN1-SUAVBRP * 100) / IN1-SUINKORD                       
+      UT-RESERVG-NTO = ((IN1-SUAVBRP - IN1-SUFYSAVP) * 100) /          +        
+                         IN1-SUINKORD                                           
+      PUT W2319AD2                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                

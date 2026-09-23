@@ -1,0 +1,51 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4263600                                              *        
+*                                                                      *        
+*  FUNKTION   :  KONTROLLRAPPORTER MED KONCERNLEVERANTÖRER.            *        
+*                INFIL SKAPAS I W42634. LEVERANTÖRER SOM EJ            *        
+*                UPPDATERAR SAPR3. SKAPAR LISTA W42636-001.            *        
+*                                                                      *        
+*  FÖRFATTARE :  KENT JEBSEN                                           *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W42636D1                                                                   
+*                                                                               
+%W42636  'IN-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+FILE W42636D2  PRINTER FB (121 0)                                               
+                                                                                
+W-IDVERNR       W   8  N   MASK 'ZZZZZZZ9'         VALUE 0                      
+W-TIFAKT        W   6  N   MASK '999999'           VALUE 0                      
+W-IDKR          W   5  N   MASK 'ZZZZ9'            VALUE 0                      
+W-BELOPP        W  15  N 2 MASK 'ZZZZZZZZZZZZ9.99' VALUE 0                      
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+JOB INPUT W42636D1                                                              
+                                                                                
+    W-IDVERNR = IN-IDVERNR                                                      
+    W-TIFAKT  = IN-TIFAKT                                                       
+    W-IDKR    = IN-IDKR                                                         
+    W-BELOPP  = IN-BELOPP                                                       
+    PRINT RAPPORT01                                                             
+                                                                                
+REPORT RAPPORT01 PRINTER W42636D2 LINESIZE 120 NODATE NOADJUST +                
+                 SPACE 1                                                        
+TITLE 01 'KR SOM EJ UPPDATERAT SAPR3'  COL 40 'W42636-001 '      +              
+                  COL 89 'DATUM ' SYSDATE                                       
+HEADING  W-IDVERNR          ('REKL-NR')                                         
+HEADING  W-TIFAKT           ('DATUM')                                           
+HEADING  W-IDKR             ('KR-NR')                                           
+HEADING  W-BELOPP           ('BELOPP')                                          
+LINE     W-IDVERNR W-TIFAKT W-IDKR W-BELOPP                                     

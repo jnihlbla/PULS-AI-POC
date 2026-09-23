@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FETCH PARTS INFORMATION FROM TC-PLM / PRINS                                
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W118D1                                         
+//*                                                                             
+//*  RESTART:      W11810    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W118P010 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W118..W118D1,                                             
+//             INDUT=&W118..W118D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11810   EXEC PGM=IKJEFT01,DYNAMNBR=20,PARM=' ',REGION=8M                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W11810D1 DD  DSN=&INDRTE..CONSTANT(W118PD10),DISP=SHR                         
+//************ CONSTANT WITH PRINS URL AND AUTH KEY                             
+//*                                                                             
+//W11810D2 DD  DSN=&INDIN..W1181002(+0),DISP=SHR                                
+//************ INPUT FILE WITH PREVIOUS RUN TIME STAMP                          
+//*                                                                             
+//W11810D3 DD  DSN=&INDUT..W11810(+1),DISP=(NEW,PASS,DELETE), -LIM(3)           
+//************ OUTPUT JSON PARSED PART INFO FILE                                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//W11810D4 DD  DSN=&INDUT..W1181002(+1),DISP=(NEW,PASS,DELETE), -LIM(3)         
+//************ OUTPUT FILE WITH CURRENT RUN TIME STAMP                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//         IF  (W11810.RC GT 4) THEN                                            
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456'                               
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                     -- ABEND           
+//         ENDIF                                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//CATLG    EXEC PGM=IEFBR14                                                     
+//CB1XXX01 DD  DSN=&INDUT..W11810(+1),DISP=(OLD,CATLG,DELETE)                   
+//CB1XXX01 DD  DSN=&INDUT..W1181002(+1),DISP=(OLD,CATLG,DELETE)                 

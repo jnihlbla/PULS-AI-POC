@@ -1,0 +1,49 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  READ AND WRITE UT PURCHASE ORDER                                           
+//*                                                                             
+//*  FREKVENS:     DAILY       RTN W271DB                                       
+//*                WEEKLY          W271V2                                       
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W2711P    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P01P PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=SAKNAS,                                                    
+//             CPU=1,                                                           
+//             INDUT=SAKNAS                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W271PD1P),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W27123(+0),DISP=SHR                                  
+//************ LOCAL PURCHASE ORDER FOR ALL DCS                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27123,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD PÅ DC,LEVNR,ARTNR                                       
+//         SPACE=(16,(100,300),RLSE),AVGREC=U                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W2711P   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W2711P,W2711P,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W2711PD1 DD  DSN=&&W27123,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD PÅ DC,LEVNR,ARTNR                                       
+//*                                                                             
+//W2711PD2 DD  DSN=&INDUT..W2711P1(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ LISTA PURCHASE ORDER                                             
+//             SPACE=(86,(2,6),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                

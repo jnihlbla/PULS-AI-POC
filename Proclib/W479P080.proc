@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  VECKORAPPORT PV                                                            
+//*                                                                             
+//*  LÄSER EN FIL MED "EFR" OCH SKAPAR EN FIL MED                               
+//*  FÖRSÄLJNING PER MARKNAD OCH PRODUKTKOD (NETTOPRIS).                        
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W400V2                                          
+//*                                                                             
+//*  ÅTERSTART:    W47980   NORMAL                                              
+//*                                                                             
+//*                DFUP   NORMAL                                                
+//*                                                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P080 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479V2,                                             
+//             INDUT=&W479..W479V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47980   EXEC PGM=W47980                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DSN=&INDRTE..CONSTANT(W479PD80),DISP=SHR                         
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR             -- DATKORT         
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR        -- DATKORT         
+//DATUT    DD  SYSOUT=*                                      -- DATKORT         
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//W47980D1 DD  DSN=&INDIN..W4795B(+0),DISP=SHR                                  
+//************ FIL MED EFR-POSTER                                               
+//*                                                                             
+//W47980D2 DD  DSN=&INDUT..W47980(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ EFR-POSTER PER MARKNAD OCH PRODKOD                               
+//             MGMTCLAS=&BACKUPC,SPACE=(6233,(20,10),RLSE)                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

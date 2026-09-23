@@ -1,0 +1,27 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*   S O P  - BACKUP OF, OR CREATION OF AN EMPTY, SOP DATA BASE      *         
+//*            IF NUMBER OF BLOCKS FOR THE COPY IS GREATER THAN       *         
+//*            FOR THE OLD DATA BASE, THE COPY IS EXTENED  WITH       *         
+//*            NEW EMPTY BLOCKS.                                      *         
+//*            THE INPUT DATA BASE MAY BE DUMMY TO CREATE A NEW       *         
+//*            EMPTY DATA BASE.                                       *         
+//*                                                                   *         
+//*                                    MAINTAINED BY DEPT. 36000      *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WSOPCOPY PROC STPLIB=&INDRTE..LOAD,                                           
+//             SDUMP='(D,,DUMP)',                                               
+//             SOPREG=&INDRTE..SOP,SOPREG2=NULLFILE,                            
+//             BLOCKS=0                                                         
+//W98022  EXEC PGM=W98022,PARM='COPY &BLOCKS./'                                 
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//SYSUDUMP DD  SYSOUT=&SDUMP                                -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SOPDD1   DD  DSN=&SOPREG,DISP=SHR                   -- SOP DATA BASE          
+//SOPDD2   DD  DSN=&SOPREG2,DISP=(NEW,CATLG,DELETE),  -- DATA BASE CPY          
+//*            DCB=DSORG=DA,                                                    
+//             MGMTCLAS=&BACKUPC,SPACE=(4096,(&BLOCKS))                         

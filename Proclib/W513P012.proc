@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  INVENTERINGEN.                                                             
+//*                                                                             
+//*                                                                             
+//*  SUMMERAR POSTERNA PÅ IDDC, ADLAGOMR OCH IDPTYP 1,2 OCH 3                   
+//*  FREKVENS:     VECKA     RTN W513V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W51312    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P012 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W513,                                                     
+//             INDUT=&W513..W513V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51312   EXEC PGM=V16459,PARM='W51312/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR            -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W51312D1 DD  DSN=&INDIN..W51312(+0),DISP=SHR                                  
+//************ EKONOMI-ARTIKELSALDOFIL                                          
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL3   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51312D3 DD  DSN=&INDUT..W51314(+1),DISP=(NEW,CATLG,DELETE),  -LIM(10)        
+//************  UTFIL MED SUMMERADE POSTER FÖR INVENTERINGSLISTOR               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

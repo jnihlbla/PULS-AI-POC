@@ -1,0 +1,148 @@
+                                                                                
+*--------------------------------------------------------------------- *        
+*                                                                      *        
+*  PROGRAM    :  W2715500                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKRIVER LISTA MED MÖJLIGA BRISTRETURER                *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFAN KIHLBERG                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W27155D1                                                                   
+*                                                                               
+%W27155  'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W27155D2  PRINTER FB (121 0)                                               
+                                                                                
+ BRYT-IDARTNR           W   9   N                                               
+                                                                                
+ UT-IDARTNR             W   9   N     MASK (A 'ZZZZZZZZ9')                      
+ UT-RERF-ART            W   5   N 4   MASK (B '9,9999')                         
+ UT-KVLS                W   7   N     MASK (C 'ZZZZZZ9')                        
+ UT-RETURBEHOV-CDC      W   7   N     MASK C                                    
+ UT-KDERS               W   3   N     MASK (E 'ZZ9')                            
+ UT-IDDC                W   2   A                                               
+ UT-KVANTAL-SDC         W   7   N     MASK C                                    
+                                                                                
+ IX                     W   1   N                                               
+ MAX-IX                 W   1   N     VALUE  6                                  
+ ANTAL-SDC              W   1   N                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SKRIVER LISTA                                                         
+*                                                                               
+JOB INPUT  W27155D1                                                             
+                                                                                
+                                                                                
+ ANTAL-SDC = 0                                                                  
+ IX = 1                                                                         
+ DO WHILE IX LT MAX-IX                                                          
+    IF IN-KVANTAL-SDC(IX) GT 0                                                  
+       ANTAL-SDC = ANTAL-SDC + 1                                                
+    END-IF                                                                      
+    IX = IX + 1                                                                 
+ END-DO                                                                         
+                                                                                
+ BRYT-IDARTNR           =   IN-IDARTNR                                          
+                                                                                
+ UT-IDARTNR             =   IN-IDARTNR                                          
+ UT-RERF-ART            =   IN-RERF-ART                                         
+ UT-KVLS                =   IN-KVLS                                             
+ UT-KDERS               =   IN-KDERS                                            
+ UT-RETURBEHOV-CDC      =   IN-RETURBEHOV-CDC                                   
+ UT-IDDC                =   IN-IDDC(1)                                          
+ UT-KVANTAL-SDC         =   IN-KVANTAL-SDC(1)                                   
+                                                                                
+                                                                                
+  PRINT W27155-001                                                              
+                                                                                
+                                                                                
+REPORT W27155-001                 +                                             
+       PRINTER W27155D2           +                                             
+       LINESIZE 120               +                                             
+       DTLCTL FIRST               +                                             
+       NOADJUST                   +                                             
+       NOHEADING                  +                                             
+       TITLESKIP 1                +                                             
+       SKIP 0                     +                                             
+       SPACE 0                                                                  
+                                                                                
+                                                                                
+CONTROL FINAL NOPRINT                    +                                      
+        BRYT-IDARTNR NOPRINT                                                    
+                                                                                
+                                                                                
+TITLE 1   ' '                                                                   
+                                                                                
+TITLE 2   COL 002  'VOLVO CAR AFTERSALES'            +                          
+          COL 030  'W27155-001'                      +                          
+          COL 050  'REFILL'                          +                          
+          COL 075  'SHORTAGE - RETURNS'                                         
+                                                                                
+TITLE 3   ' '                                                                   
+                                                                                
+TITLE 4   COL 068  'CDC'                             +                          
+          COL 098  'SDC'                                                        
+                                                                                
+TITLE 5   ' '                                                                   
+                                                                                
+TITLE 6   ' '                                                                   
+                                                                                
+TITLE 7   COL 014  'PART'                            +                          
+          COL 050  'SUP'                             +                          
+          COL 059  'RANS'                            +                          
+          COL 068  'STOCK'                           +                          
+          COL 082  'RETURN'                          +                          
+          COL 098  'WARE'                            +                          
+          COL 111  'RETURN'                                                     
+                                                                                
+TITLE 8   COL 012  'NUMBER'                          +                          
+          COL 023  'DESCRIPTION'                     +                          
+          COL 049  'CODE'                            +                          
+          COL 068  'BALANCE'                         +                          
+          COL 059  'FACT'                            +                          
+          COL 085  'REQ'                             +                          
+          COL 098  'HOUSE'                           +                          
+          COL 114  'QTY'                                                        
+                                                                                
+TITLE 9   ' '                                                                   
+                                                                                
+TITLE 10  ' '                                                                   
+                                                                                
+LINE      COL 009   UT-IDARTNR                       +                          
+          COL 023   IN-BEART-ENG                     +                          
+          COL 050   UT-KDERS                         +                          
+          COL 054   UT-RERF-ART                      +                          
+          COL 068   UT-KVLS                          +                          
+          COL 081   UT-RETURBEHOV-CDC                +                          
+          COL 101   UT-IDDC                          +                          
+          COL 110   UT-KVANTAL-SDC                                              
+                                                                                
+AFTER-LINE. PROC                                                                
+      IF ANTAL-SDC GT  1                                                        
+         MOVE 2 TO IX                                                           
+         DO WHILE IX LE ANTAL-SDC                                               
+            UT-IDDC                =   IN-IDDC(IX)                              
+            UT-KVANTAL-SDC         =   IN-KVANTAL-SDC(IX)                       
+            DISPLAY                    +                                        
+            COL 101   UT-IDDC          +                                        
+            COL 110   UT-KVANTAL-SDC                                            
+            IX = IX + 1                                                         
+         END-DO                                                                 
+      END-IF                                                                    
+      DISPLAY ' '                                                               
+      DISPLAY ' '                                                               
+END-PROC                                                                        

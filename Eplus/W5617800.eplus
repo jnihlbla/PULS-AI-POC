@@ -1,0 +1,126 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5617800                                              *        
+*                                                                      *        
+*  FUNKTION   :  A NEW DAILY REPORT CONTAINING INFORMATION ABOUT REFILL*        
+*                IS REQUESTED BY USA.                                  *        
+*                                                                      *        
+*  FÖRFATTARE :  RAGUR SATHEESH                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W56178D1                                                                   
+*                                                                               
+%W56177  'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W56178D2  PRINTER VB (329 0)                                               
+*                                                                               
+UT-IDDC-REC           W 2  A                                                    
+UT-TIREGDAT           W 6  N                         VALUE 0                    
+UT-IDVERGL            W 10 A                                                    
+UT-PRKURS             W 11 N 2 MASK  'ZZZZZZZZ9.99'  VALUE 0                    
+UT-PRFOERS            W 9  N 2 MASK  'ZZZZZZ9.99'    VALUE 0                    
+UT-KDFRAKT            W 5  A                                                    
+UT-TOTAL-PRICE        W 9  N 2 MASK  'ZZZZZZ9.99'    VALUE 0                    
+UT-PREMBHNT           W 9  N 2 MASK  'ZZZZZZ9.99'    VALUE 0                    
+UT-PRFRAKT            W 9  N 2 MASK  'ZZZZZZ9.99'    VALUE 0                    
+UT-LINE-DDI           W 9  N 2 MASK  'ZZZZZZ9.99-'   VALUE 0                    
+UT-LINE-SUM           W 9  N 2 MASK  'ZZZZZZ9.99-'   VALUE 0                    
+UT-TOT-INVOICE        W 11 N 2 MASK  'ZZZZZZZZ9.99-' VALUE 0                    
+UT-SEM1               W 1  A                         VALUE ';'                  
+*                                                                               
+****WORKING STORAGE SECTION                                                     
+JA               W   1   A                           VALUE 'J'                  
+NEJ              W   1   A                           VALUE 'N'                  
+SW-FIRST         S   1   A                           VALUE 'J'                  
+WS-KDFRAKT       W   5   A                                                      
+WS-TOTAL-PRICE   W  11   N  2                        VALUE 0                    
+WS-PRFOERS       W   9   N  2  MASK  'ZZZZZZ9.99'    VALUE 0                    
+WS-PREMBHNT      W   9   N  2  MASK  'ZZZZZZ9.99'    VALUE 0                    
+WS-PRFRAKT       W   9   N  2  MASK  'ZZZZZZ9.99'    VALUE 0                    
+WS-LINE-DDI      W   9   N  2  MASK  'ZZZZZZ9.99-'   VALUE 0                    
+WS-LINE-SUM      W   9   N  2  MASK  'ZZZZZZ9.99-'   VALUE 0                    
+*                                                                               
+*-----------------------------------------------------------------*             
+* STEP 1. READ FILE W56177  AND WRITE REPORT FOR                                
+*         DAILY REFILL REPORT,USA IN ASC ORDER OF INVOICE NUMBER                
+*-----------------------------------------------------------------*             
+JOB INPUT (W56178D1 KEY(IN-IDVERGL))                                            
+    UT-IDDC-REC  =   IN-IDDC-REC                                                
+    UT-IDVERGL   =   IN-IDVERGL                                                 
+    UT-TIREGDAT  =   IN-TIREGDAT                                                
+    UT-PRKURS    =   IN-PRKURS                                                  
+    UT-PRFOERS   =   IN-PRFOERS                                                 
+                                                                                
+  WS-TOTAL-PRICE = WS-TOTAL-PRICE + IN-TOTAL-PRICE                              
+  WS-PRFOERS     = WS-PRFOERS     + IN-PRFOERS                                  
+  WS-PREMBHNT    = WS-PREMBHNT    + IN-PREMBHNT                                 
+  WS-PRFRAKT     = WS-PRFRAKT     + IN-PRFRAKT                                  
+  WS-LINE-DDI    = WS-LINE-DDI    + IN-LINE-DDI                                 
+  WS-LINE-SUM    = WS-LINE-SUM    + IN-LINE-SUM                                 
+                                                                                
+  IF IN-FREIGHT-MODE NE ' '                                                     
+     WS-KDFRAKT   =   IN-FREIGHT-MODE                                           
+  END-IF                                                                        
+                                                                                
+  IF LAST-DUP W56178D1  OR NOT DUPLICATE W56178D1                               
+        UT-TOTAL-PRICE = WS-TOTAL-PRICE                                         
+        UT-PRFOERS     = WS-PRFOERS                                             
+        UT-PREMBHNT    = WS-PREMBHNT                                            
+        UT-PRFRAKT     = WS-PRFRAKT                                             
+        UT-KDFRAKT     = WS-KDFRAKT                                             
+        WS-KDFRAKT     = ' '                                                    
+        WS-TOTAL-PRICE = 0                                                      
+        WS-PRFOERS     = 0                                                      
+        WS-PREMBHNT    = 0                                                      
+        UT-LINE-DDI    = WS-LINE-DDI                                            
+        WS-LINE-DDI    = 0                                                      
+        UT-LINE-SUM    = WS-LINE-SUM                                            
+        WS-LINE-SUM    = 0                                                      
+        WS-PRFRAKT     = 0                                                      
+        UT-TOT-INVOICE = UT-TOTAL-PRICE + UT-PREMBHNT +                         
+                         + UT-PRFRAKT   + UT-PRFOERS                            
+      PRINT RPT1                                                                
+  END-IF                                                                        
+                                                                                
+                                                                                
+*-----------------------------------------------------------------*             
+*     REPORT  W56178-011                                                        
+*-----------------------------------------------------------------*             
+  REPORT    RPT1                +                                               
+            PRINTER   W56178D2  +                                               
+            LINESIZE  324       +                                               
+            PAGESIZE  32767     +                                               
+            NOHEADING           +                                               
+            SPACE     0         +                                               
+            SKIP      0         +                                               
+            TITLESKIP 0         +                                               
+            NOADJUST            +                                               
+            NOSPREAD                                                            
+*                                                                               
+LINE 01                        +                                                
+        UT-IDDC-REC    UT-SEM1 +                                                
+        UT-TIREGDAT    UT-SEM1 +                                                
+        UT-IDVERGL     UT-SEM1 +                                                
+        UT-PRKURS      UT-SEM1 +                                                
+        UT-KDFRAKT     UT-SEM1 +                                                
+        UT-PRFOERS     UT-SEM1 +                                                
+        UT-TOTAL-PRICE UT-SEM1 +                                                
+        UT-PREMBHNT    UT-SEM1 +                                                
+        UT-PRFRAKT     UT-SEM1 +                                                
+        UT-LINE-DDI    UT-SEM1 +                                                
+        UT-LINE-SUM    UT-SEM1 +                                                
+        UT-TOT-INVOICE UT-SEM1                                                  
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF SW-FIRST = JA                                                               
+    DISPLAY '¤DAPW56178-001'                                                    
+    DISPLAY '¤DAPW56178'                                                        
+    DISPLAY ' DC;REG DATE;INVOICE NO;EXCHANGE RATE;FREIGHT MODE;'  +            
+            'INSURANCE FEE;PART VALUE;PACKING AND HANDLING;' +                  
+          'FREIGHT COST;LINE-DDI;LINE-SUM;TOTAL INVOICE VALUE;REMARKS;'         
+    SW-FIRST = NEJ                                                              
+ END-IF                                                                         
+END-PROC                                                                        

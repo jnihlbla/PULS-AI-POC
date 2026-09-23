@@ -1,0 +1,60 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOLLAR OM INLEV HAR LANDKOD NL                                             
+//*                                                                             
+//*  FREKVENS:     MÅNAD     RTN W611M1                                         
+//*                                                                             
+//*  ÅTERSTART:    W61168      NORMAL                                           
+//*                LÄSER        WDF1                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P068 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W611..W611M1,                                             
+//             INDUT=&W611..W611M1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61168   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W61168,W61168,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W61168D1 DD  DSN=&INDIN..W61168(+0),DISP=SHR                                  
+//************ LISTPOSTER INLEVERANSER C2                                       
+//*                                                                             
+//W61168D2 DD  DSN=&&W61170,DISP=(NEW,PASS,DELETE),                             
+//************ LISTPOSTER INLEVERANSER C2                                       
+//         SPACE=(35,(200,100),RLSE),AVGREC=K                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD70),DISP=SHR                         
+//SORTIN   DD  DSN=&&W61170,DISP=(OLD,DELETE,DELETE)                            
+//************ LISTPOSTER INLEVERANSER C2                                       
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W61170(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LISTPOSTER INLEVERANS C2, SORT: STATNR - KDURLAND                
+//             SPACE=(35,(200,100),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGEN1  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W61170(+1),DISP=SHR                                  
+//************ OVANSTÅENDE FIL TILL KOPIERING                                   
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W6117A(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FILE TO SYSTEM W477; THE INTRASTAT PC IN BORN                    
+//             SPACE=(35,(200,100),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&NOBACKUP                                               

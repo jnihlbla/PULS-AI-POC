@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER SAMTLIGA KOLLI I FAKTURA                                             
+//*  STARTAS FRÅN BILD 6301                                                     
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W612S1                                       
+//*                                                                             
+//*  ÅTERSTART:    W61232      NORMAL                                           
+//*                LÄSER       WDL6 WDK7 WDR5                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P032 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W612..W612S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61232   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W61232,W61232,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(BUFFLAES),DISP=SHR                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDL6     INCLUDE MEMBER=WDL6                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDR5     INCLUDE MEMBER=WDR5                                                  
+//W61232D1 DD  DUMMY                                                            
+//************ INDATA FRÅN BILD 6301(OVERRIDE I JCL)                            
+//*                                                                             
+//W61232D2 DD  DSN=&INDUT..W61233(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ LISTFIL                                                          
+//             SPACE=(66,(1,3),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                

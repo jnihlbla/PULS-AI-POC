@@ -1,0 +1,110 @@
+                                                                                
+**********************************************************************          
+*                                                                    *          
+* BESTÄLLT AV ........ : GÖTE B                                      *          
+*                                                                    *          
+* DATUM .............. : 900808                                      *          
+*                                                                    *          
+* ENGÅNGSJOBB (JA/NEJ) : NEJ                                         *          
+*                                                                    *          
+* UPPGIFT ... : LÄSER WDK9 OCH SKRIVER SEDAN EN LISTA                *          
+*               MED ALLA FÄLT                                        *          
+*                                                                    *          
+**********************************************************************          
+*                                                                               
+FILE W01500D1                                                                   
+*                                                                               
+*                                                                               
+*                                                                               
+ W-SEGNAMN            1    6  A                                                 
+ W-NYCKEL             9   38  A                                                 
+*                                                                               
+*                                                                               
+*WDK901                                                                         
+ K901-IDARTNR        47                      5  P                               
+ K901-KDCLAGER-GRP   52                     43  A OCCURS 2                      
+ K901-KVOFFERT      K901-KDCLAGER-GRP        4  P                               
+ K901-KVOKS-BULK    K901-KDCLAGER-GRP +4     4  P                               
+ K901-KVOKS-DAG     K901-KDCLAGER-GRP +8     4  P                               
+ K901-KVOKS-VOR     K901-KDCLAGER-GRP +12    4  P                               
+ K901-KVPREAVB-BULK K901-KDCLAGER-GRP +16    4  P                               
+ K901-KVPREAVB-DAG  K901-KDCLAGER-GRP +20    4  P                               
+ K901-KVPREAVB-VOR  K901-KDCLAGER-GRP +24    4  P                               
+ K901-KVPRERO-BULK  K901-KDCLAGER-GRP +28    4  P                               
+ K901-KVPRERO-DAG   K901-KDCLAGER-GRP +32    4  P                               
+ K901-RERF-ART      K901-KDCLAGER-GRP +36    3  P                               
+ K901-SUTPO-TOT     K901-KDCLAGER-GRP +39    4  P                               
+*            LENGTH=137                                                         
+*                                                                               
+*WDK911                                                                         
+ K911-KDCLAGER       47   1  P                                                  
+ K911-TIBEHOV        48   3  P                                                  
+ K911-SUTPO-PB       51   4  P                                                  
+ K911-SUTPO-EJPB     55   4  P                                                  
+*             LENGTH=58                                                         
+*                                                                               
+ W-IX              W   3  N  VALUE 1                                            
+ WS-IDARTNR        W   5  P                                                     
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+  NEWPAGE                                                                       
+*                                                                               
+JOB INPUT W01500D1                                                              
+                                                                                
+                                                                                
+                                                                                
+*                                                                               
+  IF W-SEGNAMN = 'WDK901'                                                       
+     WS-IDARTNR = K901-IDARTNR                                                  
+     PERFORM DISP-WDK901A                                                       
+     W-IX = 1                                                                   
+     DO WHILE W-IX < 3                                                          
+       PERFORM DISP-WDK901B                                                     
+       W-IX = W-IX + 1                                                          
+     END-DO                                                                     
+  ELSE                                                                          
+     IF W-SEGNAMN = 'WDK911'                                                    
+        PERFORM DISP-WDK911                                                     
+     END-IF                                                                     
+  END-IF                                                                        
+*                                                                               
+*                                                                               
+DISP-WDK901A. PROC                                                              
+ DISPLAY NEWPAGE                                                                
+ DISPLAY COL 50 'ARTIKELREGISTER ORDER ENTRY WDK9;WDK901'                       
+ DISPLAY COL 50 'FYSISK NYCKEL ' K901-IDARTNR                                   
+ DISPLAY     '    '                                                             
+ DISPLAY     '    '                                                             
+ DISPLAY     'IDARTNR    -> ' K901-IDARTNR                                      
+ DISPLAY     '    '                                                             
+END-PROC                                                                        
+*                                                                               
+DISP-WDK901B. PROC                                                              
+ DISPLAY     'KVOFFERT   -> ' K901-KVOFFERT (W-IX)                              
+ DISPLAY     'KVOKS-BULK -> ' K901-KVOKS-BULK (W-IX)    +                       
+     COL  30 'KVOKS-DAG  -> ' K901-KVOKS-DAG (W-IX)     +                       
+     COL  60 'KVOKS-VOR  -> ' K901-KVOKS-VOR (W-IX)                             
+ DISPLAY     'KVPREAVB-BULK ' K901-KVPREAVB-BULK (W-IX) +                       
+     COL  30 'KVPREAVB-DAG> ' K901-KVPREAVB-DAG (W-IX)  +                       
+     COL  60 'KVPREAVB-VOR> ' K901-KVPREAVB-VOR (W-IX)                          
+ DISPLAY     'KVPRERO-BULK> ' K901-KVPRERO-BULK (W-IX)  +                       
+     COL  30 'KVPRERO-DAG-> ' K901-KVPRERO-DAG (W-IX)   +                       
+     COL  60 'RERF-ART   -> ' K901-RERF-ART (W-IX)      +                       
+     COL  90 'SUTPO-TOT  -> ' K901-SUTPO-TOT (W-IX)                             
+ DISPLAY     '   '                                                              
+ DISPLAY     '******'                                                           
+END-PROC                                                                        
+*                                                                               
+DISP-WDK911. PROC                                                               
+ DISPLAY COL 50 'ARTIKELREGISTER ORDER ENTRY BEHOV TPO;WDK911'                  
+ DISPLAY COL 50 'FYSISK NYCKEL ' WS-IDARTNR  K911-TIBEHOV                       
+ DISPLAY     '    '                                                             
+ DISPLAY     'KDCLAGER  -> ' K911-KDCLAGER        +                             
+     COL 30  'TIBEHOV   -> ' K911-TIBEHOV         +                             
+     COL 60  'SUTPO-PB  -> ' K911-SUTPO-PB        +                             
+     COL 90  'SUTPO-EJPB-> ' K911-SUTPO-EJPB                                    
+ DISPLAY     '   '                                                              
+ DISPLAY     '******'                                                           
+END-PROC                                                                        
+*                                                                               

@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKRIVER LISTOR, DEALERS MED SEN ORDERLÄGGNING,                             
+//*  DC61 OCH DC62                                                              
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W479V2                                         
+//*                                                                             
+//*  ÅTERSTART:    W4795S    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P05S PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479V2,                                             
+//             DEST1=&QJP20109,                                                 
+//             DEST2=&RSE77444                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W4795S   EXEC PGM=V16459,PARM='W4795S/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD SYSOUT=(D,,DUMP),DEST=QSE09012,HOLD=YES                           
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//A4LF  OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                    
+//************ A4 LANDSCAPE, SINGLE SIDE, RASTER  (FOLDED PAPER)                
+//W4795SD1 DD  DSN=&INDIN..W4795R(+0),DISP=SHR                                  
+//************ DEALERS MED SEN ORDERLÄGGNING, DC 61                             
+//*                                                                             
+//W4795SD2 DD  DSN=&INDIN..W4795S(+0),DISP=SHR                                  
+//************ DEALERS MED SEN ORDERÖÄGGNING, DC 62                             
+//*                                                                             
+//W4795SD3 DD  SYSOUT=(A,,STD),DEST=&DEST1,OUTPUT=(*.A4LF)                      
+//************ W4795S-061  LISTA, DEALERS MED SEN ORDERLÄGGNING, DC 61          
+//*                                                                             
+//W4795SD4 DD  SYSOUT=(A,,STD),DEST=&DEST2,OUTPUT=(*.A4LF)                      
+//************ W4795S-062  LISTA, DEALERS MED SEN ORDERLÄGGNING, DC 62          
+//*                                                                             

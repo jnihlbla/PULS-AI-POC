@@ -1,0 +1,67 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER HELA PEDAL-BASEN WDR9 OCH ALLA HÄNDELSER PÅ INFILEN OCH              
+//*  SKAPAR FILER FÖR RENSNING AV WDR9, SAMT FÖR KONTROLL O ANALYS              
+//*                                                                             
+//*  FREKVENS:     DAG       RTN W510D2                                         
+//*                                                                             
+//*  ÅTERSTART:    W51061    NORMAL                                             
+//*                LÄSER     WDR9                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P061 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..W510D2,                                             
+//             INDUT=&W510..W510D2,                                             
+//             INDUT2=&WUT..W510D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51061   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W51061,W51061,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDR9     INCLUDE MEMBER=WDR9                                                  
+//*                                                                             
+//W51061D1 DD  DSN=&INDIN..W51064(+0),DISP=SHR                                  
+//************ EKONOMISK HÄNDELSEFIL                                            
+//         DD  DSN=&INDIN..W51064A(+0),DISP=SHR                                 
+//************ EKONOMISK HÄNDELSEFIL 102                                        
+//W51061D2 DD  DSN=&INDUT..W51060(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//************ POSTER FÖR RENSNING AV WDR9                                      
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//W51061D3 DD  DSN=&INDUT..W51061A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ POSTER TILL PGM W5106B FÖR KONTROLL                              
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//W51061D4 DD  DSN=&INDUT..W51067(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//************ EKONOMISKA HÄNDELSER FÖR KONTROLL                                
+//             DATACLAS=PSEB,MGMTCLAS=&NOBACKUP                                 
+//W51061D5 DD  DSN=&INDUT2..W51065(+1),DISP=(NEW,CATLG,DELETE), -LIM(5)         
+//************ N-FAKTURATRANSAR TILL LEVA1                                      
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//W51061D6 DD  DSN=&INDUT2..W5106E(+1),DISP=(NEW,CATLG,DELETE), -LIM(5)         
+//************ N-FAKTURATRANSAR TILL LEVA1, KOMPONENTER                         
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//W51061D7 DD  DSN=&INDUT2..W5106H(+1),DISP=(NEW,CATLG,DELETE), -LIM(5)         
+//************ N-FAKTURATRANSAR TILL LEVA1, KOMPONENTER                         
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//W51061D8 DD  DSN=&INDUT..W51061C(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ POSTER TILL PGM W5106B FÖR KONTROLL                              
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  

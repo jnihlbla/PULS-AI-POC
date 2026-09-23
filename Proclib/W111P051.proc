@@ -1,0 +1,49 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  VALIDATE FILE FROM MIC FOR ERRORS                                          
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W111D2                                         
+//*                                                                             
+//*  RESTART:      W11151    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W111P051 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W111..W111D2,                                             
+//             INDUT=&W111..W111D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11151   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W11151,W11151,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//WDR2     INCLUDE MEMBER=WDR2                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDF1     INCLUDE MEMBER=WDF1                                                  
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W11151D1 DD  DSN=&INDIN..W11151(+0),DISP=SHR                                  
+//************ PCOO DATA FROM MIC                                               
+//*                                                                             
+//W11151D2 DD  DSN=&INDUT..W11153(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ PCOO DATA FROM MIC, POST VALIDATIONS                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W11151D3 DD  DSN=&INDUT..W11154(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ ERROR DATA TO D&P                                                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

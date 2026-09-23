@@ -1,0 +1,54 @@
+*        BYTES LAGRING AV RETURER                                               
+*                                                                               
+         DBD   NAME=WDM6,RMNAME=(V12008,10,31500),                     *        
+               ACCESS=(HDAM,OSAM)                                               
+         DATASET DD1=WDM6V,DEVICE=3390,SIZE=2048,SCAN=0                         
+*                                                                               
+         SEGM  NAME=WDM601,PARENT=0,BYTES=68,PTR=T                              
+         FIELD NAME=(WDM601KY,SEQ,U),BYTES=7,START=1,TYPE=X                     
+         FIELD NAME=(IDDISTR),BYTES=3,START=1,TYPE=P                            
+         FIELD NAME=(IDBYTRAP),BYTES=4,START=4,TYPE=P                           
+         FIELD NAME=(ADBYTANK),BYTES=10,START=8,TYPE=P                          
+         FIELD NAME=(IDFAKT),BYTES=4,START=20,TYPE=P                            
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=24,TYPE=P                          
+         FIELD NAME=(IDDC),BYTES=2,START=28,TYPE=X                              
+         FIELD NAME=(KDBYTSTA),BYTES=1,START=40,TYPE=X                          
+         FIELD NAME=(KVRETUR),BYTES=4,START=41,TYPE=P                           
+         FIELD NAME=(DAANKDAG),BYTES=8,START=45,TYPE=X                          
+         FIELD NAME=(DAREGDAT),BYTES=8,START=53,TYPE=X                          
+         FIELD NAME=(DAREGDAG),BYTES=8,START=61,TYPE=X                          
+         LCHILD NAME=(WDM6A1,WDM6A),PTR=INDX                                    
+         XDFLD NAME=WDM6ASEQ,SEGMENT=WDM601,                           *        
+               SRCH=(KDBYTSTA,IDDC,DAREGDAT,IDDISTR,IDBYTRAP),         *        
+               DDATA=(IDKUNDNR)                                                 
+*                                                                               
+         LCHILD NAME=(WDM6B1,WDM6B),PTR=INDX                                    
+         XDFLD NAME=WDM6BSEQ,SEGMENT=WDM601,                           *        
+               SRCH=(IDDC,KDBYTSTA,DAANKDAG,IDDISTR,IDBYTRAP),         *        
+               DDATA=(IDKUNDNR)                                                 
+*                                                                               
+         LCHILD NAME=(WDM6C1,WDM6C),PTR=INDX                                    
+         XDFLD NAME=WDM6CSEQ,SEGMENT=WDM601,                           *        
+               SRCH=(IDDC,IDDISTR,KDBYTSTA,DAANKDAG,IDBYTRAP),         *        
+               DDATA=(IDKUNDNR)                                                 
+*                                                                               
+         LCHILD NAME=(WDM6D1,WDM6D),PTR=INDX                                    
+         XDFLD NAME=WDM6DSEQ,SEGMENT=WDM601,                           *        
+               SRCH=(IDDC,IDDISTR,KDBYTSTA,DAREGDAT,IDBYTRAP),         *        
+               DDATA=(IDKUNDNR)                                                 
+*                                                                               
+         SEGM  NAME=WDM611,PARENT=WDM601,BYTES=52,PTR=T                         
+         FIELD NAME=(IDBYTRAD,SEQ,U),BYTES=3,START=1,TYPE=P                     
+         FIELD NAME=(IDARTNR),BYTES=5,START=4,TYPE=P                            
+         FIELD NAME=(IDTABNR),BYTES=2,START=9,TYPE=P                            
+         FIELD NAME=(IDBYTRP9),BYTES=4,START=38,TYPE=P                          
+         FIELD NAME=(/CKDISTR),BYTES=3,START=1,TYPE=X                           
+*                                                                               
+         LCHILD NAME=(WDM6E1,WDM6E),PTR=INDX                                    
+         XDFLD NAME=WDM6ESEQ,SEGMENT=WDM611,                           *        
+               SRCH=(IDARTNR),                                         *        
+               SUBSEQ=(/CKDISTR,IDBYTRP9,IDBYTRAD)                              
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

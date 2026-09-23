@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR ARTIKELINFO-LISTA MED HJÄLP AV PARAMETRAR=URVAL                     
+//*  FRÅN BILD 2422                                                             
+//*                                                                             
+//*  FREKVENS:     FLERA GGR PER DAG     RTN W217S2, W217S3                     
+//*                                                                             
+//*  ÅTERSTART:    W21720    NORMAL  (BMP)                                      
+//*                HAR PARAMETRAR MED FRÅN SOP. SÅ                              
+//*                LÄNGE SOM MAN EJ GÖR END PÅ JOBBET I SOP                     
+//*                KAN JOBBET ÅTERSTARTAS. VID END ÄR PARAMETRARNA              
+//*                FÖRLORADE. PARAMETRARNA DISPLAYAS I SYSOUTEN.                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W217P020 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W217..W217S6,                                             
+//             INDUT=&W217..W217S5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21720   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W21720,W21720,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W21720D1 DD  DUMMY                                                            
+//************ PARAMETRAR FRÅN BILD 2422  (OVERRIDE I JCL)                      
+//*                                                                             
+//W21720D2 DD  DSN=&INDIN..W2171301(+0),DISP=SHR                                
+//************ ARTIKELEXTRAKT                                                   
+//*                                                                             
+//W21720D3 DD  DSN=&INDUT..W21720(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ FIL FÖR MAILSÄNDNING                                             
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             

@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR WXTRA3 UTIFRÅN W47993 FILEN.                                        
+//*  FILEN INGÅR I VIOS.                                                        
+//*                                                                             
+//*  FREKVENS:     DAG         RTN WXTRD1                                       
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTRP0A3 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479D1,                                             
+//             INDUT=&WXTR..WXTRD1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORTA3   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WXTRPDA3),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W47993(+0),DISP=SHR                                  
+//************ DAGLIG OKS/EFR-INFO                                              
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47993S,DISP=(NEW,PASS,DELETE),                            
+//************ OMSORTERAD KOPIA AV W47993                                       
+//************ SORTERAS PÅ IDDISTR,  IDKUNDNR, IDKUNDRF OCH IDPRODNR            
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTRA3   EXEC PGM=V16459,PARM='WXTRA3/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(10000,1000))                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//WXTRA3D1 DD  DSN=&&W47993S,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTERADE W47993 FILEN                                           
+//*                                                                             
+//WXTRA3D2 DD  DSN=&INDUT..WXTRA3(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ WXTRA3 FIL                                                       
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

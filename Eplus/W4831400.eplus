@@ -1,0 +1,163 @@
+                                                                                
+************************************************************************        
+*                                                                      *        
+*  SYSTEM     :  W4831400                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR SUMMERAD EFRFIL                                *        
+*                                                                      *        
+*  FÖRFATTARE :  HGK 36510  871110                                     *        
+*                                                                      *        
+*  INFILER    :  W479.W020V1.W47953 EFR                                *        
+*                                                                      *        
+*  UTFILER    :  W483.W483V1.W48314                                    *        
+*                                                                      *        
+************************************************************************        
+FILE W48314D1.          *** EFR RADER                                           
+*                                                                               
+%W479053  'EFR-'                                                                
+NEWPAGE                                                                         
+*                                                                               
+FILE W48314D2 FB(42 0).  * UTFIL                                                
+*                                                                               
+%W483140E 'UT-'                                                                 
+NEWPAGE                                                                         
+*                                                                               
+FILE W48314D3 VIRTUAL FB(24 0)                                                  
+M1-IDDC           1   2   A                                                     
+M1-IDDISTR        3   3   P 0                                                   
+M1-KDORDKL        6   1   P 0                                                   
+M1-KVEFRS-PACK    7   4   P 0                                                   
+M1-KVEFRS-OPACK  11   4   P 0                                                   
+M1-PRARTNTO      15   5   P 2                                                   
+M1-PRARTSTD      20   5   P 2                                                   
+*                                                                               
+*                                                                               
+FILE W48314D4 VIRTUAL FB(24 0)                                                  
+S1-IDDC           1   2   A                                                     
+S1-IDDISTR        3   3   P 0                                                   
+S1-KDORDKL        6   1   P 0                                                   
+S1-KVEFRS-PACK    7   4   P 0                                                   
+S1-KVEFRS-OPACK  11   4   P 0                                                   
+S1-PRARTNTO      15   5   P 2                                                   
+S1-PRARTSTD      20   5   P 2                                                   
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* ARBETSAREOR                                                                   
+W-TIAAVV             W    4     N                                               
+W-TIAA     W-TIAAVV       2     N                                               
+W-TIVV     W-TIAAVV +2    2     N                                               
+W-IDDC               W    2     A                                               
+W-IDDISTR            W    3     P 0                                             
+W-KDORDKL            W    1     P 0                                             
+W-SUEFRV-FOB-OPACK   W    6     P 2                                             
+W-SUEFRV-FOB-PACK    W    6     P 2                                             
+W-SUEFRV-STD-OPACK   W    6     P 2                                             
+W-SUEFRV-STD-PACK    W    6     P 2                                             
+W-KVRADER-PACK       W    4     P 0                                             
+W-KVRADER-OPACK      W    4     P 0                                             
+NEWPAGE                                                                         
+*                                                                               
+%WDATAREA 'W-'                                                                  
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT W48314D1                                                              
+*                                                                               
+  IF EFR-FLDIRLEV = 'J'                                                         
+     EFR-KDORDKL = 5                                                            
+  END-IF                                                                        
+  PERFORM SKRIV1                                                                
+*                                                                               
+SKRIV1.  PROC                                                                   
+                                                                                
+  M1-IDDC         = EFR-IDDC                                                    
+  M1-IDDISTR      = EFR-IDDISTR                                                 
+  M1-KDORDKL      = EFR-KDORDKL                                                 
+  M1-KVEFRS-PACK  = EFR-KVEFRS-PACK                                             
+  M1-KVEFRS-OPACK = EFR-KVEFRS-OPACK                                            
+  M1-PRARTNTO     = EFR-PRARTNTO                                                
+  M1-PRARTSTD     = EFR-PRARTSTD                                                
+                                                                                
+  PUT W48314D3                                                                  
+END-PROC                                                                        
+***                                                                             
+SORT W48314D3 TO W48314D4 USING (M1-IDDC M1-IDDISTR M1-KDORDKL)                 
+***                                                                             
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT NULL START VECKONR                                                    
+  GET W48314D4                                                                  
+  PERFORM NOLLA                                                                 
+                                                                                
+  DO WHILE NOT EOF W48314D4                                                     
+    PERFORM SPARA                                                               
+                                                                                
+    DO WHILE NOT EOF W48314D4 AND S1-IDDC    = W-IDDC +                         
+                              AND S1-IDDISTR = W-IDDISTR   +                    
+                              AND S1-KDORDKL = W-KDORDKL                        
+      IF S1-KVEFRS-PACK > 0                                                     
+        W-KVRADER-PACK = W-KVRADER-PACK + 1                                     
+        W-SUEFRV-FOB-PACK = W-SUEFRV-FOB-PACK +                                 
+                            + (S1-KVEFRS-PACK * S1-PRARTNTO)                    
+        W-SUEFRV-STD-PACK = W-SUEFRV-STD-PACK +                                 
+                            + (S1-KVEFRS-PACK * S1-PRARTSTD)                    
+      END-IF                                                                    
+                                                                                
+      IF S1-KVEFRS-OPACK > 0                                                    
+        W-KVRADER-OPACK    = W-KVRADER-OPACK + 1                                
+        W-SUEFRV-FOB-OPACK = W-SUEFRV-FOB-OPACK +                               
+                           + (S1-KVEFRS-OPACK * S1-PRARTNTO)                    
+        W-SUEFRV-STD-OPACK = W-SUEFRV-STD-OPACK +                               
+                           + (S1-KVEFRS-OPACK * S1-PRARTSTD)                    
+      END-IF                                                                    
+      GET W48314D4                                                              
+    END-DO                                                                      
+                                                                                
+    PERFORM SKRIV2                                                              
+    PERFORM NOLLA                                                               
+  END-DO                                                                        
+STOP                                                                            
+***                                                                             
+NEWPAGE                                                                         
+*                                                                               
+VECKONR.  PROC                                                                  
+ W-DAT-KDDATFORM = 'IDAG  '                                                     
+ CALL WDATKONV USING (W-DAT-KDDATFORM W-DAT-I-TIDATUM W-DAT-O-TIDATUM +         
+                      W-DAT-KDSVAR)                                             
+ W-TIAA = W-DAT-TIAA                                                            
+ W-TIVV = W-DAT-TIVV                                                            
+END-PROC                                                                        
+*                                                                               
+*                                                                               
+NOLLA.  PROC                                                                    
+  MOVE ZERO  TO W-IDDISTR W-KDORDKL W-KVRADER-PACK +                            
+                W-KVRADER-OPACK W-SUEFRV-FOB-PACK W-SUEFRV-STD-PACK +           
+                W-SUEFRV-STD-OPACK W-SUEFRV-FOB-OPACK                           
+  MOVE SPACE TO W-IDDC                                                          
+END-PROC                                                                        
+*                                                                               
+*                                                                               
+SPARA.  PROC                                                                    
+  W-IDDC    = S1-IDDC                                                           
+  W-IDDISTR = S1-IDDISTR                                                        
+  W-KDORDKL = S1-KDORDKL                                                        
+END-PROC                                                                        
+*                                                                               
+*                                                                               
+SKRIV2.  PROC                                                                   
+  UT-TIAAVV           = W-TIAAVV                                                
+  UT-IDDC             = W-IDDC                                                  
+  UT-IDDISTR          = W-IDDISTR                                               
+  UT-KDORDKL          = W-KDORDKL                                               
+  UT-KVRADER-PACK     = W-KVRADER-PACK                                          
+  UT-KVRADER-OPACK    = W-KVRADER-OPACK                                         
+  UT-SUEFRV-FOB-PACK  = W-SUEFRV-FOB-PACK                                       
+  UT-SUEFRV-FOB-OPACK = W-SUEFRV-FOB-OPACK                                      
+  UT-SUEFRV-STD-PACK  = W-SUEFRV-STD-PACK                                       
+  UT-SUEFRV-STD-OPACK = W-SUEFRV-STD-OPACK                                      
+                                                                                
+  PUT W48314D2                                                                  
+END-PROC                                                                        
+***                                                                             

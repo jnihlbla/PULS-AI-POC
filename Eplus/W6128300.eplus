@@ -1,0 +1,275 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6128300                                              *        
+*                                                                      *        
+*  FUNCTION   :  GENERATE REPORTS FOR THE FOLLOWING.                   *        
+*                1. INVENTORY VALUE PER DC FOR CHINA.                  *        
+*                2. TOTAL INVENTORY VALUE FOR ALL DC'S FOR CHINA.      *        
+*                                                                      *        
+*  AUTHOR     :  RAHUL REDDY                                           *        
+*                                                                      *        
+*  MODIFICATIONS :                                                     *        
+*                                                                      *        
+*     DATE        NAME                     SECTION     PROJECT         *        
+*     ......      ..................       ......      ..........      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+FILE W61283D1                                                                   
+%W6128001  (IN-)                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61283D2 PRINTER VB(201 0)                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W61283D3 PRINTER VB(201 0)                                                 
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+NEWPAGE                                                                         
+%WDATKORT                                                                       
+*                                                                               
+NEWPAGE                                                                         
+%WDATAREA                                                                       
+*                                                                               
+PROGRAM-NAMN            W  6  A  VALUE 'W61283'                                 
+DATUMKORT-ID       W  6  A  VALUE 'WDATUM'                                      
+*                                                                               
+SPAR-IDDC               W  2 A   VALUE '  '                                     
+WS-ADCITY               W  25 A                                                 
+WS-SUARTSTD             W  7 P 2 VALUE 0                                        
+WS-SULSV                W  7 P 2 VALUE 0                                        
+WS-SUUTRSV              W  7 P 2 VALUE 0                                        
+WS-SUOKSV               W  7 P 2 VALUE 0                                        
+WS-SURESSV              W  7 P 2 VALUE 0                                        
+WS-SUROSV               W  7 P 2 VALUE 0                                        
+WS-SUEFRV               W  7 P 2 VALUE 0                                        
+WS-SUAKSV-SDC           W  7 P 2 VALUE 0                                        
+WS-SUAKSV-PAV           W  7 P 2 VALUE 0                                        
+WS-SUBEARTV             W  7 P 2 VALUE 0                                        
+WS-SUSPARRV-KVAL        W  7 P 2 VALUE 0                                        
+*                                                                               
+WS-SUARTSTD-TOT         W  7 P 2 VALUE 0                                        
+WS-SULSV-TOT            W  7 P 2 VALUE 0                                        
+WS-SUUTRSV-TOT          W  7 P 2 VALUE 0                                        
+WS-SUOKSV-TOT           W  7 P 2 VALUE 0                                        
+WS-SURESSV-TOT          W  7 P 2 VALUE 0                                        
+WS-SUROSV-TOT           W  7 P 2 VALUE 0                                        
+WS-SUEFRV-TOT           W  7 P 2 VALUE 0                                        
+WS-SUAKSV-SDC-TOT       W  7 P 2 VALUE 0                                        
+WS-SUAKSV-PAV-TOT       W  7 P 2 VALUE 0                                        
+WS-SUBEARTV-TOT         W  7 P 2 VALUE 0                                        
+WS-SUSPARRV-KVAL-TOT    W  7 P 2 VALUE 0                                        
+*                                                                               
+WS-OUT-IDDC             W   2 A  VALUE '  '                                     
+WS-OUT-ADCITY           W  25 A                                                 
+WS-OUT-SUARTSTD         W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SULSV            W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SUUTRSV          W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SUOKSV           W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SURESSV          W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SUROSV           W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SUEFRV           W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SUAKSV-SDC       W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SUAKSV-PAV       W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SUBEARTV         W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+WS-OUT-SUSPARRV-KVAL    W  11 N 0 VALUE 0 MASK '-- --- --- --9'                 
+                                                                                
+RKOD-16                   W    4     N     VALUE 16                             
+RKOD-33                   W    4     N     VALUE 33                             
+*                                                                               
+W-DATUM                 W  6   N                                                
+W-AA      W-DATUM           2  N                                                
+W-MM      W-DATUM       +2  2  N                                                
+W-DD      W-DATUM       +4  2  N                                                
+*                                                                               
+W-AAVV                  W  4   N                                                
+W-AAVV-ALFA W-AAVV         4   A                                                
+*                                                                               
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEP 1. SUMMARIZE AND WRITE REPORT FILES                                      
+*                                                                               
+JOB INPUT W61283D1   +                                                          
+    START A-INIT     +                                                          
+    FINISH Z-FINIT                                                              
+                                                                                
+  IF RECORD-COUNT = 1                                                           
+    SPAR-IDDC           = IN-IDDC                                               
+    WS-ADCITY           = IN-ADCITY                                             
+  END-IF                                                                        
+                                                                                
+  IF IN-IDDC NE SPAR-IDDC                                                       
+    PERFORM S01-WRITE-PER-DC-REPORT                                             
+    SPAR-IDDC           = IN-IDDC                                               
+    WS-ADCITY           = IN-ADCITY                                             
+    PERFORM S23-CHECK-SPAR-IDDC                                                 
+  END-IF                                                                        
+  PERFORM S03-ADD-FIELDS                                                        
+*                                                                               
+*    --- S23-CHECK-SPAR-IDDC (MACRO PROCEDURE)                                  
+%WWDC02 'SPAR-'                                                                 
+*                                                                               
+*                                                                               
+ A-INIT. PROC                                                                   
+                                                                                
+  CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                      
+  W-AA           = D-AAR                                                        
+  W-MM           = D-MAANAD                                                     
+  W-DD           = D-DAG                                                        
+                                                                                
+  DAT-KDDATFORM  = 'AAMMDD'                                                     
+  DAT-I-TIDATUM  = W-DATUM                                                      
+                                                                                
+  CALL WDATKONV USING (DAT-KDDATFORM              +                             
+                      DAT-I-TIDATUM               +                             
+                      DAT-O-TIDATUM               +                             
+                      DAT-KDSVAR)                                               
+                                                                                
+  IF DAT-KDSVAR = 'F'                                                           
+    RETURN-CODE = RKOD-16                                                       
+    STOP EXECUTE                                                                
+  ELSE                                                                          
+    W-AAVV-ALFA = DAT-TIAAVV-GRP                                                
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+                                                                                
+Z-FINIT. PROC                                                                   
+      PERFORM S01-WRITE-PER-DC-REPORT                                           
+      PERFORM S02-WRITE-TOT-DC-REPORT                                           
+END-PROC                                                                        
+*                                                                               
+S01-WRITE-PER-DC-REPORT. PROC                                                   
+      WS-OUT-IDDC                  = SPAR-IDDC                                  
+      WS-OUT-ADCITY                = WS-ADCITY                                  
+      WS-OUT-SUARTSTD      ROUNDED = WS-SUARTSTD                                
+      WS-OUT-SULSV         ROUNDED = WS-SULSV                                   
+      WS-OUT-SUUTRSV       ROUNDED = WS-SUUTRSV                                 
+      WS-OUT-SUOKSV        ROUNDED = WS-SUOKSV                                  
+      WS-OUT-SURESSV       ROUNDED = WS-SURESSV                                 
+      WS-OUT-SUROSV        ROUNDED = WS-SUROSV                                  
+      WS-OUT-SUEFRV        ROUNDED = WS-SUEFRV                                  
+      WS-OUT-SUAKSV-SDC    ROUNDED = WS-SUAKSV-SDC                              
+      WS-OUT-SUAKSV-PAV    ROUNDED = WS-SUAKSV-PAV                              
+      WS-OUT-SUBEARTV      ROUNDED = WS-SUBEARTV                                
+      WS-OUT-SUSPARRV-KVAL ROUNDED = WS-SUSPARRV-KVAL                           
+                                                                                
+      PRINT RAPPORT01                                                           
+                                                                                
+      WS-SUARTSTD                  = 0                                          
+      WS-SULSV                     = 0                                          
+      WS-SUUTRSV                   = 0                                          
+      WS-SUOKSV                    = 0                                          
+      WS-SURESSV                   = 0                                          
+      WS-SUROSV                    = 0                                          
+      WS-SUEFRV                    = 0                                          
+      WS-SUAKSV-SDC                = 0                                          
+      WS-SUAKSV-PAV                = 0                                          
+      WS-SUBEARTV                  = 0                                          
+      WS-SUSPARRV-KVAL             = 0                                          
+END-PROC                                                                        
+*                                                                               
+S02-WRITE-TOT-DC-REPORT. PROC                                                   
+      WS-OUT-IDDC                  = '7X'                                       
+      WS-OUT-ADCITY                = ' '                                        
+      WS-OUT-SUARTSTD      ROUNDED = WS-SUARTSTD-TOT                            
+      WS-OUT-SULSV         ROUNDED = WS-SULSV-TOT                               
+      WS-OUT-SUUTRSV       ROUNDED = WS-SUUTRSV-TOT                             
+      WS-OUT-SUOKSV        ROUNDED = WS-SUOKSV-TOT                              
+      WS-OUT-SURESSV       ROUNDED = WS-SURESSV-TOT                             
+      WS-OUT-SUROSV        ROUNDED = WS-SUROSV-TOT                              
+      WS-OUT-SUEFRV        ROUNDED = WS-SUEFRV-TOT                              
+      WS-OUT-SUAKSV-SDC    ROUNDED = WS-SUAKSV-SDC-TOT                          
+      WS-OUT-SUAKSV-PAV    ROUNDED = WS-SUAKSV-PAV-TOT                          
+      WS-OUT-SUBEARTV      ROUNDED = WS-SUBEARTV-TOT                            
+      WS-OUT-SUSPARRV-KVAL ROUNDED = WS-SUSPARRV-KVAL-TOT                       
+                                                                                
+      PRINT RAPPORT02                                                           
+                                                                                
+END-PROC                                                                        
+*                                                                               
+S03-ADD-FIELDS. PROC                                                            
+    WS-SUARTSTD       = WS-SUARTSTD   + (IN-KVLS          * IN-PRAVCOST)        
+    WS-SULSV          = WS-SULSV + ((IN-KVLS - IN-KVOKS - IN-KVRESS)   +        
+                                                          * IN-PRAVCOST)        
+    WS-SUUTRSV        = WS-SUUTRSV    + (IN-KVUTRS        * IN-PRAVCOST)        
+    WS-SUOKSV         = WS-SUOKSV     + (IN-KVOKS         * IN-PRAVCOST)        
+    WS-SURESSV        = WS-SURESSV    + (IN-KVRESS        * IN-PRAVCOST)        
+    WS-SUROSV         = WS-SUROSV     + (IN-KVROS         * IN-PRAVCOST)        
+    WS-SUEFRV         = WS-SUEFRV     + (IN-KVEFRS        * IN-PRAVCOST)        
+    WS-SUAKSV-SDC     = WS-SUAKSV-SDC +  IN-SUAKSV-SDC                          
+    WS-SUAKSV-PAV     = WS-SUAKSV-PAV +  IN-SUAKSV-PAV                          
+    WS-SUBEARTV       = WS-SUBEARTV   + (IN-KVBEART       * IN-PRAVCOST)        
+    WS-SUSPARRV-KVAL  = WS-SUSPARRV-KVAL                               +        
+                                      + (IN-KVSPARR-KVAL  * IN-PRAVCOST)        
+*                                                                               
+    WS-SUARTSTD-TOT   = WS-SUARTSTD-TOT + (IN-KVLS        * IN-PRAVCOST)        
+    WS-SULSV-TOT    = WS-SULSV-TOT + ((IN-KVLS - IN-KVOKS - IN-KVRESS) +        
+                                                          * IN-PRAVCOST)        
+    WS-SUUTRSV-TOT    = WS-SUUTRSV-TOT + (IN-KVUTRS       * IN-PRAVCOST)        
+    WS-SUOKSV-TOT     = WS-SUOKSV-TOT  + (IN-KVOKS        * IN-PRAVCOST)        
+    WS-SURESSV-TOT    = WS-SURESSV-TOT + (IN-KVRESS       * IN-PRAVCOST)        
+    WS-SUROSV-TOT     = WS-SUROSV-TOT  + (IN-KVROS        * IN-PRAVCOST)        
+    WS-SUEFRV-TOT     = WS-SUEFRV-TOT  + (IN-KVEFRS       * IN-PRAVCOST)        
+    WS-SUAKSV-SDC-TOT = WS-SUAKSV-SDC-TOT +  IN-SUAKSV-SDC                      
+    WS-SUAKSV-PAV-TOT = WS-SUAKSV-PAV-TOT +  IN-SUAKSV-PAV                      
+    WS-SUBEARTV-TOT   = WS-SUBEARTV-TOT   + (IN-KVBEART   * IN-PRAVCOST)        
+    WS-SUSPARRV-KVAL  = WS-SUSPARRV-KVAL-TOT                           +        
+                                       + (IN-KVSPARR-KVAL * IN-PRAVCOST)        
+END-PROC                                                                        
+*                                                                               
+*                                                                               
+NEWPAGE                                                                         
+REPORT RAPPORT01 PRINTER W61283D2 LINESIZE 196                      +           
+                                  NOHEADING                         +           
+                                  NOADJUST                          +           
+                                  NODATE                            +           
+                                  NOSPREAD +                                    
+                                  SPACE 0                                       
+                                                                                
+LINE  1  WS-OUT-IDDC       +                                                    
+         WS-OUT-ADCITY     +                                                    
+         WS-OUT-SUARTSTD   +                                                    
+         WS-OUT-SULSV      +                                                    
+         WS-OUT-SUUTRSV    +                                                    
+         WS-OUT-SUOKSV     +                                                    
+         WS-OUT-SURESSV    +                                                    
+         WS-OUT-SUROSV     +                                                    
+         WS-OUT-SUEFRV     +                                                    
+         WS-OUT-SUAKSV-SDC +                                                    
+         WS-OUT-SUAKSV-PAV +                                                    
+         WS-OUT-SUBEARTV   +                                                    
+         WS-OUT-SUSPARRV-KVAL +                                                 
+         W-AAVV                                                                 
+*                                                                               
+NEWPAGE                                                                         
+REPORT RAPPORT02 PRINTER W61283D3 LINESIZE 196                      +           
+                                  NOHEADING                         +           
+                                  NOADJUST                          +           
+                                  NODATE                            +           
+                                  NOSPREAD +                                    
+                                  SPACE 0                                       
+                                                                                
+LINE  1  WS-OUT-IDDC       +                                                    
+         WS-OUT-ADCITY     +                                                    
+         WS-OUT-SUARTSTD   +                                                    
+         WS-OUT-SULSV      +                                                    
+         WS-OUT-SUUTRSV    +                                                    
+         WS-OUT-SUOKSV     +                                                    
+         WS-OUT-SURESSV    +                                                    
+         WS-OUT-SUROSV     +                                                    
+         WS-OUT-SUEFRV     +                                                    
+         WS-OUT-SUAKSV-SDC +                                                    
+         WS-OUT-SUAKSV-PAV +                                                    
+         WS-OUT-SUBEARTV   +                                                    
+         WS-OUT-SUSPARRV-KVAL +                                                 
+         W-AAVV                                                                 
+                                                                                

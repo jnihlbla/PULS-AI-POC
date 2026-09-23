@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATES A REPORT OF MONTHLY SUM OF HANDLING FEEOF                          
+//*  WAITING TO BE INVOICED                                                     
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W418M2                                       
+//*                                                                             
+//*  RESTART:      W41805    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W418P005 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W418..W418M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO      EXEC PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                               
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//W41805D1 DD  DSN=&INDUT..W41805(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ W41805-001  SUM OF HANDLING FEE FOR WAITING INVOICES             
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//         IF  (TSO.RC GT 4) THEN                                               
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456'                               
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                     -- ABEND           
+//         ENDIF                                                                

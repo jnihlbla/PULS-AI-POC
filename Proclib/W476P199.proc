@@ -1,0 +1,44 @@
+//*      TA BORT STPLIB OM INGET STEG FÖRUTOM SORT                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR EXCEL-ARK                                                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W476D9                                         
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                W47699    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W476P199 PROC STPLIB=&INDRTE..LOAD, -- TA EV BORT KOMMA                       
+//*      TA BORT STPLIB OM INGET STEG FÖRUTOM SORT                              
+//             INDIN=&W476..W476D9,                                             
+//             INDUT=&W476..W476D9,                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W476PD99),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W4765G,DISP=SHR                                      
+//************ FIL FRÅN W47651                                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W4765G,DISP=(NEW,PASS,DELETE),                             
+//************ SORT.UTFIL                                                       
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47699   EXEC PGM=W47699                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//W47699D1 DD  DSN=&&W4765G,DISP=(OLD,DELETE,DELETE)                            
+//************ SORT.UTFIL                                                       
+//*                                                                             
+//W47699D2 DD  DSN=&INDUT..W47653GR(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ ARKET                                                            
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

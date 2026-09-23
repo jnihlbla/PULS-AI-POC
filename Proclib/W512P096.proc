@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE REPORTS FOR KITS OBS                                                
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W51296    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P096 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W512..W512M2,                                             
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51296   EXEC PGM=V16459,PARM='W51296/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W51296D1 DD  DSN=&INDIN..W51299(+0),DISP=SHR                                  
+//************ KITS PARTS WITH QTY                                              
+//*                                                                             
+//W51296D2 DD  DSN=&INDIN..W51293B(+0),DISP=SHR                                 
+//************ VCCS RECORDS AND QTY AS PER DC                                   
+//*                                                                             
+//W51296D3 DD  DSN=&INDIN..W51295B(+0),DISP=SHR                                 
+//************ VCCS RECORDS AND QTY                                             
+//*                                                                             
+//TPFILE1  DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFILE2  DD  DSN=&&TPFIL2,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFILE3  DD  DSN=&&TPFIL3,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFILE4  DD  DSN=&&TPFIL4,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51296D4 DD  DSN=&INDUT..W51296E(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ KITS OBS REPORT1                                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51296D5 DD  DSN=&INDUT..W51296F(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ KITS OBS REPORT2                                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

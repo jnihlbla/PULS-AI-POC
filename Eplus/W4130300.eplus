@@ -1,0 +1,176 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  VOLVO PARTS PD90                                      *        
+*                                                                      *        
+*  FUNKTION   :  UPDATING PRODUCTION TABLE                             *        
+*                COMPARE FILE WITH PRODUCTION CHANNELS W41301          *        
+*                   WITH FILE WITH ORDERPARTS          W41302          *        
+*                FOR EACH ORDERPART WITH STATUS R OR U AND KDPRODKL    *        
+*                   B OR C WRITE NEW ORDERPARTS ON FILE W41303         *        
+*                                                                      *        
+*  WRITTEN    :  FEYS LUC     30 MAY 1990                              *        
+*                                                                      *        
+*  INFILES    :  W413.W41301                                           *        
+*                W413.W41302                                           *        
+*                                                                      *        
+*  OUTFILES   :  W413.W41303                                           *        
+*                W413.W41304                                           *        
+*                                                                      *        
+*  CHANGES    :   STANDARD FILE NAMES                                  *        
+*                                                                      *        
+*  DATE      NAME                DEPT         CHANGE                   *        
+*  17-10-91  LUC FEYS            C2-73000                              *        
+*  95-05-29  BERT ANDERSSON      VCAS-57054   NEW OUTFILE W41303D4     *        
+*  ........  ..................  ............                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W41303D1                                                                   
+%W41301   'I1-'                                                                 
+*                                                                               
+FILE W41303D2                                                                   
+%WDQ301   'I2-'                                                                 
+*                                                                               
+FILE SORTF1 FB(152 0)                                                           
+%W41301                                                                         
+*                                                                               
+FILE SORTF2 FB(190 0)                                                           
+%WDQ301                                                                         
+*                                                                               
+FILE W41303D3 FB(97 0)                                                          
+%W41303   'OUT1-'                                                               
+*                                                                               
+FILE W41303D4 FB(97 0)                                                          
+%W41303   'OUT2-'                                                               
+*                                                                               
+FILE W41303D5 FB(97 0)                                                          
+%W41303   'OUT3-'                                                               
+*                                                                               
+W-DARFS                       W  12  N                                          
+W-DARFS-AAMMDDTTMM  W-DARFS  +2  10  N                                          
+*                                                                               
+W-DALSTORD                          W  12  N                                    
+W-DALSTORD-AAMMDDTTMM  W-DALSTORD  +2  10  N                                    
+*                                                                               
+W-DATRPAVD                    W   8  N                                          
+W-DATRPAVD-AAMMDD  W-DATRPAVD    +2  6   N                                      
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+SORT W41303D1 TO SORTF1 USING (I1-IDDC I1-IDPRC) SIZE 200000                    
+*                                                                               
+SORT W41303D2 TO SORTF2 USING (I2-ODEL-IDDC I2-ODEL-IDPRC) SIZE 200000          
+*                                                                               
+JOB INPUT(SORTF1 KEY(IDDC IDPRC)       +                                        
+          SORTF2 KEY(ODEL-IDDC ODEL-IDPRC))                                     
+*                                                                               
+IF MATCHED                                                                      
+   IF ODEL-KDODELSTA = 'R', 'U'                                                 
+      IF ODEL-KDPRODKL = 'B', 'C'                                               
+         PERFORM A-MATCH                                                        
+      END-IF                                                                    
+   END-IF                                                                       
+   IF ODEL-KDODELSTA = 'P'                                                      
+      IF ODEL-KDPRODKL = 'D', 'V'                                               
+        PERFORM B-MATCH                                                         
+      ELSE                                                                      
+        IF ODEL-KDPRODKL = 'B', 'C'                                             
+          PERFORM C-MATCH                                                       
+        END-IF                                                                  
+      END-IF                                                                    
+   END-IF                                                                       
+   GOTO JOB                                                                     
+END-IF                                                                          
+*                                                                               
+A-MATCH.  PROC                                                                  
+   OUT1-IDPTYP    = 'WOP'                                                       
+   OUT1-IDDC      = ODEL-IDDC                                                   
+   OUT1-IDPRC     = ODEL-IDPRC                                                  
+   OUT1-IDTRP     = ODEL-IDTRP                                                  
+   OUT1-KDPRCGRP  = KDPRCGRP                                                    
+   W-DARFS        = ODEL-DARFS                                                  
+   OUT1-TIRFS     = W-DARFS-AAMMDDTTMM                                          
+   W-DALSTORD     = ODEL-DALSTORD                                               
+   OUT1-DALSTORD  = W-DALSTORD-AAMMDDTTMM                                       
+   OUT1-IDDISTR   = ODEL-IDDISTR                                                
+   OUT1-IDORDER   = ODEL-IDORDER                                                
+   OUT1-IDKUNDNR  = ODEL-IDKUNDNR                                               
+   OUT1-IDKUNDRF  = ODEL-IDKUNDRF                                               
+   OUT1-KDODELSTA = ODEL-KDODELSTA                                              
+   OUT1-KDPRODKL  = ODEL-KDPRODKL                                               
+   OUT1-KVRADER   = ODEL-KVRADER                                                
+   OUT1-SUPTID    = ODEL-SUPTID                                                 
+   OUT1-VKORDNTO  = ODEL-VKORDNTO                                               
+   OUT1-VLORDNTO  = ODEL-VLORDNTO                                               
+   W-DATRPAVD     = ODEL-DATRPAVD                                               
+   OUT1-TIAAMMDD  = W-DATRPAVD-AAMMDD                                           
+   OUT1-TIHHMM    = ODEL-TIHHMM                                                 
+   OUT1-IDPRODNR  = ODEL-IDPRODNR                                               
+   OUT1-KVPTID    = ODEL-KVPTID                                                 
+   OUT1-KDFDKRAV  = ODEL-KDFDKRAV                                               
+   OUT1-TIREGDAT  = ODEL-TIREGDAT                                               
+   OUT1-TIPACKN   = ODEL-TIPACKN                                                
+   PUT W41303D3                                                                 
+END-PROC                                                                        
+*                                                                               
+B-MATCH.  PROC                                                                  
+   OUT2-IDPTYP    = 'WOP'                                                       
+   OUT2-IDDC      = ODEL-IDDC                                                   
+   OUT2-IDPRC     = ODEL-IDPRC                                                  
+   OUT2-IDTRP     = ODEL-IDTRP                                                  
+   OUT2-KDPRCGRP  = KDPRCGRP                                                    
+   W-DARFS        = ODEL-DARFS                                                  
+   OUT2-TIRFS     = W-DARFS-AAMMDDTTMM                                          
+   W-DALSTORD     = ODEL-DALSTORD                                               
+   OUT2-DALSTORD  = W-DALSTORD-AAMMDDTTMM                                       
+   OUT2-IDDISTR   = ODEL-IDDISTR                                                
+   OUT2-IDORDER   = ODEL-IDORDER                                                
+   OUT2-IDKUNDNR  = ODEL-IDKUNDNR                                               
+   OUT2-IDKUNDRF  = ODEL-IDKUNDRF                                               
+   OUT2-KDODELSTA = ODEL-KDODELSTA                                              
+   OUT2-KDPRODKL  = ODEL-KDPRODKL                                               
+   OUT2-KVRADER   = ODEL-KVRADER                                                
+   OUT2-SUPTID    = ODEL-SUPTID                                                 
+   OUT2-VKORDNTO  = ODEL-VKORDNTO                                               
+   OUT2-VLORDNTO  = ODEL-VLORDNTO                                               
+   W-DATRPAVD     = ODEL-DATRPAVD                                               
+   OUT2-TIAAMMDD  = W-DATRPAVD-AAMMDD                                           
+   OUT2-TIHHMM    = ODEL-TIHHMM                                                 
+   OUT2-IDPRODNR  = ODEL-IDPRODNR                                               
+   OUT2-KVPTID    = ODEL-KVPTID                                                 
+   OUT2-KDFDKRAV  = ODEL-KDFDKRAV                                               
+   OUT2-TIREGDAT  = ODEL-TIREGDAT                                               
+   OUT2-TIPACKN   = ODEL-TIPACKN                                                
+   PUT W41303D4                                                                 
+END-PROC                                                                        
+*                                                                               
+C-MATCH.  PROC                                                                  
+   OUT3-IDPTYP    = 'WOP'                                                       
+   OUT3-IDDC      = ODEL-IDDC                                                   
+   OUT3-IDPRC     = ODEL-IDPRC                                                  
+   OUT3-IDTRP     = ODEL-IDTRP                                                  
+   OUT3-KDPRCGRP  = KDPRCGRP                                                    
+   W-DARFS        = ODEL-DARFS                                                  
+   OUT3-TIRFS     = W-DARFS-AAMMDDTTMM                                          
+   W-DALSTORD     = ODEL-DALSTORD                                               
+   OUT3-DALSTORD  = W-DALSTORD-AAMMDDTTMM                                       
+   OUT3-IDDISTR   = ODEL-IDDISTR                                                
+   OUT3-IDORDER   = ODEL-IDORDER                                                
+   OUT3-IDKUNDNR  = ODEL-IDKUNDNR                                               
+   OUT3-IDKUNDRF  = ODEL-IDKUNDRF                                               
+   OUT3-KDODELSTA = ODEL-KDODELSTA                                              
+   OUT3-KDPRODKL  = ODEL-KDPRODKL                                               
+   OUT3-KVRADER   = ODEL-KVRADER                                                
+   OUT3-SUPTID    = ODEL-SUPTID                                                 
+   OUT3-VKORDNTO  = ODEL-VKORDNTO                                               
+   OUT3-VLORDNTO  = ODEL-VLORDNTO                                               
+   W-DATRPAVD     = ODEL-DATRPAVD                                               
+   OUT3-TIAAMMDD  = W-DATRPAVD-AAMMDD                                           
+   OUT3-TIHHMM    = ODEL-TIHHMM                                                 
+   OUT3-IDPRODNR  = ODEL-IDPRODNR                                               
+   OUT3-KVPTID    = ODEL-KVPTID                                                 
+   OUT3-KDFDKRAV  = ODEL-KDFDKRAV                                               
+   OUT3-TIREGDAT  = ODEL-TIREGDAT                                               
+   OUT3-TIPACKN   = ODEL-TIPACKN                                                
+   PUT W41303D5                                                                 
+END-PROC                                                                        
+*                                                                               

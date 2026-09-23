@@ -1,0 +1,51 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  GÖR FILER TILL LEVERANSBESKEDSLISTA OCH/ELLER AVROPSLISTA                  
+//*  FRÅN BILD 2323                                                             
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W235B2                                         
+//*                                                                             
+//*  RESTART:      W23508      NORMAL                                           
+//*                READS        WDK6 WDD9 W6D1 WDF5                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W235P008 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W235..W235B2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23508   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('BMP,W23508,W23508,,,N00,,,,,&CPU,,,&IMS')                 
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W23508D1 DD  DUMMY                                                            
+//************                                                                  
+//*                                                                             
+//W23508D2 DD  DSN=&&TEMPFIL,DISP=(NEW,PASS,DELETE),                            
+//************ LEVBESK LISTA                                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W23508D3 DD  DSN=&INDUT..W23509(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ AVROPSLISTA                                                      
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEB                                 
+//*                                                                             
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W235PD08),DISP=SHR                         
+//SORTIN   DD  DSN=&&TEMPFIL,DISP=(OLD,DELETE,DELETE)                           
+//*                                                                             
+//SORTOUT   DD DSN=&INDUT..W23508(+1),                         -LIM(1)          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=NOBACKUP                                                
+//*                                                                             

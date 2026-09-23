@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RESTORDERLISTA TOPP 100 I ORDERRADSORDNING PER DC                          
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W271V7                                         
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W27165    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P065 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W271..W271V7,                                             
+//             INDUT=&W271..W271V7                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W271PD65),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W27164(+0),DISP=SHR                                  
+//************ RESTORDERPOSTER, NDC                                             
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27164,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE RO-POSTER PÅ DC, ORDERRAD, ARTNR                       
+//         SPACE=(80,(2,6),RLSE),AVGREC=K                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27165   EXEC PGM=W27165                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//W27165D1 DD  DSN=&&W27164,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERADE RESTORDERPOSTER I DC / ARTNR                           
+//*                                                                             
+//W27165D2 DD  DSN=&INDUT..W27165(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ W27165  RESTORDERLISTA TOPP 200 I ORDERRADSORDNING               
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

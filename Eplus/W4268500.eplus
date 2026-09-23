@@ -1,0 +1,164 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4268500                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAM SOM MATCHAR DENNA VECKAS 6212-NOTERINGAR      *        
+*                MED FÖREGÅENDE VECKAS NOTERINGAR FÖR ATT HITTA DE     *        
+*                NOTERINGAR SOM GJORTS UNDER VECKAN                    *        
+*                                                                      *        
+*  FÖRFATTARE :  EVA LUNDELL                                           *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W42685D1                                                                   
+*                                                                               
+%W4267101 'AKT-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W42685D2                                                                   
+*                                                                               
+%W4267101 'PREV-'                                                               
+                                                                                
+FILE W42685D3                                                                   
+*                                                                               
+%W01160   'CDC-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE SORTFIL FB (571 0) VIRTUAL RETAIN                                          
+%W4267101 'SORT-'                                                               
+NEWPAGE                                                                         
+                                                                                
+FILE SORTFIL2 FB (571 0) VIRTUAL RETAIN                                         
+%W4267101 'SORT2-'                                                              
+NEWPAGE                                                                         
+                                                                                
+*                                                                               
+FILE TEMPFIL FB (571 0) VIRTUAL RETAIN                                          
+%W4267101 'TEMP-'                                                               
+NEWPAGE                                                                         
+                                                                                
+FILE W42685D4 PRINTER FB (121 121)                                              
+*                                                                               
+***********WORKING STORAGE**********                                            
+WS-IDARTNR     W  9  N  MASK 'ZZZZZZZZ9'                                        
+WS-IDANSK      W  3  P                                                          
+WS-IDANSK-TEST W  1  P                                                          
+WS-IDLEVNR     W  5  A                                                          
+WS-TEKVAINF-1  W 63  A                                                          
+WS-TEKVAINF-2  W 63  A                                                          
+WS-TEKVAINF-3  W 63  A                                                          
+                                                                                
+%WY2000W1                                                                       
+*                                                                               
+NEWPAGE                                                                         
+                                                                                
+  JOB INPUT W42685D1 NAME STEG03                                                
+        SORT-W4267101 = AKT-W4267101                                            
+        PUT SORTFIL                                                             
+                                                                                
+  SORT SORTFIL TO SORTFIL                +                                      
+                   USING  (SORT-IDARTNR                        +                
+                           SORT-TIREGDAT)                      +                
+                   BEFORE SORT-INIT                            +                
+                                               NAME   STEG04                    
+*                                                                               
+SORT-INIT. PROC                                                                 
+TMP1-YYMMDD = SORT-TIREGDAT                                                     
+PERFORM WY2000P1                                                                
+SORT-TIREGDAT = TMP1-YYMMDD                                                     
+SELECT                                                                          
+END-PROC                                                                        
+*                                                                               
+%WY2000P1                                                                       
+*                                                                               
+NEWPAGE                                                                         
+  JOB INPUT W42685D2 NAME STEG05                                                
+        SORT2-W4267101 = PREV-W4267101                                          
+        PUT SORTFIL2                                                            
+                                                                                
+  SORT SORTFIL2 TO SORTFIL2                +                                    
+                   USING  (SORT2-IDARTNR                        +               
+                           SORT2-TIREGDAT)                      +               
+                   BEFORE SORT-INIT                             +               
+                                               NAME   STEG06                    
+                                                                                
+SORT-INIT. PROC                                                                 
+TMP1-YYMMDD = SORT2-TIREGDAT                                                    
+PERFORM WY2000P1                                                                
+SORT2-TIREGDAT = TMP1-YYMMDD                                                    
+SELECT                                                                          
+END-PROC                                                                        
+*                                                                               
+%WY2000P1                                                                       
+*                                                                               
+NEWPAGE                                                                         
+  JOB INPUT (SORTFIL2 KEY (SORT2-IDARTNR SORT2-TIREGDAT)    +                   
+           SORTFIL KEY (SORT-IDARTNR SORT-TIREGDAT ))                           
+                                                                                
+   IF MATCHED                                                                   
+       NEXT                                                                     
+   ELSE                                                                         
+       IF SORTFIL                                                               
+           TEMP-W4267101 = SORT-W4267101                                        
+           PUT TEMPFIL                                                          
+       END-IF                                                                   
+   END-IF                                                                       
+NEWPAGE                                                                         
+  JOB INPUT (W42685D3 KEY (CDC-CLAG-IDARTNR )    +                              
+           TEMPFIL KEY (TEMP-IDARTNR ))                                         
+                                                                                
+   IF MATCHED                                                                   
+       TMP1-YYMMDD    = TEMP-TIREGDAT                                           
+       PERFORM WY2000P1                                                         
+       TEMP-TIREGDAT  = TMP1-YYMMDD                                             
+       WS-IDARTNR     = CDC-CLAG-IDARTNR                                        
+       WS-IDLEVNR     = CDC-CLAG-IDLEVNR                                        
+       WS-IDANSK-TEST = CDC-CLAG-IDANSK / 100                                   
+       WS-IDANSK      = CDC-CLAG-IDANSK                                         
+       WS-TEKVAINF-1  = TEMP-TEKVAINF-INT(1)                                    
+       WS-TEKVAINF-2  = TEMP-TEKVAINF-INT(2)                                    
+       WS-TEKVAINF-3  = TEMP-TEKVAINF-INT(3)                                    
+       PRINT LISTA-001                                                          
+   ELSE                                                                         
+       IF TEMPFIL                                                               
+           TMP1-YYMMDD    = TEMP-TIREGDAT                                       
+           PERFORM WY2000P1                                                     
+           TEMP-TIREGDAT  = TMP1-YYMMDD                                         
+           WS-TEKVAINF-1  = TEMP-TEKVAINF-INT(1)                                
+           WS-TEKVAINF-2  = TEMP-TEKVAINF-INT(2)                                
+           WS-TEKVAINF-3  = TEMP-TEKVAINF-INT(3)                                
+           PRINT LISTA-001                                                      
+       END-IF                                                                   
+   END-IF                                                                       
+NEWPAGE                                                                         
+%WY2000P1                                                                       
+                                                                                
+REPORT LISTA-001  LINESIZE 120 SPACE 1  PRINTER W42685D4      +                 
+                  NODATE NOADJUST                                               
+SEQUENCE TEMP-KDPERSON WS-IDARTNR                                               
+CONTROL TEMP-KDPERSON RENUM NOPRINT                                             
+TITLE 01    'VOLVO CAR PARTS                      W42685-001' +                 
+            COL 55 'RESPONSIBLE = QUAL' TEMP-KDPERSON        +                  
+            COL 89 'DATUM' SYSDATE                                              
+TITLE 02    'QUALITY HISTORY LAST WEEK     '                  +                 
+                                                                                
+HEADING    WS-IDARTNR  ('  PART NO.')                                           
+HEADING    WS-IDLEVNR  ('  SUPPLIER')                                           
+HEADING    TEMP-KDPERSON ('RESP')                                               
+HEADING    TEMP-KDKVAINF ('TYPE OF' 'QUALITY INFO')                             
+HEADING    WS-TEKVAINF-1 ('QUALITY INFO           ')                            
+HEADING    TEMP-TIREGDAT ('REG.DATE')                                           
+                                                                                
+LINE 01     WS-IDARTNR WS-IDLEVNR TEMP-KDPERSON +                               
+            TEMP-KDKVAINF WS-TEKVAINF-1         +                               
+            TEMP-TIREGDAT                                                       
+LINE 02     POS 5 WS-TEKVAINF-2                                                 
+LINE 03     POS 5 WS-TEKVAINF-3                                                 

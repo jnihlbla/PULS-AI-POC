@@ -1,0 +1,183 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5518100                                              *        
+*                                                                      *        
+*  FUNKTION   :  THIS PROGRAM MATCHES DIRECT SUPPLIERS AGAINST THE     *        
+*                PARTS INFO FILE TO GET THE TOTAL VALUE. CREATES A .CSV*        
+*                FILE WHICH IS SENT TO D&P                             *        
+*                                                                      *        
+*  FÖRFATTARE :  ARCHANA BHAT                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W55181D1                                                                   
+*                                                                               
+%W55178  'IN1-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE TPFIL1 FB(21 0)                                                            
+*                                                                               
+%W55178  'T1-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE TPFIL2 FB(14 0)                                                            
+*                                                                               
+   T2-IDARTNR    1  5  P 0                                                      
+   T2-IDLEVNR    6  5  A                                                        
+   T2-KVAVIS    11  4  P 0                                                      
+                                                                                
+NEWPAGE                                                                         
+FILE W55181D2                                                                   
+*                                                                               
+%WCDCPART 'IN2-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE TPFIL3 FB(14 0)                                                            
+*                                                                               
+   T3-IDLEVNR    1  5  A                                                        
+   T3-KVAVIS     6  4  P 0                                                      
+   T3-TOT-VAL   10  5  P 2                                                      
+                                                                                
+NEWPAGE                                                                         
+FILE TPFIL4 FB(14 0)                                                            
+*                                                                               
+   T4-IDLEVNR    1  5  A                                                        
+   T4-KVAVIS-CNT 6  4  N 0                                                      
+   T4-TOT-VAL   10  5  P 2                                                      
+                                                                                
+                                                                                
+**** EXCEL-FIL, MAIL VIA DAP                                                    
+FILE W55181D3  PRINTER VB(125 0)                                                
+                                                                                
+W-SUPPLIER                  W    5 A                                            
+W-TOTAL                     W   11 N 2 MASK 'ZZZZZZZZ9.99'                      
+W-NUM-OF-UNITS              W    7 N 0 MASK 'ZZZZZZ9'                           
+W-SEM1                      W    1 A VALUE ';'                                  
+FIRST-TIME-SW               W    1 A VALUE 'Y'                                  
+SAVE-IDARTNR                W    5 P 0                                          
+SAVE-IDLEVNR                W    5 A                                            
+W-KVAVIS                    W    4 P 0                                          
+W-KVAVIS-CNT                W    4 N 0                                          
+W-TOT-VAL                   W    9 P 2                                          
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORT ON IDARTNR                                                       
+*                                                                               
+SORT W55181D1 TO TPFIL1    +                                                    
+     USING (IN1-IDARTNR)                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* ROLL UP THE KVAVIS VALUES FOR SAME PART NUMBER                                
+*                                                                               
+JOB INPUT (TPFIL1) +                                                            
+                 FINISH Z-FINIT                                                 
+                                                                                
+  IF RECORD-COUNT = 1                                                           
+    SAVE-IDARTNR = T1-IDARTNR                                                   
+    SAVE-IDLEVNR = T1-IDLEVNR                                                   
+    W-KVAVIS     = 0                                                            
+  END-IF                                                                        
+  IF T1-IDARTNR NE SAVE-IDARTNR                                                 
+    T2-IDARTNR   = SAVE-IDARTNR                                                 
+    T2-IDLEVNR   = SAVE-IDLEVNR                                                 
+    T2-KVAVIS    = W-KVAVIS                                                     
+    PUT TPFIL2                                                                  
+    SAVE-IDARTNR = T1-IDARTNR                                                   
+    SAVE-IDLEVNR = T1-IDLEVNR                                                   
+    W-KVAVIS     = T1-KVAVIS                                                    
+  ELSE                                                                          
+    W-KVAVIS = W-KVAVIS + T1-KVAVIS                                             
+  END-IF                                                                        
+                                                                                
+Z-FINIT. PROC                                                                   
+    T2-IDARTNR   = SAVE-IDARTNR                                                 
+    T2-IDLEVNR   = SAVE-IDLEVNR                                                 
+    T2-KVAVIS    = W-KVAVIS                                                     
+    PUT TPFIL2                                                                  
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. MATCH W55181D2 AND TPFIL2                                             
+*                                                                               
+JOB INPUT (W55181D2 KEY(IN2-IDARTNR)  +                                         
+           TPFIL2 KEY(T2-IDARTNR))                                              
+*                                                                               
+IF MATCHED                                                                      
+       T3-IDLEVNR  = T2-IDLEVNR                                                 
+       T3-KVAVIS   = T2-KVAVIS                                                  
+       T3-TOT-VAL  = T2-KVAVIS * IN2-PRARTSTD                                   
+       PUT TPFIL3                                                               
+END-IF                                                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* ROLL UP THE VALUES FOR SAME SUPPLIER                                          
+*                                                                               
+JOB INPUT TPFIL3 +                                                              
+                 FINISH Z-FINIT-1                                               
+                                                                                
+  IF RECORD-COUNT = 1                                                           
+    SAVE-IDLEVNR  = T3-IDLEVNR                                                  
+    W-KVAVIS-CNT  = 0                                                           
+    W-TOT-VAL     = 0                                                           
+  END-IF                                                                        
+  IF T3-IDLEVNR NE SAVE-IDLEVNR                                                 
+    T4-IDLEVNR    = SAVE-IDLEVNR                                                
+    T4-KVAVIS-CNT = W-KVAVIS-CNT                                                
+    T4-TOT-VAL    = W-TOT-VAL                                                   
+    PUT TPFIL4                                                                  
+    SAVE-IDLEVNR  = T3-IDLEVNR                                                  
+    W-KVAVIS-CNT  = 1                                                           
+    W-TOT-VAL     = T3-TOT-VAL                                                  
+  ELSE                                                                          
+    W-KVAVIS-CNT  = W-KVAVIS-CNT  + 1                                           
+    W-TOT-VAL     = W-TOT-VAL + T3-TOT-VAL                                      
+  END-IF                                                                        
+                                                                                
+Z-FINIT-1. PROC                                                                 
+    T4-IDLEVNR    = SAVE-IDLEVNR                                                
+    T4-KVAVIS-CNT = W-KVAVIS-CNT                                                
+    T4-TOT-VAL    = W-TOT-VAL                                                   
+    PUT TPFIL4                                                                  
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* PRINT THE LIST                                                                
+*                                                                               
+JOB INPUT TPFIL4                                                                
+    W-TOTAL        = T4-TOT-VAL                                                 
+    W-SUPPLIER     = T4-IDLEVNR                                                 
+    W-NUM-OF-UNITS = T4-KVAVIS-CNT                                              
+                                                                                
+    PRINT XL-LIST                                                               
+*                                                                               
+NEWPAGE                                                                         
+  REPORT   XL-LIST              +                                               
+           PRINTER W55181D3     +                                               
+           LINESIZE 120         +                                               
+           SPACE 0              +                                               
+           NOHEADING            +                                               
+           NOSPREAD             +                                               
+           NOADJUST             +                                               
+           PAGESIZE 32767       +                                               
+           NODATE                                                               
+  LINE  1  W-SUPPLIER           +                                               
+           W-SEM1               +                                               
+           W-TOTAL              +                                               
+           W-SEM1               +                                               
+           W-NUM-OF-UNITS       +                                               
+           W-SEM1                                                               
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF FIRST-TIME-SW = 'Y'                                                         
+   DISPLAY '¤DAPW55181-001'                                                     
+   DISPLAY '¤DAPW55181'                                                         
+   DISPLAY 'SUPPLIER NO;TOTAL VALUE;NO OF UNITS;'                               
+   FIRST-TIME-SW = 'N'                                                          
+ END-IF                                                                         
+END-PROC                                                                        

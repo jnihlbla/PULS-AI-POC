@@ -1,0 +1,94 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SALDOAVSTÄMNING PER ARTIKEL                                                
+//*                                                                             
+//*  RESULTAT: SALDODIFFAR OCH KVANTDIFFAR PER DIFFANDE ARTIKEL                 
+//*                                                                             
+//*  FREKVENS:     DAG, VECKA ELLER VID BEHOV                                   
+//*                                                                             
+//*  ÅTERSTART:    W51095    NORMAL                                             
+//*             OBS OBS OBS:                                                    
+//*             ÅTERSTART EJ NÖDVÄNDIG OM DET BLIVIT B37,                       
+//*             DÅ ÄR DET BÄTTRE ATT GÖRA END PÅ JOBBET.                        
+//*             FELET BEROR MED STOR SANNOLIKHET PÅ FEL TIDIGARE I              
+//*             BATCHEN. OM DU INTE DIREKT HITTAR FELET, KONTAKTA               
+//*             SYSTEMANSVARIG NÄSTA ARBETSDAG FÖR FEL-LETANDE.                 
+//*             HUR MÅNGA ARTIKLAR DIFFAR I PULS SEDAN FÖRRA HELGEN:            
+//*             SÖK I SAR PÅ DETTA JOBBET PÅ 'DIFF. ART'                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P095 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..W500V1,                                             
+//             INDIN1=&W510..W510D4,                                            
+//             INDIN2=&W510..W510D4,                                            
+//             INDIN3=&W011,                                                    
+//             INDUT=&W510..W500V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51095   EXEC PGM=V16459,PARM='W51095/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD SYSOUT=(D,,DUMP),DEST=QSE09012,HOLD=YES                           
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(CYL,(100,100))                                            
+//SORTMSG  DD  SYSOUT=*                                                         
+//W51095D1 DD  DSN=&INDIN..W51053(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W51054(+0),DISP=SHR                                  
+//************ LAGERSALDON FRÅN VECKANS BÖRJAN                                  
+//*                                                                             
+//W51095D2 DD  DSN=&INDIN1..W51053(+0),DISP=SHR                                 
+//         DD  DSN=&INDIN1..W51054(+0),DISP=SHR                                 
+//************ LAGERSALDON VID AVSTÄMNINGSTILLFÄLLET                            
+//*                                                                             
+//W51095D3 DD  DSN=&INDIN2..W51068,DISP=SHR                                     
+//         DD  DSN=&INDIN2..W51081,DISP=SHR                                     
+//         DD  DSN=&INDIN2..W5106D,DISP=SHR                                     
+//************ SAP-LAGERBOKNINGAR HITTILLS UNDER VECKAN                         
+//*                                                                             
+//W51095D4 DD  DSN=&INDIN3..W01172(+0),DISP=SHR                                 
+//************ INFIL04                                                          
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP,DISP=(NEW,PASS,DELETE),                               
+//************ TEMPORÄR FIL MED SORTERADE FAKT.RADER                            
+//             DATACLAS=PSEB                                                    
+//TPFIL2   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR FIL MED SORTERADE FAKT.RADER                            
+//             DATACLAS=PSEB                                                    
+//TPFIL3   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR FIL MED SORTERADE FAKT.RADER                            
+//             DATACLAS=PSEB                                                    
+//TPFIL4   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR FIL MED SORTERADE FAKT.RADER                            
+//             DATACLAS=PSEB                                                    
+//W51095D5 DD  DSN=&&W51095A,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEB                                                    
+//************ W51095-001  LISTA ÖVER KÖRNINGENS KVANT-DIFFAR                   
+//W51095D6 DD  DSN=&&W51095B,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEB                                                    
+//************ W51095-002  LISTA ÖVER KÖRNINGENS BELOPPS-DIFFAR                 
+//W51095D8 DD  DSN=&&W51095D,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEB                                                    
+//************ W51095-004  LISTA ÖVER KÖRNINGENS IN O UTGÅENDE LAGV O BO        
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//ICEGENER EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&&W51095A,DISP=(OLD,PASS,DELETE)                             
+//         DD  DSN=&&W51095B,DISP=(OLD,PASS,DELETE)                             
+//         DD  DSN=&&W51095D,DISP=(OLD,PASS,DELETE)                             
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W51095(+1),DISP=(NEW,CATLG,DELETE), -LIM(03)         
+//************ W51095-00X ALLA LISTOR PÅ EN FIL, PRINTAS PÅ MEMOPRINTERN        
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//ICEGEN2  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&&W51095D,DISP=(OLD,PASS,DELETE)                             
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W51096(+1),DISP=(NEW,CATLG,DELETE), -LIM(03)         
+//************ W51095-00X TOTALLISTAN PÅ EN FIL, FÖR MAIL TILL EKONOMI          
+//             DATACLAS=PSEN                                                    

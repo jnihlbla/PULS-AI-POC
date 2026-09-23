@@ -1,0 +1,479 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W1162600                                              *        
+*                                                                      *        
+*  FUNKTION   :  SÄTTER SPRÅK, PRIS OCH NUMERISKT KDARTURS OCH         *        
+*                SKICKAR TOTALFIL PARTSINFO TILL BESTÄLLARE.           *        
+*                INGÅR I RUTIN W116S2 SOM STARTAS UPP AV VCOM-TRANS    *        
+*                FRÅN BESTÄLLARE.                                      *        
+*                                                                      *        
+*  FÖRFATTARE :  KENT JEBSEN                                           *        
+*                                                                      *        
+*  DATUM      :  NOVEMBER -97                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*--------------------------------------*                                        
+*        FILE SECTION                  *                                        
+* -------------------------------------*                                        
+FILE SYSINPUT                                                                   
+PARM-BESTLAND            1   2 A                                                
+*                                                                               
+FILE W11626D1                                                                   
+%W1162401 'IN-'                                                                 
+*                                                                               
+FILE W11626D2                                                                   
+%W11615                                                                         
+*                                                                               
+NEWPAGE                                                                         
+FILE W11626D3                                                                   
+%W11602   'TR-'                                                                 
+NEWPAGE                                                                         
+*                                                                               
+*--------------------------------------*                                        
+*  UTFIL                               *                                        
+* -------------------------------------*                                        
+FILE W11626D4 FB (340 0)                                                        
+%W11620B    'UT-'                                                               
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  PARAMETRAR TILL W400ARTU            *                                        
+* -------------------------------------*                                        
+%W400ARTU                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  PARAMETRAR TILL WDATKONV            *                                        
+* -------------------------------------*                                        
+%WDATAREA                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*     WORKING STORAGE                  *                                        
+* -------------------------------------*                                        
+*                                                                               
+ JA                       W  1 A   VALUE 'J'                                    
+ NEJ                      W  1 A   VALUE 'N'                                    
+ IX-LANG                  W  6 N   VALUE 0.                                     
+ IX-LAND                  W  3 N   VALUE 0.                                     
+ MAX-IX-LAND              W  3 N   VALUE 50                                     
+                                                                                
+ TAB-LAND                 W  9 A   OCCURS 50                                    
+ TAB-IDLANDX2  TAB-LAND      2 A                                                
+ TAB-IDLOPNR   TAB-LAND  +2  3 N                                                
+ TAB-IDSPRAK-1 TAB-LAND  +5  2 A                                                
+ TAB-IDSPRAK-2 TAB-LAND  +7  2 A                                                
+                                                                                
+ WDATKONV                 W  8 A   VALUE 'WDATKONV'                             
+ DATUM                    W  8 N                                                
+ SEKEL   DATUM               2 N                                                
+ AA      DATUM  +2           2 N                                                
+ MM      DATUM  +4           2 N                                                
+ DD      DATUM  +6           2 N                                                
+                                                                                
+ X20                      W  100 A                                              
+ X20A  X20                    50 A VALUE +                                      
+    '€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€'                        
+ X20B  X20     +50            50 A VALUE +                                      
+    '€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€'                        
+ WS-BESTLAND              W  2 A   VALUE '  '                                   
+ WS-IDARTNR                    W  20 A                                          
+   WS-IDARTNR-BLANK WS-IDARTNR     11 A                                         
+   WS-IDARTNR-ALFA  WS-IDARTNR +11  9 A                                         
+ WS-IDLEVNR               W  5 N   VALUE 0                                      
+ WS-IDLEVNR-LOC           W  5 N   VALUE 0                                      
+ BEARTEXT                 W 100 A                                               
+ SPAR-IDARTNR-NUM             W   9 N 0 VALUE  0                                
+   SPAR-IDARTNR  SPAR-IDARTNR-NUM   9 A                                         
+     SPAR-IDARTNR1 SPAR-IDARTNR       1 A                                       
+     SPAR-IDARTNR2 SPAR-IDARTNR +1    1 A                                       
+     SPAR-IDARTNR3 SPAR-IDARTNR +2    1 A                                       
+     SPAR-IDARTNR4 SPAR-IDARTNR +3    1 A                                       
+     SPAR-IDARTNR5 SPAR-IDARTNR +4    1 A                                       
+     SPAR-IDARTNR6 SPAR-IDARTNR +5    1 A                                       
+     SPAR-IDARTNR7 SPAR-IDARTNR +6    1 A                                       
+     SPAR-IDARTNR8 SPAR-IDARTNR +7    1 A                                       
+     SPAR-IDARTNR9 SPAR-IDARTNR +8    1 A                                       
+*                                                                               
+     SPRAK-TYSK-BEART         W  25 A                                           
+     SPRAK-SPANSK-BEART       W  25 A                                           
+     SPRAK-FRANSK-BEART       W  25 A                                           
+     SPRAK-ENGELSK-BEART      W  25 A                                           
+     SPRAK-ITALIENSK-BEART    W  25 A                                           
+     SPRAK-HOLLANDSK-BEART    W  25 A                                           
+     SPRAK-PORTUGISISK-BEART  W  25 A                                           
+     SPRAK-SVENSK-BEART       W  25 A                                           
+     SPRAK-FINSK-BEART        W  25 A                                           
+     SPRAK-AMERIKANSK-BEART   W  25 A                                           
+     SPRAK-TURKISK-BEART      W  25 A                                           
+     SPRAK-RYSK-BEART         W  25 A                                           
+     SPRAK-THAISK-BEART       W  25 A                                           
+     SPRAK-TJECKISK-BEART     W  25 A                                           
+     SPRAK-UNGERSK-BEART      W  25 A                                           
+     SPRAK-KINA-BEARTEXT      W  100 A                                          
+                                                                                
+*                                                                               
+%WWPRODSL  'UT-' WORK ''                                                        
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*      JOB INPUT                       *                                        
+* -------------------------------------*                                        
+                                                                                
+JOB INPUT (W11626D2 KEY(IDARTNR) W11626D3 KEY(TR-IDARTNR))     +                
+                                   START A-INIT                                 
+  IF MATCHED                                                                    
+     SPRAK-TJECKISK-BEART    = TR-BEART(1)                                      
+     SPRAK-UNGERSK-BEART     = TR-BEART(2)                                      
+     SPRAK-RYSK-BEART        = TR-BEART(3)                                      
+     SPRAK-THAISK-BEART      = TR-BEART(4)                                      
+     SPRAK-TURKISK-BEART     = TR-BEART(5)                                      
+                                                                                
+     SPRAK-KINA-BEARTEXT     = TR-BEARTEXT                                      
+     PERFORM B-BEARBETA-ARTIKELNR                                               
+     PERFORM C-SKAPA-UTPOSTER                                                   
+  ELSE                                                                          
+     IF W11626D2                                                                
+        SPRAK-TURKISK-BEART  = ' '                                              
+        SPRAK-THAISK-BEART   = ' '                                              
+        SPRAK-RYSK-BEART     = ' '                                              
+        SPRAK-TJECKISK-BEART = ' '                                              
+        SPRAK-UNGERSK-BEART  = ' '                                              
+        SPRAK-KINA-BEARTEXT  = ' '                                              
+        PERFORM B-BEARBETA-ARTIKELNR                                            
+        PERFORM C-SKAPA-UTPOSTER                                                
+     END-IF                                                                     
+  END-IF                                                                        
+*                                                                               
+A-INIT. PROC                                                                    
+                                                                                
+     GET SYSINPUT                                                               
+                                                                                
+     MOVE PARM-BESTLAND TO WS-BESTLAND                                          
+                                                                                
+     IX-LAND = 0                                                                
+     GET W11626D1                                                               
+     DO WHILE (NOT EOF W11626D1)                                                
+        IX-LAND                  = IX-LAND + 1                                  
+        IF IN-IDLANDX2 = WS-BESTLAND                                            
+          TAB-IDLANDX2  (IX-LAND) = IN-IDLANDX2                                 
+          TAB-IDLOPNR   (IX-LAND) = IN-IDLOPNR                                  
+          TAB-IDSPRAK-1 (IX-LAND) = IN-IDSPRAK-1                                
+          TAB-IDSPRAK-2 (IX-LAND) = IN-IDSPRAK-2                                
+        ELSE                                                                    
+          TAB-IDLANDX2  (IX-LAND) = ' '                                         
+          TAB-IDLOPNR   (IX-LAND) = 0                                           
+          TAB-IDSPRAK-1 (IX-LAND) = ' '                                         
+          TAB-IDSPRAK-2 (IX-LAND) = ' '                                         
+        END-IF                                                                  
+                                                                                
+        GET W11626D1                                                            
+     END-DO                                                                     
+                                                                                
+     DO WHILE IX-LAND < MAX-IX-LAND                                             
+        IX-LAND = IX-LAND + 1                                                   
+        TAB-IDLANDX2  (IX-LAND) = ' '                                           
+        TAB-IDLOPNR   (IX-LAND) = 0                                             
+        TAB-IDSPRAK-1 (IX-LAND) = ' '                                           
+        TAB-IDSPRAK-2 (IX-LAND) = ' '                                           
+     END-DO                                                                     
+END-PROC                                                                        
+*                                                                               
+B-BEARBETA-ARTIKELNR.   PROC                                                    
+                                                                                
+   SPAR-IDARTNR-NUM = IDARTNR                                                   
+   IF SPAR-IDARTNR1 = '0'                                                       
+     SPAR-IDARTNR1 = ' '                                                        
+     IF SPAR-IDARTNR2 = '0'                                                     
+       SPAR-IDARTNR2 = ' '                                                      
+       IF SPAR-IDARTNR3 = '0'                                                   
+         SPAR-IDARTNR3 = ' '                                                    
+         IF SPAR-IDARTNR4 = '0'                                                 
+           SPAR-IDARTNR4 = ' '                                                  
+           IF SPAR-IDARTNR5 = '0'                                               
+             SPAR-IDARTNR5 = ' '                                                
+             IF SPAR-IDARTNR6 = '0'                                             
+               SPAR-IDARTNR6 = ' '                                              
+               IF SPAR-IDARTNR7 = '0'                                           
+                 SPAR-IDARTNR7 = ' '                                            
+                 IF SPAR-IDARTNR8 = '0'                                         
+                   SPAR-IDARTNR8 = ' '                                          
+                   IF SPAR-IDARTNR9 = '0'                                       
+                     SPAR-IDARTNR9 = ' '                                        
+                   END-IF                                                       
+                 END-IF                                                         
+               END-IF                                                           
+             END-IF                                                             
+           END-IF                                                               
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+   END-IF                                                                       
+   WS-IDARTNR-BLANK = ' '                                                       
+   WS-IDARTNR-ALFA  = SPAR-IDARTNR                                              
+                                                                                
+END-PROC                                                                        
+*                                                                               
+C-SKAPA-UTPOSTER.  PROC                                                         
+                                                                                
+   ARTU-KDARTURS     =  KDARTURS                                                
+   ARTU-IDDISTR      =  0                                                       
+   ARTU-IDDC         =  ' '                                                     
+   ARTU-KDARTURS-NUM =  0                                                       
+   ARTU-BEARTURS-ENG = ' '                                                      
+   ARTU-BEARTURS-SVE = ' '                                                      
+   CALL W400ARTU USING ARTU-W400ARTU                                            
+   UT-KDARTURS-NUM =  ARTU-KDARTURS-NUM                                         
+                                                                                
+   UT-FLOVRLAG    =  FLOVRLAG                                                   
+   UT-FLSOFTWARE  =  FLSOFTWARE                                                 
+   UT-IDFKNGRP    =  IDFKNGRP                                                   
+   UT-IDSTATNR    =  IDSTATNR                                                   
+   UT-IDPROJ      =  IDPROJ                                                     
+   UT-IDLEVNR     =  IDLEVNR                                                    
+   UT-IDLEVNR-LOC =  IDLEVNR-LOC                                                
+   UT-KDSRA       =  KDSRA                                                      
+                                                                                
+   UT-KDPRODSL    =  KDPRODSL                                                   
+   UT-KDVSOP      =  KDVSOP                                                     
+   UT-KDSORT      =  KDSORT                                                     
+   UT-KDERS       =  KDERS                                                      
+   UT-KDBPSR      =  KDBPSR                                                     
+   UT-KDBBCL      =  KDBBCL                                                     
+   UT-KDAGE       =  KDAGE                                                      
+   UT-KDPSLLOC    =  KDPSLLOC                                                   
+   UT-KDSTANAUTG  =  KDSTANAUTG                                                 
+   UT-KVQPACK-0   =  KVQPACK-0                                                  
+** INITIALT SKA VI KÖRA MED 0 I PRIS (KONFIDENTIELLT)                           
+** EVENTUELLT SKA PRISER KOMMA ATT LÄGGAS UT FÖR VISSA MARKNADER                
+   UT-PRARTSJK    =  PRARTSJK                                                   
+   UT-PRARTSTD    =  PRARTSTD                                                   
+   UT-VKART       =  VKART                                                      
+   UT-VLARTNTO    =  VLARTNTO                                                   
+                                                                                
+   UT-IDPTYP      =  'WA1'                                                      
+   UT-IDARTNR20   =  WS-IDARTNR                                                 
+                                                                                
+   UT-KDTIPPR     =  KDTIPPR                                                    
+   UT-IDKAT(1)    =  IDKAT(1)                                                   
+   UT-IDKAT(2)    =  IDKAT(2)                                                   
+   UT-IDKAT(3)    =  IDKAT(3)                                                   
+   UT-BELEVART    =  BELEVART                                                   
+   UT-FLGEMFMC    =  FLGEMFMC                                                   
+   UT-IDPROJUP    =  IDPROJUP                                                   
+   UT-TIURPROD    =  TIURPROD                                                   
+   UT-BEARTEXT    =  ' '                                                        
+                                                                                
+   SPRAK-TYSK-BEART         = BEART(1)                                          
+   SPRAK-SPANSK-BEART       = BEART(2)                                          
+   SPRAK-FRANSK-BEART       = BEART(3)                                          
+   SPRAK-ENGELSK-BEART      = BEART(4)                                          
+   SPRAK-ITALIENSK-BEART    = BEART(5)                                          
+   SPRAK-HOLLANDSK-BEART    = BEART(6)                                          
+   SPRAK-PORTUGISISK-BEART  = BEART(7)                                          
+   SPRAK-SVENSK-BEART       = BEART(8)                                          
+   SPRAK-FINSK-BEART        = BEART(9)                                          
+   SPRAK-AMERIKANSK-BEART   = BEART(10)                                         
+                                                                                
+   DAT-I-TIDATUM = TIFINLV                                                      
+   DAT-KDDATFORM = 'AAVVD'                                                      
+   CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM, DAT-O-TIDATUM,  +         
+                      DAT-KDSVAR)                                               
+   SEKEL = DAT-TISEKEL                                                          
+   AA    = DAT-TIAA                                                             
+   MM    = DAT-TIMM                                                             
+   DD    = DAT-TIDD                                                             
+   UT-DADATUM = DATUM                                                           
+                                                                                
+   UT-IDLEVNR-DUBLETT     = IDLEVNR-MOTSV                                       
+   UT-IDLEVNR-LOC-DUBLETT = IDLEVNR-LOC-MOTSV                                   
+                                                                                
+   PERFORM C-SKRIV-UTPOSTER                                                     
+                                                                                
+END-PROC                                                                        
+*                                                                               
+C-SKRIV-UTPOSTER. PROC                                                          
+                                                                                
+   PERFORM S25-CHECK-UT-KDPRODSL                                                
+                                                                                
+   IX-LAND = +1                                                                 
+   DO WHILE IX-LAND < MAX-IX-LAND                                               
+      IF TAB-IDLANDX2 (IX-LAND) NE ' '                                          
+         IF TAB-IDLANDX2 (IX-LAND) = 'SE'                                       
+            PERFORM CA-FLYTTA-UTPOSTER                                          
+            PUT W11626D4                                                        
+         ELSE                                                                   
+            IF UT-KDPRODSL = KDPRODSL-BIMA                                      
+               CONTINUE                                                         
+            ELSE                                                                
+               PERFORM CA-FLYTTA-UTPOSTER                                       
+               PUT W11626D4                                                     
+            END-IF                                                              
+         END-IF                                                                 
+      END-IF                                                                    
+      IX-LAND = IX-LAND + 1                                                     
+   END-DO                                                                       
+                                                                                
+END-PROC                                                                        
+*                                                                               
+CA-FLYTTA-UTPOSTER. PROC                                                        
+                                                                                
+   UT-IDLANDX2    = TAB-IDLANDX2(IX-LAND)                                       
+   UT-IDLOPNR     = TAB-IDLOPNR (IX-LAND)                                       
+   IF TAB-IDSPRAK-1(IX-LAND) = 'DE' 'ES' 'FR' 'GB' 'IT' +                       
+                               'NL' 'PT' 'SE' 'FI' 'US'                         
+     PERFORM CAA-LANGUAGE-CODE1                                                 
+     UT-BEART-L1 = BEART(IX-LANG)                                               
+   ELSE                                                                         
+     IF TAB-IDSPRAK-1(IX-LAND) = 'CZ'                                           
+       UT-BEART-L1 = SPRAK-TJECKISK-BEART                                       
+     ELSE                                                                       
+       IF TAB-IDSPRAK-1(IX-LAND) = 'HU'                                         
+         UT-BEART-L1 = SPRAK-UNGERSK-BEART                                      
+       ELSE                                                                     
+         IF TAB-IDSPRAK-1(IX-LAND) = 'TH'                                       
+           UT-BEART-L1 = SPRAK-THAISK-BEART                                     
+         ELSE                                                                   
+           IF TAB-IDSPRAK-1(IX-LAND) = 'TR'                                     
+             UT-BEART-L1 = SPRAK-TURKISK-BEART                                  
+           ELSE                                                                 
+             IF TAB-IDSPRAK-1(IX-LAND) = 'RU'                                   
+               UT-BEART-L1 = SPRAK-RYSK-BEART                                   
+             END-IF                                                             
+           END-IF                                                               
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+   END-IF                                                                       
+                                                                                
+   IF TAB-IDSPRAK-2(IX-LAND) = 'DE' 'ES' 'FR' 'GB' 'IT' +                       
+                               'NL' 'PT' 'SE' 'FI' 'US'                         
+      PERFORM CAB-LANGUAGE-CODE2                                                
+      UT-BEART-L2 = BEART(IX-LANG)                                              
+   ELSE                                                                         
+     IF TAB-IDSPRAK-2(IX-LAND) = 'CZ'                                           
+       UT-BEART-L2 = SPRAK-TJECKISK-BEART                                       
+     ELSE                                                                       
+       IF TAB-IDSPRAK-2(IX-LAND) = 'HU'                                         
+         UT-BEART-L2 = SPRAK-UNGERSK-BEART                                      
+       ELSE                                                                     
+         IF TAB-IDSPRAK-2(IX-LAND) = 'TH'                                       
+           UT-BEART-L2 = SPRAK-THAISK-BEART                                     
+         ELSE                                                                   
+           IF TAB-IDSPRAK-2(IX-LAND) = 'TR'                                     
+             UT-BEART-L2 = SPRAK-TURKISK-BEART                                  
+           ELSE                                                                 
+             IF TAB-IDSPRAK-2(IX-LAND) = 'RU'                                   
+               UT-BEART-L2 = SPRAK-RYSK-BEART                                   
+             END-IF                                                             
+           END-IF                                                               
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+   END-IF                                                                       
+                                                                                
+   IF TAB-IDLANDX2(IX-LAND) = 'TW' AND TAB-IDLOPNR(IX-LAND) = 1                 
+      IF SPRAK-KINA-BEARTEXT = ' '                                              
+         UT-BEARTEXT = X20                                                      
+      ELSE                                                                      
+         UT-BEARTEXT = SPRAK-KINA-BEARTEXT                                      
+      END-IF                                                                    
+   END-IF                                                                       
+   IF TAB-IDLANDX2(IX-LAND) = 'CN'                                              
+      IF SPRAK-KINA-BEARTEXT = ' '                                              
+         UT-BEARTEXT = X20                                                      
+      ELSE                                                                      
+         UT-BEARTEXT = SPRAK-KINA-BEARTEXT                                      
+      END-IF                                                                    
+   END-IF                                                                       
+END-PROC                                                                        
+*                                                                               
+CAA-LANGUAGE-CODE1. PROC                                                        
+                                                                                
+   IF TAB-IDSPRAK-1(IX-LAND) = 'DE'                                             
+    IX-LANG      = +1                                                           
+   ELSE                                                                         
+    IF TAB-IDSPRAK-1(IX-LAND) = 'ES'                                            
+      IX-LANG      = +2                                                         
+    ELSE                                                                        
+     IF TAB-IDSPRAK-1(IX-LAND) = 'FR'                                           
+      IX-LANG      = +3                                                         
+     ELSE                                                                       
+      IF TAB-IDSPRAK-1(IX-LAND) = 'GB'                                          
+       IX-LANG      = +4                                                        
+      ELSE                                                                      
+       IF TAB-IDSPRAK-1(IX-LAND) = 'IT'                                         
+        IX-LANG      = +5                                                       
+       ELSE                                                                     
+        IF TAB-IDSPRAK-1(IX-LAND) = 'NL'                                        
+         IX-LANG      = +6                                                      
+        ELSE                                                                    
+         IF TAB-IDSPRAK-1(IX-LAND) = 'PT'                                       
+          IX-LANG      = +7                                                     
+         ELSE                                                                   
+          IF TAB-IDSPRAK-1(IX-LAND) = 'SE'                                      
+           IX-LANG      = +8                                                    
+          ELSE                                                                  
+           IF TAB-IDSPRAK-1(IX-LAND) = 'FI'                                     
+            IX-LANG      = +9                                                   
+           ELSE                                                                 
+            IF TAB-IDSPRAK-1(IX-LAND) = 'US'                                    
+             IX-LANG      = +10                                                 
+            END-IF                                                              
+           END-IF                                                               
+          END-IF                                                                
+         END-IF                                                                 
+        END-IF                                                                  
+       END-IF                                                                   
+      END-IF                                                                    
+     END-IF                                                                     
+    END-IF                                                                      
+   END-IF                                                                       
+                                                                                
+END-PROC                                                                        
+                                                                                
+CAB-LANGUAGE-CODE2. PROC                                                        
+                                                                                
+   IF TAB-IDSPRAK-2(IX-LAND) = 'DE'                                             
+    IX-LANG      = +1                                                           
+   ELSE                                                                         
+    IF TAB-IDSPRAK-2(IX-LAND) = 'ES'                                            
+      IX-LANG      = +2                                                         
+    ELSE                                                                        
+     IF TAB-IDSPRAK-2(IX-LAND) = 'FR'                                           
+      IX-LANG      = +3                                                         
+     ELSE                                                                       
+      IF TAB-IDSPRAK-2(IX-LAND) = 'GB'                                          
+       IX-LANG      = +4                                                        
+      ELSE                                                                      
+       IF TAB-IDSPRAK-2(IX-LAND) = 'IT'                                         
+        IX-LANG      = +5                                                       
+       ELSE                                                                     
+        IF TAB-IDSPRAK-2(IX-LAND) = 'NL'                                        
+         IX-LANG      = +6                                                      
+        ELSE                                                                    
+         IF TAB-IDSPRAK-2(IX-LAND) = 'PT'                                       
+          IX-LANG      = +7                                                     
+         ELSE                                                                   
+          IF TAB-IDSPRAK-2(IX-LAND) = 'SE'                                      
+           IX-LANG      = +8                                                    
+          ELSE                                                                  
+           IF TAB-IDSPRAK-2(IX-LAND) = 'FI'                                     
+            IX-LANG      = +9                                                   
+           ELSE                                                                 
+            IF TAB-IDSPRAK-2(IX-LAND) = 'US'                                    
+             IX-LANG      = +10                                                 
+            END-IF                                                              
+           END-IF                                                               
+          END-IF                                                                
+         END-IF                                                                 
+        END-IF                                                                  
+       END-IF                                                                   
+      END-IF                                                                    
+     END-IF                                                                     
+    END-IF                                                                      
+   END-IF                                                                       
+                                                                                
+END-PROC                                                                        
+%WWPRODSL 'UT-' PROC ''                                                         
+*                                                                               

@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR NYTAGET ARTIKELEXTRAKT MED NEVIS REGISTER                          
+//*  OCH SKAPAR UPPDAT-FIL TILL NEVIS, SAMT SKAPAR EN FIL                       
+//*  MED DE ARTIKELNUMMER SOM ÄR NYA/FÖRÄNDRADE/BORTTAGNA FÖR NEVIS.            
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W159D1                                           
+//*                                                                             
+//*  ÅTERSTART:    W15902    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W159P002 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W159..W159D1,                                             
+//             INDREG=&W159..&RTEGRP.,                                          
+//             INDUT=&WUT..W159D1,                                              
+//             INDUT2=&W159..W159D1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W15902   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W15902,W15902,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDL6     INCLUDE MEMBER=WDL6                                                  
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W15902D1 DD  DSN=&INDIN..W15901(+0),DISP=SHR                                  
+//************ ARTIKELEXTRAKT FRÅN W15901 UR W01160                             
+//*                                                                             
+//W15902D2 DD  DSN=&INDREG..W159K6(+0),DISP=SHR                                 
+//************ REGISTERFIL IN, FÖR ARTIKLAR SOM ÄR SÄNDA TILL NEVIS             
+//*                                                                             
+//W15902D3 DD  DSN=&INDREG..W159K6(+1),                         -LIM(3)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ REGISTERFIL UT, FÖR ARTIKLAR SOM ÄR SÄNDA TILL NEVIS             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W15902D4 DD  DSN=&INDUT..W15902(+1),DISP=(NEW,CATLG,DELETE),  -LIM(9)         
+//************ ARTIKELPOSTER TILL NEVIS BASELINE                                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W15902D5 DD  DSN=&INDUT2..W15905(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)         
+//************ ARTIKELPOSTER FÖR UPPDAT AV FLAENDR PÅ WDD301                    
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

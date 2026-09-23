@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      KURANSGRUPPERING                                             *         
+//*                                                                   *         
+//*      PERIODICITET:   MÅNADSSLUT                                   *         
+//*                                                                   *         
+//*      ÅTERSTART:      NORMAL                                       *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W512P086 PROC INDIN=&W512..W512M2,                                            
+//             INDUT=&W512..W512M2,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W512PD85),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W51284(+0),DISP=SHR                                  
+//************ INPUT FILE  FOR SORT                                             
+//*                                                                             
+//SORTOUT  DD  DSN=&&W51284,DISP=(NEW,PASS,DELETE),                             
+//************ INFILE SORTED                                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51286  EXEC PGM=W51286                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                  (POSTSUM)              
+//*                                                                             
+//W51286D1 DD  DSN=&&W51284,DISP=(OLD,DELETE,DELETE)                            
+//************ KURANSSALDO-FIL                                                  
+//*                                                                             
+//W51286D2 DD  DSN=&INDUT..W51286(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ UTFIL                                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

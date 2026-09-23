@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  STANDARDPRISSYSTEM SPIS                                                    
+//*                                                                             
+//*  TAR FRAM TRANSAR FÖR ATT UPDATERA ARTIKELREG. MED PRINK, PRARTSTD          
+//*           PRARTSJK OCH PÅLÄGG (PRDIRLON,PRDMTRL,PROVRPAL)                   
+//*                                                                             
+//*  FREKVENS:     ÅRLIGEN I WYR001                                             
+//*                                                                             
+//*  ÅTERSTART:    W55138    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W551P038 PROC INDIN=&W551..W551B1,                                            
+//             INDUT=&W551..WYR001,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55138   EXEC PGM=V16459,PARM='W55138/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(2000,2000))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//W55138D1 DD  DSN=&INDIN..W55160(+0),DISP=SHR                                  
+//************ ARTIKELINFORMATION FRÅN SPIS MED KOMMANDE PRINK                  
+//*                                                                             
+//W55138D2 DD  DSN=&INDUT..W55138(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ UPPDATERINGSPOSTER TYP R24                                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W55138D4 DD  DSN=&INDUT..W55102(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ POSTER FÖR ANALYSER                                              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

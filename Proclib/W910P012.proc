@@ -1,0 +1,52 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FRAMSTÄLLNING AV ERSÄTTNINGS-HÄNDELSER   = FI => PV   (PPMS)               
+//*                                                                             
+//*  FREKVENS:     DAGLIG              RTN W910D1                               
+//*                                                                             
+//*  ÅTERSTART:    W91012   NORMAL                                              
+//*                                                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W910P012 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W910..W910D1,                                             
+//             INDIN2=&W111..W910D1,                                            
+//             INDUT=&WUT..W910D1                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W91012   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W91012,W91012,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD7     INCLUDE MEMBER=WDD7                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W91012D1 DD  DSN=&INDIN..W91013(+0),DISP=SHR                                  
+//************ ERSÄTTNINGS-HÄNDELSER FRÅN ON-LINE (W1011300)                    
+//         DD  DSN=&INDIN2..W111PP,DISP=SHR                                     
+//************ ERSÄTTNINGS-HÄNDELSER FRÅN BEVAKNINGEN (W111P020)                
+//         DD  DSN=&INDIN2..W11115,DISP=SHR                                     
+//************ ERSÄTTNINGS-HÄNDELSER FRÅN BEVAKNINGEN (W111P018)                
+//*                                                                             
+//W91012D2 DD  DSN=&INDUT..W91012(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SORTERADE ERSÄTTNINGS-HÄNDELSER TILL PPMS                        
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                

@@ -1,0 +1,118 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2164200                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER FIL W21641 CLASSIC                              *        
+*                SKAPAR MEMOFILER                                      *        
+*                                                                      *        
+*  FÖRFATTARE :  JAN PETTERSSON                                        *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W21642D1                                                                   
+*                                                                               
+%W21641                                                                         
+IDARTNR2        1   5   P  MASK 'ZZZZZZZZZ'                                     
+IDLEVNR2       57   5   A.                                                      
+IDFKNGRP2      64   3   P  MASK 'ZZZZZ'                                         
+NEWPAGE                                                                         
+FILE W21642D2  PRINTER FB (120 0)                                               
+*                                                                               
+PROGRAM-NAMN      W   6   A   VALUE 'W21642'                                    
+DATUMKORT-ID      W   6   A   VALUE 'WDATUM'                                    
+%WDATKORT 'DATKORT-'                                                            
+NEWPAGE                                                                         
+**************************************************                              
+***          HJÄLP-AREA                        ***                              
+**************************************************                              
+W-ANTAL           W    3   P                                                    
+W-BLANK           W   20   A   VALUE ' '                                        
+W-BEN1            W   20   A                                                    
+W-BEN2            W   20   A                                                    
+W-NOTE            W   12   A                                                    
+W-NOTE1           W   40   A                                                    
+W-NOTE2           W   40   A                                                    
+W-EMB             W   12   A                                                    
+W-EMB1            W    6   A                                                    
+W-EMB2            W    6   A                                                    
+W-EMB3            W    6   A                                                    
+W-EMB4            W    6   A                                                    
+W-EMB5            W    6   A                                                    
+W-EMB6            W    6   A                                                    
+W-EMB7            W    6   A                                                    
+W-EMB8            W    6   A                                                    
+W-EMB9            W    6   A                                                    
+W-EMB10           W    6   A                                                    
+INNEV-AAMMDD      W                  6  N                                       
+INNEV-AA          INNEV-AAMMDD       2  N                                       
+INNEV-MM          INNEV-AAMMDD  +2   2  N                                       
+INNEV-DD          INNEV-AAMMDD  +4   2  N                                       
+WS-DATUM          W    8   A                                                    
+NEWPAGE                                                                         
+************************************************************************        
+* LÄSER INFIL W21641                                                            
+************************************************************************        
+JOB INPUT (W21642D1) +                                                          
+    START (A-INIT)                                                              
+  W-NOTE1 = TEARTNOT (1)                                                        
+  W-NOTE2 = TEARTNOT (2)                                                        
+  W-BEN1  = BEART-SVE                                                           
+  W-BEN2  = BEART-ENG                                                           
+  W-NOTE  =  'NOT'                                                              
+  W-EMB   =  'EMBLEM'                                                           
+  W-EMB1  =  BEEMBLEM (1)                                                       
+  W-EMB2  =  BEEMBLEM (2)                                                       
+  W-EMB3  =  BEEMBLEM (3)                                                       
+  W-EMB4  =  BEEMBLEM (4)                                                       
+  W-EMB5  =  BEEMBLEM (5)                                                       
+  W-EMB6  =  BEEMBLEM (6)                                                       
+  W-EMB7  =  BEEMBLEM (7)                                                       
+  W-EMB8  =  BEEMBLEM (8)                                                       
+  W-EMB9  =  BEEMBLEM (9)                                                       
+  W-EMB10 =  BEEMBLEM (10)                                                      
+  PRINT RAPPORT01                                                               
+*                                                                               
+A-INIT. PROC                                                                    
+*                                                                               
+  WS-DATUM = SYSDATE                                                            
+  CALL DATKORT  USING (PROGRAM-NAMN +                                           
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+  INNEV-AA      = DATKORT-D-AAR                                                 
+  INNEV-MM      = DATKORT-D-MAANAD                                              
+  INNEV-DD      = DATKORT-D-DAG                                                 
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+REPORT RAPPORT01 PRINTER W21642D2 LINESIZE 119 PAGESIZE 42 +                    
+       NOADJUST NOSPREAD SPACE 1 TITLESKIP 1                                    
+                                                                                
+SEQUENCE IDARTNR                                                                
+                                                                                
+TITLE 1  COL 12  'VOLVO CAR PARTS       W21642-001'                             
+TITLE 2  COL 25  'SKROTLISTA AVSEENDE CLASSIC     ' +                           
+         COL 65  INNEV-AAMMDD                                                   
+TITLE 3  COL 12  '                                      '                       
+TITLE 4  COL  3          ('ARTIKEL')        +                                   
+         COL 11          ('K')              +                                   
+         COL 14          ('BENÄMNING')      +                                   
+         COL 35          ('BENÄMNING')      +                                   
+         COL 55          ('URS')            +                                   
+         COL 59          ('LEVNR')          +                                   
+         COL 65          ('FKNGRP')         +                                   
+         COL 80          ('SJK')            +                                   
+         COL 89          ('BRUTTO A')       +                                   
+         COL 104         ('VIKT')                                               
+LINE 01  ' '                                                                    
+LINE 02 IDARTNR2 REKSIFFR W-BEN1 W-BEN2    KDARTURS IDLEVNR2 +                  
+         IDFKNGRP2 PRARTSJK PRARTBTO-MARK-A VKART                               
+LINE 03  W-NOTE W-NOTE1 W-NOTE2                                                 
+LINE 04  W-EMB  W-EMB1 W-EMB2 W-EMB3 W-EMB4 W-EMB5 +                            
+                W-EMB6 W-EMB7 W-EMB8 W-EMB9 W-EMB10                             

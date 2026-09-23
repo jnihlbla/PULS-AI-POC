@@ -1,0 +1,65 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W970                                                  *        
+*                                                                      *        
+*  PROGRAM    :  W9700400                                              *        
+*                                                                      *        
+*  FUNKTION   :  SELEKTERAR UR ICFILEN DE POSTER SOM HAR ACF2IDN SOM   *        
+*             :  FINNS PÅ ACF2FILEN ELLER                              *        
+*             :  HAR EN UKOD SOM HETER WME***, WVI***, WSE***, WLE***  *        
+*                                                                      *        
+*  FÖRFATTARE :  JAN AHLQVIST                                          *        
+*                                                                      *        
+*  INFILER    :  W970.W970B1.W97002(+0)  ACF2-FIL                      *        
+*             :  W970.W970B1.W97003(+0)  USERSFIL                      *        
+*                                                                      *        
+*  UTFIL      :  W970.W970B1.W97004(+1)                                *        
+*                                                                      *        
+*  SKAPAD                                                              *        
+*  DATUM      :  930119                                                *        
+*  DATUM      :  931014 JA LAGT TILL UKOD M54000                       *        
+*  DATUM      :  940616 JA LAGT TILL UKOD WLE***                       *        
+*  DATUM      :  940929 JA LAGT TILL UKOD S21302 S20531 S21303         *        
+*  DATUM      :  940929 JA LAGT TILL UKOD S10871 PVSES1                *        
+*  DATUM      :  941017 TAGIT BORT VISSA UKODER                        *        
+*  DATUM      :  941118 ENDAST UKOD PVRS05 KVAR UTOM W-UKODER          *        
+*  DATUM      :  941230 JA TAGIT BORT ÄVEN PVRS05                      *        
+*  DATUM      :  970422 JA TAGIT BORT MEMODG-LOGIKEN                   *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+ FILE INFILA                                                                    
+*                                                                               
+ ACF2IN    1   7 A                                                              
+*                                                                               
+ FILE INFILU                                                                    
+*                                                                               
+ INPOST    1 156 A                                                              
+ SUB15     9   5 A                                                              
+ SAFIDU   17   7 A                                                              
+ UKOD3    35   3 A                                                              
+ UKOD4    35   4 A                                                              
+ UKOD6    35   6 A                                                              
+*                                                                               
+ FILE UTFIL                                                                     
+*                                                                               
+ UTPOST    1 156 A                                                              
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+ SORT INFILA TO INFILA USING ACF2IN                                             
+ SORT INFILU TO INFILU USING SAFIDU SIZE 200000                                 
+*                                                                               
+ JOB INPUT(INFILA KEY(ACF2IN) INFILU KEY(SAFIDU))                               
+   IF MATCHED                                                                   
+         UTPOST = INPOST                                                        
+         PUT UTFIL                                                              
+   ELSE                                                                         
+      IF INFILU                                                                 
+         IF (UKOD3 = 'WME') OR (UKOD3 = 'WSE') OR (UKOD3 = 'WVI') +             
+         OR (UKOD3 = 'WLE')                                                     
+               UTPOST = INPOST                                                  
+               PUT UTFIL                                                        
+         END-IF                                                                 
+      END-IF                                                                    
+   END-IF                                                                       

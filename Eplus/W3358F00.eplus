@@ -1,0 +1,219 @@
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W3358F00                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR W3358E- OCH W3358I-FIL                        *        
+*                KOST TILL MÅNADSKURS OCH SKAPAR W33588-FIL            *        
+*                                                                      *        
+*  FÖRFATTARE :  ANDERS HENRIKSSON                                     *        
+*                                                                      *        
+*  DATUM      :  FEB 2012                                              *        
+*----------------------------------------------------------------------*        
+FILE W3358FD1                                                                   
+%W33589  'PRIS-'                                                                
+                                                                                
+FILE W3358FD2                                                                   
+%W33589  'IN2-'                                                                 
+                                                                                
+FILE W3358FD3   FB (1714 0)                                                     
+%W33589  'UT-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  PARAMETRAR TILL WDATKONV            *                                        
+* -------------------------------------*                                        
+%WDATAREA                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  ARBETSFÄLT                          *                                        
+* -------------------------------------*                                        
+*                                                                               
+IX              W  3 N                                                          
+IX2             W  3 N                                                          
+IX3             W  3 N                                                          
+MAX-IX          W  3 N VALUE 100                                                
+W-PRARTBES-PR   W 14 A                                                          
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+*STEG 1. MATCHAR IHOP W3358FD1(WDK7-FIL) MED W3358FD2(WDK6-FIL)    *            
+*------------------------------------------------------------------*            
+                                                                                
+JOB INPUT(W3358FD1 KEY (PRIS-IDARTNR)                                  +        
+          W3358FD2 KEY (IN2-IDARTNR)) START A-INIT                              
+                                                                                
+ IF MATCHED                                                                     
+   PERFORM FYLL-I-RADER                                                         
+   PUT W3358FD3                                                                 
+ ELSE                                                                           
+   IF W3358FD2                                                                  
+     PUT W3358FD3 FROM W3358FD2                                                 
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+A-INIT. PROC                                                                    
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+ FYLL-I-RADER. PROC                                                             
+  UT-IDARTNR        = IN2-IDARTNR                                               
+  UT-IDLEVNR-HUV    = IN2-IDLEVNR-HUV                                           
+  UT-KDPRODSL       = IN2-KDPRODSL                                              
+  UT-PRARTSTD       = IN2-PRARTSTD                                              
+  UT-PRHANTK        = IN2-PRHANTK                                               
+  UT-PRARTSJK       = IN2-PRARTSJK                                              
+  UT-PRARTBES       = IN2-PRARTBES                                              
+  IX  = 1                                                                       
+  IX2 = 1                                                                       
+  IX3 = 1                                                                       
+  DO WHILE IX3 < MAX-IX                                                         
+    IF PRIS-IDDC(IX) = ' ' OR IN2-IDDC(IX2) = ' '                               
+      IF PRIS-IDDC(IX) > '  '                                                   
+        UT-IDDC(IX3)         = PRIS-IDDC(IX)                                    
+        W-PRARTBES-PR        = PRIS-PRARTBES-PR(IX)                             
+        IF W-PRARTBES-PR   NOT NUMERIC                                          
+          UT-PRARTBES-PR(IX3)  = 0                                              
+          UT-IDLEVNR(IX3)       = PRIS-IDLEVNR(IX)                              
+          UT-IDLEVNR-MOTSV(IX3) = PRIS-IDLEVNR-MOTSV(IX)                        
+        ELSE                                                                    
+          IF PRIS-PRARTBES-PR(IX) > 0                                           
+            UT-PRARTBES-PR(IX3)   = PRIS-PRARTBES-PR(IX)                        
+            UT-IDLEVNR(IX3)       = PRIS-IDLEVNR(IX)                            
+            UT-IDLEVNR-MOTSV(IX3) = PRIS-IDLEVNR-MOTSV(IX)                      
+          ELSE                                                                  
+            UT-PRARTBES-PR(IX3)   = 0                                           
+            UT-IDLEVNR(IX3)       = PRIS-IDLEVNR(IX)                            
+            UT-IDLEVNR-MOTSV(IX3) = PRIS-IDLEVNR-MOTSV(IX)                      
+          END-IF                                                                
+        END-IF                                                                  
+        IX = IX + 1                                                             
+      ELSE                                                                      
+        IF IN2-IDDC(IX2) > '  '                                                 
+          UT-IDDC(IX3)          = IN2-IDDC(IX2)                                 
+          W-PRARTBES-PR        = IN2-PRARTBES-PR(IX2)                           
+          IF W-PRARTBES-PR NOT NUMERIC                                          
+            UT-PRARTBES-PR(IX3) = 0                                             
+            UT-IDLEVNR(IX3)     = IN2-IDLEVNR(IX2)                              
+            UT-IDLEVNR-MOTSV(IX3) = IN2-IDLEVNR-MOTSV(IX2)                      
+          ELSE                                                                  
+            IF IN2-PRARTBES-PR(IX2) > 0                                         
+              UT-PRARTBES-PR(IX3) = 0                                           
+              UT-IDLEVNR(IX3)     = IN2-IDLEVNR(IX2)                            
+              UT-IDLEVNR-MOTSV(IX3) = IN2-IDLEVNR-MOTSV(IX2)                    
+            ELSE                                                                
+              UT-PRARTBES-PR(IX3) = 0                                           
+              UT-IDLEVNR(IX3)     = IN2-IDLEVNR(IX2)                            
+              UT-IDLEVNR-MOTSV(IX3) = IN2-IDLEVNR-MOTSV(IX2)                    
+            END-IF                                                              
+          END-IF                                                                
+          IX2 = IX2 + 1                                                         
+        ELSE                                                                    
+          UT-IDDC(IX3)          = '  '                                          
+          UT-PRARTBES-PR(IX3)   = 0                                             
+          UT-IDLEVNR(IX3)       = ' '                                           
+          UT-IDLEVNR-MOTSV(IX3) = ' '                                           
+        END-IF                                                                  
+      END-IF                                                                    
+    ELSE                                                                        
+      IF PRIS-IDDC(IX) = IN2-IDDC(IX2)                                          
+        IF PRIS-IDDC(IX) > '  '                                                 
+          UT-IDDC(IX3)         = PRIS-IDDC(IX)                                  
+          W-PRARTBES-PR        = PRIS-PRARTBES-PR(IX)                           
+          IF W-PRARTBES-PR   NOT NUMERIC                                        
+            UT-PRARTBES-PR(IX3)  = 0                                            
+            UT-IDLEVNR(IX3)       = PRIS-IDLEVNR(IX)                            
+            UT-IDLEVNR-MOTSV(IX3) = PRIS-IDLEVNR-MOTSV(IX)                      
+          ELSE                                                                  
+            IF PRIS-PRARTBES-PR(IX) > 0                                         
+              UT-PRARTBES-PR(IX3)   = PRIS-PRARTBES-PR(IX)                      
+              UT-IDLEVNR(IX3)       = PRIS-IDLEVNR(IX)                          
+              UT-IDLEVNR-MOTSV(IX3) = PRIS-IDLEVNR-MOTSV(IX)                    
+            ELSE                                                                
+              UT-PRARTBES-PR(IX3)   = 0                                         
+              UT-IDLEVNR(IX3)       = PRIS-IDLEVNR(IX)                          
+              UT-IDLEVNR-MOTSV(IX3) = PRIS-IDLEVNR-MOTSV(IX)                    
+            END-IF                                                              
+          END-IF                                                                
+        ELSE                                                                    
+          IF IN2-IDDC(IX2) > '  '                                               
+            UT-IDDC(IX3)          = IN2-IDDC(IX2)                               
+            W-PRARTBES-PR        = IN2-PRARTBES-PR(IX2)                         
+            IF W-PRARTBES-PR NOT NUMERIC                                        
+              UT-PRARTBES-PR(IX3) = 0                                           
+              UT-IDLEVNR(IX3)     = IN2-IDLEVNR(IX2)                            
+              UT-IDLEVNR-MOTSV(IX3) = IN2-IDLEVNR-MOTSV(IX2)                    
+            ELSE                                                                
+              IF IN2-PRARTBES-PR(IX2) > 0                                       
+                UT-PRARTBES-PR(IX3) = 0                                         
+                UT-IDLEVNR(IX3)     = IN2-IDLEVNR(IX2)                          
+                UT-IDLEVNR-MOTSV(IX3) = IN2-IDLEVNR-MOTSV(IX2)                  
+              ELSE                                                              
+                UT-PRARTBES-PR(IX3) = 0                                         
+                UT-IDLEVNR(IX3)     = IN2-IDLEVNR(IX2)                          
+                UT-IDLEVNR-MOTSV(IX3) = IN2-IDLEVNR-MOTSV(IX2)                  
+              END-IF                                                            
+            END-IF                                                              
+          ELSE                                                                  
+            UT-IDDC(IX3)          = '  '                                        
+            UT-PRARTBES-PR(IX3)   = 0                                           
+            UT-IDLEVNR(IX3)       = ' '                                         
+            UT-IDLEVNR-MOTSV(IX3) = ' '                                         
+          END-IF                                                                
+        END-IF                                                                  
+        IX  = IX  + 1                                                           
+        IX2 = IX2 + 1                                                           
+      ELSE                                                                      
+        IF PRIS-IDDC(IX) < IN2-IDDC(IX2)                                        
+          IF PRIS-IDDC(IX) > '  '                                               
+            UT-IDDC(IX3)          = PRIS-IDDC(IX)                               
+            W-PRARTBES-PR        = PRIS-PRARTBES-PR(IX)                         
+            IF W-PRARTBES-PR   NOT NUMERIC                                      
+              UT-PRARTBES-PR(IX3)   = 0                                         
+              UT-IDLEVNR(IX3)       = PRIS-IDLEVNR(IX)                          
+              UT-IDLEVNR-MOTSV(IX3) = PRIS-IDLEVNR-MOTSV(IX)                    
+            ELSE                                                                
+              IF PRIS-PRARTBES-PR(IX) > 0                                       
+                UT-PRARTBES-PR(IX3)   = PRIS-PRARTBES-PR(IX)                    
+                UT-IDLEVNR(IX3)       = PRIS-IDLEVNR(IX)                        
+                UT-IDLEVNR-MOTSV(IX3) = PRIS-IDLEVNR-MOTSV(IX)                  
+              ELSE                                                              
+                UT-PRARTBES-PR(IX3)   = 0                                       
+                UT-IDLEVNR(IX3)       = PRIS-IDLEVNR(IX)                        
+                UT-IDLEVNR-MOTSV(IX3) = PRIS-IDLEVNR-MOTSV(IX)                  
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+          IX = IX + 1                                                           
+        ELSE                                                                    
+          IF IN2-IDDC(IX2) > '  '                                               
+            UT-IDDC(IX3)          = IN2-IDDC(IX2)                               
+            W-PRARTBES-PR        = IN2-PRARTBES-PR(IX2)                         
+            IF W-PRARTBES-PR NOT NUMERIC                                        
+              UT-PRARTBES-PR(IX3) = 0                                           
+              UT-IDLEVNR(IX3)     = IN2-IDLEVNR(IX2)                            
+              UT-IDLEVNR-MOTSV(IX3) = IN2-IDLEVNR-MOTSV(IX2)                    
+            ELSE                                                                
+              IF IN2-PRARTBES-PR(IX2) > 0                                       
+                UT-PRARTBES-PR(IX3) = 0                                         
+                UT-IDLEVNR(IX3)     = IN2-IDLEVNR(IX2)                          
+                UT-IDLEVNR-MOTSV(IX3) = IN2-IDLEVNR-MOTSV(IX2)                  
+              ELSE                                                              
+                UT-PRARTBES-PR(IX3) = 0                                         
+                UT-IDLEVNR(IX3)     = IN2-IDLEVNR(IX2)                          
+                UT-IDLEVNR-MOTSV(IX3) = IN2-IDLEVNR-MOTSV(IX2)                  
+              END-IF                                                            
+            END-IF                                                              
+          ELSE                                                                  
+            UT-IDDC(IX3)          = '  '                                        
+            UT-PRARTBES-PR(IX3)   = 0                                           
+            UT-IDLEVNR(IX3)       = ' '                                         
+            UT-IDLEVNR-MOTSV(IX3) = ' '                                         
+          END-IF                                                                
+          IX2 = IX2 + 1                                                         
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+    IX3 = IX3 + 1                                                               
+  END-DO                                                                        
+ END-PROC                                                                       

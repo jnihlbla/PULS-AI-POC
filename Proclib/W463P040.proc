@@ -1,0 +1,36 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UPPPACKNING AV EDI (INVRPT) TRANSAR DDGS.                                  
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W463S4                                           
+//*                                                                             
+//*  ÅTERSTART:    W46340    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W463P040 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W463..W463S4,                                             
+//             INDUT=&W463..W463S4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46340   EXEC PGM=W46340                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W46340D1 DD  DSN=&INDIN..W46342,DISP=SHR                                      
+//************ EDI INHOUSE FORMAT                                               
+//*                                                                             
+//W46340D2 DD  DSN=&INDUT..W46343(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UPPACKAD EDIFIL                                                  
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//************ EDI-LOGG                                                         
+//W46340D3 DD  DSN=&INDUT..W4634A(+1),                        -LIM(255)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             SPACE=(200,(50,10),RLSE),AVGREC=K,                               
+//             MGMTCLAS=&NOBACKUP                                               

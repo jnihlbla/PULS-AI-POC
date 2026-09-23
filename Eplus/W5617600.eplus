@@ -1,0 +1,124 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5617600                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATES A REPORT FOR RECEIVING GOODS BY LPC           *        
+*                                                                      *        
+*  FÖRFATTARE :  SARASWATHY S                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W56176D1                                                                   
+*                                                                               
+%W56175A  'IN-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W56176D2  PRINTER VB (310 0)                                               
+*                                                                               
+UT-IDFAKT            W   7   N     MASK 'ZZZZZZ9'           VALUE 0             
+UT-TIREGDAT          W   6   N                              VALUE 0             
+UT-IDDC-SEND         W   2   A                                                  
+UT-IDDC-RECV         W   2   A                                                  
+UT-KDPSLLOC          W   2   N     MASK 'Z9'                VALUE 0             
+UT-DESCRIPTION       W  25   A                                                  
+UT-TOTAL-PRICE       W  11   N  2  MASK 'ZZZZZZZZ9.99-'     VALUE 0             
+UT-KDFRAKT           W   3   N                              VALUE 0             
+UT-FREIGHT-MODE      W   5   A                                                  
+UT-MARKUP-FAKTOR-USA W   5   N  2  MASK 'ZZ9.99'            VALUE 0             
+UT-LANDED-COST       W   8   N  2  MASK 'ZZZZZ9.99'         VALUE 0             
+UT-LANDED-COST-TOTAL W   8   N  2  MASK 'ZZZZZ9.99'         VALUE 0             
+UT-SEMICOLON         W   1   A                              VALUE ';'           
+*                                                                               
+*-----------------------------------------------------------------*             
+****WORKING STORAGE SECTION                                                     
+*-----------------------------------------------------------------*             
+FIRST-LINE           W   1   A                              VALUE 'J'           
+WS-TOTAL-PRICE       W  11   N  2                           VALUE 0             
+WS-LANDED-COST-TOTAL W   8   N  2                                               
+*                                                                               
+*-----------------------------------------------------------------*             
+* STEP 1. READ FILE W56175A AND WRITE REPORT FOR                                
+*         RECEIVING GOODS BY LPC IN ASC ORDER OF INVOICE NUMBER AND             
+*         LPC                                                                   
+*-----------------------------------------------------------------*             
+JOB INPUT (W56176D1 KEY(IN-IDFAKT, IN-KDPSLLOC))                                
+      UT-IDFAKT            = IN-IDFAKT                                          
+      UT-FREIGHT-MODE      = IN-FREIGHT-MODE                                    
+      UT-TIREGDAT          = IN-TIREGDAT                                        
+      UT-IDDC-SEND         = IN-IDDC-SEND                                       
+      UT-IDDC-RECV         = IN-IDDC-RECV                                       
+      UT-KDPSLLOC          = IN-KDPSLLOC                                        
+      UT-KDFRAKT           = IN-KDFRAKT                                         
+      UT-MARKUP-FAKTOR-USA = IN-RELANDCO                                        
+      UT-LANDED-COST       = IN-SULANDCO                                        
+      UT-LANDED-COST-TOTAL = 0                                                  
+                                                                                
+      WS-LANDED-COST-TOTAL = IN-SULANDCO + IN-TOTAL-PRICE                       
+      UT-LANDED-COST-TOTAL = WS-LANDED-COST-TOTAL                               
+                                                                                
+      IF IN-DESCRIPTION EQ ' '                                                  
+         WS-TOTAL-PRICE = WS-TOTAL-PRICE + IN-TOTAL-PRICE                       
+      ELSE                                                                      
+         UT-TOTAL-PRICE = IN-TOTAL-PRICE                                        
+      END-IF                                                                    
+   IF IN-DESCRIPTION NE ' '                                                     
+       UT-DESCRIPTION = IN-DESCRIPTION                                          
+       PRINT REPORT1                                                            
+   ELSE                                                                         
+      IF LAST-DUP W56176D1 OR NOT DUPLICATE W56176D1                            
+         UT-DESCRIPTION = IN-DESCRIPTION                                        
+         UT-TOTAL-PRICE = WS-TOTAL-PRICE                                        
+         WS-TOTAL-PRICE = 0                                                     
+         PRINT REPORT1                                                          
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+*-----------------------------------------------------------------*             
+*     REPORT  W56176-001                                                        
+*-----------------------------------------------------------------*             
+NEWPAGE                                                                         
+   REPORT   REPORT1              +                                              
+            PRINTER W56176D2     +                                              
+            PAGESIZE 32000       +                                              
+            LINESIZE 305         +                                              
+            SPACE 0              +                                              
+            NOHEADING            +                                              
+            NOSPREAD             +                                              
+            NOADJUST             +                                              
+            NOPAGE               +                                              
+            NODATE                                                              
+   LINE 1   UT-IDFAKT            +                                              
+            UT-SEMICOLON         +                                              
+            UT-TIREGDAT          +                                              
+            UT-SEMICOLON         +                                              
+            UT-IDDC-SEND         +                                              
+            UT-SEMICOLON         +                                              
+            UT-IDDC-RECV         +                                              
+            UT-SEMICOLON         +                                              
+            UT-KDPSLLOC          +                                              
+            UT-SEMICOLON         +                                              
+            UT-DESCRIPTION       +                                              
+            UT-SEMICOLON         +                                              
+            UT-TOTAL-PRICE       +                                              
+            UT-SEMICOLON         +                                              
+            UT-KDFRAKT           +                                              
+            UT-SEMICOLON         +                                              
+            UT-MARKUP-FAKTOR-USA +                                              
+            UT-SEMICOLON         +                                              
+            UT-FREIGHT-MODE      +                                              
+            UT-SEMICOLON         +                                              
+            UT-LANDED-COST       +                                              
+            UT-SEMICOLON         +                                              
+            UT-LANDED-COST-TOTAL                                                
+                                                                                
+ BEFORE-LINE. PROC                                                              
+  IF FIRST-LINE = 'J'                                                           
+    DISPLAY 'INVOICE NUMBER;REG DATE;SENDING DC;RECEIVING DC;' +                
+            'LOCAL PRODUCT GROUP;DESCRIPTION;TOTAL PRICE;' +                    
+            'FRIEGHT CODE;LANDING COST FACTOR;FREIGHT MODE;' +                  
+            'LANDED COST;LANDED COST TOTAL'                                     
+    FIRST-LINE = 'N'                                                            
+  END-IF                                                                        
+ END-PROC                                                                       

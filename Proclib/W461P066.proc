@@ -1,0 +1,63 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR FIL MED KREDIT-TRANSAR                                              
+//*  TILL W46120                                                                
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W461D1                                            
+//*                                                                             
+//*  ÅTERSTART:    W46166   NORMAL                                              
+//*                DFUP   NORMAL                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W461P066 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W418..W461D1,                                            
+//             INDUT=&W461..W461D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W461PD66),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W41837,DISP=SHR                                     
+//************ KREDITPOSTER FRÅN W418D2 - W41830                                
+//*                                                                             
+//         DD  DSN=&INDIN2..W418AK,DISP=SHR                                     
+//************ KREDIT-POSTER FRÅN W418S2 BILL-IT                                
+//*                                                                             
+//SORTOUT  DD  DSN=&&W41837,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(143,(5,3),RLSE),AVGREC=K                                  
+//************ SORTERAD FIL                                                     
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46166   EXEC PGM=W46166                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//W46166D1 DD  DSN=&&W41837,DISP=(OLD,DELETE,DELETE)                            
+//************ KREDIT-POSTER FRÅN W418P002 -W41830 + W41834                     
+//*                                                                             
+//         DD  DSN=&INDIN2..W41814,DISP=SHR                                     
+//************ KREDIT-POSTER FRÅN W418P001 -W41810                              
+//*                                                                             
+//         DD  DSN=&INDIN2..W4183A,DISP=SHR                                     
+//************ KREDIT-POSTER FRÅN W418P002 -W41830                              
+//*                                                                             
+//         DD  DSN=&INDIN2..W4183B,DISP=SHR                                     
+//************ KREDIT-POSTER FRÅN W418P002 -W41830                              
+//*                                                                             
+//         DD  DSN=&INDIN2..W41804,DISP=SHR                                     
+//************ KREDIT-POSTER FRÅN W418P008 -W41804                              
+//*                                                                             
+//         DD  DSN=&INDIN2..W41870,DISP=SHR                                     
+//************ KREDIT-POSTER FRÅN W418P036 -W41836                              
+//*                                                                             
+//W46166D2 DD  DSN=&INDUT..W46166(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ POSTER TILL W46120                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

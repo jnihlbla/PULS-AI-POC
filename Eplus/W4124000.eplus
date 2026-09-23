@@ -1,0 +1,100 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4124000                                              *        
+*                                                                      *        
+*  FUNKTION   :  ACKUMULERA KVBEART PER ARTIKEL OCH DC OCH             *        
+*                LÄGGER I SUMMAFÄLT                                    *        
+*                                                                      *        
+*  FÖRFATTARE :  GERRY CARMICHAEL                                      *        
+*                                                                      *        
+*  ÄNDRING    :  DELA UTFILEN I EN PER LDC (BO S)                      *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W41240D1                                                                   
+*                                                                               
+%W41239    'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W41240D2 FB (166 0)                                                        
+*                                                                               
+%W41239    'UT-'                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*                 WORKING STORAGE                                               
+W-IDARTNR              W  9  N  0                                               
+W-IDDC                 W  2  A                                                  
+W-KVANT-ART            W  6  N  0                                               
+JA                     W  1  A  VALUE 'J'                                       
+NEJ                    W  1  A  VALUE 'N'                                       
+ZERO                   W  1  N  VALUE  0                                        
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. ADDERAR KVBEART OCH LÄGGER I SUMMAFÄLT                                
+JOB INPUT NULL                                           +                      
+                                         NAME STEG01                            
+  GET W41240D1                                                                  
+  DO WHILE NOT EOF W41240D1                                                     
+    W-IDARTNR     =  IN-IDARTNR                                                 
+    W-IDDC        =  IN-IDDC                                                    
+    W-KVANT-ART   =  ZERO                                                       
+    DO WHILE NOT EOF W41240D1 AND IN-IDARTNR = W-IDARTNR +                      
+                              AND IN-IDDC    = W-IDDC                           
+      W-KVANT-ART  = W-KVANT-ART + IN-KVBEART-Q                                 
+*     PERFORM S23-CHECK-IN-IDDC                                                 
+*     IF IN-IDDC EQ LDC-SE                                                      
+        UT-IDORDER     = IN-IDORDER                                             
+        UT-IDARTNR     = IN-IDARTNR                                             
+        UT-IDDC        = IN-IDDC                                                
+        UT-DARFS       = IN-DARFS                                               
+        UT-IDDISTR     = IN-IDDISTR                                             
+        UT-IDKUNDNR    = IN-IDKUNDNR                                            
+        UT-IDORDNR7    = IN-IDORDNR7                                            
+        UT-IDSYSTEM    = IN-IDSYSTEM                                            
+        UT-KVBEART     = IN-KVBEART                                             
+        UT-KVBEART-Q   = IN-KVBEART-Q                                           
+        UT-KDKVBRYT    = IN-KDKVBRYT                                            
+        UT-KDDSP       = IN-KDDSP                                               
+        UT-KDORDKL     = IN-KDORDKL                                             
+        UT-BERADREF    = IN-BERADREF                                            
+        UT-KVANT-ART   = W-KVANT-ART                                            
+        UT-IDPRQUES    = IN-IDPRQUES                                            
+        UT-PRARTNTO-LOC   = IN-PRARTNTO-LOC                                     
+        UT-PRARTNTO-LOCPREL = IN-PRARTNTO-LOCPREL                               
+        UT-BEKUNDRF       = IN-BEKUNDRF                                         
+        UT-FLEMBORD       = IN-FLEMBORD                                         
+        UT-FLFORBI        = IN-FLFORBI                                          
+        UT-FLRESTN        = IN-FLRESTN                                          
+        UT-FLSDCLEV       = IN-FLSDCLEV                                         
+        UT-FLORDSPE       = IN-FLORDSPE                                         
+        UT-FLOVRLEV       = IN-FLOVRLEV                                         
+        UT-IDBIL          = IN-IDBIL                                            
+        UT-IDKUNDRF-RO    = IN-IDKUNDRF-RO                                      
+        UT-KDFAKTYP       = IN-KDFAKTYP                                         
+        UT-KDPRTYP        = IN-KDPRTYP                                          
+        UT-KDTPOTYP       = IN-KDTPOTYP                                         
+        UT-TIRODAT        = IN-TIRODAT                                          
+        UT-TITPO          = IN-TITPO                                            
+        PUT W41240D2                                                            
+*     END-IF                                                                    
+      GET W41240D1                                                              
+    END-DO                                                                      
+  END-DO                                                                        
+STOP                                                                            
+*                                                                               
+*    --- S23-CHECK-IN-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'IN-'                                                                   
+*                                                                               

@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TO GET FILE SENT FROM BIMA AND REGISTER PART NUMERS                        
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W161S3                                         
+//*                                                                             
+//*  RESTART:      W16150    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W161P050 PROC STPLIB=&INDRTE..LOAD, -- TA EV BORT KOMMA                       
+//*                                                                             
+//             INDIN=&W161..W161S3,                                             
+//             INDUT=&W161..W161S3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W16150   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W16150,W16150,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W16150D1 DD  DSN=&INDIN..W16150(+0),DISP=SHR                                  
+//************ INPUT FILE FROM BIMA                                             
+//*                                                                             
+//W16150D2 DD  DSN=&INDUT..W16151(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ OUTPUT FILE TO BE SENT BACK TO BIMA                              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

@@ -1,0 +1,88 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4408100                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR W44080(+0) OCH W44080(-1) OM POST SAKNAS      *        
+*                PÅ (-1) SKAPAS 2204-TRANS. *                                   
+*                                                                      *        
+*  FÖRFATTARE :  JAN-ERIK FRANTZEN                                     *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W44081D1                                                                   
+*                                                                               
+%W44060    'IN1-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W44081D2                                                                   
+*                                                                               
+%W44060    'IN2-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W44081D3 FB(11 0)                                                          
+*                                                                               
+%W2212204  'UT-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP1 FB(327 0)                                                            
+*                                                                               
+%W44060    'TMP1-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP2 FB(327 0)                                                            
+*                                                                               
+%W44060    'TMP2-'                                                              
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORT-1                                                                
+*                                                                               
+SORT W44081D1 TO  TEMP1 USING    (IN1-RAD-IDDISTR                    +          
+                                  IN1-RAD-IDKUNDNR                   +          
+                                  IN1-RAD-IDKUNDRF                   +          
+                                  IN1-RAD-IDARTNR                    +          
+                                  IN1-RAD-IDLOPNR)                              
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. SORT-2                                                                
+*                                                                               
+SORT W44081D2 TO  TEMP2 USING    (IN2-RAD-IDDISTR                    +          
+                                  IN2-RAD-IDKUNDNR                   +          
+                                  IN2-RAD-IDKUNDRF                   +          
+                                  IN2-RAD-IDARTNR                    +          
+                                  IN2-RAD-IDLOPNR)                              
+NEWPAGE                                                                         
+*                                                                               
+* STEG 3. MATCHNING                                                             
+*                                                                               
+JOB INPUT (TEMP1    KEY (TMP1-RAD-IDDISTR                             +         
+                         TMP1-RAD-IDKUNDNR                            +         
+                         TMP1-RAD-IDKUNDRF                            +         
+                         TMP1-RAD-IDARTNR                             +         
+                         TMP1-RAD-IDLOPNR)                            +         
+             TEMP2  KEY (TMP2-RAD-IDDISTR                             +         
+                         TMP2-RAD-IDKUNDNR                            +         
+                         TMP2-RAD-IDKUNDRF                            +         
+                         TMP2-RAD-IDARTNR                             +         
+                         TMP2-RAD-IDLOPNR))                                     
+                                                                                
+IF MATCHED                                                                      
+ELSE                                                                            
+  IF TEMP1                                                                      
+     UT-IDHTYP  =  '2204'                                                       
+     UT-IDARTNR =  TMP1-RAD-IDARTNR                                             
+     UT-KDLPORS =  050                                                          
+     PUT W44081D3                                                               
+  END-IF                                                                        
+END-IF                                                                          

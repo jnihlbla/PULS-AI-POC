@@ -1,0 +1,60 @@
+                                                                                
+*    PROGRAMNAMN:W4795500                                       *               
+*                                                               *               
+*    UTFÄRDARE: KATARINA KYMMER           DATUM: 891101         *               
+*    KORT BESKRIVNING: SKAPAR EN LISTA ,RESTORDER DIREKTLEV.    *               
+*    SORTERAD PÅ DISTRNR,ORDERNR,ART.NR ----VECKOVIS-----       *               
+                                                                                
+FILE W47955D1                                                                   
+%W479052  'IN-'                                                                 
+W-IDDISTR    IN-IDDISTR      3 P                                                
+W-IDKUNDNR   IN-IDKUNDNR     4 P                                                
+W-IDKUNDRF   IN-IDKUNDRF     5 A                                                
+W-TIORDREG   IN-TIORDREG     4 P                                                
+W-IDARTNR    IN-IDARTNR      5 P                                                
+W-KVBEART    IN-KVBEART      4 P                                                
+JA             W 1 A VALUE 'J'                                                  
+                                                                                
+FILE W47955D2 PRINTER FB(121 0)                                                 
+*                                                                               
+%WDATKORT                                                                       
+*                                                                               
+PROGRAM-NAMN       W  6  A  VALUE 'W47955'                                      
+DATUMKORT-ID       W  6  A  VALUE 'WDATUM'                                      
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+JOB INPUT W47955D1 START A-INIT                                                 
+    IF W-IDDISTR = 001 THRU 799                                                 
+     IF W-IDKUNDRF = '55001' THRU '55700' OR      +                             
+        W-IDKUNDRF = '56000' THRU '56999'                                       
+      IF IN-KDRADSTA < 4                                                        
+        PRINT LISTA1                                                            
+      END-IF                                                                    
+     END-IF                                                                     
+    END-IF                                                                      
+*                                                                               
+ A-INIT.  PROC                                                                  
+     CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                   
+ END-PROC                                                                       
+*                                                                               
+*                                                                               
+   REPORT LISTA1 +                                                              
+     PRINTER W47955D2 +                                                         
+      DTLCTL FIRST +                                                            
+       LINESIZE 120 SPACE 1 NOADJUST NODATE                                     
+     SEQUENCE  W-IDDISTR W-IDKUNDNR W-IDKUNDRF W-IDARTNR                        
+     CONTROL  W-IDDISTR NOPRINT                                                 
+   TITLE 01                                        +                            
+   COL   02 'VOLVO CAR PARTS       W47955-001'     +                            
+   COL   85 'DATE ' SYSDATE-LONG                                                
+   TITLE 03                                        +                            
+   COL   25 'RESTORDER DIREKTLEVERANTÖRER VECKA' K-VECKA                        
+   HEADING W-IDDISTR     ('DISTRIKT')                                           
+   HEADING W-IDKUNDNR    ('KUND')                                               
+   HEADING W-IDKUNDRF   ('ORDERNR')                                             
+   HEADING W-IDARTNR    ('ART.NR')                                              
+   HEADING W-KVBEART    ('ANTAL')                                               
+   HEADING W-TIORDREG   ('ORDERDATUM')                                          
+   LINE  W-IDDISTR W-IDKUNDNR W-IDKUNDRF W-IDARTNR  +                           
+         W-KVBEART W-TIORDREG                                                   

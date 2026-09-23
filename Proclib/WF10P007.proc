@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RECEIVES PERIOD-FILE FROM SAP/R3 (VIA W930)                                
+//*                                                                             
+//*  FREKVENS:     PERIOD    RTN WF10R2                                         
+//*                                                                             
+//*  ÅTERSTART:    WF1007    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF1007   PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&WF10..WF10R2,                                             
+//             INDUT=&WF10..WF10R2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO    EXEC  PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                                
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//SYSTSIN  DD  DUMMY                                                            
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//WF1007D1 DD  DSN=&INDIN..WF1021(+0),DISP=SHR                                  
+//************ INPUT FILE WITH VCC CURRENCY DATA                                
+//         DD  DSN=&INDIN..WF1022(+0),DISP=SHR                                  
+//************ INPUT FILE WITH NON-VCC CURRENCY DATA                            
+//*                                                                             
+//WF1007D2 DD  DSN=&&WF1013,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(41,(2,2),RLSE),AVGREC=K                                   
+//************ TEMPFILE WITH CURRENCY INFO                                      
+//*                                                                             
+//WF1007D3 DD  DSN=&INDUT..WF1013A(+1),                        -LIM(1)          
+//************ ERROR FILE WITH OLD CURRENCY DATE *****                          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *        
+//WF10S6  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&WF1013,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMPFILE WITH CURRENCY INFO                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WF1013(+1),DISP=(NEW,CATLG,DELETE), -LIM(12)         
+//************** OUTPUT FILE WITH CURRENCY INFO                     ***         
+//             SPACE=(41,(2,2),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF10PD06),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456',                              
+//             COND=(4,GE,TSO)                                                  

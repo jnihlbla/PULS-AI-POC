@@ -1,0 +1,11 @@
+//W478J077 JOB (650W4780100W478J077,W100),'RTN W478V2',                         
+//             USER=?,PASSWORD=?,                                               
+//             CLASS=K                                                          
+//PROC  JCLLIB ORDER=(W.QASE.PROCLIB)                                           
+//ENV  INCLUDE MEMBER=ENVQASE                                                   
+//     INCLUDE MEMBER=SYST4                                                     
+/*JOBPARM FORMS=1800,LINECT=0                                                   
+/*ROUTE XEQ LOCAL                                                               
+/*ROUTE PRINT LOCAL                                                             
+//W478    EXEC W478P077                                                         
+//SOP     EXEC WSOPEND,PROCESS=W478J077                                         

@@ -1,0 +1,71 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      KURANSGRUPPERING                                             *         
+//*                                                                   *         
+//*      PERIODICITET:   MÅNADSSLUT                                   *         
+//*                                                                   *         
+//*      ÅTERSTART:      NORMAL                                       *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W561P06B PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W510..W561D2,                                            
+//             INDIN2=&W561..W561D2,                                            
+//             INDUT=&W561..W561D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W561S1  EXEC PGM=SORT                                                         
+//* SEKVENS= IDVERGL                                                            
+//SORTIN   DD  DSN=&INDIN1..W5104C,DISP=SHR                                     
+//************ FRÅN WDR8                                                        
+//         DD  DSN=&INDIN2..W56161C,DISP=SHR                                    
+//************ FRÅN W56160                                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&&W5104A,DISP=(NEW,PASS,DELETE),                             
+//************ MELLANLAGRINGSFIL                                    ***         
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W561PD6B),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W561S2  EXEC PGM=SORT                                                         
+//* SEKVENS= IDVERGL                                                            
+//SORTIN   DD  DSN=&INDIN2..W56161A,DISP=SHR                                    
+//************ FRÅN W56160                                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&&W56161A,DISP=(NEW,PASS,DELETE),                            
+//************ MELLANLAGRINGSFIL                                    ***         
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W561PD6B),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W5616B  EXEC PGM=W5616B                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                  (POSTSUM)              
+//*                                                                             
+//W5616BD1 DD  DSN=&&W5104A,DISP=(OLD,DELETE,DELETE)                            
+//************ MELLANLAGRINGSFIL                                                
+//*                                                                             
+//W5616BD2 DD  DSN=&&W56161A,DISP=(OLD,DELETE,DELETE)                           
+//************ MELLANLAGRINGSFIL                                                
+//*                                                                             
+//W5616BD3 DD  DSN=&INDUT..W56161(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VIDARE TILL W56161                                               
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//W5616BD4 DD  DSN=&INDUT..W5616A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ TILLBAKA TILL WDR8                                               
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//*                                                                             

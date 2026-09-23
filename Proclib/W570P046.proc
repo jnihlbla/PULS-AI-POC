@@ -1,0 +1,40 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CONVERT SEK TO CNY KRW AED                                                 
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W570M2                                       
+//*                                                                             
+//*  RESTART:      W57046      NORMAL                                           
+//*                READS        WDG2                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W570P046 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W570..W570M2,                                             
+//             INDUT=&W570..W570M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W57046   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W57046,W57046,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDG2     INCLUDE MEMBER=WDG2                                                  
+//W57046D1 DD  DSN=&INDIN..W57045(+0),DISP=SHR                                  
+//************ R30 FROM WDL6                                                    
+//*                                                                             
+//W57046D2 DD  DSN=&INDUT..W57046(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ SEK CONVERTED TO CNY KRW AED                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

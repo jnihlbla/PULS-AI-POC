@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *               
+//*                                                                             
+//*  SALES REPORT FOR NON VCCS                                                  
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M4                                       
+//*                                                                             
+//*  RESTART:      W51292    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *               
+//W512P092 PROC STPLIB=&INDRTE..LOAD, -- PERHAPS REMOVE COMMA                   
+//             INDIN=&WF10..W512M4,                                             
+//             INDIN1=&W011..&RTEGRP.,                                          
+//             INDUT=&W512..W512M4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *               
+//W51292   EXEC PGM=V16459,PARM='W51292/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABE              
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABE              
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABE              
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W51292D1 DD  DSN=&INDIN..WF1091(+0),DISP=SHR                                  
+//************ EXTRACT FROM T01DHEA_ARC AND T01DLIN_ARC                         
+//*                                                                             
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),       -LIM(1)               
+//************ TEMPFIL FÖR PACKED CONVERSION                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51292D2 DD  DSN=&INDIN1..W01160(+0),DISP=SHR                                 
+//************ FILE FROM WDK6                                                   
+//*                                                                             
+//TPFIL2   DD  DSN=&&TPFIL2,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FÖR PACKED CONVERSION                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL3   DD  DSN=&&TPFIL3,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FÖR PACKED CONVERSION                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51292D3 DD  DSN=&INDUT..W51292(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ REPORT WITH NON VCCS DATA                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

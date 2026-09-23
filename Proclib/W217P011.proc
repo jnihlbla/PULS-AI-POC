@@ -1,0 +1,57 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR SAMMAN ARTIKELINFO FRÅN OLIKA FILER                                
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN W217S5                           
+//*                                                                             
+//*  RESTART:      W21711    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W217P011 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W011..NDC,                                               
+//             INDIN2=&W011..W011S1,                                            
+//             INDIN3=&W011..W011S1,                                            
+//             INDIN4=&W011..NDC,                                               
+//             INDIN5=&W231,                                                    
+//             INDUT=&W217..W217S6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTARDC),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W01184(+0),DISP=SHR                                 
+//************ LAGERBAND FRÅN NDC:ERNA                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21711   EXEC PGM=V16459,PARM='W21711/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W21711D1 DD  DSN=&&W01184,DISP=SHR                                            
+//************ NDC:ERS  LAGERBAND                                               
+//*                                                                             
+//W21711D2 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ INFILE WDK6                                                      
+//*                                                                             
+//W21711D3 DD  DSN=&INDIN3..W01174(+0),DISP=SHR                                 
+//************ WDD3 - PART DESCRIPTION                                          
+//*                                                                             
+//W21711D4 DD  DSN=&INDIN4..W01185(+0),DISP=SHR                                 
+//************ WDK724                                                           
+//*                                                                             
+//W21711D5 DD  DSN=&INDIN5..W23190(+0),DISP=SHR                                 
+//************ SERVICEGRAD PER DC / ARTIKEL                                     
+//*                                                                             
+//W21711D6 DD  DSN=&INDUT..W2171101(+1),DISP=(NEW,CATLG,DELETE),                
+//************ OUTPUT FILE                                                      
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

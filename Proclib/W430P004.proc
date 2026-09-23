@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*          PLOCKFREKVENS STATISTIK W479V2                           *         
+//*                                                                   *         
+//*          PERIODICITET: VECKA                                      *         
+//*                                                                   *         
+//*          ÅTERSTART:    NORMAL                                     *         
+//*                                                                   *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W430P004 PROC INDIN=&W092..W479V2,                                            
+//             INDUT=&W430..W479V2,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W43004  EXEC PGM=W43004                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SORTMSG  DD  SYSOUT=*                                                         
+//W43004D1 DD  DSN=&INDIN..W092Z3,DISP=SHR                                      
+//**************                                                    ***         
+//         DD  DSN=&INDIN..W092Z4,DISP=SHR                                      
+//**************                                                                
+//*                                                                             
+//W43004D2 DD  DSN=&INDUT..W43051(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************                                                    ***         
+//             SPACE=(6216,(900,90),RLSE),                                      
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W43004D3 DD  DUMMY,                                                           
+//*W43004D3 DD  DSN=&INDUT..W43053(+1),DISP=(NEW,PASS,DELETE),                  
+//**************                                                    ***         
+//             SPACE=(6226,(900,90),RLSE),                                      
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//V16247D3 DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER INFIL W42668 SOM BESTÅR AV R32-RAPP.INLEV ÄLDRE                      
+//*  ÄN 25 ARB.DAGER OCH LÄGGER PÅ HISTFIL W42670                               
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W426V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W42670    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W426P070 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W426..W426V4,                                            
+//             INDIN=&W426..W426V4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42670   EXEC PGM=W42670                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W42670D1 DD  DSN=&INDREG..W42670(+0),DISP=SHR                                 
+//************ HISTORIKFIL                                                      
+//         DD  DSN=&INDIN..W42668(+0),DISP=SHR                                  
+//************ BESTÅR AV R32-RAPP INLEV. ÄLDRE ÄN 25 ARB. DGR                   
+//*                                                                             
+//W42670D2 DD  DSN=&INDREG..W42670(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ HISTORIKFIL FRÅN W6L1 (UPPFÖLJN.REG.)                            
+//             SPACE=(293,(200,30),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

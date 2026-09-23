@@ -1,0 +1,59 @@
+//**********************************************************************        
+//*                                                                    *        
+//*    PROCEDURENS UPPGIFT:                                            *        
+//*        SERVA FUNKTION FTPC    (FILE TO PC)                         *        
+//*                                                                    *        
+//*    DENNA PROCEDUR BESTÅR AV 3 STEG:                                *        
+//*        FTP      FTP      SÄNDER DATA ENL SPECIFIKATION             *        
+//*        DELETE   IDCAMS   DELETAR VID BEHOV DATA I SÄNDANDE         *        
+//*                          MVSNODE (OM SÄNDNINGEN LYCKATS)           *        
+//*        MEMO     MEMOAPIX SÄNDER MEMO OM NGT FEL INTRÄFFAT          *        
+//*                                                                    *        
+//*    DENNA PROCEDUR KRÄVER ATT FÖLJANDE GÖRS:                        *        
+//*        1. INPUT TILL FTP  (GÖRS I SAMRÅD MED TEKNIKANSVARIG)       *        
+//*           LÄGGS IN ENL:                                            *        
+//*             //FTP.SYSIN DD *                                       *        
+//*               CD //DIR1/DIR2/DIR3                                  *        
+//*               PUT 'STORDATORFIL' PCFIL.TXT                         *        
+//*                                                                    *        
+//*        2. INPUT TILL MEMO (MEMO GES OM NÅGOT GÅTT FEL)             *        
+//*           MEMOKORT LÄGGS IN I JCL'EN                               *        
+//*                                                                    *        
+//**********************************************************************        
+//*                                                                             
+//RFTP     PROC GRP=PROD,                                                       
+//             REMOTE=SAKNAS,                                                   
+//             TRACE=,                                                          
+//             TRANSTBL=ISOESW,                                                 
+//             MEMODG=PARTSSE                                                   
+//*                                                                             
+//RFTP     EXEC  PGM=FTP,PARM='(EXIT &TRACE TRAN &TRANSTBL'                     
+//*YSFTPD  DD DSN=F1TIV231.FTP.DATA,DISP=SHR ?                                  
+//SYSTCPD  DD DSN=F1TI00.TCPIP.DATA(TCPDATA),DISP=SHR                           
+//OUTPUT   DD SYSOUT=*                                                          
+//SYSPRINT DD SYSOUT=*                                                          
+//INPUT    DD DSN=W..&GRP..FTPINPUT(&REMOTE),DISP=SHR                           
+//         DD DDNAME=SYSIN                                                      
+//*                                                                             
+//*                                                                             
+//*************************  IF     ***********************************         
+//FTPDEL   IF (RFTP.RC = 0) THEN                                                
+//*                                                                             
+//DELETE   EXEC PGM=IDCAMS                                                      
+//SYSPRINT DD SYSOUT=*                                                          
+//SYSIN    DD DUMMY                                                             
+//*                                                                             
+//FTPDEL   ENDIF                                                                
+//************************   ENDIF  ************************************        
+//*                                                                             
+//*************************  IF     ***********************************         
+//FTPMEMO  IF (RFTP.RC NE 0 & RFTP.RC NE 166) THEN                              
+//*                                                                             
+//MEMO     EXEC PGM=MEMOAPIX,PARM='MEMO=&MEMODG'                                
+//APIPARM  DD DSN=F1STV2.MEMOAPI.PARMLIB,DISP=SHR                               
+//APIFILE  DD DDNAME=SYSIN                                                      
+//*                                                                             
+//FTPMEMO  ENDIF                                                                
+//************************   ENDIF  ************************************        
+//*                                                                             
+//*                                                                             

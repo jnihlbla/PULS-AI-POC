@@ -1,0 +1,383 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2252400                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR RESTORDERLISTA RADER                           *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFAN KIHLBERG                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W22524D1                                                                   
+*                                                                               
+****************                                                                
+* COPYTEXT     *                                                                
+****************                                                                
+%W22524    'IN-'                                                                
+                                                                                
+%W009W42   'SUB-'                                                               
+                                                                                
+FILE W22524D2  PRINTER FB (121 121)                                             
+                                                                                
+FILE W22524D3  PRINTER FB (121 121)                                             
+                                                                                
+FILE W22524D4  PRINTER FB (121 121)                                             
+                                                                                
+*****************                                                               
+* ARBETSAREOR   *                                                               
+*****************                                                               
+                                                                                
+W-FL-FIRST-ARTIKEL      W    1   A   VALUE 'J'                                  
+                                                                                
+W-SPAR-IDANSK           W    2   P                                              
+W-SPAR-IDARTNR          W    5   P                                              
+W-SPAR-TESEKT           W    8   A                                              
+W-SPAR-GRUPP-INTERVALL  W    7   A                                              
+W-SPAR-SEKT-INTERVALL   W    7   A                                              
+                                                                                
+W-RUB-IDANSK            W    3   N            MASK (D '999')                    
+W-RUB-GRUPP-INTERVALL   W    7   A                                              
+W-RUB-SEKT-INTERVALL    W    7   A                                              
+                                                                                
+                                                                                
+W-UT-IDARTNR            W    9   N            MASK (B 'ZZZZZZZZ9')              
+W-UT-IDLEVNR            W    5   A                                              
+W-UT-SUROBEL            W    9   N  2         MASK (E 'ZZZZZZ9,99-')            
+W-UT-KVRORAD            W    7   N            MASK (F 'ZZZZZZ9')                
+W-UT-KVROS              W    7   N            MASK F                            
+W-UT-TIRODAT-ORDER      W    5   N            MASK (C 'ZZZZ9')                  
+W-UT-SUAKBEL            W    9   N  2         MASK E                            
+W-UT-KVAKS-CDC          W    7   N            MASK F                            
+W-UT-KVAKS-T            W    7   N            MASK F                            
+W-UT-KVAKS-PAV          W    7   N            MASK F                            
+W-UT-KVAVIS-1           W    7   N            MASK (H 'ZZZZZZZ')                
+W-UT-KVAVIS-2           W    7   N            MASK H                            
+W-UT-KVAVIS-3           W    7   N            MASK H                            
+W-UT-TIAVIDAT-1         W    4   N            MASK (G 'ZZZZ')                   
+W-UT-TIAVIDAT-2         W    4   N            MASK G                            
+W-UT-TIAVIDAT-3         W    4   N            MASK G                            
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+                                                                                
+*****************                                                               
+* JOB           *                                                               
+*****************                                                               
+                                                                                
+JOB INPUT W22524D1 +                                                            
+                                                                                
+                                                                                
+  IF W-FL-FIRST-ARTIKEL = 'J'                                                   
+     MOVE 'N' TO W-FL-FIRST-ARTIKEL                                             
+     SUB-IDANSK         =  IN-IDANSK                                            
+     W-SPAR-IDANSK      =  IN-IDANSK                                            
+     W-RUB-IDANSK       =  IN-IDANSK                                            
+     CALL W200ANSK USING SUB-W009W42                                            
+     W-SPAR-TESEKT           = SUB-TESEKT                                       
+     W-SPAR-GRUPP-INTERVALL  = SUB-GRUPP-INTERVALL                              
+     W-RUB-GRUPP-INTERVALL   = SUB-GRUPP-INTERVALL                              
+     W-SPAR-SEKT-INTERVALL   = SUB-SEKT-INTERVALL                               
+     W-RUB-SEKT-INTERVALL    = SUB-SEKT-INTERVALL                               
+  ELSE                                                                          
+     IF W-SPAR-IDANSK NE    IN-IDANSK                                           
+        SUB-IDANSK         =  IN-IDANSK                                         
+        W-SPAR-IDANSK      =  IN-IDANSK                                         
+        W-RUB-IDANSK       =  IN-IDANSK                                         
+        CALL W200ANSK USING SUB-W009W42                                         
+        W-SPAR-TESEKT           = SUB-TESEKT                                    
+        W-SPAR-GRUPP-INTERVALL  = SUB-GRUPP-INTERVALL                           
+        W-RUB-GRUPP-INTERVALL   = SUB-GRUPP-INTERVALL                           
+        W-SPAR-SEKT-INTERVALL   = SUB-SEKT-INTERVALL                            
+        W-RUB-SEKT-INTERVALL    = SUB-SEKT-INTERVALL                            
+     END-IF                                                                     
+  END-IF                                                                        
+                                                                                
+  IF IN-KVRORAD > 10 OR (IN-IDANSK = 800 THRU 899) OR                 +         
+                        (IN-IDANSK = 930 THRU 999)                              
+     IF IN-IDANSK < 050                                                         
+        PERFORM FLYTTA-UTFALT                                                   
+        PRINT SEKTION                                                           
+        PRINT ANSK-GRUPP                                                        
+        PRINT ANSKAFFARE                                                        
+     END-IF                                                                     
+     IF IN-IDANSK > 499                                                         
+        PERFORM FLYTTA-UTFALT                                                   
+        PRINT SEKTION                                                           
+        PRINT ANSK-GRUPP                                                        
+        PRINT ANSKAFFARE                                                        
+     END-IF                                                                     
+  END-IF                                                                        
+                                                                                
+  FLYTTA-UTFALT. PROC                                                           
+                                                                                
+  W-UT-IDARTNR            =     IN-IDARTNR                                      
+  W-SPAR-IDARTNR          =     IN-IDARTNR                                      
+  W-UT-IDLEVNR            =     IN-IDLEVNR                                      
+  W-UT-SUROBEL            =     IN-SUROBEL                                      
+  W-UT-KVRORAD            =     IN-KVRORAD                                      
+  W-UT-KVROS              =     IN-KVROS                                        
+  W-UT-TIRODAT-ORDER      =     IN-TIRODAT-ORDER                                
+  W-UT-SUAKBEL            =     IN-SUAKBEL                                      
+  W-UT-KVAKS-CDC          =     IN-KVAKS-CDC                                    
+  W-UT-KVAKS-T            =     IN-KVAKS-T                                      
+  W-UT-KVAKS-PAV          =     IN-KVAKS-PAV                                    
+  W-UT-KVAVIS-1           =     IN-KVAVIS-LEVBESK-1                             
+  W-UT-KVAVIS-2           =     IN-KVAVIS-LEVBESK-2                             
+  W-UT-KVAVIS-3           =     IN-KVAVIS-LEVBESK-3                             
+  W-UT-TIAVIDAT-1         =     IN-TIAVIDAT-LEVBESK-1                           
+  W-UT-TIAVIDAT-2         =     IN-TIAVIDAT-LEVBESK-2                           
+  W-UT-TIAVIDAT-3         =     IN-TIAVIDAT-LEVBESK-3                           
+  END-PROC                                                                      
+                                                                                
+******************                                                              
+*RAPPORTER       *                                                              
+******************                                                              
+                                                                                
+**RAPPORT 1 SEKTION                                                             
+                                                                                
+                                                                                
+REPORT SEKTION                           +                                      
+       PRINTER W22524D2                  +                                      
+       LINESIZE 120                      +                                      
+       PAGESIZE 41                       +                                      
+       TITLESKIP 3                       +                                      
+       NOADJUST                          +                                      
+       NOHEADING                         +                                      
+       NOSPREAD                          +                                      
+       SUMCTL ALL                        +                                      
+       DTLCTL FIRST                                                             
+                                                                                
+CONTROL FINAL NOPRINT                                 +                         
+        W-SPAR-SEKT-INTERVALL NOPRINT NEWPAGE RENUM   +                         
+        W-SPAR-GRUPP-INTERVALL NOPRINT NEWPAGE        +                         
+        W-SPAR-IDANSK NOPRINT                                                   
+                                                                                
+TITLE 1  '   '                                                                  
+                                                                                
+TITLE 2  COL 003  'VOLVO PARTS'                    +                            
+         COL 017  'W22524-001'                     +                            
+         COL 031  'RESTORDER - RADER'              +                            
+         COL 055  'SEKTION'                        +                            
+         COL 067  W-RUB-SEKT-INTERVALL             +                            
+         COL 076  W-SPAR-TESEKT                    +                            
+         COL 092  'ANSKAFFARE'                     +                            
+         COL 104  W-RUB-GRUPP-INTERVALL                                         
+                                                                                
+TITLE 3  '    '                                                                 
+                                                                                
+TITLE 4  COL 023 'R E S T O R D E R I N F O'       +                            
+         COL 063 'A N K O M S T I N F O'                                        
+                                                                                
+TITLE 5  '    '                                                                 
+                                                                                
+TITLE 6  COL 002  'AN'                       +                                  
+         COL 009  'ARTNR'                    +                                  
+         COL 015  'LEVNR'                    +                                  
+         COL 031  'VÄRDE'                    +                                  
+         COL 038  'RADER'                    +                                  
+         COL 046  'ANTAL'                    +                                  
+         COL 053  'ÅÅVV'                     +                                  
+         COL 071  'VÄRDE'                    +                                  
+         COL 082  'I'                        +                                  
+         COL 087  'TER-'                     +                                  
+         COL 097  'PÅ'                       +                                  
+         COL 104  'AVS-V'                    +                                  
+         COL 112  'ANTAL'                                                       
+                                                                                
+TITLE 7  COL 002  'SK'                       +                                  
+         COL 078  'LAGER'                    +                                  
+         COL 086  'MINAL'                    +                                  
+         COL 096  'VÄG'                      +                                  
+         COL 105  'ÅÅVV'                                                        
+                                                                                
+                                                                                
+LINE 01  COL 001  W-SPAR-IDANSK                +                                
+         COL 005  W-UT-IDARTNR                 +                                
+         COL 015  W-UT-IDLEVNR                 +                                
+         COL 023  W-UT-SUROBEL                 +                                
+         COL 036  W-UT-KVRORAD                 +                                
+         COL 044  W-UT-KVROS                   +                                
+         COL 052  W-UT-TIRODAT-ORDER           +                                
+         COL 063  W-UT-SUAKBEL                 +                                
+         COL 076  W-UT-KVAKS-CDC               +                                
+         COL 084  W-UT-KVAKS-T                 +                                
+         COL 092  W-UT-KVAKS-PAV               +                                
+         COL 105  W-UT-TIAVIDAT-1              +                                
+         COL 110  W-UT-KVAVIS-1                                                 
+                                                                                
+AFTER-LINE. PROC                                                                
+  IF IN-TIAVIDAT-LEVBESK-2 > 0                                                  
+     DISPLAY COL 105 W-UT-TIAVIDAT-2 COL 110 W-UT-KVAVIS-2                      
+     IF IN-TIAVIDAT-LEVBESK-3 > 0                                               
+        DISPLAY COL 105 W-UT-TIAVIDAT-3 COL 110 W-UT-KVAVIS-3                   
+     END-IF                                                                     
+  END-IF                                                                        
+  DISPLAY '   '                                                                 
+END-PROC                                                                        
+                                                                                
+**RAPPORT 2 ANSK-GRUPP                                                          
+                                                                                
+REPORT ANSK-GRUPP                        +                                      
+       PRINTER W22524D3                  +                                      
+       LINESIZE 120                      +                                      
+       PAGESIZE 41                       +                                      
+       TITLESKIP 3                       +                                      
+       NOADJUST                          +                                      
+       NOHEADING                         +                                      
+       NOSPREAD                          +                                      
+       SUMCTL ALL                        +                                      
+       DTLCTL FIRST                                                             
+                                                                                
+CONTROL FINAL NOPRINT                    +                                      
+        W-SPAR-GRUPP-INTERVALL NOPRINT NEWPAGE RENUM     +                      
+        W-SPAR-IDANSK NOPRINT                                                   
+                                                                                
+                                                                                
+TITLE 1  '   '                                                                  
+                                                                                
+TITLE 2  COL 003  'VOLVO PARTS'                    +                            
+         COL 017  'W22524-002'                     +                            
+         COL 031  'RESTORDER - RADER'              +                            
+         COL 055  'ANSK-GRUPP'                     +                            
+         COL 067  W-RUB-GRUPP-INTERVALL            +                            
+         COL 076  W-SPAR-TESEKT                    +                            
+         COL 092  'ANSKAFFARE'                     +                            
+         COL 104  W-RUB-GRUPP-INTERVALL                                         
+                                                                                
+TITLE 3  '    '                                                                 
+                                                                                
+TITLE 4  COL 023 'R E S T O R D E R I N F O'       +                            
+         COL 063 'A N K O M S T I N F O'                                        
+                                                                                
+TITLE 5  '    '                                                                 
+                                                                                
+TITLE 6  COL 002  'AN'                       +                                  
+         COL 009  'ARTNR'                    +                                  
+         COL 015  'LEVNR'                    +                                  
+         COL 031  'VÄRDE'                    +                                  
+         COL 038  'RADER'                    +                                  
+         COL 046  'ANTAL'                    +                                  
+         COL 053  'ÅÅVV'                     +                                  
+         COL 071  'VÄRDE'                    +                                  
+         COL 082  'I'                        +                                  
+         COL 087  'TER-'                     +                                  
+         COL 097  'PÅ'                       +                                  
+         COL 104  'AVS-V'                    +                                  
+         COL 112  'ANTAL'                                                       
+                                                                                
+TITLE 7  COL 002  'SK'                       +                                  
+         COL 078  'LAGER'                    +                                  
+         COL 086  'MINAL'                    +                                  
+         COL 096  'VÄG'                      +                                  
+         COL 105  'ÅÅVV'                                                        
+                                                                                
+                                                                                
+LINE 01  COL 001  W-SPAR-IDANSK                +                                
+         COL 005  W-UT-IDARTNR                 +                                
+         COL 015  W-UT-IDLEVNR                 +                                
+         COL 023  W-UT-SUROBEL                 +                                
+         COL 036  W-UT-KVRORAD                 +                                
+         COL 044  W-UT-KVROS                   +                                
+         COL 052  W-UT-TIRODAT-ORDER           +                                
+         COL 063  W-UT-SUAKBEL                 +                                
+         COL 076  W-UT-KVAKS-CDC               +                                
+         COL 084  W-UT-KVAKS-T                 +                                
+         COL 092  W-UT-KVAKS-PAV               +                                
+         COL 105  W-UT-TIAVIDAT-1              +                                
+         COL 110  W-UT-KVAVIS-1                                                 
+                                                                                
+                                                                                
+AFTER-LINE. PROC                                                                
+  IF IN-TIAVIDAT-LEVBESK-2 > 0                                                  
+     DISPLAY COL 105 W-UT-TIAVIDAT-2 COL 110 W-UT-KVAVIS-2                      
+     IF IN-TIAVIDAT-LEVBESK-3 > 0                                               
+        DISPLAY COL 105 W-UT-TIAVIDAT-3 COL 110 W-UT-KVAVIS-3                   
+     END-IF                                                                     
+  END-IF                                                                        
+  DISPLAY '   '                                                                 
+END-PROC                                                                        
+                                                                                
+                                                                                
+**RAPPORT 3 ANSKAFFARE                                                          
+                                                                                
+REPORT ANSKAFFARE                        +                                      
+       PRINTER W22524D4                  +                                      
+       LINESIZE 120                      +                                      
+       PAGESIZE 41                       +                                      
+       SKIP 3                            +                                      
+       TITLESKIP 3                       +                                      
+       NOADJUST                          +                                      
+       NOHEADING                         +                                      
+       NOSPREAD                          +                                      
+       SUMCTL ALL                        +                                      
+       DTLCTL FIRST                                                             
+                                                                                
+CONTROL FINAL NOPRINT                    +                                      
+        W-SPAR-IDANSK NOPRINT NEWPAGE RENUM  +                                  
+        W-SPAR-IDARTNR NOPRINT                                                  
+                                                                                
+                                                                                
+TITLE 1  '   '                                                                  
+                                                                                
+TITLE 2  COL 003  'VOLVO PARTS'                    +                            
+         COL 017  'W22524-003'                     +                            
+         COL 031  'RESTORDER - RADER'              +                            
+         COL 055  'ANSKAFFARE'                     +                            
+         COL 067  W-RUB-IDANSK                                                  
+                                                                                
+                                                                                
+TITLE 3  '    '                                                                 
+                                                                                
+TITLE 4  COL 023 'R E S T O R D E R I N F O'       +                            
+         COL 063 'A N K O M S T I N F O'                                        
+                                                                                
+TITLE 5  '    '                                                                 
+                                                                                
+TITLE 6  COL 009  'ARTNR'                    +                                  
+         COL 015  'LEVNR'                    +                                  
+         COL 031  'VÄRDE'                    +                                  
+         COL 038  'RADER'                    +                                  
+         COL 046  'ANTAL'                    +                                  
+         COL 053  'ÅÅVV'                     +                                  
+         COL 071  'VÄRDE'                    +                                  
+         COL 082  'I'                        +                                  
+         COL 087  'TER-'                     +                                  
+         COL 097  'PÅ'                       +                                  
+         COL 104  'AVS-V'                    +                                  
+         COL 112  'ANTAL'                                                       
+                                                                                
+TITLE 7  COL 078  'LAGER'                    +                                  
+         COL 086  'MINAL'                    +                                  
+         COL 096  'VÄG'                      +                                  
+         COL 105  'ÅÅVV'                                                        
+                                                                                
+LINE 01  COL 005  W-UT-IDARTNR                 +                                
+         COL 015  W-UT-IDLEVNR                 +                                
+         COL 023  W-UT-SUROBEL                 +                                
+         COL 036  W-UT-KVRORAD                 +                                
+         COL 044  W-UT-KVROS                   +                                
+         COL 052  W-UT-TIRODAT-ORDER           +                                
+         COL 063  W-UT-SUAKBEL                 +                                
+         COL 076  W-UT-KVAKS-CDC               +                                
+         COL 084  W-UT-KVAKS-T                 +                                
+         COL 092  W-UT-KVAKS-PAV               +                                
+         COL 105  W-UT-TIAVIDAT-1              +                                
+         COL 110  W-UT-KVAVIS-1                                                 
+                                                                                
+AFTER-LINE. PROC                                                                
+  IF IN-TIAVIDAT-LEVBESK-2 > 0                                                  
+     DISPLAY COL 105 W-UT-TIAVIDAT-2 COL 110 W-UT-KVAVIS-2                      
+     IF IN-TIAVIDAT-LEVBESK-3 > 0                                               
+        DISPLAY COL 105 W-UT-TIAVIDAT-3 COL 110 W-UT-KVAVIS-3                   
+     END-IF                                                                     
+  END-IF                                                                        
+END-PROC                                                                        
+                                                                                

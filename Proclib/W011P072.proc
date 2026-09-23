@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER FILERNA W01160, W01161, W01168,                                      
+//*                W01173, W01174                                               
+//*                                                                             
+//*  SKAPAR DAGLIGT LAGERBAND W01172                                            
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W011D1, W100V1                                    
+//*                                                                             
+//*  ÅTERSTART:    W01172    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W011P072 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W011..&RTEGRP.,                                           
+//             INDUT=&W011                                                      
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W01172   EXEC PGM=W01172                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W01172D1 DD  DSN=&INDIN..W01160(+0),DISP=SHR                                  
+//************ SAMTLIGA DATAELEMENT FRÅN WDK601 OCH WDK611                      
+//*                                                                             
+//W01172D2 DD  DSN=&INDIN..W01161(+0),DISP=SHR                                  
+//************ SAMTLIGA DATAELEMENT FRÅN WDK621                                 
+//*                                                                             
+//W01172D3 DD  DSN=&INDIN..W01168(+0),DISP=SHR                                  
+//************ UTVALDA DATAELEMENT FRÅN WDK901                                  
+//*                                                                             
+//W01172D5 DD  DSN=&INDIN..W01173(+0),DISP=SHR                                  
+//************ SUMMERAD KVBR PER ARTIKEL, FRÅN WDD902                           
+//*                                                                             
+//W01172D6 DD  DSN=&INDIN..W01174(+0),DISP=SHR                                  
+//************ SAMTLIGA BENÄMNINGAR FRÅN WDD3                                   
+//*                                                                             
+//W01172D7 DD  DSN=&INDUT..W01172(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ DAGLAGERBAND                                                     
+//*            SPACE=(435,(150,25),RLSE),AVGREC=K,                              
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=NOBACKUP                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

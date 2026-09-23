@@ -1,0 +1,59 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOLLAR LDC1A ORDERRADER MOT DISPONIBELT PÅ LAGERBAND                       
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W412D6                                           
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W4121A    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W412P01A PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W412..W412D6,                                             
+//             INDIN1=&W011..LDC,                                               
+//             INDIN2=&W011..SDC,                                               
+//             INDUT=&W412..W412D6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* EXTRACT SWEDEN LDC ON DC AND IDARTNR                                        
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W412PD02),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W01184(+0),DISP=SHR                                 
+//         DD  DSN=&INDIN2..W01184(+0),DISP=SHR                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W412PD1A),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W41240(+0),DISP=SHR                                  
+//************ INFIL                                                            
+//*                                                                             
+//SORTOUT  DD  DSN=&&W41240,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD INFIL                                                   
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W4121A   EXEC PGM=V16459,PARM='W4121A/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W4121AD1 DD  DSN=&&W01184,DISP=(OLD,DELETE,DELETE)                            
+//************ LAGERBAND                                                        
+//*                                                                             
+//W4121AD2 DD  DSN=&&W41240,DISP=(OLD,DELETE,DELETE)                            
+//************ INFIL                                                            
+//*                                                                             
+//W4121AD3 DD  DSN=&INDUT..W41210(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ UTFIL                                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

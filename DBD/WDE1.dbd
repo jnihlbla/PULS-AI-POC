@@ -1,0 +1,54 @@
+*        TRANSPORTRELEASE DDI                                                   
+*                                                                               
+         DBD   NAME=WDE1,RMNAME=(V12008,4,36000,100000),               *        
+               ACCESS=(HDAM,OSAM)                                               
+         DATASET DD1=WDE1V,DEVICE=3390,SIZE=8192,SCAN=0                         
+*                                                                               
+         SEGM  NAME=WDE101,PARENT=0,BYTES=123,PTR=T                             
+         FIELD NAME=(IDSHIPM,SEQ,U),BYTES=7,START=1,TYPE=X                      
+         FIELD NAME=(IDTRPTNR),BYTES=2,START=8,TYPE=P                           
+         FIELD NAME=(IDLBBET),BYTES=12,START=10,TYPE=X                          
+         FIELD NAME=(IDDC),BYTES=2,START=22,TYPE=X                              
+         FIELD NAME=(TISKEPPN),BYTES=4,START=31,TYPE=P                          
+         FIELD NAME=(TISKPTID),BYTES=4,START=35,TYPE=P                          
+         FIELD NAME=(KDKLAR),BYTES=1,START=41,TYPE=X                            
+         LCHILD NAME=(WDE1A1,WDE1A),PTR=INDX                                    
+         XDFLD NAME=WDE1ASEQ,SEGMENT=WDE101,                           *        
+               SRCH=(IDDC,IDTRPTNR,IDLBBET,TISKEPPN),                  *        
+               SUBSEQ=(TISKPTID),                                      *        
+               DDATA=(IDSHIPM),                                        *        
+               EXTRTN=WDE1AEXT                                                  
+* EXIT FINNS NÄR KDKLAR = J                                                     
+*                                                                               
+         LCHILD NAME=(WDE1B1,WDE1B),PTR=INDX                                    
+         XDFLD NAME=WDE1BSEQ,SEGMENT=WDE111,                           *        
+               SRCH=(IDDC,IDDISTR,TISKEPP9),                           *        
+               SUBSEQ=(/CK01,IDKUNDNR)                                          
+*                                                                               
+         SEGM  NAME=WDE111,PARENT=WDE101,BYTES=37,PTR=T                         
+         FIELD NAME=(WDE111KY,SEQ,U),BYTES=7,START=1,TYPE=X                     
+         FIELD NAME=(IDDISTR),BYTES=3,START=1,TYPE=P                            
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=4,TYPE=P                           
+         FIELD NAME=(IDDC),BYTES=2,START=9,TYPE=X                               
+         FIELD NAME=(TISKEPP9),BYTES=4,START=34,TYPE=P                          
+         FIELD NAME=(/CK01),BYTES=7,START=1,TYPE=X                              
+*                                                                               
+         SEGM  NAME=WDE122,PARENT=WDE111,BYTES=156,PTR=T                        
+         FIELD NAME=(KDSEGKEY,SEQ,U),BYTES=1,START=1,TYPE=X                     
+*                                                                               
+         SEGM  NAME=WDE121,PARENT=WDE111,BYTES=114,PTR=T                        
+         FIELD NAME=(WDE121KY,SEQ,U),BYTES=7,START=1,TYPE=X                     
+         FIELD NAME=(IDPRODNR),BYTES=4,START=1,TYPE=P                           
+         FIELD NAME=(IDKOLLI),BYTES=3,START=5,TYPE=P                            
+         FIELD NAME=(FLCROSS),BYTES=1,START=114,TYPE=X                          
+*                                                                               
+         SEGM  NAME=WDE131,PARENT=WDE121,BYTES=74,PTR=T                         
+         FIELD NAME=(IDPURAD,SEQ,U),BYTES=3,START=1,TYPE=P                      
+         FIELD NAME=(IDARTNR),BYTES=5,START=4,TYPE=P                            
+*                                                                               
+         SEGM  NAME=WDE141,PARENT=WDE131,BYTES=37,PTR=T                         
+         FIELD NAME=(IDTRACK,SEQ,U),BYTES=25,START=1,TYPE=X                     
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

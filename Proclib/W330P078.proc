@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  STANDARDSORTERAR URVAL FRÅN W33035. COBOLSORTERAR OCH                      
+//*  SUMMRAR RESULTAT PER ARTNR OCH NIVÅ                                        
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W330B2                                      
+//*                                                                             
+//*  ÅTERSTART:    SORT1   NORMAL                                               
+//*                .                                                            
+//*                W33078   NORMAL                                              
+//*                .                                                            
+//*                DFUP   NORMAL                                                
+//*                .                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P078 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W330..W330B2,                                             
+//             INDUT=&W330..W330B2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W330PD78),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W33035(+0),DISP=SHR                                  
+//************ URVALSFIL                                                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W33035S,DISP=(NEW,PASS,DELETE),                            
+//************ URVAL SORTERADE PÅ IDUSER TIREGDAT TIREGTID                      
+//             SPACE=(6233,(5500,1000),RLSE)                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33078   EXEC PGM=W33078                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W33078D1 DD  DSN=&&W33035S,DISP=(OLD,DELETE,DELETE)                           
+//*                                                                             
+//W33078D2 DD  DSN=&INDIN..W33077(+0),DISP=SHR                                  
+//************ RESUTAT AV URVAL VA2 FRÅN W33035                                 
+//*                                                                             
+//W33078D3 DD  DSN=&INDUT..W33079(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ URVAL + SORTERADE OCH SUMMERADE RESULTAT AV URVAL                
+//             MGMTCLAS=DEL2,VOL=(,,,3),                                        
+//             SPACE=(23391,(1200,2500),RLSE)                                   
+//*                                                                             

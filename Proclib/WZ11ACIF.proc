@@ -1,0 +1,105 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  FUNCTION: Create a formatted report using AFP Conversion and     *         
+//*            Indexing Facility (ACIF) and then print it on paper.   *         
+//*                                                                   *         
+//*  PARAMETERS:                                                      *         
+//*                                                                   *         
+//*    DSIN:     The name of a plain-text report file or data file    *         
+//*              to be printed.                                       *         
+//*                                                                   *         
+//*    ACIFLIB:  The name of a library containing parameters for      *         
+//*              ACIF. See ACIFCMDF and ACIFCMDS below.               *         
+//*              By default, the CONSTANT library in the current      *         
+//*              runtime environment is used. (Normally not           *         
+//*              overridden)                                          *         
+//*                                                                   *         
+//*    ACIFCMDF: The name of an ACIFLIB member containing general     *         
+//*              fixed ACIF parameters.                               *         
+//*              Default: WZ11ACIF (normally not overridden)          *         
+//*                                                                   *         
+//*    ACIFCMDS: The name of an ACIFLIB member containing additional  *         
+//*              report-specific ACIF parameters.                     *         
+//*              Examples of such paramters:                          *         
+//*               CC=YES/NO          -- Does the report contain ASA   *         
+//*                                     carriage control characters?  *         
+//*               USERLIB=W.QASE.PSF -- Name of application-specific  *         
+//*                                     resource library              *         
+//*               FORMDEF=F1xxxxxx   -- Formdef used for this report  *         
+//*               PAGEDEF=P1xxxxxx   -- Pagedef used for this report  *         
+//*              These parameters may alternatively be be given       *         
+//*              in the JCL stream via //ACIFCMDS DD *                *         
+//*                                                                   *         
+//*    ACIFINDX: The name of an ACIFLIB member containing             *         
+//*              On-Demand search index specifications.               *         
+//*              Default: WZ11EMPT (Empty member - no indexing)       *         
+//*              These parameters may alternatively be be given       *         
+//*              in the JCL stream via //ACIFINDX DD *                *         
+//*              (or //ACIFINDX DD DUMMY if no indexing is required)  *         
+//*                                                                   *         
+//*    CLASS:    Print output class. Default: A                       *         
+//*                                                                   *         
+//*    FORMS:    Forms id                                             *         
+//*              Default: STD                                         *         
+//*                                                                   *         
+//*    DEST:     Printer name or other destination.                   *         
+//*              Default: LOCAL                                       *         
+//*                                                                   *         
+//*    COPIES:   Number of copies to be printed.                      *         
+//*              Default: 1                                           *         
+//*                                                                   *         
+//*    OUTDISP:  Output disposition, WRITE, HOLD, KEEP, LEAVE         *         
+//*              Default: WRITE                                       *         
+//*                                                                   *         
+//*                                                                   *         
+//*    MAXRC:    The maximum allowed return code from ACIF.           *         
+//*              A higher return code results in a U0016 abend.       *         
+//*              Default: 3                                           *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ11ACIF PROC DSIN=NULLFILE,                                                  
+//             ACIFLIB=&INDRTE..CONSTANT,                                       
+//             ACIFCMDF=WZ11ACIF,ACIFCMDS=MISSING,ACIFINDX=WZ11EMPT,            
+//             MAXRC=3,                                                         
+//             CLASS=A,DEST=LOCAL,COPIES=1,FORMS=STD,OUTDISP=WRITE              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ACIF     EXEC PGM=APKACIF,REGION=8M                                           
+//SYSIN    DD  DSN=&ACIFLIB(&ACIFCMDF),DISP=SHR                                 
+//         DD  DDNAME=ACIFINDX                                                  
+//         DD  DDNAME=ACIFCMDS                                                  
+//ACIFCMDS DD  DSN=&ACIFLIB(&ACIFCMDS),DISP=SHR                                 
+//ACIFINDX DD  DSN=&ACIFLIB(&ACIFINDX),DISP=SHR                                 
+//*                                                                             
+//INPUT    DD  DSN=&DSIN,DISP=SHR                                               
+//OUTPUT   DD  DSN=&&AFPDS,DISP=(NEW,PASS),                                     
+//************  AFP PRINT STREAM                                                
+//             LRECL=32756,RECFM=VBM,DSORG=PS,                                  
+//             DATACLAS=PSEN                                                    
+//INDEX    DD  DSN=&&INDEX,DISP=(NEW,PASS),                                     
+//************  INDEXING INFORMATION                                            
+//             LRECL=32756,RECFM=VB,DSORG=PS,                                   
+//             DATACLAS=PSEN                                                    
+//RESLIB   DD  DSN=&&RESOURCE,DISP=(NEW,PASS),                                  
+//************  USED AFP RESOURCES                                              
+//             LRECL=12284,RECFM=VBM,DSORG=PS,                                  
+//             DATACLAS=PSEN                                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//CHECK  IF    (ACIF.RC <= &MAXRC) THEN                                         
+//*                                                                             
+//PRINT    EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//O1       OUTPUT CLASS=&CLASS,DEST=&DEST,COPIES=&COPIES,                       
+//             FORMS=&FORMS,OUTDISP=(&OUTDISP,&OUTDISP)                         
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUT1   DD  DSN=&&RESOURCE,DISP=(OLD,DELETE)                                 
+//         DD  DSN=&&AFPDS,DISP=(OLD,DELETE)                                    
+//         DD  DSN=&&INDEX,DISP=(OLD,DELETE)                                    
+//SYSUT2   DD  SYSOUT=(,),RECFM=VBM,OUTPUT=(*.O1)                               
+//SYSIN    DD  DUMMY                                                            
+//*                                                                             
+//CHECK  ELSE                                                                   
+//PABEND  EXEC PGM=ABEND,PARM='1234567890123456'                                
+//CEEDUMP  DD  DUMMY                                        -- ABEND            
+//*                                                                             
+//CHECK  ENDIF                                                                  

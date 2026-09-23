@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER HELA WDR6 OCH SELEKTERAR LDC-1A POSTER.                              
+//*  SKAPAR FILER FÖR RENSNING AV WDR6 OCH UPPFÖLJNINGSFIL.                     
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W418V2                                         
+//*                                                                             
+//*  ÅTERSTART:    W41816      NORMAL                                           
+//*                LÄSER        WDR6                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W418P016 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W418..W418V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41816   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W41816,W41816,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//*DFSVSAMP DD  DSN=&INDGRND..CONSTANT(VSAM4K),DISP=SHR                         
+//*         DD  DSN=&INDGRND..CONSTANT(VSAM8K),DISP=SHR                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDR6     INCLUDE MEMBER=WDR6                                                  
+//*                                                                             
+//W41816D1 DD  DSN=&INDUT..W41816(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ POSTER SOM SKALL KOMPLETTERAS OCH SEDAN BLI LISTA.               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//W41816D2 DD  DSN=&INDUT..W41817(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RENSNINGSPOSTER FÖR WDR6                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 

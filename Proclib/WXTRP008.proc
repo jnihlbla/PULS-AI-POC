@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR VECKOFIL MED PACKAT                                                 
+//*                                                                             
+//*  FREQUENCE:    WEEKLY   RTN WXTRV2                                          
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                WXTR08    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTRP008 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&WXTR..WXTRV2,                                             
+//             INDUT=&WXTR..WXTRV2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WXTRPD08),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..WXTR04,DISP=SHR                                      
+//************ ALLA DAGFILER MED PACKADE RADER                                  
+//************ SORTAS PÅ DC OCH DISTRIKT                                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&WXTR04,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD PER IDDC/IDDISTR                                        
+//         SPACE=(34,(500,66),RLSE),AVGREC=K                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTR08   EXEC PGM=V16459,PARM='WXTR08/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//WXTR08D1 DD  DSN=&&WXTR04,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD PER IDDC/IDDISTR                                        
+//*                                                                             
+//WXTR08D2 DD  DSN=&INDUT..WXTR08(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FAKTURERAT PER IDDC/IDDISTR                                      
+//             SPACE=(37,(500,66),RLSE),AVGREC=K,                               
+//             MGMTCLAS=&DEL2BKPC                                               

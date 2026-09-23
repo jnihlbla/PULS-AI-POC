@@ -1,0 +1,51 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SB NEDLÄSNING AV WDF2A TILL FIL                                            
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W91054                                          
+//*                                                                             
+//*  ÅTERSTART:    W91056      NORMAL                                           
+//*                LÄSER  WDF2A                                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W910P056 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W910                                                      
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W91056   EXEC PGM=DFSRRC00,REGION=6M,                                         
+//             PARM=('&DBB,W91056,W91056,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDF2     INCLUDE MEMBER=WDF2                                                  
+//*                                                                             
+//W91056D1 DD  DSN=&&W91056,DISP=(NEW,PASS,DELETE),                             
+//************ WDF2A1-SEGMENT                                                   
+//             SPACE=(27988,(1000,500),RLSE)                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W910PD56),DISP=SHR                         
+//SORTIN   DD  DSN=&&W91056,DISP=(OLD,PASS,DELETE)                              
+//************ OSORTERAD FILE FRÅN CROSSINDEX                                   
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W91056(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ SORTERAD WDF2A1-FIL ARTIKEL (A), DATUM (D), LEV (A)              
+//             SPACE=(27998,(1000,500),RLSE),                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

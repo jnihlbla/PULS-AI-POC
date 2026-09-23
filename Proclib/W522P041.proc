@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DISTRIBUTES FILE WITH VAT DATA TO D-A-P                                    
+//*                                                                             
+//*  FREQUENCE:    PERIOD    RTN W522M1                                         
+//*                                                                             
+//*  RESTART:      W52241    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W522P041 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W522..W522M1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W52241S EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN..W52202(+0),DISP=SHR                                  
+//************** VAT FILE                                           ***         
+//*                                                                             
+//SORTOUT  DD  DSN=&&W52241,DISP=(NEW,PASS,DELETE),                             
+//************** OUTPUT TEMP FILE WITH SORTED VAT DATA              ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W522PD41),DISP=SHR                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W52241   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W52241,W52241,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//************** TEMP FILE WITH SORTED VAT DATA                     ***         
+//W52241D1 DD  DSN=&&W52241,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             

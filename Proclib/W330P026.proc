@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPA ARTIKELSTATISTIK PÅ PRISOMRÅDESNIVÅ                                  
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD    RTN W330R1                             
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W33026    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P026 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W330..W330R1,                                            
+//             INDUT2=&W330..W330R1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W330PD26),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W33026(+0),DISP=SHR                                 
+//************ SORTAS PÅ PRISOMRÅDE                                             
+//*                                                                             
+//SORTOUT  DD  DSN=&&W33026S,DISP=(NEW,PASS,DELETE),                            
+//************ SORTAD FIL                                                       
+//         SPACE=(170,(3000,666),RLSE),AVGREC=K                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33026   EXEC PGM=W33026                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W33026D1 DD  DSN=&&W33026S,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTAD FIL                                                       
+//*                                                                             
+//W33026D2 DD  DSN=&INDUT2..W33032(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ SUMMERAD PÅ PRISOMRÅDE / ARTIKEL                                 
+//             SPACE=(142,(2000,833),RLSE),AVGREC=K,                            
+//             MGMTCLAS=DEL2                                                    

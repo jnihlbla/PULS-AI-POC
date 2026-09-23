@@ -1,0 +1,66 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*                                                                      *        
+*  FUNKTION   :  EN FIL IN, EN AKTIVITET, LISTA UT                     *        
+*                                                                      *        
+*  FÖRFATTARE :  JAN MELANDER  JAN-86                                  *        
+*                                                                      *        
+*  INFILER    :  W092.W092D2.W092ZV                                    *        
+*                                                                      *        
+*  UTFILER    :  W11130-001                                            *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVD                         *        
+*     ........    ....................     ..............              *        
+*     ........    ....................     ..............              *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W11130D1                                                                   
+*                                                                               
+*-------------*                                                                 
+* COPYTEXT    *                                                                 
+*-------------*                                                                 
+*                                                                               
+%W111RZV                                                                        
+*                                                                               
+FILE W11130D2 PRINTER                                                           
+*                                                                               
+*-------------*                                                                 
+* ARBETSAREOR *                                                                 
+*-------------*                                                                 
+*                                                                               
+ LEVNR       W 5 A                                                              
+ ARTNR       W 9 N MASK 'ZZZZZZZZ9'                                             
+ BEREDARE    W 3 N MASK 'ZZ9'                                                   
+ LEV-BET     W 30 A  HEADING +                                                  
+                     'LEVERANTÖRENS ARTIKELBENÄMNING'                           
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+*-------------*                                                                 
+* JOB         *                                                                 
+*-------------*                                                                 
+*                                                                               
+JOB INPUT W11130D1                                                              
+*                                                                               
+ LEVNR = UTRZV-IDLEVNR                                                          
+ ARTNR = UTRZV-IDARTNR                                                          
+ BEREDARE = UTRZV-IDBERED                                                       
+ LEV-BET = UTRZV-BELEV                                                          
+ PRINT LISTA                                                                    
+*-------------*                                                                 
+* REPORT      *                                                                 
+*-------------*                                                                 
+*                                                                               
+  REPORT LISTA PRINTER W11130D2 LINESIZE 121 +                                  
+         NOADJUST SPACE 2 NODATE  SKIP 1                                        
+    SEQUENCE LEVNR ARTNR                                                        
+*                                                                               
+    TITLE 1 COL 2 'W11130-001  VCCS'   +                                        
+            COL 39 'NYREGISTRERADE ARTIKLAR CROSS INDEX' +                      
+            COL 85 'DATUM ' SYSDATE                                             
+*                                                                               
+    LINE COL 5 LEVNR COL 23 ARTNR COL 42 BEREDARE +                             
+         COL 73 LEV-BET                                                         

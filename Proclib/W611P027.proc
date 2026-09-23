@@ -1,0 +1,37 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR IHOP W61126 MED DLB FÖR ATT SKAPA W020 FIL                         
+//*  MED INLEVERANSHISTORIK                                                     
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W611V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W61127    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P027 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611V1,                                             
+//             INDIN2=&W011,                                                    
+//             INDUT=&W611..W611V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61127   EXEC PGM=V16459,PARM='W61127/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61127D1 DD  DSN=&INDIN..W61126(+0),DISP=SHR                                  
+//************ FRÅN W61126                                                      
+//*                                                                             
+//W61127D2 DD  DSN=&INDIN2..W01172(+0),DISP=SHR                                 
+//************ DLB                                                              
+//*                                                                             
+//W61127D3 DD  DSN=&INDUT..W61127(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ INLEVERANSHISTORIK                                               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

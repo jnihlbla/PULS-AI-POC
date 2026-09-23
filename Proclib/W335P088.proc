@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DAILY UPDATE COST OF SALES FILE                                            
+//*                                                                             
+//*  FREKVENS:  DAG   RTN W335D6                                                
+//*                                                                             
+//*  FREQUENCE: DAILY  RTN W335D6                                               
+//*                                                                             
+//*  RESTART:   W33588  NORMAL                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W335P088 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W335,                                                    
+//             INDIN=&W335..W335D6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33588   EXEC PGM=V16459,PARM='W33588/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W33588D1 DD  DSN=&INDREG..W33589(+0),DISP=SHR                                 
+//************ PRISFIL SJÄLVKOST MÅNAD                                          
+//*                                                                             
+//W33588D2 DD  DSN=&INDIN..W33587(+0),DISP=SHR                                  
+//************ PRISFIL SJÄLVKOST MÅNAD LOKALA ART                               
+//*                                                                             
+//W33588D3 DD  DSN=&INDREG..W3358I(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ PRICEFILE WITH PRICES TO MONTHLY RATE                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

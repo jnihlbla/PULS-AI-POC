@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SPLITS AGREEMENTS FROM SI+ BETWEEN SE AND CN                               
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W212S1                                         
+//*                                                                             
+//*  RESTART:      W21210    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W212P010 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W092..W212S1,                                            
+//             INDUT2=&W212..W212S1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21210   EXEC PGM=W21210                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W21210D1 DD  DSN=&INDIN2..EPIC(+0),DISP=SHR                                   
+//************ AGREEMENTS FROM SI+ SE AND CN                                    
+//*                                                                             
+//W21210D2 DD  DSN=&INDUT2..EPICSE(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ AGREEMENTS FROM SI+ SE                                           
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W21210D3 DD  DSN=&INDUT2..EPICCN(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)        
+//************ AGREEMENTS FROM SI+ CN                                           
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             

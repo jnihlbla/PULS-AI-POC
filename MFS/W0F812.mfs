@@ -1,0 +1,95 @@
+*          DATA SET W0F812FII0 AT LEVEL 002 AS OF 89/03/09                      
+*                                                                               
+         PRINT NOGEN                                                            
+W0F812   FMT                                                                    
+         DEV   TYPE=(3270,2),                                          *        
+               FEAT=IGNORE,                                            *        
+               PFK=(FLDPFK,'W0T501  ','W0T501  ','W0T501  ','W0T501  ',*        
+               'W0T501  ','W0T501  ','W0T812 7','W0T812 8','W0T501  ', *        
+               'WHELP   ','W0T501  ','/RCL.   ','W0T811  ','W0T812  ', *        
+               'W0T501  ','W0T501  ','W0T501  ','W0T501  ','W0T501  ', *        
+               'W0T501  ','W0T501  ','WHELP   ','W0T501  ','/RCL.   '),*        
+               DSCA=X'0080',SYSMSG=FSYSMSG                                      
+         DIV   TYPE=INOUT                                                       
+         DPAGE CURSOR=((01,02)),                                       *        
+               FILL=NONE                                                        
+         ALPHA 'abcdefghijklmnopqrstuvwxyzåäö'                                  
+FLD0102  DFLD  POS=(01,02),LTH=0001,ATTR=(ALPHA,NOPROT,MOD)                     
+FLD0104  DFLD  POS=(01,04),LTH=0001,ATTR=(NUM)                                  
+FLD0106  DFLD  POS=(01,06),LTH=0001,ATTR=(NUM)                                  
+FLD0108  DFLD  POS=(01,08),LTH=0001,ATTR=(NUM)                                  
+         DFLD  'FRÅGA PÅ RESTORDERSTYRNING',                           *        
+               POS=(01,12),LTH=0026,ATTR=(NUM,PROT)                             
+FLD0141  DFLD  POS=(01,41),LTH=0040,ATTR=(NUM,PROT,HI)                          
+FLD0402  DFLD  POS=(04,02),LTH=0003,ATTR=(NUM,PROT,MOD,NODISP)                  
+FLD0406  DFLD  POS=(04,06),LTH=0003,ATTR=(NUM,PROT,MOD,NODISP)                  
+         DFLD  'Prio  Benämning  Prioriterad  Fördeln.%',              *        
+               POS=(05,02),LTH=0039,ATTR=(NUM,PROT)                             
+         DFLD  'Äldst(veckor)  Konst(levb)',                           *        
+               POS=(05,43),LTH=0026,ATTR=(NUM,PROT)                             
+         DO    14,SUF=06                                                        
+COL03    DFLD  POS=(06,03),LTH=0003,ATTR=(NUM,PROT)                             
+COL08    DFLD  POS=(06,08),LTH=0010,ATTR=(NUM,PROT)                             
+COL23    DFLD  POS=(06,23),LTH=0001,ATTR=(NUM,PROT)                             
+COL36    DFLD  POS=(06,36),LTH=0003,ATTR=(NUM,PROT)                             
+COL46    DFLD  POS=(06,46),LTH=0002,ATTR=(NUM,PROT)                             
+COL60    DFLD  POS=(06,60),LTH=0004,ATTR=(NUM,PROT)                             
+         ENDDO                                                                  
+         DFLD  '13 UPPD. STYRN.14 FRÅGA STYRN.15               16      *        
+                        17              18             19              *        
+                20             21               10 WHELP    ',         *        
+               POS=(21,02),LTH=0156,ATTR=(NUM,PROT)                             
+FLD2302  DFLD  POS=(23,02),LTH=0055,ATTR=(NUM,PROT,HI)                          
+         DFLD  ' VCP ',POS=(23,58)                                              
+FLD2364  DFLD  POS=(23,64),LTH=0008,ATTR=(NUM,PROT)                             
+FLD2373  DFLD  POS=(23,73),LTH=0008,ATTR=(NUM,PROT)                             
+FSYSMSG  DFLD  POS=(24,02),LTH=0079,ATTR=(NUM,PROT,HI)                          
+         FMTEND                                                                 
+         EJECT                                                                  
+W0O81201 MSG   TYPE=OUTPUT,                                            *        
+               SOR=(W0F812,IGNORE),                                    *        
+               OPT=2,                                                  *        
+               NXT=W0I81201,                                           *        
+               FILL=PT,                                                *        
+               PAGE=NO                                                          
+         SEG                                                                    
+         MFLD  FLD0102,LTH=0001                                                 
+         MFLD  FLD0104,LTH=0001                                                 
+         MFLD  FLD0106,LTH=0001                                                 
+         MFLD  FLD0108,LTH=0001                                                 
+         MFLD  FLD0141,LTH=0040                                                 
+         MFLD  FLD0402,LTH=0003                                                 
+         MFLD  FLD0406,LTH=0003                                                 
+         DO    14,SUF=06                                                        
+         MFLD  COL03,LTH=0003                                                   
+         MFLD  COL08,LTH=0010                                                   
+         MFLD  COL23,LTH=0001                                                   
+         MFLD  COL36,LTH=0003                                                   
+         MFLD  COL46,LTH=0002                                                   
+         MFLD  COL60,LTH=0004                                                   
+         ENDDO                                                                  
+         MFLD  FLD2302,LTH=0055                                                 
+         MFLD  (FLD2364,DATE4)                                                  
+         MFLD  (FLD2373,TIME)                                                   
+         MFLD  (FSYSMSG,' '),LTH=0001                                           
+         MSGEND                                                                 
+         EJECT                                                                  
+W0I81201 MSG   TYPE=INPUT,                                             *        
+               SOR=W0F812,                                             *        
+               OPT=2,                                                  *        
+               NXT=W0O81201                                                     
+         SEG                                                                    
+         MFLD  FLDPFK,LTH=0008,FILL=NULL                                        
+         MFLD  'W',LTH=1                                                        
+         MFLD  FLD0102,LTH=0001,FILL=C'0'                                       
+         MFLD  'T',LTH=1                                                        
+         MFLD  FLD0104,LTH=0001,FILL=C'8'                                       
+         MFLD  FLD0106,LTH=0001,FILL=C'1'                                       
+         MFLD  FLD0108,LTH=0001,FILL=C'2'                                       
+         MFLD  '  ',LTH=2                                                       
+         MFLD  '08121',LTH=5                                                    
+         MFLD  (FLD0402,'000'),LTH=0003,FILL=C'0'                               
+         MFLD  (FLD0406,'000'),LTH=0003,FILL=C'0'                               
+         MSGEND                                                                 
+         EJECT                                                                  
+         END                                                                    

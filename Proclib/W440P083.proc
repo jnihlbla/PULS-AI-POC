@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PROGRAM SOM SELEKTERAR RESTORDER TRE FILTYPER PÅ VISSA DISTRIKT            
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W440XX                                           
+//*                                                                             
+//*  ÅTERSTART:    W44083    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P083 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W440,                                                     
+//             INDUT=&W440..W440V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W44083   EXEC PGM=W44083                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W44083D1 DD  DSN=&INDIN..W44061(+0),DISP=SHR                                  
+//************ TOTAL RESTORDERFIL                                               
+//*                                                                             
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W440PD83),DISP=SHR                         
+//W44083D2 DD  DSN=&INDUT..W4408A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ RESTORDER SENASTE VECKAN TILL W44084-PGM                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W44083D3 DD  DSN=&INDUT..W4408B(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ TOTALT RESTORDER TILL W44085-PGM                                 
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W44083D4 DD  DSN=&INDUT..W4408C(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ RESTORDER ÄLDRE ÄN TVÅ VECKOR TILL W44086-PGM                    
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

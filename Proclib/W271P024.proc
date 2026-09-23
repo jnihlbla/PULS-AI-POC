@@ -1,0 +1,54 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*      MATCHAR IHOP VECKOFILEN       W271.W271V1.W27120                       
+//*      MED FÖRÄNDRINGAR UNDER VECKAN W271.W271D1.W27120 (SDC/LDC)             
+//*                             ELLER  W271.W271DA.W27120 (NDC)                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P024 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W271..XXXXXX,                                            
+//             INDIN2=&W271..W271V1,                                            
+//             INDUT1=&W271..&RTEGRP.                                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTARDC),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W27120(+0),DISP=SHR                                 
+//*            DAGFIL                                                           
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27120D,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTARDC),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W27120(+0),DISP=SHR                                 
+//*            VECKOFIL                                                         
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27120V,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27124   EXEC PGM=W27124                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES         -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES         -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W271IND1 DD  DSN=&&W27120D,DISP=(OLD,DELETE,DELETE)                           
+//*            DAGFIL                                                           
+//*                                                                             
+//W271IND2 DD  DSN=&&W27120V,DISP=(OLD,DELETE,DELETE)                           
+//*            VECKOFIL                                                         
+//*                                                                             
+//W271UTD1 DD  DSN=&INDUT1..W27120(+1),DISP=(NEW,CATLG,DELETE), -LIM(5)         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//W271UTD2 DD  DSN=&&W27120X,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEB                                                    

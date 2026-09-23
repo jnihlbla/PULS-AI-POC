@@ -1,0 +1,34 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  S O P - EXTRACT SOP INFORMATION FROM DATA DICTIONARY AND SAVE    *         
+//*          IT IN AN "INSTALLATION FILE". THIS FILE IS LATER USED    *         
+//*          TO UPDATE THE ACTUAL SOP DATA BASE.                      *         
+//*          THE INPUT TO DMR SHOULD BE ONE OR MORE KEEP COMMANDS,    *         
+//*          THAT SELECTS THE PROCESS-MEMBERS WHICH ARE TO BE         *         
+//*          UPDATED.                                                 *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WSOPDMRI PROC USER=,DICT=,INDINS=&W,INSGRP=INSXXXXX                           
+//*                                                                             
+//DMR     EXEC PGM=MPR00                                                        
+//STEPLIB  DD  DSN=F1DAV1.DMR.LOAD,DISP=SHR                                     
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//MPOUT    DD  SYSOUT=*                                                         
+//MPAID    DD  DSN=F1DAV1.MPAID,DISP=SHR                                        
+//DICT     DD  DSN=&USER..&DICT..INDEX,DISP=SHR                                 
+//DICTD    DD  DSN=&USER..&DICT..DATA,DISP=SHR                                  
+//DICTS    DD  DSN=&USER..&DICT..DMSOURCE,DISP=SHR                              
+//DICTE    DD  DSN=&USER..&DICT..RECOVER,DISP=SHR                               
+//DICTJ    DD  DSN=&USER..&DICT..LOG,DISP=SHR                                   
+//MPIN     DD  DDNAME=SYSIN                                                     
+//         DD  DSN=&INDRTE..CONSTANT(WSOPDMR),DISP=SHR                          
+//*                                                                             
+//MAILDD   DD  DSN=&INDINS..&INSGRP..SOP(+1),                                   
+//************* INFO FROM DICTIONARY                                            
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             DCB=(RECFM=FB,LRECL=700),                                        
+//             SPACE=(CYL,(1,1))                                                
+//*                                                                             

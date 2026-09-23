@@ -1,0 +1,83 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5107900                                              *        
+*                                                                      *        
+*  FUNKTION :  KOMPLETTERING AV RÄTTNINGAR GJORDA I PULS               *        
+*              INLEVERANSSYSTEM GJORDA UNDER SAMMA DAG.                *        
+*              DESSA FÅR MÄRKNING AVVIKELSEFLAGGA = J.                 *        
+*              TRANSARNA KAN LÄTT HITTAS DÅ DE HAR SAMMA LÖPNR.        *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON                                    *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W51079D1                                                                   
+*                                                                               
+%W51080  'IN-'                                                                  
+                                                                                
+FILE TPFIL1 FB (125 0)                                                          
+*                                                                               
+%W51080  'T1-'                                                                  
+                                                                                
+FILE TPFIL2 FB (125 0)                                                          
+*                                                                               
+%W51080  'T2-'                                                                  
+                                                                                
+FILE W51079D2 FB (125 0)                                                        
+*                                                                               
+%W51080  'UT-'                                                                  
+                                                                                
+ W-IDLOPNRM     W 5 P                                                           
+ W-KVAVIS       W 4 P 0                                                         
+ SUM-KVAVIS     W 4 P 0                                                         
+                                                                                
+*-------------*                                                                 
+* JOBSTEG 1   *                                                                 
+*-------------*                                                                 
+*                                                                               
+* SORTERA INFILEN PÅ LÖPNUMMER.                                                 
+* ALLA TRANSAR SOM PARVIS HAR LIKA STORT POSITIVT SOM NEGATIVT                  
+* BELOPP MED SAMMA LÖPNUMMER ÄR DE SÖKTA TRANSARNA.                             
+* DESSA TRANSARS LÖPNUMMER LÄGGS PÅ TEMPFILEN FÖR ATT I STEG 2                  
+* FLAGGA ALLA DESSA TRANSARS AVVIKELSEFLAGGA TILL JA                            
+                                                                                
+                                                                                
+SORT W51079D1 TO TPFIL1 USING (IN-IDLOPNRM)                                     
+                                                                                
+                                                                                
+JOB INPUT  TPFIL1                                                               
+                                                                                
+ IF W-IDLOPNRM EQ T1-IDLOPNRM                                                   
+   SUM-KVAVIS = W-KVAVIS + T1-KVAVIS                                            
+   IF SUM-KVAVIS EQ 0 AND T1-KVAVIS NE 0                                        
+     DISPLAY '*AVV*' T1-IDARTNR ' ' W-IDLOPNRM ' ' W-KVAVIS T1-KVAVIS           
+     PUT TPFIL2 FROM TPFIL1                                                     
+   END-IF                                                                       
+ ELSE                                                                           
+  W-IDLOPNRM = T1-IDLOPNRM                                                      
+ END-IF                                                                         
+ W-KVAVIS      = T1-KVAVIS                                                      
+                                                                                
+                                                                                
+***************                                                                 
+*  JOBBSTEG 2 *                                                                 
+***************                                                                 
+*                                                                               
+* DE HITTADE LÖPNUMMER SOM SKALL MÄRKAS OM, MATCHAS MED INFILEN,                
+* MÄRKS OM OCH SKRIVS PÅ UTFILEN,                                               
+* ÄVEN ALLA ÖVRIGA SKRIVS PÅ UTFILEN.                                           
+                                                                                
+JOB INPUT (TPFIL2 KEY (T2-IDLOPNRM)                   +                         
+           TPFIL1 KEY (T1-IDLOPNRM))                                            
+                                                                                
+ IF MATCHED                                                                     
+  IF DUPLICATE TPFIL1                                                           
+    DISPLAY 'OMFLAGGAD AVVIKELSETRANS, LÖPNR: ' T1-IDLOPNRM +                   
+      ' ARTNR : ' T1-IDARTNR                                                    
+    T1-FLAVVINL = 'J'                                                           
+  END-IF                                                                        
+ END-IF                                                                         
+ IF TPFIL1                                                                      
+   PUT W51079D2 FROM TPFIL1                                                     
+ END-IF                                                                         

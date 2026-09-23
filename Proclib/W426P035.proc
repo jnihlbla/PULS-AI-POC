@@ -1,0 +1,52 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR KREDITERINGSFIL(KONTROLLRAPPORTER) TILL W510/W570/W561              
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W426V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W42635      NORMAL                                           
+//*                LÄSER        W6H7                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W426P035 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W426..W426V1,                                             
+//             INDUT=&W426..W426V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42635   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W42635,W42635,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W6H7     INCLUDE MEMBER=W6H7                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W42635D1 DD  DSN=&INDIN..W42695(+0),DISP=SHR                                  
+//************ KR- OCH SEGMENTNR                                                
+//*                                                                             
+//W42635D2 DD  DSN=&INDUT..W42635(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ KREDITERINGSPOSTER TILL W510                                     
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//W42635D3 DD  DSN=&INDUT..W42633(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ KONCERNLEVERANTÖRER SOM EJ UPPDATERAR WDR9(SAP)                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//W42635D4 DD  DSN=&INDUT..W42634(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ KREDITERINGSPOSTER TILL W570                                     
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//W42635D5 DD  DSN=&INDUT..W42637(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ KREDITERINGSPOSTER TILL W561                                     
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 

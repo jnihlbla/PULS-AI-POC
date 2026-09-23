@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FAKTURERADE RADER UNDER PERIODEN                                           
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD     RTN W428R1                            
+//*                                                                             
+//*  ÅTERSTART:    W42843      NORMAL                                           
+//*                LÄSER        WDG2                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P043 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W428..W428R1,                                             
+//             INDUT=&W428..W428R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42843   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W42843,W42843,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDG2     INCLUDE MEMBER=WDG2                                                  
+//W42843D1 DD  DSN=&INDIN..W42844(+0),DISP=SHR                                  
+//************ FAKTURERADE RADER UNDER PERIODEN                                 
+//*                                                                             
+//W42843D2 DD  DSN=&INDUT..W42843(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FAKTURERADE RADER I SEK                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEB                                 

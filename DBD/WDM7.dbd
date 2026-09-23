@@ -1,0 +1,42 @@
+*        TULL-HUVUD                                                             
+*                                                                               
+         DBD   NAME=WDM7,                                              *        
+               ACCESS=(HISAM,VSAM)                                              
+         DATASET DD1=WDM7K,DEVICE=3390,SIZE=4096                                
+*                                                                               
+         SEGM  NAME=WDM701,PARENT=0,BYTES=358                                   
+         FIELD NAME=(WDM701KY,SEQ,U),BYTES=15,START=1,TYPE=X                    
+         FIELD NAME=(IDFAKT),BYTES=4,START=1,TYPE=P                             
+         FIELD NAME=(IDORDNR7),BYTES=4,START=5,TYPE=P                           
+         FIELD NAME=(IDKOLLI),BYTES=3,START=9,TYPE=P                            
+         FIELD NAME=(IDPRODNR),BYTES=4,START=12,TYPE=P                          
+         FIELD NAME=(IDDISTR),BYTES=3,START=156,TYPE=P                          
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=159,TYPE=P                         
+         FIELD NAME=(IDSKEPPN),BYTES=4,START=163,TYPE=P                         
+         FIELD NAME=(IDTULL),BYTES=10,START=167,TYPE=X                          
+         FIELD NAME=(IDTULLNR),BYTES=7,START=169,TYPE=X                         
+         FIELD NAME=(IDUSER),BYTES=8,START=177,TYPE=X                           
+         FIELD NAME=(KDFAKTYP),BYTES=1,START=185,TYPE=X                         
+         FIELD NAME=(KDFRAKT),BYTES=2,START=186,TYPE=P                          
+         FIELD NAME=(TIFAKT),BYTES=4,START=189,TYPE=P                           
+         FIELD NAME=(IDBOKN),BYTES=15,START=194,TYPE=X                          
+         FIELD NAME=(IDDC),BYTES=2,START=263,TYPE=X                             
+         LCHILD NAME=(WDM7A1,WDM7A),PTR=SYMB                                    
+         XDFLD NAME=WDM7ASEQ,SEGMENT=WDM701,                           *        
+               SRCH=(IDDISTR,IDFAKT),                                  *        
+               SUBSEQ=(IDORDNR7,IDKOLLI,IDPRODNR),                     *        
+               DDATA=(IDDC,TIFAKT,KDFAKTYP),                           *        
+               EXTRTN=WDM7AEXT                                                  
+         LCHILD NAME=(WDM7B1,WDM7B),PTR=SYMB                                    
+*                                                                               
+* EXIT FINNS NÄR IDTULLNR = 0                                                   
+         XDFLD NAME=WDM7BSEQ,SEGMENT=WDM701,                           *        
+               SRCH=(IDTULL,IDUSER),                                   *        
+               SUBSEQ=(IDFAKT,IDORDNR7,IDKOLLI,IDPRODNR),              *        
+               EXTRTN=WDM7BEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR IDTULLNR > 0                                                   
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

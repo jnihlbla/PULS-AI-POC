@@ -1,0 +1,228 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM... :  W5516000                                              *        
+*                                                                      *        
+*  FUNKTION.. :  PROGRAMMET SKAPAR EN ANALYSFIL FÖR ATT UNDERLÄTTA     *        
+*                ANALYS-ARBETET, SAMT TAR FRAM EN FIL FÖR KALKYL-      *        
+*                PÅLÄGGSSÄTTNINGEN.                                    *        
+*                MATCHAR LADDNINGS-FIL (W55158) MED DAGLIGA            *        
+*                LAGERBANDET.                                          *        
+*                EN FIL MED KOMMANDE PRARTSTD SKAPAS ÅT MARKNADS-               
+*                BOLAGEN SOM DESSA HÄMTAR HEM MED VCOM VID BEHOV.               
+*                MARKNADSBOLAGEN = AMC                                          
+*                                                                      *        
+* INDATA .... : W551.W551B1.W55158(+0) D1 - LADD-FIL                   *        
+*               W910.W91042(+0)        D2 - DAGLIGT LAGERBAND          *        
+*                                                                      *        
+* UTDATA .... : W551.W551B1.W55159(+0) D3 - ANALYS-FIL                 *        
+*               W551.W551B1.W55160(+0) D4 - ANALYS-FIL                 *        
+*               WUT.W551B1.W55161(+0)  D5 - KOM. STD                   *        
+*                                                                      *        
+* FÖRFATTARE  : PER FREDRIKSSON  940829                                *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+*****************************************************************               
+*                                                               *               
+* INFIL W55158  -  LADD-FIL                                     *               
+*                                                               *               
+*****************************************************************               
+FILE W55160D1                                                                   
+*                                                                               
+%W55147  'LADD-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W91042  -  DAGLIGT LAGERBAND                            *               
+*                                                               *               
+*****************************************************************               
+FILE W55160D2                                                                   
+*                                                                               
+%W91042  'DLB-'                                                                 
+*                                                                               
+DLB-BEART-ENG     564    25 A                                                   
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UTFIL W55159  - KALKYLPÅLÄGGS-FIL                             *               
+*                                                               *               
+*****************************************************************               
+FILE W55160D3 FB(106 0)                                                         
+*                                                                               
+%W55159  'KALK-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UTFIL W55160  - ANALYS-FIL                                    *               
+*                                                               *               
+*****************************************************************               
+FILE W55160D4 FB(192 0)                                                         
+*                                                                               
+%W551601 'ANALYS-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UTFIL W55161  - FIL MED KOMMANDE STD ÅT MARKNADSBOLAGEN       *               
+*                                                               *               
+*****************************************************************               
+FILE W55160D5 FB(11 0)                                                          
+*                                                                               
+%W551611 'AMC-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* ARBETSAREA                                                    *               
+*                                                               *               
+*****************************************************************               
+*                                                                               
+W-PRARTSTD-TEST    W     5  P  2                                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+%WWPRODSL  'DLB-' WORK ''                                                       
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 1. MATCHAR LADD-FIL MOT DAGLIGT LAGERBAND                *               
+*                                                               *               
+*****************************************************************               
+                                                                                
+JOB INPUT (W55160D2 KEY( DLB-IDARTNR)                           +               
+           W55160D1 KEY(LADD-IDARTNR))                          +               
+NAME STEG1-MATCHA-LADD-MOT-DLB                                                  
+                                                                                
+IF MATCHED                                                                      
+  W-PRARTSTD-TEST ROUNDED = LADD-PRINK-AKT     +                +               
+                            LADD-PRDIRLON-AKT  +                +               
+                            LADD-PRDMTRL-AKT   +                +               
+                            LADD-PROVRPAL-AKT                                   
+                                                                                
+  PERFORM A-FLYTTA-FALT                                                         
+  PERFORM B-FLYTTA-KALKYLPAL-FALT                                               
+  PUT W55160D3                                                                  
+  PUT W55160D4                                                                  
+  PERFORM C-TESTA-SKAPA-AMC-POST                                                
+END-IF                                                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+A-FLYTTA-FALT. PROC                                                             
+     ANALYS-IDARTNR       =   LADD-IDARTNR                                      
+     ANALYS-BEART-ENG     =   DLB-BEART-ENG                                     
+     ANALYS-FLAPC         =   LADD-FLAPC                                        
+     ANALYS-FLIART        =   LADD-FLIART                                       
+     ANALYS-FLPRFIL       =   LADD-FLPRFIL                                      
+     ANALYS-IDFKNGRP      =   LADD-IDFKNGRP                                     
+     ANALYS-IDLEVNR       =   LADD-IDLEVNR                                      
+     ANALYS-IDLEVNR-HUV   =   LADD-IDLEVNR-HUV                                  
+     ANALYS-IDPRANSV      =   LADD-IDPRANSV                                     
+     ANALYS-KDHF          =   LADD-KDHF                                         
+     ANALYS-KDPRBEH       =   LADD-KDPRBEH                                      
+     ANALYS-KDPRODSL      =   LADD-KDPRODSL                                     
+     ANALYS-KDSTASPIS     =   LADD-KDSTASPIS                                    
+     ANALYS-KDVALISO      =   LADD-KDVALISO                                     
+     ANALYS-KVBEHOVAR     =   LADD-KVBEHOVAR                                    
+     ANALYS-KVDISP-SPIS   =   LADD-KVDISP-SPIS                                  
+     ANALYS-PRARTBEL-PR   =   LADD-PRARTBEL-PR                                  
+     ANALYS-PRARTBES      =   LADD-PRARTBES                                     
+     ANALYS-PRARTSJK      =   LADD-PRARTSJK                                     
+     ANALYS-PRDIRLON-AKT  =   LADD-PRDIRLON-AKT                                 
+     ANALYS-PRDIRLON-KOM  =   LADD-PRDIRLON-KOM                                 
+     ANALYS-PRDMTRL-AKT   =   LADD-PRDMTRL-AKT                                  
+     ANALYS-PRDMTRL-KOM   =   LADD-PRDMTRL-KOM                                  
+     ANALYS-PRINK-AKT     =   LADD-PRINK-AKT                                    
+     ANALYS-PRINK-KOM     =   LADD-PRINK-KOM                                    
+     ANALYS-PRKURS        =   LADD-PRKURS                                       
+     ANALYS-PROVRPAL-AKT  =   LADD-PROVRPAL-AKT                                 
+     ANALYS-PROVRPAL-KOM  =   LADD-PROVRPAL-KOM                                 
+     ANALYS-REAENDR       =   LADD-REAENDR                                      
+     ANALYS-REDIRLEV      =   LADD-REDIRLEV                                     
+     ANALYS-RETULF        =   LADD-RETULF                                       
+     ANALYS-TEARTNOT      =   LADD-TEARTNOT                                     
+     ANALYS-TIPRLIST      =   LADD-TIPRLIST                                     
+     ANALYS-PRARTSTD-AKT  =   DLB-PRARTSTD                                      
+     ANALYS-PRARTSTD-KOM  ROUNDED = LADD-PRINK-KOM    +        +                
+                                    LADD-PRDIRLON-KOM +        +                
+                                    LADD-PRDMTRL-KOM  +        +                
+                                    LADD-PROVRPAL-KOM                           
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+B-FLYTTA-KALKYLPAL-FALT. PROC                                                   
+     KALK-IDARTNR         =   LADD-IDARTNR                                      
+     KALK-IDLEVNR         =   DLB-IDLEVNR                                       
+     KALK-KDERS           =   DLB-KDERS                                         
+     KALK-KDGK            =   DLB-KDGK                                          
+     KALK-FLIART          =   DLB-FLIART                                        
+     KALK-KVLS            =   LADD-KVDISP-SPIS                                  
+     KALK-KVBEHOVAR       =   LADD-KVBEHOVAR                                    
+     KALK-KDFORP          =   DLB-KDFORP                                        
+     KALK-KVQPACK-0       =   DLB-KVQPACK-0                                     
+     KALK-KVQPACK-1       =   DLB-KVQPACK-1                                     
+     KALK-KVQPACK-2       =   DLB-KVQPACK-2                                     
+     KALK-PRARTSJK        =   DLB-PRARTSJK                                      
+     KALK-PRARTSTD        =   DLB-PRARTSTD                                      
+                                                                                
+     KALK-TIFINLV         =   DLB-TIFINLV                                       
+     KALK-PRDIRLON        =   DLB-PRDIRLON                                      
+     KALK-PRDMTRL         =   DLB-PRDMTRL                                       
+     KALK-PROVRPAL        =   DLB-PROVRPAL                                      
+     KALK-BEFT            =   DLB-BEFT                                          
+     KALK-IDARTNR-EMBQ0   =   DLB-IDARTNR-EMBQ0                                 
+     KALK-IDARTNR-EMBQ1   =   DLB-IDARTNR-EMBQ1                                 
+     KALK-IDARTNR-EMBQ2   =   DLB-IDARTNR-EMBQ2                                 
+     KALK-IDARTNR-EMBQ3   =   DLB-IDARTNR-EMBQ3                                 
+     KALK-IDARTNR-EMBQ4   =   DLB-IDARTNR-EMBQ4                                 
+     KALK-KDVTH           =   DLB-KDVTH                                         
+     KALK-ADLAGOMR        =   DLB-ADLAGOMR                                      
+     KALK-ADGANG          =   DLB-ADGANG                                        
+     KALK-ADPLATS         =   DLB-ADPLATS                                       
+     KALK-IDFKNGRP        =   DLB-IDFKNGRP                                      
+     KALK-KDPRODSL        =   DLB-KDPRODSL                                      
+     KALK-KDFARLIG        =   DLB-KDFARLIG                                      
+     KALK-KVLASTB         =   0                                                 
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+C-TESTA-SKAPA-AMC-POST. PROC                                                    
+                                                                                
+  PERFORM S25-CHECK-DLB-KDPRODSL                                                
+  IF DLB-KDPRODSL NE KDPRODSL-VOLVO-EMB AND                     +               
+     DLB-IDFKNGRP GT +0      AND                                +               
+     DLB-KDUART NE 'M' 'A'   AND                                +               
+     DLB-FLLSRDEL = 'J'      AND                                +               
+     DLB-KDERS LT +50                                                           
+     IF LADD-PRDIRLON-KOM EQ +0 AND                             +               
+        LADD-PRDMTRL-KOM  EQ +0 AND                             +               
+        LADD-PROVRPAL-KOM EQ +0                                                 
+***  DÅ FINNS INGET PÅLÄGG I SPIS, HÄMTA FRÅN LAGERBANDET                       
+        AMC-PRARTSTD-KOM  ROUNDED = LADD-PRINK-KOM    +         +               
+                                    DLB-PRDIRLON      +         +               
+                                    DLB-PRDMTRL       +         +               
+                                    DLB-PROVRPAL                                
+     ELSE                                                                       
+        AMC-PRARTSTD-KOM  ROUNDED = LADD-PRINK-KOM    +         +               
+                                    LADD-PRDIRLON-KOM +        +                
+                                    LADD-PRDMTRL-KOM  +        +                
+                                    LADD-PROVRPAL-KOM                           
+     END-IF                                                                     
+                                                                                
+     IF AMC-PRARTSTD-KOM NE +0 DLB-PRARTSTD                                     
+       AMC-IDVTYP                = 'A'                                          
+       AMC-IDARTNR               = DLB-IDARTNR                                  
+       PUT W55160D5                                                             
+     END-IF                                                                     
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+%WWPRODSL 'DLB-' PROC ''                                                        
+*                                                                               

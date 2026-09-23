@@ -1,0 +1,94 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  FUNKTION   :  KOMPLETTERAR UTVALD OKS/EFR-INFORMATION MED           *        
+*                AVERAGE COST PRICE.                                   *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFANO GIOBBI                                        *        
+*                                                                      *        
+*  INFILER    :  W479.W479D1.W47993(+0)                                *        
+*             :  W011.DC21-26, 41-43, 51.W01184                        *        
+*                                                                      *        
+*  UTFILER    :  W479.W479D1.W4795O                                    *        
+*                                                                      *        
+*  ÄNDRING             DATUM    AVD                                    *        
+*                                                                      *        
+*  --------------      ------   ------                                 *        
+*  --------------      ------   ------                                 *        
+*  --------------      ------   ------                                 *        
+*                                                                      *        
+************************************************************************        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W4795OD1                                                                   
+%W47993        'I93-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W4795OD2                                                                   
+%W01184                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W4795OD3  FB (88 0)                                                        
+%W4795O        'U5O-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1 A   VALUE 'J'                                 
+  NEJ                       W   1 A   VALUE 'N'                                 
+*                                                                               
+  W-IDKUNDRF                W  10 A                                             
+  W-FILLER    W-IDKUNDRF        2 A                                             
+  W-IDORDNR5  W-IDKUNDRF   +2   5 A                                             
+  W-FILLER1   W-IDKUNDRF   +7   3 A                                             
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT (W4795OD2 KEY (SLAG-IDDC                             +              
+                           SLAG-IDARTNR)                         +              
+             W4795OD1 KEY (I93-IDDC                              +              
+                           I93-IDARTNR ))                        +              
+                                                 NAME   STEG01                  
+    IF MATCHED                                                                  
+      IF I93-IDDC NE CDC-SE                                                     
+        U5O-IDDC           = I93-IDDC                                           
+        U5O-IDDISTR        = I93-IDDISTR                                        
+        U5O-IDKUNDNR       = I93-IDKUNDNR                                       
+        W-IDKUNDRF         = I93-IDKUNDRF                                       
+        U5O-IDKUNDRF       = ' '                                                
+        U5O-IDKUNDRF       = W-IDORDNR5                                         
+        U5O-IDPRC          = I93-IDPRC                                          
+        U5O-KVBEART-Q      = I93-KVBEART-Q                                      
+        U5O-KDORDKL        = I93-KDORDKL                                        
+        U5O-PRARTSTD       = I93-PRARTSTD                                       
+        U5O-PRAVCOST       = SLAG-PRAVCOST                                      
+        U5O-KVEFRS-OPACK   = I93-KVEFRS-OPACK                                   
+        U5O-KVEFRS-PACK    = I93-KVEFRS-PACK                                    
+        U5O-KVEFRS-SKEPP   = I93-KVEFRS-SKEPP                                   
+        U5O-VKARTNTO       = I93-VKARTNTO                                       
+        U5O-VLARTNTO       = I93-VLARTNTO                                       
+        PUT W4795OD3                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+NEWPAGE                                                                         

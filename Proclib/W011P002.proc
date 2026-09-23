@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      UPPDATERING AV ARTIKELREGISTER MED  R05                      *         
+//*                                                                   *         
+//*      PERIODICITET: DAG                                            *         
+//*                                                                   *         
+//*      ÅTERSTART:    W01102  NORMAL (BMP)                           *         
+//*                            UPPDATERAR WDK6                        *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W011P002 PROC INDUT=&W011..W011D3,                                            
+//             INDIN=&W011..W011D3,                                             
+//             CPU=1,                                                           
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W01102  EXEC PGM=DFSRRC00,                                                    
+//             PARM=('BMP,W01102,W01102,,,N00,,,,,&CPU,,,&IMS')                 
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//SORTMSG  DD  SYSOUT=*                                      -- SORT            
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//W01102D1 DD  DSN=&INDIN..W01114(+0),DISP=SHR                                  
+//************** R05-OR FRÅN TRATTEN ELLER TIDIGARE KÖRNING (OMSTART)           
+//*                                                                             
+//W01102D2 DD  DSN=&INDUT..W01112(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************** FELTRANSAKTIONER                                               
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W01102D3 DD  DSN=&INDUT..W01114(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************** OBEHANDLADE TRANSAR. NORMALT TOM                               
+//*              ANVÄNDS FÖR ATT TRIGGA OMSTART I SOP                           
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             

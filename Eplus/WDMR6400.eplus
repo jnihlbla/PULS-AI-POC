@@ -1,0 +1,157 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WDMR6400                                              *        
+*                                                                      *        
+*  FUNKTION   :  X                                                     *        
+*                                                                      *        
+*  FÖRFATTARE :  KARIN OLSSON                                          *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR64D1                                                                   
+*                                                                               
+  NEW-PSB             1 25 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR64D2                                                                   
+*                                                                               
+  OLD-PSB             1 25 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE SORTFIL  FB(26 23452)                                                      
+*                                                                               
+  TMP-STYR            1  1 A                                                    
+  TMP-PSB             2 25 A                                                    
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+  TMP-SORT            2 12 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE STYRFIL  FB(26 23452)                                                      
+*                                                                               
+  ST-STYR             1  1 A                                                    
+  ST-PSB              2 25 A                                                    
+  ST-PSB-NAME         2 12 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR64D5 FB(26 23452)                                                      
+*                                                                               
+  UT-STYR             1  1 A                                                    
+  UT-PSB              2 25 A                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* ARBETSAREOR                                                                   
+*                                                                               
+  CANCEL              W  1 A   VALUE 'A'                                        
+  NEW                 W  1 A   VALUE 'B'                                        
+  OLD                 W  1 A   VALUE 'Z'                                        
+  NU-TYP              W  1 A   VALUE ' '                                        
+  SPAR-PSB-NAME       W 12 A                                                    
+  WNEW-PSB            W 25 A                                                    
+  WOLD-PSB            W 25 A                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* MATCHNING AV PSB FILER                                                        
+*                                                                               
+JOB INPUT NULL                                                                  
+                                                                                
+  GET WDMR64D1                                                                  
+  GET WDMR64D2                                                                  
+                                                                                
+  DO WHILE (NOT EOF WDMR64D1 OR NOT EOF WDMR64D2)                               
+                                                                                
+    IF NOT EOF WDMR64D1                                                         
+      WNEW-PSB = NEW-PSB                                                        
+    ELSE                                                                        
+      WNEW-PSB = '9999999999999999999999999'                                    
+    END-IF                                                                      
+    IF NOT EOF WDMR64D2                                                         
+      WOLD-PSB = OLD-PSB                                                        
+    ELSE                                                                        
+      WOLD-PSB = '9999999999999999999999999'                                    
+    END-IF                                                                      
+                                                                                
+    IF WNEW-PSB = WOLD-PSB                                                      
+      TMP-STYR = OLD                                                            
+      TMP-PSB = WNEW-PSB                                                        
+      PUT SORTFIL                                                               
+      GET WDMR64D1                                                              
+      GET WDMR64D2                                                              
+    ELSE                                                                        
+                                                                                
+      IF WNEW-PSB < WOLD-PSB                                                    
+        TMP-STYR = NEW                                                          
+        TMP-PSB = WNEW-PSB                                                      
+        PUT SORTFIL                                                             
+        GET WDMR64D1                                                            
+      ELSE                                                                      
+        TMP-STYR = CANCEL                                                       
+        TMP-PSB = WOLD-PSB                                                      
+        PUT SORTFIL                                                             
+        GET WDMR64D2                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+  END-DO                                                                        
+  STOP                                                                          
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* SORTERING AV PSBFILER                                                         
+*                                                                               
+SORT SORTFIL  TO +                                                              
+     STYRFIL  USING (TMP-SORT, TMP-STYR)                                        
+NEWPAGE                                                                         
+*                                                                               
+* PLOCKA UT POSTER FÖR UPPDATERING                                              
+*                                                                               
+JOB INPUT (STYRFIL)                                                             
+                                                                                
+  IF ST-PSB-NAME ^= SPAR-PSB-NAME                                               
+                                                                                
+    IF NU-TYP = CANCEL                                                          
+      UT-STYR = 'D'                                                             
+      UT-PSB = SPAR-PSB-NAME                                                    
+      PUT WDMR64D5                                                              
+      UT-STYR = ' '                                                             
+    END-IF                                                                      
+                                                                                
+    SPAR-PSB-NAME = ST-PSB-NAME                                                 
+                                                                                
+    IF ST-STYR = CANCEL                                                         
+      NU-TYP = CANCEL                                                           
+    END-IF                                                                      
+                                                                                
+    IF ST-STYR = OLD                                                            
+      NU-TYP = OLD                                                              
+    END-IF                                                                      
+                                                                                
+    IF ST-STYR = NEW                                                            
+      NU-TYP = NEW                                                              
+      UT-PSB = ST-PSB                                                           
+      PUT WDMR64D5                                                              
+    END-IF                                                                      
+  ELSE                                                                          
+    IF NU-TYP = CANCEL                                                          
+      IF ST-STYR ^= CANCEL                                                      
+        NU-TYP = NEW                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+    IF NU-TYP = NEW                                                             
+      UT-PSB = ST-PSB                                                           
+      PUT WDMR64D5                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+  GOTO JOB                                                                      

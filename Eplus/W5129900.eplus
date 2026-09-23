@@ -1,0 +1,56 @@
+*----------------------------------------------------------------------*        
+*                                                                               
+*  PROGRAM    :  W5129900                                              *        
+*                                                                      *        
+*  FUNcTION   :  READS W51298 KITS PART - PARTS IN KIT FILE AND        *        
+*                COMPARES WITH VCCS SALES FILE W51295B AND             *        
+*                CREATES KITS SALES FILE                               *        
+*                                                                      *        
+*  FÖRFATTARE :  SARASWATHY S                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W51299D1                                                                   
+*                                                                               
+%W51298  'IN1-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51299D2                                                                   
+*                                                                               
+%W51295  'IN2-'                                                                 
+                                                                                
+FILE TPFILE1  FB(16 0)                                                          
+%W51295  'T1-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+FILE TPFILE2  FB(10 0)                                                          
+%W51299  'T2-'                                                                  
+*                                                                               
+FILE W51299D3 FB(10 0)                                                          
+*                                                                               
+%W51299  'UT-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+*----------------------------------------------------------------------*        
+* STEP 1. SORTS W51295B FILE ON PARTNO                                          
+*----------------------------------------------------------------------*        
+SORT W51299D2 TO TPFILE1  USING (IN2-IDARTNR) SIZE 900000                       
+*                                                                               
+*----------------------------------------------------------------------*        
+* STEp 2. COMPARES W51298 AND W51295B                                           
+*----------------------------------------------------------------------*        
+JOB INPUT (TPFILE1 KEY (T1-IDARTNR) W51299D1 KEY (IN1-SATS-IDARTNR))            
+                                                                                
+IF MATCHED                                                                      
+  T2-IDARTNR  = IN1-SRAD-IDARTNR                                                
+  T2-SULEVANT = IN1-SRAD-REANTPSA * T1-SULEVANT                                 
+  IF T2-SULEVANT NE 0                                                           
+    PUT TPFILE2                                                                 
+  END-IF                                                                        
+END-IF                                                                          
+*----------------------------------------------------------------------*        
+* STEP 3. SORTS TPFILE2 FILE ON PARTNO                                          
+*----------------------------------------------------------------------*        
+SORT TPFILE2 TO W51299D3 USING (T2-IDARTNR) SIZE 900000                         
+*                                                                               

@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*         ENGLAND                                                             
+//*  NOAC   IMPORTÖRSBEROENDE BEARBETNING                                       
+//*         SKAPAR START OCH SLUT KORT                                          
+//*                                                                             
+//*  FREKVENS:         VECKA  BESTÄLLNING                                       
+//*                RTN W461V1 W461B1                                            
+//*                                                                             
+//*  ÅTERSTART:    W46137     NORMAL                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W461P037 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W461..W461V1,                                             
+//             INDUT=&W461..W461V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46137   EXEC PGM=W46137                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(0),DISP=SHR                -- DATKORT         
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR        -- DATKORT         
+//DATUT    DD  SYSOUT=*                                      -- DATKORT         
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//W46137D1 DD  DSN=&INDIN..W4616Q(+0),DISP=SHR                                  
+//************ INFIL                                                            
+//*                                                                             
+//W46137D2 DD  DSN=&INDUT..W46157(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UTFIL TILL ENGLAND,PV                                            
+//             MGMTCLAS=&DEL2BKPC,SPACE=(6160,(1800,500),RLSE)                  
+//*                                                                             
+//W46137D3 DD  DSN=&INDUT..W4615H(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UTFIL TILL LOGGFIL & LISTA                                       
+//             MGMTCLAS=&DEL2BKPC,SPACE=(6160,(1800,500),RLSE)                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

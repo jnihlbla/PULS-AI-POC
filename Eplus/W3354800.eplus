@@ -1,0 +1,145 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W3354800                                              *        
+*                                                                      *        
+*  FUNCTION   :  JÄMFÖR DAGENS W33588-FIL MED GÅRDAGENS W33560-FIL OCH *        
+*                SKRIVER UT POSTER SOM ÄR FÖRÄNDRADE TILL W33548.      *        
+*                JÄMFÖR ARTIKELNS SJÄLVKOST MOT ARTIKEL/DC             *        
+*                ÄVEN NDC IDLEVNR JÄMFÖRS. ÄVEN NYA                    *        
+*                ARTIKLAR SKRIVS UT.                                   *        
+*                                                                      *        
+*                                                                      *        
+*  WRITER     :  ELEONOR ÖSTRÖM                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W33548D1                                                                   
+%W33589   'PRIS-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W33548D2                                                                   
+%W33560   'INREG-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W33548D3 FB (6 0)                                                          
+%W33548   'UT-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W33548D4 FB (19 0)                                                         
+%W33560   'UTREG-'                                                              
+                                                                                
+*W-DAGENS-DATUM  W 8 N                                                          
+W-DAGENS-DATUM           W  8  A                                                
+W-AA   W-DAGENS-DATUM       2  N                                                
+W-S1   W-DAGENS-DATUM   +2  1  A                                                
+W-MM   W-DAGENS-DATUM   +3  2  N                                                
+W-S2   W-DAGENS-DATUM   +5  1  A                                                
+W-DD   W-DAGENS-DATUM   +6  2  N                                                
+                                                                                
+W-DATUM                  W  8  N                                                
+W-TI   W-DATUM              2  N                                                
+W-AR   W-DATUM          +2  2  N                                                
+W-MA   W-DATUM          +4  2  N                                                
+W-DA   W-DATUM          +6  2  N                                                
+IX                       W  3  N                                                
+MAX-IX                   W  3  N VALUE 100                                      
+W-PRIS-IDDC              1  2  A                                                
+                                                                                
+*--------------------------------------*                                        
+*  WWDC99 - NDC-ER                     *                                        
+* -------------------------------------*                                        
+%WWDC99                                                                         
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+PROGRAM-NAMN      W   6   A   VALUE 'W33548'                                    
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+%WDATAREA                                                                       
+                                                                                
+WDATKOV           W   8   A   VALUE 'WDATKONV'                                  
+                                                                                
+NEWPAGE                                                                         
+************************************************************                    
+* STEP 1. MATCHAR GÅRDAGENS W33560 MED DAGENS W33588 OCH   *                    
+*         SKRIVER UT NYA ELLER FÖRÄNDRADE ARTIKLAR         *                    
+************************************************************                    
+*                                                                               
+JOB INPUT (W33548D1 KEY(PRIS-IDARTNR)                                  +        
+           W33548D2 KEY(INREG-IDARTNR))                                +        
+                                    START  A-INIT                               
+                                                                                
+    IF MATCHED                                                                  
+      IX = 1                                                                    
+      DO WHILE  IX < MAX-IX                                                     
+        IF PRIS-IDDC(IX) NE '  '                                                
+          W-PRIS-IDDC = PRIS-IDDC (IX)                                          
+          PERFORM S23-CHECK-W-PRIS-IDDC                                         
+          IF W-PRIS-IDDC = NDC-NA                                               
+            IF PRIS-PRARTBES-PR(IX) NE INREG-PRARTSJK  OR           +           
+               PRIS-IDLEVNR(IX)     NE INREG-IDLEVNR                            
+               UT-IDARTNR = PRIS-IDARTNR                                        
+               UT-FLAMCDIF = 'N'                                                
+               PUT W33548D3                                                     
+               UTREG-IDARTNR   = PRIS-IDARTNR                                   
+               UTREG-PRARTSJK  = PRIS-PRARTBES-PR(IX)                           
+               UTREG-IDLEVNR   = PRIS-IDLEVNR(IX)                               
+               UTREG-TIREGDAT  = INREG-TIREGDAT                                 
+            ELSE                                                                
+              UTREG-IDARTNR   = INREG-IDARTNR                                   
+              UTREG-PRARTSJK  = INREG-PRARTSJK                                  
+              UTREG-IDLEVNR   = INREG-IDLEVNR                                   
+              UTREG-TIREGDAT  = INREG-TIREGDAT                                  
+            END-IF                                                              
+            PUT W33548D4                                                        
+            IX = 101                                                            
+          END-IF                                                                
+        END-IF                                                                  
+        IX = IX + 1                                                             
+      END-DO                                                                    
+      IF IX < 101                                                               
+        PUT W33548D4 FROM W33548D2                                              
+      END-IF                                                                    
+    ELSE                                                                        
+*  FINNS BARA PÅ DEN NYA FILEN.NY ARTIKEL?                                      
+      IF W33548D1                                                               
+        IX = 1                                                                  
+        DO WHILE  IX < MAX-IX                                                   
+          IF PRIS-IDDC(IX) NE '  '                                              
+            W-PRIS-IDDC = PRIS-IDDC (IX)                                        
+            PERFORM S23-CHECK-W-PRIS-IDDC                                       
+            IF W-PRIS-IDDC = NDC-NA                                             
+*   HÄR FINNS ART BARA PÅ W33588 - PRIS FINNS + ILEVNR????                      
+               UT-IDARTNR = PRIS-IDARTNR                                        
+               UT-FLAMCDIF = 'J'                                                
+               PUT W33548D3                                                     
+               UTREG-IDARTNR   = PRIS-IDARTNR                                   
+               UTREG-PRARTSJK  = PRIS-PRARTBES-PR(IX)                           
+               UTREG-IDLEVNR   = PRIS-IDLEVNR(IX)                               
+               UTREG-TIREGDAT  = W-DATUM                                        
+               PUT W33548D4                                                     
+               IX = 101                                                         
+            END-IF                                                              
+          END-IF                                                                
+          IX = IX + 1                                                           
+        END-DO                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+A-INIT. PROC                                                                    
+                                                                                
+    W-DAGENS-DATUM = SYSDATE                                                    
+    W-TI     = 00                                                               
+    W-AR     = W-AA                                                             
+    W-MA     = W-MM                                                             
+    W-DA     = W-DD                                                             
+                                                                                
+END-PROC.                                                                       
+*                                                                               
+*  ---  S23-CHECK-W-PRIS-IDDC (MACRO PROCEDURE)                                 
+%WWDC02 'W-PRIS-'                                                               
+*                                                                               
+                                                                                

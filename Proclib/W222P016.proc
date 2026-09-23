@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      UPPDATERING PERIODBEHOV-SATSFÖRBRUKNING (PB-SATS)            *         
+//*                                                                   *         
+//*      PERIODICITET: DAG (SAMMA PGM GÅR VECKOVIS I ANNAN PROC)      *         
+//*                                                                   *         
+//*      ÅTERSTART:    NORMAL (BMP)                                   *         
+//*                                                                   *         
+//*                    W22216 UPPDATERAR WDK6                         *         
+//*                           LÄSER WDJ1 OCH WDK7                     *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W222P016 PROC INDIN=NULLFILE,                                                 
+//             CPU=1,                                                           
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22216  EXEC PGM=DFSRRC00,                                                    
+//        PARM=('BMP,W22216,W22216,,,N00,,,,,&CPU,,,&IMS')                      
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//*                                                                             
+//W22216D1 DD  DSN=&INDIN..W22214,DISP=SHR                                      
+//         DD  DSN=&INDIN..W22202,DISP=SHR                                      
+//**************   HÄNDELSE 2202, PB ÄNDRAT PÅ SATSARTIKEL                      
+//*                FRÅN P012 RESP P014                                          
+//*                ALLA GEN TAS IN PGA EV DESSA KÖRDA FLERA GÅNGER              
+//*                                                                             

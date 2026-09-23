@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FUNCTION  : Send invoices to parcel transport service.           *         
+//*              This executes a java program that will read the      *         
+//*              input file with invoice data and send that to        *         
+//*              parcel transport service layer.                      *         
+//*                                                                   *         
+//*  RESTART   : Restart normal. This will send duplicate records     *         
+//*              to target, but that is OK for now.                   *         
+//*                                                                   *         
+//*  PARAMETERS:                                                      *         
+//*                                                                   *         
+//*    WF2115D1: Input file                                           *         
+//*              ** MANDATORY **                                      *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF21P015 PROC DSIN=NULLFILE,LOGLVL='',MAXRC=0,                                
+//           STDENV=&INDRTE..CONSTANT(JZOSENV)                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICONVARG  EXEC PGM=EDCICONV,REGION=7M,                                        
+//             PARM=('FROMCODE(IBM-278),TOCODE(IBM-1047)')                      
+//STEPLIB   DD DSN=SYS1.CEE.SCEERUN,DISP=SHR                                    
+//SYSUT1   DD  DSN=&INDRTE..CONSTANT(WF21PD15),DISP=SHR                         
+//SYSUT2   DD  DSN=&&ARGSDD,DISP=(NEW,PASS,DELETE)                              
+//SYSPRINT  DD SYSOUT=*                                                         
+//SYSIN     DD DUMMY                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//JAVA    EXEC WJVMP086,LOGLVL=&LOGLVL,MAXRC=&MAXRC                             
+//MAINARGS DD  DSN=&&ARGSDD,DISP=(OLD,DELETE)                                   
+//STDENV   DD  DSN=&STDENV,DISP=SHR                                             
+//WF2115D1 DD  DSN=&DSIN,DISP=SHR                                               

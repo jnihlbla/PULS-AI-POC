@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  READ WDJ2 TO GET KIT PARTS AND THE PARTS IN THE KITS                       
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W51298      NORMAL                                           
+//*                READS        WDJ2                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P098 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51298   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W51298,W51298,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM1K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDJ2     INCLUDE MEMBER=WDJ2                                                  
+//W51298D1 DD  DSN=&&W51298,DISP=(NEW,PASS,DELETE),                             
+//************ FILE WITH KIT PARTS AND THE PARTS IN THE KITS                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W512PD98),DISP=SHR                         
+//SORTIN   DD  DSN=&&W51298,DISP=(OLD,DELETE,DELETE)                            
+//************ FILE WITH KIT PARTS AND THE PARTS IN THE KITS                    
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W51298(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ FILE WITH KIT PARTS AND THE PARTS IN THE KITS                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

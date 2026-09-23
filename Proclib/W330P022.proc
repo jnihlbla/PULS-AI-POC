@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR SEKUNDÄRREGISTER MED MB/PRISOMRÅDE                                  
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD    RTN W330R1                             
+//*                                                                             
+//*  ÅTERSTART:    W33022      NORMAL                                           
+//*                LÄSER  WDB2 WDB1                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P022 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W330..W330R1,                                             
+//             INDUT=&W330..W330R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33022   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W33022,W33022,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB3     INCLUDE MEMBER=WDB3                                                  
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//W33022D1 DD  DSN=&INDIN..W33015(+0),DISP=SHR                                  
+//************ SEK-RGISTER                                                      
+//*                                                                             
+//W33022D2 DD  DSN=&INDUT..W33026(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SEK-REGISTER MED MB/PRISOMRÅDE                                   
+//             SPACE=(170,(3000,666),RLSE),AVGREC=K,                            
+//             MGMTCLAS=&DEL2BKPC                                               

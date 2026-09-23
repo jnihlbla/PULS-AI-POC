@@ -1,0 +1,21 @@
+//W510J0X1 JOB (670W5100100W510J0X1,W100),'RTN W510X1',                         
+//             USER=?,PASSWORD=?,                                               
+//             CLASS=K                                                          
+/*JOBPARM FORMS=1800,LINECT=0,LINES=9                                           
+//PROC  JCLLIB ORDER=(W.QASE.PROCLIB)                                           
+//ENV  INCLUDE MEMBER=ENVQASE                                                   
+/*ROUTE  XEQ   LOCAL                                                            
+/*ROUTE PRINT LOCAL                                                             
+//*                                                                             
+//W016    EXEC W016P012,VCOMPARM=W510XX                                         
+//*                                                                             
+//W01612.W01612D1 DD *                                                          
+&VCOM                                                                           
+//*                                                                             
+//W01612.W016XXD1 DD DSN=WIN.&VCOM..W51012(+1),                                 
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             DATACLAS=PSEB,                                                   
+//             DCB=(RECFM=VB,LRECL=1054),                                       
+//             MGMTCLAS=NOBACKUP                                                
+//*                                                                             
+//SOP     EXEC WSOPEND,PROCESS=W510J0X1                                         

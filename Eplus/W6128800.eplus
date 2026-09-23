@@ -1,0 +1,304 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6128800                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR BINNING PRODUCTIVITY REPORT                    *        
+*                REDOVISNINGSPERIOD                                             
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL                                         *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+FILE W61288D1                                                                   
+*                                                                               
+%W61208  'IN-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W61288D3  PRINTER FB (121 0)                                               
+FILE W61288D5  PRINTER FB (121 0)                                               
+*                                                                               
+FILE W61288D6  PRINTER VB (125 0)                                               
+FILE W61288D7  PRINTER VB (125 0)                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+PROGRAM-NAMN      W   6   A   VALUE 'W61288'                                    
+DATUMKORT-ID      W   6   A   VALUE 'WDATUM'                                    
+WS-TIAARP         W   4   N                                                     
+                                                                                
+%WDATKORT 'DATKORT-'                                                            
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+WDATKONV          W  8  A   VALUE 'WDATKONV'                                    
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+%WDATAREA                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+INNEV-AAVV        W                4  N                                         
+INNEV-AA          INNEV-AAVV       2  N                                         
+INNEV-VV          INNEV-AAVV    +2 2  N                                         
+*                                                                               
+INNEV-AARP        W                4  N                                         
+INNEV-AA-RP       INNEV-AARP       2  N                                         
+INNEV-RP          INNEV-AARP    +2 2  N                                         
+*                                                                               
+WS-IDDC           W 2 A                                                         
+WS-ADLAGOMR-1     W 5 N MASK 'ZZZZ9'                                            
+WS-ADLAGOMR-2     W 5 N MASK 'ZZZZ9'                                            
+WS-ADLAGOMR-3     W 5 N MASK 'ZZZZ9'                                            
+WS-ADLAGOMR-4     W 5 N MASK 'ZZZZ9'                                            
+WS-ADLAGOMR-9     W 5 N MASK 'ZZZZ9'                                            
+WS-ADLAGOMR-OVR   W 5 N MASK 'ZZZZ9'                                            
+WS-KVRADER-BIN    W 5 N MASK 'ZZZZ9'                                            
+WS-KVRADER-SHORT  W 5 N MASK 'ZZZZ9'                                            
+WS-KVRADER-OVER   W 5 N MASK 'ZZZZ9'                                            
+WS-KVRADER-DAM    W 5 N MASK 'ZZZZ9'                                            
+WS-PREV-IDDC      W 2 A       VALUE '  '                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    --- TO CHECK IF "WEB DC"                                                   
+*                                                                               
+%WL10WBDC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+************************************************************************        
+* SKAPAR LISTA                                                                  
+************************************************************************        
+*                                                                               
+JOB INPUT (W61288D1) +                                                          
+    START (A-INIT)                                                              
+                                                                                
+    WS-KVRADER-BIN   = IN-KVRADER-BIN                                           
+    WS-KVRADER-SHORT = IN-KVRADER-SHORT                                         
+    WS-KVRADER-OVER  = IN-KVRADER-OVER                                          
+    WS-KVRADER-DAM   = IN-KVRADER-DAM                                           
+    WS-ADLAGOMR-1 = IN-KVANTAL-1                                                
+    WS-ADLAGOMR-2 = IN-KVANTAL-2                                                
+    WS-ADLAGOMR-3 = IN-KVANTAL-3                                                
+    WS-ADLAGOMR-4 = IN-KVANTAL-4                                                
+    WS-ADLAGOMR-9 = IN-KVANTAL-9                                                
+    WS-ADLAGOMR-OVR = IN-KVANTAL-OVR                                            
+    MOVE IN-IDDC TO WS-IDDC                                                     
+    PERFORM S23-CHECK-WS-IDDC                                                   
+                                                                                
+    WBDC-IDDC = IN-IDDC                                                         
+    CALL WL10WBDC USING WBDC-AREA                                               
+                                                                                
+*   IF WS-IDDC = SDC-GB                                                         
+**     PRINT W61288-001                                                         
+**  ELSE                                                                        
+       IF WS-IDDC = NDC-US-RU                                                   
+          PRINT W61288-002                                                      
+       ELSE                                                                     
+**        IF WS-IDDC = NDC-US-AT                                                
+**           PRINT W61288-003                                                   
+**        ELSE                                                                  
+**         IF WS-IDDC = NDC-US-LA                                               
+**              PRINT W61288-004                                                
+**           ELSE                                                               
+                IF WS-IDDC = CDC-SE                                             
+                   PRINT W61288-011                                             
+                ELSE                                                            
+                   IF WBDC-FLWEBDC = 'J'                                        
+                      PRINT W61289-005                                          
+                   END-IF                                                       
+**              END-IF                                                          
+**           END-IF                                                             
+          END-IF                                                                
+       END-IF                                                                   
+**  END-IF                                                                      
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+A-INIT. PROC                                                                    
+*                                                                               
+  CALL DATKORT  USING (PROGRAM-NAMN +                                           
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+*                                                                               
+  INNEV-AA = DATKORT-D-AAR                                                      
+  INNEV-VV = DATKORT-D-VECKA                                                    
+                                                                                
+  DAT-I-TIDATUM = INNEV-AAVV                                                    
+  DAT-KDDATFORM = 'AAVV'                                                        
+  CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM, DAT-O-TIDATUM,  +          
+                      DAT-KDSVAR)                                               
+  INNEV-AARP = DAT-TIAARP                                                       
+  DISPLAY ' INNEVARANDE PERIOD ' INNEV-AARP                                     
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+NEWPAGE                                                                         
+%WWDC02  'WS-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+REPORT   W61288-002 PRINTER W61288D3 LINESIZE 120 DTLCTL FIRST +                
+         NOADJUST NOHEADING TITLESKIP 2 PAGESIZE 41                             
+                                                                                
+TITLE 1  COL 12  'VCCS W61288-002'                                              
+                                                                                
+TITLE 3  COL 12  'MONTHLY BINNING PRODUCTIVITY REPORT'     +                    
+         COL 49  'DC 41'                                   +                    
+         COL 56  'PERIOD'                                  +                    
+         COL 63  DAT-TIAARP                                                     
+                                                                                
+TITLE 5  COL 4  'BINNER'                          +                             
+         COL 13 'BINNED'                          +                             
+         COL 23 'LINES'                           +                             
+         COL 33 'LINES'                           +                             
+         COL 43 'LINES'                           +                             
+         COL 53 'LINES/AREA'                                                    
+                                                                                
+TITLE 6  COL 4  'NO'                              +                             
+         COL 13 'LINES'                           +                             
+         COL 23 'SHORT'                           +                             
+         COL 33 'OVER'                            +                             
+         COL 43 'DAM'                             +                             
+         COL 53 '1X'                              +                             
+         COL 61 '2X'                              +                             
+         COL 69 '3X'                              +                             
+         COL 77 '4X'                              +                             
+         COL 85 '9X'                              +                             
+         COL 93 'OTHER'                                                         
+                                                                                
+LINE 1   COL 4   IN-IDUSER-003    +                                             
+         COL 13  WS-KVRADER-BIN   +                                             
+         COL 23  WS-KVRADER-SHORT +                                             
+         COL 33  WS-KVRADER-OVER  +                                             
+         COL 43  WS-KVRADER-DAM   +                                             
+         COL 53  WS-ADLAGOMR-1    +                                             
+         COL 61  WS-ADLAGOMR-2    +                                             
+         COL 69  WS-ADLAGOMR-3    +                                             
+         COL 77  WS-ADLAGOMR-4    +                                             
+         COL 85  WS-ADLAGOMR-9    +                                             
+         COL 93  WS-ADLAGOMR-OVR                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+REPORT   W61288-004 PRINTER W61288D5 LINESIZE 120 DTLCTL FIRST +                
+         NOADJUST NOHEADING TITLESKIP 2 PAGESIZE 41                             
+                                                                                
+TITLE 1  COL 12  'VCCS W61288-004'                                              
+                                                                                
+TITLE 3  COL 12  'MONTHLY BINNING PRODUCTIVITY REPORT'     +                    
+         COL 49  'DC 43'                                   +                    
+         COL 56  'PERIOD'                                  +                    
+         COL 63  DAT-TIAARP                                                     
+                                                                                
+TITLE 5  COL 4  'BINNER'                          +                             
+         COL 13 'BINNED'                          +                             
+         COL 23 'LINES'                           +                             
+         COL 33 'LINES'                           +                             
+         COL 43 'LINES'                           +                             
+         COL 53 'LINES/AREA'                                                    
+                                                                                
+TITLE 6  COL 4  'NO'                              +                             
+         COL 13 'LINES'                           +                             
+         COL 23 'SHORT'                           +                             
+         COL 33 'OVER'                            +                             
+         COL 43 'DAM'                             +                             
+         COL 53 '1X'                              +                             
+         COL 61 '2X'                              +                             
+         COL 69 '3X'                              +                             
+         COL 77 '4X'                              +                             
+         COL 85 '9X'                              +                             
+         COL 93 'OTHER'                                                         
+                                                                                
+LINE 1   COL 4   IN-IDUSER-003    +                                             
+         COL 13  WS-KVRADER-BIN   +                                             
+         COL 23  WS-KVRADER-SHORT +                                             
+         COL 33  WS-KVRADER-OVER  +                                             
+         COL 43  WS-KVRADER-DAM   +                                             
+         COL 53  WS-ADLAGOMR-1    +                                             
+         COL 61  WS-ADLAGOMR-2    +                                             
+         COL 69  WS-ADLAGOMR-3    +                                             
+         COL 77  WS-ADLAGOMR-4    +                                             
+         COL 85  WS-ADLAGOMR-9    +                                             
+         COL 93  WS-ADLAGOMR-OVR                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+REPORT   W61289-005 PRINTER W61288D6 LINESIZE 120 DTLCTL FIRST +                
+         NOADJUST NOHEADING SPACE 0 TITLESKIP 2 PAGESIZE 41                     
+                                                                                
+LINE 1   IN-IDDC          +                                                     
+         INNEV-AARP       +                                                     
+         IN-IDUSER-003    +                                                     
+         WS-KVRADER-BIN   +                                                     
+         WS-KVRADER-SHORT +                                                     
+         WS-KVRADER-OVER  +                                                     
+         WS-KVRADER-DAM   +                                                     
+         WS-ADLAGOMR-1    +                                                     
+         WS-ADLAGOMR-2    +                                                     
+         WS-ADLAGOMR-3    +                                                     
+         WS-ADLAGOMR-4    +                                                     
+         WS-ADLAGOMR-9    +                                                     
+         WS-ADLAGOMR-OVR                                                        
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF WBDC-IDDC NE WS-PREV-IDDC                                                  
+    DISPLAY '¤DAPW61289-005'                                                    
+    DISPLAY '¤DAP' WBDC-IDDC                                                    
+    WS-PREV-IDDC = WBDC-IDDC                                                    
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+REPORT   W61288-011 PRINTER W61288D7 LINESIZE 120 DTLCTL FIRST +                
+         NOADJUST NOHEADING TITLESKIP 2 PAGESIZE 41                             
+                                                                                
+TITLE 1  COL 12  'VCCS W61288-011'                                              
+                                                                                
+TITLE 3  COL 12  'MONTHLY BINNING PRODUCTIVITY REPORT'     +                    
+         COL 49  'DC 11'                                   +                    
+         COL 56  'PERIOD'                                  +                    
+         COL 63  DAT-TIAARP                                                     
+                                                                                
+TITLE 5  COL 4  'BINNER'                          +                             
+         COL 13 'BINNED'                          +                             
+         COL 23 'LINES'                           +                             
+         COL 33 'LINES'                           +                             
+         COL 43 'LINES'                           +                             
+         COL 53 'LINES/AREA'                                                    
+                                                                                
+TITLE 6  COL 4  'NO'                              +                             
+         COL 13 'LINES'                           +                             
+         COL 23 'SHORT'                           +                             
+         COL 33 'OVER'                            +                             
+         COL 43 'DAM'                             +                             
+         COL 53 '1X'                              +                             
+         COL 61 '2X'                              +                             
+         COL 69 '3X'                              +                             
+         COL 77 '4X'                              +                             
+         COL 85 '9X'                              +                             
+         COL 93 'OTHER'                                                         
+                                                                                
+LINE 1   COL 4   IN-IDUSER-003    +                                             
+         COL 13  WS-KVRADER-BIN   +                                             
+         COL 23  WS-KVRADER-SHORT +                                             
+         COL 33  WS-KVRADER-OVER  +                                             
+         COL 43  WS-KVRADER-DAM   +                                             
+         COL 53  WS-ADLAGOMR-1    +                                             
+         COL 61  WS-ADLAGOMR-2    +                                             
+         COL 69  WS-ADLAGOMR-3    +                                             
+         COL 77  WS-ADLAGOMR-4    +                                             
+         COL 85  WS-ADLAGOMR-9    +                                             
+         COL 93  WS-ADLAGOMR-OVR                                                
+*                                                                               

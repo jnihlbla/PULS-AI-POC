@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SORTERAR INFIL, SKRIVER LISTRADER TILL SKROTORDERBLANKETT                  
+//*                                                                             
+//*  FREQUENCE:             RTN W216S1                                          
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                W21620    NORMAL                                             
+//*                LLÄSER    WDB6                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W216P002 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W216..W216S1,                                             
+//             INDUT=&W216..W216S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W216PD02),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W21611(+0),DISP=SHR                                  
+//************ DATAPOSTER SKROTORDER                                            
+//*                                                                             
+//SORTOUT  DD  DSN=&&W21611,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//************ SORTERADE DATAPOSTER, SKROTORDER                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21620   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W21620,W21620,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W21620D1 DD  DSN=&&W21611,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERADE DATAPOSTER, SKROTORDER                                 
+//*                                                                             
+//W21620D3 DD  DSN=&INDUT..W21621(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LISTRADER  SKROTBLANKETT                                         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W21620D4 DD  DSN=&INDUT..W21622(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LISTRADER  SKROTBLANKETT   QUAL                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               

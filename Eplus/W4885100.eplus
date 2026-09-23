@@ -1,0 +1,72 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4885100                                              *        
+*                                                                      *        
+*  FUNKTION   :  KOMPLETTERAR INFO FRÅN BUFFERT REGISTRET MED PLATS    *        
+*                                                                      *        
+*  FÖRFATTARE :  MÅNS SAMUELSSON                                       *        
+*                                                                      *        
+*  ÄNDRING    :  PROGRAMMET LÄSER W91042-XTRAKTET ISTÄLLET FÖR DLB     *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     030206      CONNY EGHOLT......       9232..                      *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*    (YYMMDD)                                                          *        
+*     151026      RAHUL REDDY              ADD BEART TO HIGH BAY FILE. *        
+*                                          E'TRACKER 10263392.         *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W48851D1                                                                   
+%W4885601  'IN50-'                                                              
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W48851D2                                                                   
+%W91042   'ART-'                                                                
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W48851D3 FB(54 0)                                                          
+%W4885601  'UT52-'                                                              
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W48851DS FB(54 0) VIRTUAL                                                  
+%W4885601  'SORT-'                                                              
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORTERAR UPPGIFTERNA FRÅN BUFFERT REGISTRET PÅ ARTIKELNUMMER          
+*                                                                               
+SORT W48851D1 TO +                                                              
+     W48851DS USING (IN50-IDARTNR)                                              
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. MATCHAR FIL FRÅN BUFFERT REGISTRET MED ART.EXTRAKTET                  
+*                                                                               
+JOB INPUT ( W48851D2 KEY (ART-IDARTNR) +                                        
+            W48851DS KEY (SORT-IDARTNR) +                                       
+          )                                                                     
+   IF MATCHED                                                                   
+      UT52-IDARTNR  = SORT-IDARTNR                                              
+      UT52-ADLAGOMR = ART-ADLAGOMR                                              
+      UT52-ADGANG   = ART-ADGANG                                                
+      UT52-ADPLATS  = ART-ADPLATS                                               
+      UT52-KVPB-TOT = ART-KVPB-SEP(1)   + ART-KVPB-SEP(2)   +                   
+                    + ART-KVPB-SEP(3)   + ART-KVPB-SEP(4)   +                   
+                    + ART-KVPB-SEP(5)   + ART-KVPB-SEP(6)   +                   
+                    + ART-KVPB-SATS     + ART-KVPB-TPO                          
+      UT52-KVLS-CDC = ART-KVLS(1)                                               
+      UT52-VLARTNTO = ART-VLARTNTO                                              
+      UT52-ADINLOMR-BOA = ART-ADINLOMR-BOA                                      
+      UT52-BEART    = ART-BEART(8)                                              
+                                                                                
+      PUT W48851D3                                                              
+   END-IF                                                                       

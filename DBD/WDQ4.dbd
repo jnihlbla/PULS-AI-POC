@@ -1,0 +1,42 @@
+*        ORDERRADSKÖ-REGISTER                                                   
+*                                                                               
+         DBD   NAME=WDQ4,                                              *        
+               ACCESS=(HISAM,VSAM)                                              
+         DATASET DD1=WDQ4K,DEVICE=3390,SIZE=4096                                
+*                                                                               
+         SEGM  NAME=WDQ401,PARENT=0,BYTES=335                                   
+         FIELD NAME=(WDQ401KY,SEQ,U),BYTES=20,START=1,TYPE=X                    
+         FIELD NAME=(IDORDER),BYTES=4,START=1,TYPE=P                            
+         FIELD NAME=(IDDC),BYTES=2,START=5,TYPE=X                               
+         FIELD NAME=(ADLAGOMR),BYTES=2,START=7,TYPE=P                           
+         FIELD NAME=(ADGANG),BYTES=2,START=9,TYPE=P                             
+         FIELD NAME=(ADPLATS),BYTES=3,START=11,TYPE=P                           
+         FIELD NAME=(IDARTNR),BYTES=5,START=14,TYPE=P                           
+         FIELD NAME=(IDLOPNR),BYTES=2,START=19,TYPE=P                           
+         FIELD NAME=(IDGMTREF),BYTES=17,START=50,TYPE=X                         
+         FIELD NAME=(IDDISTR),BYTES=3,START=50,TYPE=P                           
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=53,TYPE=P                          
+         FIELD NAME=(KVBEARTQ),BYTES=4,START=115,TYPE=P                         
+         FIELD NAME=(IDPRQUES),BYTES=7,START=224,TYPE=X                         
+         FIELD NAME=(KVOKSPRE),BYTES=4,START=327,TYPE=P                         
+         LCHILD NAME=(WDQ4A1,WDQ4A),PTR=SYMB                                    
+         XDFLD NAME=WDQ4ASEQ,SEGMENT=WDQ401,                           *        
+               SRCH=(IDORDER,IDARTNR,IDLOPNR),                         *        
+               SUBSEQ=(IDDC,ADLAGOMR,ADGANG,ADPLATS)                            
+         LCHILD NAME=(WDQ4B1,WDQ4B),PTR=SYMB                                    
+         XDFLD NAME=WDQ4BSEQ,SEGMENT=WDQ401,                           *        
+               SRCH=(IDARTNR,IDLOPNR,IDGMTREF),                        *        
+               SUBSEQ=(IDORDER,IDDC,ADLAGOMR,ADGANG,ADPLATS),          *        
+               DDATA=(KVBEARTQ)                                                 
+         LCHILD NAME=(WDQ4C1,WDQ4C),PTR=SYMB                                    
+         XDFLD NAME=WDQ4CSEQ,SEGMENT=WDQ401,                           *        
+               SRCH=(IDARTNR,IDDC),                                    *        
+               SUBSEQ=(IDORDER,IDLOPNR,ADLAGOMR,ADGANG,ADPLATS),       *        
+               DDATA=(KVOKSPRE),                                       *        
+               EXTRTN=WDQ4CEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR KVOKSPRE > 0                                                   
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

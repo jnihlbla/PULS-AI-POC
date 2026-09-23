@@ -1,0 +1,37 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SORTERAR OCH JUSTERAR                                                      
+//*  MED WORKDAY DATKONV                                                        
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W236V2                                         
+//*                                                                             
+//*  ÅTERSTART:    W23635    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W236P135 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W236..W236V2,                                             
+//             INDUT=&W236..W236V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23635   EXEC PGM=W23635                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W23635D1 DD  DSN=&INDIN..W23638(+0),DISP=SHR                                  
+//************ VECKANS INLEV                                                    
+//*                                                                             
+//W23635D2 DD  DSN=&INDUT..W23639(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ VECKANS JUSTERADE INLEV                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W23635D3 DD  DSN=&INDUT..W23639X(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//************ VECKANS JUSTERADE INLEV                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 

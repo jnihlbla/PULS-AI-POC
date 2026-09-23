@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKRIVER UT LISTA MED KOLLIN UTAN PLATS ELLER                               
+//*  MED KVALITETSFEL                                                           
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611D1                                            
+//*                                                                             
+//*  ÅTERSTART:    W61162    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P062 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611D1,                                             
+//             DEST1=&QSE10311,                                                 
+//             DEST2=&QSE10049                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61162   EXEC PGM=V16459,PARM='W61162/8/'                                     
+//PR1 OUTPUT DEST=&DEST1                                                        
+//PR2 OUTPUT DEST=&DEST2                                                        
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61162D1 DD  DSN=&INDIN..W61162,DISP=SHR                                      
+//************ FIL FRÅN W61161                                                  
+//*                                                                             
+//W61162D2 DD  SYSOUT=(A,,STD),OUTPUT=(*.PR1),                                  
+//************ W61162-001  LISTA MED KOLLIN UTAN PLATS                          
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W61162D3 DD  SYSOUT=(A,,STD),OUTPUT=(*.PR2),                                  
+//************ W61162-002  LISTA MED KOLLIN MED KVALFEL                         
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W61162D4 DD  SYSOUT=(A,,STD),OUTPUT=(*.PR1),                                  
+//************ W61162-003  LISTA SOM SÄGER ATT DET INTE KOM NGT                 
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

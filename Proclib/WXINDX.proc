@@ -1,0 +1,31 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//*                                                                             
+//*              ***********************************                            
+//*              *  XICS - VERSION 5.0  JULY 1984  *                            
+//*              *        INDEX PROCESSOR          *                            
+//*              ***********************************                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//WXINDX   PROC DSIN=NULLFILE,DSUT=NULLFILE,FLDS=FLDS0                          
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//TOMFIL  EXEC PGM=V16266,PARM='DD'                                             
+//DD1       DD DSN=&DSUT,DISP=(NEW,PASS,DELETE),                                
+//             DCB=(RECFM=VB,LRECL=84,BLKSIZE=1680),                            
+//             MGMTCLAS=&DEL2BKPC,                                              
+//             SPACE=(CYL,(1,1),RLSE)                                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//INDEX   EXEC PGM=INDRPR                                                       
+//STEPLIB   DD DSN=VPUBV1.XICS51.LOAD,DISP=SHR                                  
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//FT01F001  DD DSN=&DSIN,DISP=(OLD,KEEP,KEEP)              INDEX INPUT          
+//CSSOUT    DD DSN=&DSUT,                                                       
+//             DISP=(OLD,PASS,DELETE),                    INDEX OUTPUT          
+//             DCB=(RECFM=VB,LRECL=84,BLKSIZE=1680),                            
+//             MGMTCLAS=&DEL2BKPC,                                              
+//             SPACE=(CYL,(10,5),RLSE)                                          
+//FT04F001  DD DSN=&INDGRND..XICSLIB(&FLDS),DISP=SHR       OPTION               
+//FT05F001  DD SYSOUT=*                                    LOG                  
+//FT06F001  DD SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//CATLG   EXEC PGM=IEFBR14                                                      
+//CB1XXX01  DD  DSN=&DSUT,DISP=(OLD,CATLG,DELETE)                               

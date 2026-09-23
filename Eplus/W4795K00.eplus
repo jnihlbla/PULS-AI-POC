@@ -1,0 +1,203 @@
+                                                                                
+*******************************************************************             
+* W4795K00                                                        *             
+* SORTERAR OCH MATCHAR W4795I OCH W4795J                          *             
+* SKRIVER W4795K, FAKTURERADE RADER.                              *             
+*******************************************************************             
+FILE W4795KD1  BUFNO 6                                                          
+%W4795I   'E54-'                                                                
+NEWPAGE                                                                         
+*                                                                               
+FILE W4795KD2  BUFNO 6                                                          
+%W4795J   'E64-'                                                                
+NEWPAGE                                                                         
+*                                                                               
+FILE W4795KD5 BUFNO 6                                                           
+%W011100  'DLB-'                                                                
+NEWPAGE                                                                         
+*                                                                               
+FILE TEMPFIL1         FB (219 0) BUFNO 6                                        
+%W4795K   'TMP1-'                                                               
+TMP1-IDPURAD        * 3 P 0                                                     
+TMP1-KDKOLLI        * 8 A                                                       
+TMP1-KVORDRAD       * 3 P 0                                                     
+TMP1-SUORDV-KOLLI   * 6 P 2                                                     
+TMP1-SUORDV-LOC     * 6 P 2                                                     
+TMP1-SUORDV-LOCPREL * 6 P 2                                                     
+TMP1-VKORDBTO-KOLLI * 4 P 1                                                     
+TMP1-VKORDNTO-KOLLI * 4 P 1                                                     
+TMP1-IDUSER-PACK    * 8 A                                                       
+TMP1-IDUSER-OREG    * 8 A                                                       
+TMP1-KVAVBART       * 4 P 0                                                     
+NEWPAGE                                                                         
+*                                                                               
+FILE TEMPFIL2         FB (219 0) BUFNO 6                                        
+%W4795K   'TMP2-'                                                               
+TMP2-IDPURAD        * 3 P 0                                                     
+TMP2-KDKOLLI        * 8 A                                                       
+TMP2-KVORDRAD       * 3 P 0                                                     
+TMP2-SUORDV-KOLLI   * 6 P 2                                                     
+TMP2-SUORDV-LOC     * 6 P 2                                                     
+TMP2-SUORDV-LOCPREL * 6 P 2                                                     
+TMP2-VKORDBTO-KOLLI * 4 P 1                                                     
+TMP2-VKORDNTO-KOLLI * 4 P 1                                                     
+TMP2-IDUSER-PACK    * 8 A                                                       
+TMP2-IDUSER-OREG    * 8 A                                                       
+TMP2-KVAVBART       * 4 P 0                                                     
+NEWPAGE                                                                         
+*                                                                               
+FILE TEMPFIL3         FB (159 0) BUFNO 6                                        
+%W4795K   'TMP3-'                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W4795KD6         FB (159 0) BUFNO 6                                        
+%W4795K   'UT-'                                                                 
+NEWPAGE                                                                         
+*                                                                               
+W-IDDISTR                   W   3 P 0                                           
+W-IDKUNDNR                  W   4 P 0                                           
+W-IDKUNDRF                  W  10 A                                             
+W-IDPRODNR                  W   4 P 0                                           
+W-IDRADNR-KO                W   3 P 0                                           
+*                                                                               
+JA              W  1 A  VALUE 'J'                                               
+NEJ             W  1 A  VALUE 'N'                                               
+NEWPAGE                                                                         
+*                                                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT (W4795KD1 KEY (E54-IDDISTR       +                                    
+                         E54-IDKUNDNR      +                                    
+                         E54-IDKUNDRF      +                                    
+                         E54-IDPRODNR      +                                    
+                         E54-IDRADNR-KO)   +                                    
+           W4795KD2 KEY (E64-IDDISTR       +                                    
+                         E64-IDKUNDNR      +                                    
+                         E64-IDKUNDRF      +                                    
+                         E64-IDPRODNR      +                                    
+                         E64-IDRADNR-KO))                                       
+                                                                                
+IF MATCHED                                                                      
+  IF E54-IDDISTR      = W-IDDISTR   AND  +                                      
+     E54-IDKUNDNR     = W-IDKUNDNR  AND  +                                      
+     E54-IDKUNDRF     = W-IDKUNDRF  AND  +                                      
+     E54-IDPRODNR     = W-IDPRODNR  AND  +                                      
+     E54-IDRADNR-KO   = W-IDRADNR-KO                                            
+    PERFORM C-FLYTTA-E64-OCH-SKRIV                                              
+  ELSE                                                                          
+                                                                                
+    TMP1-PRARTSTD  = 0                                                          
+    TMP1-PRARTSJK  = 0                                                          
+    TMP1-IDLKTO    = 0                                                          
+                                                                                
+    PERFORM B-FLYTTA-E54                                                        
+    PERFORM C-FLYTTA-E64-OCH-SKRIV                                              
+                                                                                
+    W-IDDISTR     = E54-IDDISTR                                                 
+    W-IDKUNDNR    = E54-IDKUNDNR                                                
+    W-IDKUNDRF    = E54-IDKUNDRF                                                
+    W-IDPRODNR    = E54-IDPRODNR                                                
+    W-IDRADNR-KO  = E54-IDRADNR-KO                                              
+  END-IF                                                                        
+END-IF                                                                          
+NEWPAGE                                                                         
+*                                                                               
+B-FLYTTA-E54.            PROC                                                   
+                                                                                
+     TMP1-IDDISTR          = E54-IDDISTR                                        
+     TMP1-IDKUNDNR         = E54-IDKUNDNR                                       
+     TMP1-IDKUNDRF         = E54-IDKUNDRF                                       
+     TMP1-IDDC-LEV         = E54-IDDC                                           
+     TMP1-IDPRODNR         = E54-IDPRODNR                                       
+     TMP1-IDPLKLST         = E54-IDPLKLST                                       
+     TMP1-IDARTNR          = E54-IDARTNR                                        
+     TMP1-IDPURAD          = E54-IDRADNR-KO                                     
+     TMP1-KDFRAKT          = E54-KDFRAKT                                        
+     TMP1-KDORDKL          = E54-KDORDKL                                        
+     TMP1-TIORDREG         = E54-TIORDREG                                       
+     TMP1-LOW-VALUE1       = ' '                                                
+     TMP1-FLDIRLEV         = E54-FLDIRLEV                                       
+     TMP1-IDKUNDRF-RO      = E54-IDKUNDRF-RO                                    
+     TMP1-KDORDTYP         = E54-KDORDTYP                                       
+     TMP1-KDPRODSL         = E54-KDPRODSL                                       
+     TMP1-FILLER-001       = '     '                                            
+     TMP1-FILLER-002       = '     '                                            
+     TMP1-FILLER-003       = ' '                                                
+     TMP1-FILLER-004       = '   '                                              
+     TMP1-IDKONTO          = E54-IDKONTO                                        
+     TMP1-IDKST            = E54-IDKST                                          
+     TMP1-KVBEART          = E54-KVBEART                                        
+     TMP1-KVLEVART         = E54-KVLEVART                                       
+     TMP1-PRARTNTO         = E54-PRARTNTO                                       
+     TMP1-PRARTNTO-LOC     = E54-PRARTNTO-LOC                                   
+     TMP1-PRARTNTO-LOCPREL = E54-PRARTNTO-LOCPREL                               
+     TMP1-KDPERSON         = E54-KDPERSON                                       
+     TMP1-KDFAKTYP         = E54-KDFAKTYP                                       
+     TMP1-VKARTNTO         = E54-VKARTNTO                                       
+     TMP1-VLARTNTO         = E54-VLARTNTO                                       
+     TMP1-IDARTNR-SATS     = E54-IDARTNR-SATS                                   
+     TMP1-FLPRTILL         = E54-FLPRTILL                                       
+     IF E54-KDRADSTA = 4                                                        
+       TMP1-FLUTSKR = JA                                                        
+     ELSE                                                                       
+       TMP1-FLUTSKR = NEJ                                                       
+     END-IF                                                                     
+     TMP1-KDARTURS       = E54-KDARTURS                                         
+     TMP1-KVAVBART       = E54-KVAVBART                                         
+     TMP1-IDUSER-OREG    = E54-IDUSER-OREG                                      
+     TMP1-IDUSER-PACK    = E54-IDUSER-PACK                                      
+END-PROC                                                                        
+NEWPAGE                                                                         
+*                                                                               
+C-FLYTTA-E64-OCH-SKRIV.  PROC                                                   
+                                                                                
+     TMP1-IDKOLLI        = E64-IDKOLLI                                          
+     TMP1-TIPACKN        = E64-TIPACKN                                          
+     TMP1-TIFAKT         = E64-TIFAKT                                           
+     TMP1-TILASTN        = E64-TILASTN                                          
+     TMP1-KVLEVART2      = E64-KVLEVART2                                        
+     TMP1-IDFAKT         = E64-IDFAKT                                           
+     TMP1-KDKOLLI        = E64-KDKOLLI                                          
+     TMP1-KVORDRAD       = E64-KVORDRAD                                         
+     TMP1-SUORDV-KOLLI   = E64-SUORDV-KOLLI                                     
+     TMP1-SUORDV-LOC     = E64-SUORDV-LOC                                       
+     TMP1-SUORDV-LOCPREL = E64-SUORDV-LOCPREL                                   
+     TMP1-KDVALISO       = E64-KDVALISO                                         
+     TMP1-VKORDBTO-KOLLI = E64-VKORDBTO-KOLLI                                   
+     TMP1-VKORDNTO-KOLLI = E64-VKORDNTO-KOLLI                                   
+                                                                                
+     PUT TEMPFIL1                                                               
+END-PROC                                                                        
+NEWPAGE                                                                         
+*                                                                               
+SORT TEMPFIL1 TO TEMPFIL2   +                                                   
+     USING (TMP1-IDARTNR)                                                       
+                                                                                
+*                                                                               
+JOB INPUT (W4795KD5 KEY (DLB-IDARTNR)    +                                      
+           TEMPFIL2 KEY (TMP2-IDARTNR))                                         
+                                                                                
+IF MATCHED                                                                      
+                                                                                
+  TMP3-W4795K     = TMP2-W4795K                                                 
+                                                                                
+  TMP3-IDLKTO     = DLB-IDLKTO                                                  
+  TMP3-PRARTSTD   = DLB-PRARTSTD                                                
+  TMP3-PRARTSJK   = DLB-PRARTSJK                                                
+                                                                                
+  TMP3-PRARTNTO-LOC      = 0                                                    
+  TMP3-PRARTNTO-LOCPREL  = 0                                                    
+  TMP3-KDVALISO          = '   '                                                
+                                                                                
+  TMP3-FILLER-004  = ' '                                                        
+                                                                                
+                                                                                
+  PUT TEMPFIL3                                                                  
+END-IF                                                                          
+*                                                                               
+SORT TEMPFIL3 TO W4795KD6 USING (TMP3-IDDC-LEV)                                 
+*                                                                               
+NEWPAGE                                                                         

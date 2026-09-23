@@ -1,0 +1,36 @@
+*        BUFFERT REGISTER                                                       
+*                                                                               
+         DBD   NAME=WDD8,RMNAME=(V12008,20,16380),                     *        
+               ACCESS=(HDAM,OSAM)                                               
+         DATASET DD1=WDD8V,DEVICE=3390,SIZE=2048,SCAN=0                         
+*                                                                               
+         SEGM  NAME=WDD801,PARENT=0,BYTES=5,PTR=T                               
+         FIELD NAME=(IDARTNR,SEQ,U),BYTES=5,START=1,TYPE=P                      
+*                                                                               
+         SEGM  NAME=WDD811,PARENT=WDD801,BYTES=33,PTR=T                         
+         FIELD NAME=(WDD811KY,SEQ,U),BYTES=17,START=1,TYPE=X                    
+         FIELD NAME=(IDDC),BYTES=2,START=1,TYPE=X                               
+         FIELD NAME=(ADBUFFOM),BYTES=2,START=3,TYPE=P                           
+         FIELD NAME=(DABUFPAF),BYTES=8,START=5,TYPE=P                           
+         FIELD NAME=(ADBUFGAN),BYTES=2,START=13,TYPE=P                          
+         FIELD NAME=(ADBUFPL),BYTES=3,START=15,TYPE=P                           
+         FIELD NAME=(KVBUFFF),BYTES=4,START=20,TYPE=P                           
+         FIELD NAME=(KVBUFFOF),BYTES=4,START=24,TYPE=P                          
+         FIELD NAME=(KVKOLIF),BYTES=3,START=28,TYPE=P                           
+         FIELD NAME=(KVKOLIOF),BYTES=3,START=31,TYPE=P                          
+         FIELD NAME=(/CKARTNR),BYTES=5,START=1,TYPE=P                           
+*                                                                               
+         LCHILD NAME=(WDD8A1,WDD8A),PTR=INDX                                    
+         XDFLD NAME=WDD8ASEQ,SEGMENT=WDD811,                           *        
+               SRCH=(IDDC,ADBUFFOM,ADBUFGAN,ADBUFPL),                  *        
+               SUBSEQ=(DABUFPAF,/CKARTNR)                                       
+*                                                                               
+         LCHILD NAME=(WDD8B1,WDD8B),PTR=INDX                                    
+         XDFLD NAME=WDD8BSEQ,SEGMENT=WDD811,                           *        
+               SRCH=(IDDC),                                            *        
+               SUBSEQ=(/CKARTNR,ADBUFFOM,ADBUFGAN,ADBUFPL,DABUFPAF),   *        
+               DDATA=(KVBUFFF,KVBUFFOF,KVKOLIF,KVKOLIOF)                        
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

@@ -1,0 +1,88 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W3719D00                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATES A CSV FILE OF DATA FROM THE BYLACK TABLE      *        
+*                                                                      *        
+*  FÖRFATTARE :  ARCHANA BHAT                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W3719DD1                                                                   
+*                                                                               
+%W3719C  'IN-'                                                                  
+                                                                                
+FILE W3719DD2 VB (34 0)                                                         
+U1-AREA        1  30   A                                                        
+U1-IDARTNR     1   9   N                                                        
+U1-FILLER1    10   1   A                                                        
+U1-KDTECKEN   11   1   A                                                        
+U1-KVANTAL    12   9   N                                                        
+U1-FILLER2    21   1   A                                                        
+U1-IN         22   9   N                                                        
+                                                                                
+W-FIRST-REC     W  1 A   VALUE 'J'                                              
+W-SPAR-IDARTNR  W  5 P 0 VALUE 0                                                
+W-SPAR-IN       W  5 P 0 VALUE 0                                                
+W-SPAR-KVANTAL  W  5 P 0 VALUE 0                                                
+                                                                                
+W-RUB                W   30 A                                                   
+W-RUB-TEXT1   W-RUB       7 A VALUE  'PART NO'                                  
+W-RUB-FILLER1 W-RUB  +7   1 A VALUE  ';'                                        
+W-RUB-TEXT2   W-RUB  +8   3 A VALUE  'OUT'                                      
+W-RUB-FILLER2 W-RUB  +11  1 A VALUE  ';'                                        
+W-RUB-TEXT3   W-RUB  +12  2 A VALUE  'IN'                                       
+W-RUB-FILLER3 W-RUB  +14 16 A VALUE  ' '                                        
+                                                                                
+NEWPAGE                                                                         
+JOB INPUT W3719DD1 FINISH Z-FINIT                                               
+  IF W-SPAR-IDARTNR NE IN-IDARTNR AND W-FIRST-REC = 'N'                         
+     U1-IDARTNR = W-SPAR-IDARTNR                                                
+     U1-FILLER1 = ';'                                                           
+     U1-IN      = W-SPAR-IN                                                     
+     U1-FILLER2 = ';'                                                           
+     U1-KVANTAL = W-SPAR-KVANTAL                                                
+     IF W-SPAR-KVANTAL < 0                                                      
+        U1-KDTECKEN = '-'                                                       
+     ELSE                                                                       
+        U1-KDTECKEN = ' '                                                       
+     END-IF                                                                     
+     PUT W3719DD2                                                               
+     W-SPAR-IN = 0                                                              
+     W-SPAR-KVANTAL = 0                                                         
+  END-IF                                                                        
+  IF W-FIRST-REC = 'J'                                                          
+     U1-AREA = W-RUB                                                            
+     PUT W3719DD2                                                               
+     W-FIRST-REC = 'N'                                                          
+  END-IF                                                                        
+                                                                                
+  IF IN-IDPTYP = 'FAK'                                                          
+     W-SPAR-KVANTAL = W-SPAR-KVANTAL + IN-KVANTAL                               
+  END-IF                                                                        
+  IF IN-IDPTYP = 'KRE'                                                          
+     W-SPAR-KVANTAL = W-SPAR-KVANTAL - IN-KVANTAL                               
+  END-IF                                                                        
+  IF IN-IDPTYP = 'RET'                                                          
+     W-SPAR-IN = W-SPAR-IN + IN-KVANTAL                                         
+  END-IF                                                                        
+                                                                                
+  W-SPAR-IDARTNR = IN-IDARTNR                                                   
+                                                                                
+  Z-FINIT. PROC                                                                 
+    IF W-FIRST-REC = 'N'                                                        
+       U1-IDARTNR = W-SPAR-IDARTNR                                              
+       U1-FILLER1 = ';'                                                         
+       U1-IN      = W-SPAR-IN                                                   
+       U1-FILLER2 = ';'                                                         
+       U1-KVANTAL = W-SPAR-KVANTAL                                              
+       IF W-SPAR-KVANTAL < 0                                                    
+          U1-KDTECKEN = '-'                                                     
+       ELSE                                                                     
+          U1-KDTECKEN = ' '                                                     
+       END-IF                                                                   
+       PUT W3719DD2                                                             
+    END-IF                                                                      
+  END-PROC                                                                      

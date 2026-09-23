@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  VALIDATION OF ORDER DATA                                                   
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN W412S2                           
+//*                                                                             
+//*  RESTART:      W41283      NORMAL                                           
+//*                READS       WDK6 WDK7                                        
+//*                            WDB1 WDB2 WDB3 WDB5                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W412P083 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W412..W412S2,                                             
+//             INDUT=&W412..W412S2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41283   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W41283,W41283,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB3     INCLUDE MEMBER=WDB3                                                  
+//WDB5     INCLUDE MEMBER=WDB5                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDK7     INCLUDE MEMBER=WDB6                                                  
+//*                                                                             
+//W41283D0 DD  DUMMY                                                            
+//************ DATE, TIME AND USER INFO FROM WEB                                
+//*                                                                             
+//W41283D1 DD  DSN=&INDIN..W41282(+0),DISP=SHR                                  
+//************ RAW ORDER DATA                                                   
+//*                                                                             
+//W41283D2 DD  DSN=&INDUT..W41283(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ VALIDATED ORDER DATA                                             
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W41283D4 DD  DSN=&INDUT..W4128E(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ ERROR MAIL                                                       
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W41283D5 DD  DSN=&INDUT..W41285(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ ERROR MAIL                                                       
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

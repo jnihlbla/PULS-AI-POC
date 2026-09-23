@@ -1,0 +1,59 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6118D00                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATE A REGISTER FILE TO FIND OUT ALL THE CHANGED    *        
+*                OR ADDED PART NUMBERS IN WDK6-W011.QASE.W01160(+0)    *        
+*  FÖRFATTARE :  UMESH JAIN                                            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W6118DD1                                                                   
+%W01160    'IN1-'                                                               
+                                                                                
+FILE W6118DD2                                                                   
+%W6118F01  'IN2-'                                                               
+                                                                                
+FILE W6118DD3 FB(7 0)                                                           
+%W6118H01  'UT-'                                                                
+                                                                                
+FILE W6118DD4 FB(10 0)                                                          
+%W6118F01  'REG-'                                                               
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT (W6118DD1 KEY (IN1-CLAG-IDARTNR) +                                    
+           W6118DD2 KEY (IN2-8F01-IDARTNR))                                     
+                                                                                
+                                                                                
+IF MATCHED                                                                      
+  IF IN1-CLAG-KDERS-UTG = 0                                                     
+    PERFORM S01-CREATE-REG-FILE                                                 
+    IF ((IN1-CLAG-BEFT ^=  IN2-8F01-BEFT) OR +                                  
+        (IN1-CLAG-IDFKNGRP ^= IN2-8F01-IDFKNGRP))                               
+      MOVE IN1-CLAG-IDARTNR TO UT-IDARTNR                                       
+      MOVE IN1-CLAG-BEFT    TO UT-BEFT                                          
+      PUT W6118DD3                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+ELSE                                                                            
+  IF W6118DD1                                                                   
+    IF IN1-CLAG-KDERS-UTG = 0                                                   
+      PERFORM S01-CREATE-REG-FILE                                               
+      MOVE IN1-CLAG-IDARTNR TO UT-IDARTNR                                       
+      MOVE IN1-CLAG-BEFT    TO UT-BEFT                                          
+      PUT W6118DD3                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+S01-CREATE-REG-FILE. PROC                                                       
+    MOVE IN1-CLAG-IDARTNR  TO REG-8F01-IDARTNR                                  
+    MOVE IN1-CLAG-BEFT     TO REG-8F01-BEFT                                     
+    MOVE IN1-CLAG-IDFKNGRP TO REG-8F01-IDFKNGRP                                 
+    PUT W6118DD4                                                                
+ END-PROC                                                                       
+                                                                                

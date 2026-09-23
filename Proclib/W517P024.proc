@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      VECKORAPPORTEN                                               *         
+//*      SORTERAR OCH ADDERAR RW1 OCH RW2-POSTER                      *         
+//*                                                                   *         
+//*      PERIODICITET: VECKA                                          *         
+//*                                                                   *         
+//*      ÅTERSTART:    W51724   NORMAL                                *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W517P024 PROC INDIN=&W517..W517V1,                                            
+//             INDUT=&W517..W517V1,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51724  EXEC PGM=W51724                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SORTMSG  DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                             (POSTSUM)                   
+//*                                                                             
+//W51724D1 DD  DSN=&INDIN..W51714,DISP=SHR                                      
+//************** VECKANS RW1- OCH RW2-POSTER                        ***         
+//         DD  DSN=&INDIN..W51711,DISP=SHR                                      
+//************** VECKANS POSTER FRÅN SAP R/3                        ***         
+//*                                                                             
+//W51724D2 DD  DSN=&INDUT..W51724(+1),DISP=(NEW,CATLG,DELETE), -LIM(03)         
+//************** SUMMERADE POSTER ATT ADDERAS PÅ REGISTRET          ***         
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//W51724D3 DD  DSN=&&W51724X,DISP=(NEW,PASS,DELETE),                            
+//************ FILE TO AZURE DATALAKE                                           
+//             DATACLAS=PSEN                                                    
+//*                                                                             

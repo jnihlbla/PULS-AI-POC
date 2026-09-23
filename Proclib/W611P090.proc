@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER UT DAGENS INLEVERANSER AV CD-ARTIKLAR                                
+//*                                                                             
+//*  FREKVENS:     ORDER   RTN W611S8                                           
+//*                                                                             
+//*  ÅTERSTART:    W61190    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P090 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&WXTR..PARTINFO,                                          
+//             INDIN=&W611..W611S8,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61190   EXEC PGM=V16459,PARM='W61190/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                    -- ABEND         
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//************                                                                  
+//W61190D1 DD  DSN=&INDIN2..WCDCTIME(+0),DISP=SHR                               
+//************ TIMELAGERBAND                                                    
+//*                                                                             
+//W61190D2 DD  DSN=&INDIN..W61110(+0),DISP=SHR                                  
+//************ SB FIL AV W6D1                                                   
+//*                                                                             
+//W61190D3 DD  DSN=&&W61190A,DISP=(NEW,PASS,DELETE),                            
+//************ CD-ARTIKLAR                                                      
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W61190D4 DD  DSN=&&W61190B,DISP=(NEW,PASS,DELETE),                            
+//************ SORTAD                                                           
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W61190D5 DD  SYSOUT=(A,,STD),DEST=&DEST1                                      
+//************ W61190  DAGENS INLEVERANSER AV CD-ARTIKLAR                       
+//*                                                                             

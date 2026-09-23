@@ -1,0 +1,37 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR URVALSFIL FÖR SENARE LADDNING AV DB2-TABELL BYLACK                  
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W371V9                                          
+//*                                                                             
+//*  ÅTERSTART:    W37131   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W37131   PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W371..W371V9                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO    EXEC  PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                                
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR            -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W37131D1 DD  DSN=&INDUT..W37130(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LADDFIL TILL DB2-TABELL BYLACK                                   
+//             MGMTCLAS=&BACKUPC,SPACE=(18,(400,40),RLSE),AVGREC=K              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456',                              
+//             COND=(4,GE,TSO)                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

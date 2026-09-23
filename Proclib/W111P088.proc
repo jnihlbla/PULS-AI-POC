@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  BEREDNING  LISTA ÖVER KOMMANDE ARTIKLAR                                    
+//*                                                                             
+//*  FREKVENS:  VARJE VECKA                                                     
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W111P088 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W111..W111V4,                                            
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDUT=&W111..W111V4,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11188   EXEC PGM=V16459,PARM='W11188/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(2000,2000))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//*                                                                             
+//W11188D1 DD  DSN=&INDIN2..W01162(+0),DISP=SHR                                 
+//************ NOTERINGAR                                                       
+//*                                                                             
+//W11188D2 DD  DSN=&INDIN1..W11187(+0),DISP=OLD                                 
+//************ SELEKTERING AV DET DAGLIGA LAGERBANDET                           
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W11188D3 DD  SYSOUT=(H,,1411),DEST=&DEST1                                     
+//************ W11188-001  KOMMANDE ARTIKLAR                                    
+//*                                                                             
+//W11188D4 DD  DSN=&INDUT..W11188(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//************ W11188-001  KOMMANDE ARTIKLAR PÅ FIL                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

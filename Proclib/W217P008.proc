@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKRIVER UTFIL MED IHOPSAMLAD ARTIKELINFORMATION                            
+//*                                                                             
+//*  FREKVENS:     ORDER   RTN W217S4                                           
+//*                                                                             
+//*  ÅTERSTART:    W21708    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W217P008 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W011..&RTEGRP.,                                          
+//             INDIN2=&W011..W011S1,                                            
+//             INDINL=&W011..LDCTIME,                                           
+//             INDINS=&W011..SDCTIME,                                           
+//             INDINN=&W011..NDCTIME,                                           
+//             INDUT=&W217..W217S4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21708   EXEC PGM=V16459,PARM='W21708/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(300,(2000,1000),RLSE),AVGREC=K                            
+//SORTMSG  DD  SYSOUT=*                                                         
+//W21708D1 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ INFIL W01160                                                     
+//*                                                                             
+//W21708D2 DD  DSN=&INDINL..W01184(+0),DISP=SHR                                 
+//         DD  DSN=&INDINS..W01184(+0),DISP=SHR                                 
+//         DD  DSN=&INDINN..W01184(+0),DISP=SHR                                 
+//************ INFIL KONKATENERAD SAMTLIGA W01184 SDC/NDC                       
+//*                                                                             
+//W21708D3 DD  DSN=&&TEMP1,DISP=(NEW,PASS,DELETE),                              
+//************ TEMPFIL MED IDARTNR & KVPB-REF IFRÅN OVANSTÅENDE                 
+//         SPACE=(9,(1000,500),RLSE),AVGREC=K                                   
+//*                                                                             
+//W21708D4 DD  DSN=&INDIN2..W01174(+0),DISP=SHR                                 
+//************ INFIL W01174                                                     
+//*                                                                             
+//W21708D5 DD  DSN=&INDIN2..W01173(+0),DISP=SHR                                 
+//************ INFIL W01173                                                     
+//*                                                                             
+//W21708D6 DD  DSN=&INDIN1..W01161(+0),DISP=SHR                                 
+//************ INFIL W01161 - WDK621                                            
+//*                                                                             
+//W21708D7 DD  DSN=&INDUT..W21708(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ UTFIL MED ARTIKELINFO IFRÅN INFILERNA OVAN                       
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                

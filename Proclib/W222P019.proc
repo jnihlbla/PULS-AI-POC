@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*    UPPDATERING AV SATSBEHOV-PER-VECKA I SATSSTRUKTUR OCH ARTREG   *         
+//*                                                                   *         
+//*    PERIODICITET: DAG (SAMMA PGM GÅR VECKOVIS I ANNAN PROC)        *         
+//*                                                                   *         
+//*    ÅTERSTART:    NORMAL (BMP)                                     *         
+//*                  W22219 UPPDATERAR WDK6 WDD9 WDJ1 OCH WDJ3        *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W222P019 PROC INDIN=NULLFILE,INDUT=NULLFILE,                                  
+//             CPU=1,                                                           
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W22219  EXEC PGM=DFSRRC00,                                                    
+//        PARM=('BMP,W22219,W22219,,,N00,,,,,&CPU,,,&IMS')                      
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//*                                                                             
+//W22219D1 DD  DSN=&INDIN..W22215,DISP=SHR                                      
+//************** HÄNDELSE 2233, SATSSTRUKTUR UPPDATERAD FRÅN P014               
+//*              ALLA GEN TAS IN PGA EV P014 KÖRD FLERA GÅNGER                  
+//*                                                                             
+//W22219D2 DD  DSN=&INDUT..W22220(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************** HÄNDELSE 2204, SATSSTRUKTUR UPPDATERAD                         
+//             SPACE=(6226,(20,40),RLSE),                                       
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TOMDEL  EXEC WEMPDEL,DSIN=&INDUT..W22220(+1)                                  

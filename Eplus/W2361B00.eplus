@@ -1,0 +1,151 @@
+* NOTE!! THIS PROGRAM WAS GENERATED USING VILMA FILLI FUNCTION EPLX             
+*        TO CREATE A TAB-SEPARATED .TXT/.CSV FILE BASED ON THE                  
+*        CONTENT IN WDD904 EXTRACT FILE.                                        
+*                                                                               
+*        IF THE FILE COPYBOOK CHANGES, THEN THE EASIEST SOLUTION IS             
+*        TO GENERATE A NEW PROGRAM USING THE EPLX-FUCTION AGAIN                 
+*        (INSTEAD OF TRYING TO ADJUST THIS SOURCE MANUALLY)                     
+*                                                                               
+FILE INFIL01                                                                    
+%WDD904DL                                                                       
+*                                                                               
+FILE UTFIL01   VB(123 FULLTRK)                                                  
+UT-REC                                  1   123   A                             
+UT-IDSEGM                               1     6   A                             
+UT-IDARTNR-KEY                          8    15   A                             
+UT-IDDC-KEY                            24     2   A                             
+UT-IDLEVNR-KEY                         27     5   A                             
+UT-DASPECST                            33     6   N                             
+UT-KDLPORS-TAB-OCCURENCE-1             40    15   A                             
+UT-KDLPORS-TAB-OCCURENCE-2             56    15   A                             
+UT-KDLPORS-TAB-OCCURENCE-3             72    15   A                             
+UT-KVBEST-PL                           88    15   A                             
+UT-KDPLKOEP                           104    15   A                             
+*                                                                               
+FILE LISTDD  PRINTER                                                            
+*                                                                               
+    W-FLD                   W     0014  N 4                                     
+    W-FLD-INTEGER   W-FLD         0010  N                                       
+    W-FLD-DECIMAL   W-FLD +10     0004  A                                       
+    W-ED                    W     0015  A                                       
+    W-ED-INTSIGN   W-ED           0001  A  OCCURS 10 INDEX SIGN-X               
+    W-ED-INTEGER    W-ED          0010  A                                       
+    W-ED-DECDOT     W-ED   +10    0001  A                                       
+    W-ED-DECIMAL    W-ED   +11    0004  A                                       
+    W-ED-DECSIGN    W-ED-DECIMAL 0001   A  OCCURS 4     INDEX SIGN-XX           
+*                                                                               
+    W-CONC-I                W     0254  A                                       
+    W-CONC-ISIGN    W-CONC-I      0001  A  OCCURS 254 -                         
+                             INDEX (INX, INX-STOP)                              
+    W-CONC-U                W     4096  A                                       
+    W-CONC-USIGN    W-CONC-U      0001  A  OCCURS 4096  INDEX UTX               
+*                                                                               
+    W-FLDAV                 W     0001  A    VALUE '	'                          
+    W-DECAV                 W     0001  A    VALUE ','                          
+*                                                                               
+JOB INPUT INFIL01                                                               
+               PERFORM MAIN-SECTION                                             
+*                                                                               
+MAIN-SECTION. PROC                                                              
+               W-FLDAV = '	'                                                    
+               MOVE ' ' TO W-CONC-U FILL ' '                                    
+               UTX = 1                                                          
+               MOVE IDSEGM TO W-CONC-I                                          
+               INX = 6                                                          
+               PERFORM CONCATENATE-CHAR                                         
+               W-FLD = IDARTNR-KEY                                              
+               PERFORM EDIT-NUM                                                 
+               MOVE W-ED TO W-CONC-I                                            
+               PERFORM CONCATENATE-NUM                                          
+               MOVE IDDC-KEY TO W-CONC-I                                        
+               INX = 2                                                          
+               PERFORM CONCATENATE-CHAR                                         
+               MOVE IDLEVNR-KEY TO W-CONC-I                                     
+               INX = 5                                                          
+               PERFORM CONCATENATE-CHAR                                         
+               MOVE DASPECST TO W-CONC-I                                        
+               INX = 6                                                          
+               PERFORM CONCATENATE-CHAR                                         
+               W-FLD = KDLPORS-TAB (1)                                          
+               PERFORM EDIT-NUM                                                 
+               MOVE W-ED TO W-CONC-I                                            
+               PERFORM CONCATENATE-NUM                                          
+               W-FLD = KDLPORS-TAB (2)                                          
+               PERFORM EDIT-NUM                                                 
+               MOVE W-ED TO W-CONC-I                                            
+               PERFORM CONCATENATE-NUM                                          
+               W-FLD = KDLPORS-TAB (3)                                          
+               PERFORM EDIT-NUM                                                 
+               MOVE W-ED TO W-CONC-I                                            
+               PERFORM CONCATENATE-NUM                                          
+               W-FLD = KVBEST-PL                                                
+               PERFORM EDIT-NUM                                                 
+               MOVE W-ED TO W-CONC-I                                            
+               PERFORM CONCATENATE-NUM                                          
+               W-FLDAV = ' '                                                    
+               W-FLD = KDPLKOEP                                                 
+               PERFORM EDIT-NUM                                                 
+               MOVE W-ED TO W-CONC-I                                            
+               PERFORM CONCATENATE-NUM                                          
+               UT-REC = W-CONC-U                                                
+               RECORD-LENGTH(UTFIL01) = UTX - 1                                 
+               PUT UTFIL01                                                      
+END-PROC                                                                        
+CONCATENATE-CHAR. PROC                                                          
+               PERFORM PACK-TO-OUTPUT                                           
+               IF W-FLDAV ^= ' '                                                
+                 W-CONC-USIGN (UTX) = W-FLDAV                                   
+                 UTX = UTX + 1                                                  
+               END-IF                                                           
+END-PROC                                                                        
+*                                                                               
+CONCATENATE-NUM. PROC                                                           
+               INX = 18                                                         
+               PERFORM PACK-TO-OUTPUT                                           
+               IF W-FLDAV ^= ' '                                                
+                 W-CONC-USIGN (UTX) = W-FLDAV                                   
+                 UTX = UTX + 1                                                  
+               END-IF                                                           
+END-PROC                                                                        
+*                                                                               
+PACK-TO-OUTPUT. PROC                                                            
+               DO WHILE INX > 0 AND W-CONC-ISIGN (INX) = ' '                    
+                 INX = INX - 1                                                  
+               END-DO                                                           
+               INX-STOP = INX                                                   
+               INX = 1                                                          
+               DO WHILE INX < INX-STOP AND W-CONC-ISIGN (INX) = ' '             
+                  INX = INX + 1                                                 
+               END-DO                                                           
+               DO WHILE INX <= INX-STOP                                         
+                 W-CONC-USIGN (UTX) = W-CONC-ISIGN (INX)                        
+                 INX = INX + 1                                                  
+                 UTX = UTX + 1                                                  
+               END-DO                                                           
+END-PROC                                                                        
+*                                                                               
+EDIT-NUM. PROC                                                                  
+               W-ED-DECDOT = W-DECAV                                            
+               W-ED-INTEGER = W-FLD-INTEGER                                     
+               SIGN-X = 0                                                       
+               DO WHILE SIGN-X < 10 AND W-ED-INTSIGN (SIGN-X) < '1'             
+                 IF W-ED-INTSIGN (SIGN-X) = '0'                                 
+                   W-ED-INTSIGN (SIGN-X) = ' '                                  
+                 END-IF                                                         
+                 SIGN-X = SIGN-X + 1                                            
+               END-DO                                                           
+               IF W-FLD < 0                                                     
+                 SIGN-X = SIGN-X - 1                                            
+                 W-ED-INTSIGN (SIGN-X) = '-'                                    
+               END-IF                                                           
+               W-ED-DECIMAL = W-FLD-DECIMAL OR X'000000F0'                      
+               SIGN-XX = 4                                                      
+               DO WHILE SIGN-XX > 0 AND W-ED-DECSIGN (SIGN-XX) = '0'            
+                 W-ED-DECSIGN (SIGN-XX) = ' '                                   
+                 SIGN-XX = SIGN-XX - 1                                          
+               END-DO                                                           
+               IF W-ED-DECIMAL = ' '                                            
+                 W-ED-DECDOT = ' '                                              
+               END-IF                                                           
+END-PROC                                                                        
+*                                                                               

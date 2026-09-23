@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LADDA DATA MANAGER MED MODULUPPDATERINGAR                                  
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN WDMRV6                                          
+//*                                                                             
+//*  ÅTERSTART:    WDMR28   NORMAL (DMR)                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMRP028 PROC INDIN=&WDMR..WDMRV6,                                            
+//             INDUT=&WDMR..WDMRV6,                                             
+//             DMR=W.PROD,                                                      
+//             MPAID=F1DAV1.MPAID,                                              
+//             STPLIB=F1DAV1.DMR.LOAD                                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMR28  EXEC PGM=MPR00,REGION=4096K                                           
+//STEPLIB   DD DSN=&STPLIB.,DISP=SHR                                            
+//SYSUDUMP  DD SYSOUT=*                                                         
+//PROD   DD DSN=&DMR..INDEX,DISP=SHR                                            
+//PRODD  DD DSN=&DMR..DATA,DISP=SHR                                             
+//PRODS  DD DSN=&DMR..DMSOURCE,DISP=SHR                                         
+//PRODE  DD DSN=&DMR..RECOVER,DISP=SHR                                          
+//PRODJ  DD DSN=&DMR..LOG,DISP=SHR                                              
+//MPAID  DD DSN=&MPAID.,DISP=SHR                                                
+//*                                                                             
+//MPIN   DD DDNAME=SYSIN                                                        
+//SYSIN  DD DSN=&INDRTE..CONSTANT(WDMRLON),DISP=SHR                             
+//*                                                                             
+//       DD DSN=&INDIN..WDMR26(+0),DISP=SHR                                     
+//********** COBOL-UPDPATERINGAR                                                
+//*                                                                             
+//       DD DSN=&INDIN..WDMR27(+0),DISP=SHR                                     
+//********** EPLUS-UPDPATERINGAR                                                
+//*                                                                             
+//MPOUT  DD DSN=&INDUT..WDMR28(+1),                         -LIM(01)            
+//********** UPPDATERINGSRAPPORT                                                
+//          DISP=(NEW,CATLG,DELETE),                                            
+//          MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                    

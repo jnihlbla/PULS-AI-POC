@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SUMMERAR INFORMATION FRÅN STATUS TRANSAR PER UPPFÖLJNINGSSTATUS            
+//*  ANTAL RADER, VÄRDE OCH GENOMLOPPSTID.                                      
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611D1                                            
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W61151    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P051 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611D1,                                             
+//             INDUT=&W611..W611D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD51),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61140(+0),DISP=SHR                                  
+//************ STATUS POSTER FRÅN W6G3                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&TEMPFIL,DISP=(NEW,PASS,DELETE),                            
+//             SPACE=(45,(20,10),RLSE),AVGREC=K                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61151   EXEC PGM=W61151                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=NJORS2,HOLD=YES        -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W61151D1 DD  DSN=&&TEMPFIL,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTERAD W6G3 FIL                                                
+//*                                                                             
+//W61151D2 DD  DSN=&INDRTE..CONSTANT(W61155ML),DISP=SHR                         
+//************ GLT MÅL                                                          
+//*                                                                             
+//W61151D3 DD  DSN=&INDUT..W61151(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ STATUS POSTER SUMMERADE PER UPPFÖLJNINGSSTATUS                   
+//             MGMTCLAS=&NOBACKUP,SPACE=(53,(30,10),RLSE),AVGREC=U              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,37 @@
+                                                                                
+************************************************************************        
+*  PROGRAM    : STOCK COMPARE- WDK611 AND WDK728                                
+************************************************************************        
+                                                                                
+FILE W6121GD1                                                                   
+%W01184  'IN1-'                                                                 
+                                                                                
+FILE W6121GD2                                                                   
+%W01188  'IN2-'                                                                 
+                                                                                
+FILE W6121GD3   VB(32 0)                                                        
+U01-IDARTNR          1   9   N                                                  
+U01-IDDC             11  2   A                                                  
+U01-KVLS             14  7   N                                                  
+U01-KVKVARTRACK-TOT  22  7   N                                                  
+                                                                                
+* INPUT TO COMPARE WDK711 AND WDK728                                            
+JOB INPUT (W6121GD1 KEY (IN1-SLAG-IDARTNR IN1-SLAG-IDDC) +                      
+           W6121GD2 KEY (IN2-TRCK-IDARTNR IN2-TRCK-IDDC))                       
+                                                                                
+IF MATCHED                                                                      
+     IF IN1-SLAG-IDDC = '53' AND IN1-SLAG-IDDC-REF = ' ' +                      
+     AND IN1-SLAG-IDLEVNR > ' '                                                 
+      CONTINUE                                                                  
+     ELSE                                                                       
+     IN1-SLAG-KVLS = IN1-SLAG-KVLS + IN1-SLAG-KVEFRS                            
+     IF IN1-SLAG-KVLS NE IN2-TRCK-KVTRACK-KVAR                                  
+       U01-IDARTNR         = IN1-SLAG-IDARTNR                                   
+       U01-IDDC            = IN1-SLAG-IDDC                                      
+       U01-KVLS            = IN1-SLAG-KVLS                                      
+       U01-KVKVARTRACK-TOT = IN2-TRCK-KVTRACK-KVAR                              
+       PUT W6121GD3                                                             
+     END-IF                                                                     
+     END-IF                                                                     
+END-IF                                                                          
+*                                                                               

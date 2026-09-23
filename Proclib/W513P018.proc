@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  INVENTERINGEN.                                                             
+//*                                                                             
+//*                                                                             
+//*  SUMMERAR POSTERNA PÅ KDJUSTTYP, SKAPAR LISTA W51318-001                    
+//*  FREKVENS:     MÅNAD     RTN W513R1                                         
+//*                                                                             
+//*  ÅTERSTART:    W51318    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P018 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W513..W513R1,                                             
+//             INDIN1=&W011,                                                    
+//             INDUT=&W513..W513R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51318   EXEC PGM=V16459,PARM='W51318/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR            -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W51318D1 DD  DSN=&INDIN..W51368(+0),DISP=SHR                                  
+//************ INVENTERINGS INFORMATION  FÖR CDC                                
+//*                                                                             
+//W51318D2 DD  DSN=&INDIN1..W01177(+0),DISP=SHR                                 
+//************ EKONOMI-ARTIKELSALDOFIL                                          
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51318D3 DD  DSN=&INDUT..W51318(+1),DISP=(NEW,CATLG,DELETE),  -LIM(10)        
+//************  ACCUMULATED ADJ IN % OF INVENTORY VALUE                         
+//************  UTFIL MED INVENTERINGSLISTA TILL ONDEMAND                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

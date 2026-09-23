@@ -1,0 +1,85 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4140600                                              *        
+*                                                                      *        
+*  FUNCTION   :  SELECT SPX ORDERS FROM ON-ORDER FILE                  *        
+*                                                                      *        
+*  AUTHOR     :  KJELL ANDRÉ                                           *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W41406D1                                                                   
+*                                                                               
+%W414001  'IN-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+* LRECL BELOW IS LONGEST OF W4140X2 AND 0X3 + 4 FOR VB                          
+FILE W41406D2 VB(73 0)                                                          
+*                                                                               
+%W4140X2  'IN-'                                                                 
+%W4140X3  'IN-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+*--------------------------------------------                                   
+FILE W41406D3 FB(103 0)                                                         
+*                                                                               
+%W414001  'SIN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+* LRECL BELOW IS LONGEST OF W4140X2 AND 0X3 + 4 FOR VB                          
+FILE W41406D4 VB(73 0)                                                          
+*                                                                               
+%W4140X2  'SIN-'                                                                
+%W4140X3  'SIN-'                                                                
+                                                                                
+*--------------------------------------------                                   
+* LRECL BELOW IS LONGEST OF W4140X1, 0X2 AND 0X3 + 4 FOR VB                     
+*                                                                               
+FILE W41406D5 VB(73 0)                                                          
+*                                                                               
+%W4140X1  'UT-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+*--------------------------------------------                                   
+*                                                                               
+* STEP 1. SORT ORDER HEADS (NOT ONLY SPX)                                       
+*                                                                               
+SORT W41406D1 TO +                                                              
+     W41406D3 USING (IN-OHUV-IDDISTR, IN-OHUV-IDKUNDNR, +                       
+                     IN-OHUV-IDKUNDRF)                                          
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. SORT ORDER LINES FOR SPX                                              
+*                                                                               
+SORT W41406D2 TO +                                                              
+     W41406D4 USING (IN-0X2-IDDISTR, IN-0X2-IDKUNDNR, +                         
+                     IN-0X2-IDKUNDRF)                                           
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 4. MATCH SORTED FILES. MATCHED RECORDS ARE SPX ORDERS                    
+*                                                                               
+JOB INPUT (W41406D4 KEY (SIN-0X2-IDDISTR, SIN-0X2-IDKUNDNR, +                   
+                         SIN-0X2-IDKUNDRF) +                                    
+           W41406D3 KEY (SIN-OHUV-IDDISTR, SIN-OHUV-IDKUNDNR, +                 
+                         SIN-OHUV-IDKUNDRF)  +                                  
+          )                                                                     
+                                                                                
+ IF MATCHED                                                                     
+   UT-0X1-IDPTYP    = '0X1'                                                     
+   UT-0X1-IDSYSTEM  = 'SPX'                                                     
+   UT-0X1-IDDISTR   = SIN-OHUV-IDDISTR                                          
+   UT-0X1-IDKUNDNR  = SIN-OHUV-IDKUNDNR                                         
+   UT-0X1-IDKUNDRF  = SIN-OHUV-IDKUNDRF                                         
+   UT-0X1-IDDC      = SIN-OHUV-IDDC                                             
+   UT-0X1-KDORDKL   = SIN-OHUV-KDORDKL                                          
+   UT-0X1-KDFRAKT   = SIN-OHUV-KDFRAKT                                          
+   UT-0X1-TIREGDAT  = SIN-OHUV-TIREGDAT                                         
+   UT-0X1-TIRFS     = SIN-OHUV-TIRFS                                            
+   UT-0X1-BEKUNDRF  = SIN-OHUV-BEKUNDRF                                         
+   PUT W41406D5                                                                 
+ END-IF                                                                         
+                                                                                

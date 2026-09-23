@@ -1,0 +1,74 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6153300                                              *        
+*                                                                      *        
+*  FUNKTION   :  1 SORT WDE4-EXTRAKTSFIL PÅ IDARTNR                    *        
+*             :  2 SUMMERA ANTAL MM. PER ARTIKEL                       *        
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6153300                                              *        
+*                                                                      *        
+*  FUNKTION   :  SSD                                                   *        
+*                                                                      *        
+*  FÖRFATTARE :  JOHAN LINDKVIST                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61533D1                                                                   
+*                                                                               
+%W61531  'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W61533D2 FB(14 0)                                                          
+*                                                                               
+%W61533  'UT-'                                                                  
+                                                                                
+*****************************************                                       
+*                                                                               
+  SPAR-IDARTNR       W  8 N   VALUE 0                                           
+  WS-KVPLOCK         W  9 N   VALUE 0                                           
+  WS-KVLEVART        W  9 N   VALUE 0                                           
+*                                                                               
+*****************************************                                       
+NEWPAGE                                                                         
+* (STEG 1. SORTERA INFILEN GÖRS I PROCEDUREN)                                   
+*  STEG 2. SUMMERAR KVPLOCK PLOCK OCH PLOCKAT KVPLOCK PER ARTIKELNUMMER         
+*                                                                               
+JOB INPUT (W61533D1)     FINISH Z-FINIT                                         
+                                                                                
+IF  SPAR-IDARTNR = 0                                                            
+     SPAR-IDARTNR   = IN-IDARTNR                                                
+     WS-KVPLOCK     = 1                                                         
+     WS-KVLEVART    = IN-KVLEVART                                               
+ELSE                                                                            
+   IF SPAR-IDARTNR NE IN-IDARTNR                                                
+      PERFORM C-WRITE                                                           
+   ELSE                                                                         
+      PERFORM B-SAVE                                                            
+   END-IF                                                                       
+END-IF                                                                          
+                                                                                
+B-SAVE. PROC                                                                    
+    WS-KVPLOCK  = WS-KVPLOCK + 1                                                
+    WS-KVLEVART = WS-KVLEVART + IN-KVLEVART                                     
+END-PROC                                                                        
+                                                                                
+C-WRITE. PROC                                                                   
+  UT-IDARTNR   = SPAR-IDARTNR                                                   
+  UT-KVPLOCK   = WS-KVPLOCK                                                     
+  UT-KVLEVART  = WS-KVLEVART                                                    
+  PUT W61533D2                                                                  
+  SPAR-IDARTNR   = IN-IDARTNR                                                   
+  WS-KVPLOCK     = 1                                                            
+  WS-KVLEVART    = IN-KVLEVART                                                  
+END-PROC                                                                        
+                                                                                
+Z-FINIT. PROC                                                                   
+  UT-IDARTNR   = SPAR-IDARTNR                                                   
+  UT-KVPLOCK   = WS-KVPLOCK                                                     
+  UT-KVLEVART  = WS-KVLEVART                                                    
+  PUT W61533D2                                                                  
+END-PROC                                                                        

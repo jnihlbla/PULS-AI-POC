@@ -1,0 +1,74 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR BYTES UPPFÖLJNINGSLISTOR FÖR RAPPORTSTATUS 3                        
+//*                                                                             
+//*  FREKVENS:     DAGRUTIN  RTN W371D3                                         
+//*                                                                             
+//*  ÅTERSTART:    W37148    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W371P048 PROC INDIN=&W371..W371D3,                                            
+//             DEST1=&CPRINT,                                                   
+//             DEST3=&NJO13016,                                                 
+//             DEST4=&QUS05304,                                                 
+//             DEST5=&QUS05650,                                                 
+//             DEST6=&QUS05692,                                                 
+//             INDUT=&W371..W371D3,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W37148   EXEC PGM=V16459,PARM='W37148/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//EZTVFM   DD  SPACE=(8192,(10000,4000))                                        
+//*                                                                             
+//W37148D1 DD  DSN=&INDIN..W3714B(+0),DISP=SHR                                  
+//************ BYTES RAPPORTER MED STATUS 3                                     
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//************ TEMPORÄR ÅRSFIL SORTERAD PÅ ARTIKELNR                            
+//             SPACE=(10,(50,10),RLSE),AVGREC=K                                 
+//*                                                                             
+//W37148D2 DD  SYSOUT=(A,,STD),DEST=&DEST1,                                     
+//************ BYTES UP FÖLJNING FÖR STATUS 3 OCH DC 11                         
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W37148D3 DD  DSN=&INDUT..W37148(+1),DISP=(NEW,CATLG,DELETE), -LIM(7)          
+//************ BYTES UPPFÖLJNING FÖR STATUS 3 OCH DC 91                         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W37148D4 DD  SYSOUT=(A,,STD),DEST=&DEST3,                                     
+//************ BYTES UPPFÖLJNING FÖR STATUS 3 OCH DC 41                         
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W37148D5 DD  SYSOUT=(A,,STD),DEST=&DEST4,                                     
+//************ BYTES UPPFÖLJNING FÖR STATUS 3 OCH DC 51                         
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W37148D6 DD  SYSOUT=(A,,STD),DEST=&DEST5,                                     
+//************ BYTES UPPFÖLJNING FÖR STATUS 3 OCH DC 42                         
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W37148D7 DD  SYSOUT=(A,,STD),DEST=&DEST6,                                     
+//************ BYTES UPPFÖLJNING FÖR STATUS 3 OCH DC 43                         
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W37148D8 DD  DUMMY                                                            
+//************ BYTES UPPFÖLJNING FÖR STATUS 3 OCH DC 61                         
+//*                                                                             
+//W37148D9 DD  DUMMY                                                            
+//************ BYTES UPPFÖLJNING FÖR STATUS 3 OCH DC 62                         
+//*                                                                             
+//*                                                                             
+//*                                                                             

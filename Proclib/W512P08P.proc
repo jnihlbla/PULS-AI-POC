@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCH WDK7 AND WDK6 PARTS                                                  
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W5128P    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P08P PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W011..&RTEGRP.,                                          
+//             INDIN2=&W011..NDC,                                               
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* EXTRACT CORRECT NDC FROM NDC FILE                                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT84   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTARDC),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W01184(+0),DISP=SHR                                 
+//************ WDK7 EXTRACT FILE                                                
+//*                                                                             
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED WDK7 EXTRACT FILE                                         
+//         DATACLAS=PSEN                                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W5128P   EXEC PGM=W5128P                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W5128PD1 DD  DSN=&INDIN1..W01160(+0),DISP=SHR                                 
+//************ WDK6 EXTRACT FILE                                                
+//*                                                                             
+//W5128PD2 DD  DSN=&&W01184,DISP=(OLD,PASS,DELETE)                              
+//************ WDK7 EXTRACT FILE                                                
+//*                                                                             
+//W5128PD3 DD  DSN=&INDUT..W5128PA(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ UT FILE                                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

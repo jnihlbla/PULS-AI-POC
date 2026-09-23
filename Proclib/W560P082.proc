@@ -1,0 +1,61 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER FIL MATCHAR TILL BENÄMNING, SALDON OCH KURS SAMT                     
+//*  SKAPAR MÅNADSLISTA                                                         
+//*                                                                             
+//*  FREKVENS:     MÅNADSSKIFTE  RTN W560R1                                     
+//*                                                                             
+//*  ÅTERSTART:    W56082    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W560P082 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W560..W560R1,                                             
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDIN3=&W335..W335D6,                                            
+//             INDIN4=&W510..W560R1,                                            
+//             INDUT=&W560..W560R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56082   EXEC PGM=V16459,PARM='W56082/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(8192,(10000,4000))                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//W56082D1 DD  DSN=&INDIN..W56081(+0),DISP=SHR                                  
+//************ INFIL W56081                                                     
+//*                                                                             
+//W56082D2 DD  DSN=&INDIN4..W51052(+0),DISP=SHR                                 
+//************ NDC-LAGERBAND PERIODSLUT(MÅNADSSLUT)                             
+//*                                                                             
+//TEMP1    DD  DSN=&&TEMP1,DISP=(NEW,PASS,DELETE),                              
+//************ W56081-FILER SORTERADE PÅ ARTIKELNR                              
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W56082D4 DD  DSN=&INDIN2..W01174(+0),DISP=SHR                                 
+//************ BENÄMNINGSREGISTER                                               
+//*                                                                             
+//TEMP2    DD  DSN=&&TEMP2,DISP=(NEW,PASS,DELETE),                              
+//************ TEMP2                                                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W56082D5 DD  DSN=&INDIN3..W33592(+0),DISP=SHR                                 
+//************ MÅNADSKURSREGISTER                                               
+//*                                                                             
+//W56082D6 DD  DSN=&&TEMP4,DISP=(NEW,PASS,DELETE),                              
+//************ * LISTA W56082-001                                               
+//             DATACLAS=PSEN                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56086  EXEC PGM=ICEGENER                                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&&TEMP4,DISP=(OLD,DELETE,DELETE)                             
+//************** LISTA W56082-001 AVERAGE VS REPLACEMENT COST   ***             
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W56082(+1),DISP=(NEW,CATLG,DELETE), -LIM(5)          
+//*********** LISTA PÅ FIL TILL USA                                             
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  

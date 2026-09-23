@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR EN FIL FÖR TULLRESTITUTION VECKOVIS                                 
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W475V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W4758F    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W475P08F PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W522..W475V1,                                            
+//             INDUT=&WUT..W475V1                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W475PD8F),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W52251,DISP=SHR                                     
+//************ TULLRESTITUTIONSFIL FRÅN FAKTURERING BILLIT                      
+//*                                                                             
+//SORTOUT  DD  DSN=&&W4759FS,DISP=(NEW,PASS,DELETE),                            
+//************ TULLRESTITUTIONSFIL SORTERAD PÅ ARTIKELNUMMER                    
+//         SPACE=(80,(200,20),RLSE),AVGREC=K                                    
+//*                                                                             
+//W4758F   EXEC PGM=V16459,PARM='W4758F/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W4758FD1 DD  DSN=&&W4759FS,DISP=(OLD,DELETE,DELETE)                           
+//************ TULLRESTITUTIONSFIL FRÅN FAKTURERING W475P080                    
+//*                                                                             
+//W4758FD2 DD  DSN=&INDUT..W475TR(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ TULLRESTITUTIONSFIL                                              
+//             SPACE=(80,(200,20),RLSE),AVGREC=K,                               
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

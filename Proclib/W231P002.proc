@@ -1,0 +1,71 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      ANALYSER ANSKAFFNING                                         *         
+//*      GENERERING AV ARTIKELREGISTERPOSTER,                         *         
+//*                 INVENTERINGAR UNDER PERIODEN SAMT                 *         
+//*                 POSTER FÖR BERÄKNING AV OMSÄTTNING PER LEVERANTÖR *         
+//*                                                                   *         
+//*      PERIODICITET: PLANERINGSPERIOD                               *         
+//*                                                                   *         
+//*      ÅTERSTART:    NORMAL                                         *         
+//*                                                                   *         
+//*                    W23130 LÄSER WDK6 WDD9 ,WDK9  WDH7             *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W231P002 PROC INDUT=&W231..W231P1,                                            
+//             INDREG=&W221,                                                    
+//             MBR=W23130,PSB=W23130,                                           
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23130  EXEC PGM=DFSRRC00,                                                    
+//             PARM='&DBB,&MBR,&PSB,,00'                                        
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,                                                           
+//             DCB=(RECFM=VB,LRECL=6229,BLKSIZE=6233)                           
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*       UTSKRIFT AV RÄKNEVERK (POSTSUM)                   
+//W23130D1 DD  DSN=&INDREG..W22101(+0),DISP=SHR                                 
+//**************   KALENDER - ANSKAFFNINGEN                         ***         
+//*                                                                             
+//W23130D2 DD  DSN=&INDUT..W23131(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************   ARTIKELREGISTERPOSTER                            ***         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23130D3 DD  DSN=&INDUT..W23133(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//***************  INVENTERINGAR UNDER PERIODEN                     ***         
+//             SPACE=(6224,(900,500),RLSE),                                     
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W23130D4 DD  DSN=&INDUT..W23182(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//***************  BERÄKNA OMSÄTTNING PER LEVERANTÖR VCC-ARTIKLAR   ***         
+//             DATACLAS=PSEN,MGMTCLAS=&DEL2BKPC                                 
+//*                                                                             
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//WDK9     INCLUDE MEMBER=WDK9                                                  
+//WDH7     INCLUDE MEMBER=WDH7                                                  
+//WDR2     INCLUDE MEMBER=WDR2                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//WDD7     INCLUDE MEMBER=WDD7                                                  
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

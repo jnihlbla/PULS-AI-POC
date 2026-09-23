@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*  SYNCHRONIZED EXECUTION OF PARALELL BRANCHES IN A ROUTINE.        *         
+//*                                                                   *         
+//*                                    MAINTAINED BY DEPT. 36000      *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WUNFORK  PROC RELEASE=DUMMYJOB,THISJOB=DUMMYJOB,                              
+//             MAXRC=4,INDEX=&W                                                 
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//DELGEN  EXEC PGM=V12340,COND=(&MAXRC,LT),                                     
+//        PARM=(' DELETE &INDEX..&RELEASE..&THISJOB GDG ')                      
+//V12340D1 DD  DUMMY,DCB=BLKSIZE=80                                             
+//V12340D2 DD  DSN=&&DEL,DISP=(NEW,PASS,DELETE),                                
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=160),                             
+//             SPACE=(TRK,1)                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//LISTGEN EXEC PGM=V12340,COND=(&MAXRC,LT),                                     
+//        PARM=(' LISTCAT LEVEL(&INDEX..&RELEASE) ')                            
+//V12340D1 DD  DUMMY,DCB=BLKSIZE=80                                             
+//V12340D2 DD  DSN=&&LIST,DISP=(NEW,PASS,DELETE),                               
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=160),                             
+//             SPACE=(TRK,1)                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//DELC   EXEC  PGM=IDCAMS,COND=(&MAXRC,LT)                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&&DEL,DISP=(OLD,DELETE,DELETE)                               
+//         DD  DSN=&&LIST,DISP=(OLD,PASS,DELETE)                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//LISTC  EXEC  PGM=IDCAMS,COND=((&MAXRC,LT),(0,EQ,DELC))                        
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&&LIST,DISP=(OLD,DELETE,DELETE)                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *           
+//RELEASE EXEC PGM=G12722,COND=((&MAXRC,LT),(0,EQ,DELC),(0,EQ,LISTC)),          
+//             PARM='&RELEASE'                                                  
+//INTRDR   DD  SYSOUT=(A,INTRDR)                                                
+//SYSIN    DD  DUMMY                                                            

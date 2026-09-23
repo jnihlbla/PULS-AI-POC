@@ -1,0 +1,114 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5105900                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR RAPPORT ÖVER MÅNADENS DIREKTLEVERANSER.        *        
+*                INFILER: MÅNADENS DIREKLEVERANS-HÄNDELSER             *        
+*                UTFIL: EXCELFIL W51059 TILL WEB-INTERFACE             *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON  APRIL 2007                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W51059D1                                                                   
+%W5106G                                                                         
+                                                                                
+FILE W51059D2 VB(110 0)                                                         
+ U1-AREA1        1  50 A                                                        
+ U1-AREA2       51  60 A                                                        
+ U1-IDDISTR      2  5 N                                                         
+ U1-FILLER1      7  1 A                                                         
+ U1-IDKUNDNR     8  7 N                                                         
+ U1-FILLER2     15  1 A                                                         
+ U1-IDORDNR     16  5 N                                                         
+ U1-FILLER3     21  1 A                                                         
+ U1-IDARTNR     22  9 N                                                         
+ U1-FILLER4     31  1 A                                                         
+ U1-IDDC        32  2 A                                                         
+ U1-FILLER5     34  1 A                                                         
+ U1-KDEKHHT     35  3 A                                                         
+ U1-KDEKSHT     38  3 A                                                         
+ U1-FILLER6     41  1 A                                                         
+ U1-KDPRODSL    42  2 N                                                         
+ U1-FILLER7     44  1 A                                                         
+ U1-KVANTAL     45  7 N                                                         
+ U1-FILLER8     52  1 A                                                         
+ U1-PRARTSTD-H  53  7 N                                                         
+ U1-PRARTSTD-K  60  1 A                                                         
+ U1-PRARTSTD-D  61  2 N                                                         
+ U1-FILLER9     63  1 A                                                         
+ U1-SUSTD-H     64  9 N                                                         
+ U1-SUSTD-K     73  1 A                                                         
+ U1-SUSTD-D     74  2 N                                                         
+ U1-FILLER10    76  1 A                                                         
+ U1-IDVERGL     77 10 A                                                         
+ U1-FILLER11    87  1 A                                                         
+ U1-DAVERDAT    88  8 N                                                         
+ U1-FILLER12    96  1 A                                                         
+ U1-PRLANDCO-H  97  7 N                                                         
+ U1-PRLANDCO-K 104  1 A                                                         
+ U1-PRLANDCO-D 105  2 N                                                         
+                                                                                
+****  WORK-AREA                                                                 
+ W-TAB     W  1  A  VALUE X'05'                                                 
+                                                                                
+ W-PRLANDCO      W  9  N  2                                                     
+ W-PRLANDCO-H  W-PRLANDCO      7 N                                              
+ W-PRLANDCO-D  W-PRLANDCO  +7  2 N                                              
+                                                                                
+ W-PRARTSTD      W  9  N  2                                                     
+ W-PRARTSTD-H  W-PRARTSTD      7 N                                              
+ W-PRARTSTD-D  W-PRARTSTD  +7  2 N                                              
+                                                                                
+ W-SUSTD         W 11  N  2                                                     
+ W-SUSTD-H     W-SUSTD         9 N                                              
+ W-SUSTD-D     W-SUSTD     +9  2 N                                              
+                                                                                
+JOB INPUT W51059D1 START A-INIT                                                 
+                                                                                
+ U1-IDDISTR    = DIR-IDDISTR                                                    
+ U1-FILLER1    = W-TAB                                                          
+ U1-IDKUNDNR   = DIR-IDKUNDNR                                                   
+ U1-FILLER2    = W-TAB                                                          
+ U1-IDORDNR    = DIR-IDORDNR5                                                   
+ U1-FILLER3    = W-TAB                                                          
+ U1-IDARTNR    = DIR-IDARTNR                                                    
+ U1-FILLER4    = W-TAB                                                          
+ U1-IDDC       = DIR-IDDC                                                       
+ U1-FILLER5    = W-TAB                                                          
+ U1-KDEKHHT    = DIR-KDEKHHT                                                    
+ U1-KDEKSHT    = DIR-KDEKSHT                                                    
+ U1-FILLER6    = W-TAB                                                          
+ U1-KDPRODSL   = DIR-KDPRODSL                                                   
+ U1-FILLER7    = W-TAB                                                          
+ U1-KVANTAL    = DIR-KVANTAL                                                    
+ U1-FILLER8    = W-TAB                                                          
+ W-PRARTSTD    = DIR-PRARTSTD                                                   
+ U1-PRARTSTD-H = W-PRARTSTD-H                                                   
+ U1-PRARTSTD-K = ','                                                            
+ U1-PRARTSTD-D = W-PRARTSTD-D                                                   
+ U1-FILLER9    = W-TAB                                                          
+ W-SUSTD       = DIR-KVANTAL * DIR-PRARTSTD                                     
+ U1-SUSTD-H    = W-SUSTD-H                                                      
+ U1-SUSTD-K    = ','                                                            
+ U1-SUSTD-D    = W-SUSTD-D                                                      
+ U1-FILLER10   = W-TAB                                                          
+ U1-IDVERGL    = DIR-IDVERGL                                                    
+ U1-FILLER11   = W-TAB                                                          
+ U1-DAVERDAT   = DIR-DAVERDAT                                                   
+ U1-FILLER12   = W-TAB                                                          
+ W-PRLANDCO    = DIR-PRLANDCO                                                   
+ U1-PRLANDCO-H = W-PRLANDCO-H                                                   
+ U1-PRLANDCO-K = ','                                                            
+ U1-PRLANDCO-D = W-PRLANDCO-D                                                   
+ PUT W51059D2                                                                   
+                                                                                
+ A-INIT. PROC                                                                   
+***  OBS MELLAN DELRUBRIKERNA FINNS AVGRÄNSARE X'05' (W-TAB)                    
+   U1-AREA1 = 'DISTR	KUNDNR	ORDNR	ARTNR	DC	HTYP	PS	ANTAL	STD	SUM-'              
+   U1-AREA2 = 'STD	VERIFIKAT	DATUM	LAND-KST'                                    
+   PUT W51059D2                                                                 
+   U1-AREA1 = ' '                                                               
+   U1-AREA2 = ' '                                                               
+ END-PROC                                                                       

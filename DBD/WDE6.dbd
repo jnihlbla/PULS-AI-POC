@@ -1,0 +1,132 @@
+*        KOLLI-REGISTER VOLVO ORDER                                             
+*                                                                               
+         DBD   NAME=WDE6,RMNAME=(V12008,2,216000,50000),               *        
+               ACCESS=(HDAM,OSAM)                                               
+         DATASET DD1=WDE6V,DEVICE=3390,SIZE=4096,SCAN=0                         
+*                                                                               
+         SEGM  NAME=WDE601,PARENT=0,BYTES=261,PTR=T                             
+         FIELD NAME=(IDPRODNR,SEQ,U),BYTES=4,START=1,TYPE=P                     
+         FIELD NAME=(IDDISTR),BYTES=3,START=65,TYPE=P                           
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=68,TYPE=P                          
+         FIELD NAME=(KDORDKL),BYTES=1,START=72,TYPE=P                           
+         FIELD NAME=(KDPERSON),BYTES=2,START=77,TYPE=P                          
+         FIELD NAME=(IDDC),BYTES=2,START=85,TYPE=X                              
+         FIELD NAME=(KDFRAKT),BYTES=2,START=88,TYPE=P                           
+         FIELD NAME=(KDORDSTA),BYTES=1,START=91,TYPE=P                          
+         FIELD NAME=(DABEGPAC),BYTES=8,START=135,TYPE=X                         
+         FIELD NAME=(FLAUTFAK),BYTES=1,START=187,TYPE=X                         
+         FIELD NAME=(FLFRAKTS),BYTES=1,START=188,TYPE=X                         
+         FIELD NAME=(IDPRODNS),BYTES=4,START=189,TYPE=P                         
+         FIELD NAME=(DARFS),BYTES=12,START=193,TYPE=X                           
+         LCHILD NAME=(WDE6A1,WDE6A),PTR=INDX                                    
+         XDFLD NAME=WDE6ASEQ,SEGMENT=WDE601,                           *        
+               SRCH=(IDDISTR,IDDC,KDFRAKT,KDORDSTA,IDKUNDNR),          *        
+               SUBSEQ=(IDPRODNR)                                                
+         LCHILD NAME=(WDE6B1,WDE6B),PTR=INDX                                    
+         XDFLD NAME=WDE6BSEQ,SEGMENT=WDE601,                           *        
+               SRCH=(KDPERSON,DABEGPAC,KDORDSTA),                      *        
+               SUBSEQ=(IDPRODNR),                                      *        
+               EXTRTN=WDE6BEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR KDORDSTA = 1, 2 ELLER 3                                        
+*                                                                               
+         LCHILD NAME=(WDE6G1,WDE6G),PTR=INDX                                    
+         XDFLD NAME=WDE6GSEQ,SEGMENT=WDE601,                           *        
+               SRCH=(IDDC,IDDISTR),                                    *        
+               SUBSEQ=(DARFS,IDKUNDNR,IDPRODNR),                       *        
+               EXTRTN=WDE6GEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR KDORDSTA = 2/3 OCH IDDC(1:1) = 1-9                             
+*                               OCH IDDC(2:1) = A-Z (DVS LDC:ER)                
+*                                                                               
+         LCHILD NAME=(WDE6D1,WDE6D),PTR=INDX                                    
+         XDFLD NAME=WDE6DSEQ,SEGMENT=WDE601,                           *        
+               SRCH=(IDDISTR,IDKUNDNR,KDFRAKT),                        *        
+               SUBSEQ=(IDPRODNS,IDPRODNR),                             *        
+               DDATA=(KDORDKL,IDDC),                                   *        
+               EXTRTN=WDE6DEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR FLFRAKTS = J                                                   
+*                                                                               
+         SEGM  NAME=WDE611,PARENT=WDE601,BYTES=355,PTR=T                        
+         FIELD NAME=(IDKOLLI,SEQ,U),BYTES=3,START=1,TYPE=P                      
+         FIELD NAME=(IDKOLLIF),BYTES=3,START=4,TYPE=P                           
+         FIELD NAME=(IDTRPTNR),BYTES=2,START=7,TYPE=P                           
+         FIELD NAME=(ADKOLLI),BYTES=11,START=9,TYPE=X                           
+         FIELD NAME=(ADCLGEO),BYTES=5,START=9,TYPE=X                            
+         FIELD NAME=(IDDC),BYTES=2,START=9,TYPE=X                               
+         FIELD NAME=(ADFLOMR),BYTES=2,START=14,TYPE=P                           
+         FIELD NAME=(ADRUTNIV),BYTES=2,START=16,TYPE=P                          
+         FIELD NAME=(ADVMODUL),BYTES=2,START=18,TYPE=P                          
+         FIELD NAME=(IDFAKLOP),BYTES=2,START=34,TYPE=P                          
+         FIELD NAME=(DDATA2),BYTES=9,START=62,TYPE=P                            
+         FIELD NAME=(KDKOLSTA),BYTES=1,START=70,TYPE=P                          
+         FIELD NAME=(IDDISTR),BYTES=3,START=113,TYPE=P                          
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=116,TYPE=P                         
+         FIELD NAME=(DDATA),BYTES=13,START=120,TYPE=X                           
+         FIELD NAME=(IDLASTN),BYTES=4,START=133,TYPE=P                          
+         FIELD NAME=(IDPSN1),BYTES=3,START=138,TYPE=X                           
+         FIELD NAME=(IDPSN2),BYTES=3,START=149,TYPE=X                           
+         FIELD NAME=(DARFS),BYTES=12,START=252,TYPE=X                           
+         FIELD NAME=(IDKOLLIS),BYTES=3,START=264,TYPE=P                         
+         FIELD NAME=(IDSUPREF),BYTES=10,START=272,TYPE=X                        
+         FIELD NAME=(DASUPREF),BYTES=8,START=282,TYPE=X                         
+         FIELD NAME=(IDLEVNR),BYTES=5,START=290,TYPE=X                          
+         FIELD NAME=(KDVIA),BYTES=2,START=295,TYPE=X                            
+         FIELD NAME=(TISUPTID),BYTES=3,START=297,TYPE=P                         
+         FIELD NAME=(KDSTASK),BYTES=1,START=332,TYPE=X                          
+         FIELD NAME=(/CKPRODN),BYTES=4,START=1,TYPE=P                           
+         LCHILD NAME=(WDE6C1,WDE6C),PTR=INDX                                    
+         XDFLD NAME=WDE6CSEQ,SEGMENT=WDE611,                           *        
+               SRCH=(IDTRPTNR,DARFS,ADKOLLI),                          *        
+               SUBSEQ=(IDDISTR,IDKUNDNR,/CKPRODN,IDKOLLIF,IDKOLLI),    *        
+               DDATA=(DDATA,DDATA2,IDPSN1,IDPSN2),                     *        
+               EXTRTN=WDE6CEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR FLUTLAST = J                                                   
+*                                                                               
+         LCHILD NAME=(WDE6E1,WDE6E),PTR=INDX                                    
+         XDFLD NAME=WDE6ESEQ,SEGMENT=WDE611,                           *        
+               SRCH=(IDDC,IDKOLLIS),                                   *        
+               SUBSEQ=(/CKPRODN,IDKOLLI),                              *        
+               DDATA=(IDTRPTNR),                                       *        
+               EXTRTN=WDE6EEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR IDKOLLI-SAMP > 0 OCH KDSTASKLI = 'C'                           
+*                                                                               
+         LCHILD NAME=(WDE6F1,WDE6F),PTR=INDX                                    
+         XDFLD NAME=WDE6FSEQ,SEGMENT=WDE611,                           *        
+               SRCH=(IDLEVNR,DASUPREF,IDSUPREF),                       *        
+               SUBSEQ=(/CKPRODN,IDKOLLI),                              *        
+               DDATA=(TISUPTID,KDKOLSTA,IDDISTR),                      *        
+               EXTRTN=WDE6FEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR KDVIA = 1 OCH KDKOLSTA = 0 ELLER 1                             
+*                                                                               
+         LCHILD NAME=(WDE6H1,WDE6H),PTR=INDX                                    
+         XDFLD NAME=WDE6HSEQ,SEGMENT=WDE621,                           *        
+               SRCH=(IDDCCROS,KDKOLSTX,TIRFSDAT,IDDISTR,IDKUNDNR),     *        
+               SUBSEQ=(/CKPRODN,/CKKOLLI),                             *        
+               DDATA=(IDLEVNR,IDSUPREF,IDTRPTNC,FILLERA)                        
+*                                                                               
+         SEGM  NAME=WDE621,PARENT=WDE611,BYTES=76,PTR=T                         
+         FIELD NAME=(KDSEGKEY,SEQ,U),BYTES=1,START=1,TYPE=X                     
+         FIELD NAME=(IDDCCROS),BYTES=2,START=2,TYPE=X                           
+         FIELD NAME=(TIRFSDAT),BYTES=6,START=4,TYPE=X                           
+         FIELD NAME=(IDDISTR),BYTES=3,START=10,TYPE=P                           
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=13,TYPE=P                          
+         FIELD NAME=(IDLEVNR),BYTES=5,START=24,TYPE=X                           
+         FIELD NAME=(IDSUPREF),BYTES=10,START=29,TYPE=X                         
+         FIELD NAME=(IDTRPTNC),BYTES=2,START=39,TYPE=P                          
+         FIELD NAME=(FILLERA),BYTES=12,START=41,TYPE=X                          
+         FIELD NAME=(TIRECDAT),BYTES=6,START=41,TYPE=X                          
+         FIELD NAME=(TIRECTID),BYTES=4,START=47,TYPE=P                          
+         FIELD NAME=(IDDCSEND),BYTES=2,START=51,TYPE=X                          
+         FIELD NAME=(KDKOLSTX),BYTES=1,START=53,TYPE=P                          
+         FIELD NAME=(TISKEPPN),BYTES=4,START=54,TYPE=P                          
+         FIELD NAME=(/CKPRODN),BYTES=4,START=1,TYPE=P                           
+         FIELD NAME=(/CKKOLLI),BYTES=3,START=5,TYPE=P                           
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

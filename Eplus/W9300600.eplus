@@ -1,0 +1,107 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W93006                                                *        
+*                                                                      *        
+*  FUNKTION   :  DIVIDE PRKURS BY REVALUTA AND SEND BY MEMO.           *        
+*                                                                      *        
+*  FÖRFATTARE :  WEINBERG JACOB            2000-04-10                  *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W93006D1                                                                   
+%W93001    'IN-'                                                                
+                                                                                
+*-------------                                                                  
+                                                                                
+*-------------                                                                  
+                                                                                
+FILE SORTFIL  FB (32 0) VIRTUAL                                                 
+%W93001      'SORT-'                                                            
+                                                                                
+*-------------                                                                  
+                                                                                
+                                                                                
+*-------------                                                                  
+                                                                                
+FILE W93006D2   VB (70 0)                                                       
+                                                                                
+  UT-REC            1 66 A                                                      
+  UT-REC-SYSDATE   59  8 A                                                      
+  UT-REC-SYSDATE-1 59  1 A                                                      
+                                                                                
+*-------------                                                                  
+  W-SAP-KDVALISO        W     3 A                                               
+*                            VALUTAKOD ENLIGT ISO-STANDARD.                     
+*                            CURRENCY CODE BY ISO-STANDARD.                     
+  W-SAP-PRKURS          W    11 N 5 MASK('ZZZZZZ,99999')                        
+*                            VALUTAKURS                                         
+*                            CURRENCY EXCHANGE RATE                             
+  W-SAP-REVALUTA        W     3 N   MASK('ZZ9')                                 
+*                            OMRÄKNINGSTAL FÖR VALUTA                           
+*                            CONVERT VALUE FOR CURRENCY CODE                    
+  W-SAP-PRKURS-REVAL    W    11 N 5 MASK('ZZZZZZ,99999')                        
+*                            PRKURS / REVAL.                                    
+*                            PRKURS DIVIDED BY REVAL.                           
+*-------------                                                                  
+  COUNT-RATES           W     4 N   MASK('ZZZ9')                                
+  SW-FIRST              W  1  A  VALUE 'J'                                      
+*-------------                                                                  
+                                                                                
+NEWPAGE                                                                         
+*-------------------------------------------------------------                  
+SORT W93006D1 TO SORTFIL USING (IN-SAP-KDVALISO)                                
+*-------------------------------------------------------------                  
+JOB INPUT (SORTFIL)                     FINISH (FINISH-PROC)                    
+*-------------------------------------------------------------                  
+*                                       ** SEND BY MEMO.                        
+  IF SW-FIRST = 'J' 'Y'                                                         
+    SW-FIRST = 'N'                                                              
+*                                                                               
+    UT-REC = ' '                                                                
+    PUT W93006D2                                                                
+    UT-REC          = '     VOLVO CAR CUSTOMER SERVICE     W93006-001'          
+    UT-REC-SYSDATE    = SYSDATE                                                 
+    IF UT-REC-SYSDATE-1 = ' '                                                   
+       UT-REC-SYSDATE-1 = '0'                                                   
+    END-IF                                                                      
+    PUT W93006D2                                                                
+    UT-REC = ' '                                                                
+    PUT W93006D2                                                                
+    UT-REC = '              SAP R/3 EXCHANGE RATES FOR NEXT PERIOD'             
+    PUT W93006D2                                                                
+    UT-REC = ' '                                                                
+    PUT W93006D2                                                                
+    UT-REC = +                                                                  
+     '    currency           SAP R/3       adjustment          puls db'         
+    PUT W93006D2                                                                
+    UT-REC = +                                                                  
+     '        code              rate           factor             rate'         
+    PUT W93006D2                                                                
+    UT-REC = ' '                                                                
+    PUT W93006D2                                                                
+  END-IF                                                                        
+                                                                                
+  W-SAP-KDVALISO     = SORT-SAP-KDVALISO                                        
+  W-SAP-PRKURS       = SORT-SAP-PRKURS                                          
+*                                       ** PREVENT DIVISION BY ZERO.            
+  IF SORT-SAP-REVALUTA LE 0                                                     
+    SORT-SAP-REVALUTA = 1                                                       
+  END-IF                                                                        
+                                                                                
+  W-SAP-REVALUTA     = SORT-SAP-REVALUTA                                        
+  W-SAP-PRKURS-REVAL = SORT-SAP-PRKURS / SORT-SAP-REVALUTA                      
+                                                                                
+  DISPLAY W93006D2 '        ' W-SAP-KDVALISO '      ' W-SAP-PRKURS +            
+     '              ' W-SAP-REVALUTA '     ' W-SAP-PRKURS-REVAL                 
+                                                                                
+  COUNT-RATES = COUNT-RATES + 1                                                 
+                                                                                
+FINISH-PROC. PROC                                                               
+  DISPLAY W93006D2 +                                                            
+     '                                                                 '        
+  DISPLAY W93006D2 +                                                            
+     '---------------------------                                      '        
+  DISPLAY W93006D2 'TOTAL RATES: ' COUNT-RATES +                                
+     '                                                '                         
+END-PROC.                                                                       

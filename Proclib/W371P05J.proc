@@ -1,0 +1,75 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  EXCHANGE PRODUCTION REPORT MAASTRICHT/DOWNLOAD IN D&P                      
+//*  W3715J-091 DOWNLOAD                                                        
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W371D7                                         
+//*                                                                             
+//*  RESTART:      W3715J    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P05J PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W803,                                                     
+//             INDREG=&W011..&RTEGRP.,                                          
+//             INDUT=&W371..W371D7,                                             
+//             INDLDC=&W011..LDC,                                               
+//             INDSDC=&W011..SDC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT84   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTARDC),DISP=SHR                         
+//SORTIN   DD  DSN=&INDLDC..W01184(+0),DISP=SHR                                 
+//         DD  DSN=&INDSDC..W01184(+0),DISP=SHR                                 
+//************ W01184 FÖR VARJE SDC, NÄR DET TILLKOMMER DC'N MÅSTE              
+//************ DE LÄGGAS TILL HÄR OCH LÄSAS KONKATENERAT                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//************ W01184 SORTED ON PARTNUMBER                                      
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W3715J   EXEC PGM=V16459,PARM='W3715J/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//*                                                                             
+//W3715JD1 DD  DSN=&&W01184,DISP=(OLD,DELETE,DELETE)                            
+//************ SDC-INFORMATION                                                  
+//*                                                                             
+//W3715JD2 DD  DSN=&INDREG..W01174(+0),DISP=SHR                                 
+//************ SAMTLIGA BENÄMNINGAR FRÅN WDD3                                   
+//*                                                                             
+//*                                                                             
+//W3715JD3 DD  DSN=&INDREG..W01160(+0),DISP=SHR                                 
+//************ SAMTLIGA DATAELEMENT FRÅN WDK601 OCH WDK611                      
+//*                                                                             
+//W3715JD4 DD  DSN=&INDIN..W3718A(0),DISP=SHR                                   
+//************ EXCHANGE INFO FROM BYART, BYPRO AND BYLEV                        
+//*                                                                             
+//TPFL1    DD  DSN=&&TPFIL1,DISP=(NEW,DELETE,DELETE),                           
+//************ TEMP FILE - 1                                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFILE2  DD  DSN=&&TPFIL2,DISP=(NEW,DELETE,DELETE),                           
+//************ TEMP FILE - 2                                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFILE3  DD  DSN=&&TPFIL3,DISP=(NEW,DELETE,DELETE),                           
+//************ TEMP FILE - 3                                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W3715JD5 DD  DSN=&INDUT..W3715J(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ REPORT W3715J-091                                                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

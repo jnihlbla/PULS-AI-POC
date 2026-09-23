@@ -1,0 +1,189 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4795R00                                              *        
+*                                                                      *        
+*  FUNKTION   :  VÄLJER DATA FÖR LISTOR                                *        
+*                JAPANSKA DEALERS OCH AUSTRALISKA                      *        
+*                DEALERS MED FÖRSENT LAGGDA ORDRAR                              
+*                                                                      *        
+*  FÖRFATTARE :  STEFAN KIHLBERG                                       *        
+*                                                                      *        
+*             :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+FILE W4795RD1                                                                   
+%W479052 'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W4795RD2 FB (15 0)                                                         
+%W4795S   'JP-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W4795RD3 FB (15 0)                                                         
+%W4795S   'AU-'                                                                 
+                                                                                
+  WS-FIRST                  W   1  A    VALUE 'J'                               
+                                                                                
+  WS-IDKUNDNR-JP            W   4  P 0                                          
+  WS-IDKUNDNR-AU            W   4  P 0                                          
+                                                                                
+  SUM-LATE-AU               W   7  N                                            
+  SUM-LATE-JP               W   7  N                                            
+  TOT-SUM-LATE-AU           W   7  N                                            
+  TOT-SUM-LATE-JP           W   7  N                                            
+  SUM-CL1-AU                W   7  N                                            
+  SUM-CL1-JP                W   7  N                                            
+  TOT-SUM-CL1-AU            W   7  N                                            
+  TOT-SUM-CL1-JP            W   7  N                                            
+                                                                                
+%WWDIST62    'IN-' WORK ''                                                      
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. TAR BORT ANDRA LAGER ÄN 61 OCH 62, SUMMERAR                           
+*         ANTAL CL1 PER DEALER SAMT FÖR SENA ORDRAR                             
+*         PER DEALER SAMT TOTALSUMMOR. SKRIVER DEALERS                          
+*         MED FÖR SENT LAGGDA ORDRAR PÅ FIL                                     
+*                                                                               
+                                                                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+JOB INPUT NULL                                                                  
+                                                                                
+   GET W4795RD1                                                                 
+   DO WHILE NOT EOF W4795RD1                                                    
+                                                                                
+                                                                                
+       PERFORM S23-CHECK-IN-IDDC                                                
+       IF IN-IDDC = NDC-PACIFIC                                                 
+          IF IN-IDDC = NDC-JP-61                                                
+             IF IN-IDDISTR = DIST62-JAPAN                                       
+                SUM-LATE-JP = 0                                                 
+                SUM-CL1-JP  = 0                                                 
+                WS-IDKUNDNR-JP = IN-IDKUNDNR                                    
+                DO WHILE (NOT EOF W4795RD1) AND   +                             
+                         (IN-IDKUNDNR = WS-IDKUNDNR-JP)                         
+                   IF IN-KDORDKL = 1                                            
+                      IF IN-KDFRAKT EQ 15 16 19                                 
+                          SUM-LATE-JP = SUM-LATE-JP + 1                         
+                      END-IF                                                    
+                      SUM-CL1-JP = SUM-CL1-JP + 1                               
+                   END-IF                                                       
+                   GET W4795RD1                                                 
+                END-DO                                                          
+                IF SUM-LATE-JP GT 0000000                                       
+                   PERFORM SKAPA-JP-FIL-RAD                                     
+                   PUT W4795RD2                                                 
+                   TOT-SUM-LATE-JP =      +                                     
+                   TOT-SUM-LATE-JP + SUM-LATE-JP                                
+*                   PROCENTBERÄKNING PÅ SAMTLIGA KLASS 1                        
+*                   RADER FÖR DE DEALERS SOM HAR FÖRSENINGAR                    
+                   TOT-SUM-CL1-JP =          +                                  
+                   TOT-SUM-CL1-JP + SUM-CL1-JP                                  
+                END-IF                                                          
+*                OM MAN VILL BERÄKNA PROCENT PÅ                                 
+*                SAMLTLIGA KLASS 1 RADER                                        
+*               TOT-SUM-CL1-JP =          +                                     
+*               TOT-SUM-CL1-JP + SUM-CL1-JP                                     
+             ELSE                                                               
+                GET W4795RD1                                                    
+             END-IF                                                             
+          ELSE                                                                  
+             IF IN-IDDC = NDC-AU                                                
+                IF IN-IDDISTR = DIST62-AUSTRALIEN                               
+                   SUM-LATE-AU = 0                                              
+                   SUM-CL1-AU  = 0                                              
+                   WS-IDKUNDNR-AU = IN-IDKUNDNR                                 
+                   DO WHILE (NOT EOF W4795RD1) AND   +                          
+                            (IN-IDKUNDNR = WS-IDKUNDNR-AU)                      
+                      IF IN-KDORDKL = 1                                         
+                         IF IN-KDFRAKT EQ 15 25                                 
+                             SUM-LATE-AU = SUM-LATE-AU + 1                      
+                         END-IF                                                 
+                         SUM-CL1-AU = SUM-CL1-AU + 1                            
+                      END-IF                                                    
+                      GET W4795RD1                                              
+                   END-DO                                                       
+                   IF SUM-LATE-AU GT 0000000                                    
+                      PERFORM SKAPA-AU-FIL-RAD                                  
+                      PUT W4795RD2                                              
+                      TOT-SUM-LATE-AU =      +                                  
+                      TOT-SUM-LATE-AU + SUM-LATE-AU                             
+                      TOT-SUM-CL1-AU =          +                               
+                      TOT-SUM-CL1-AU + SUM-CL1-AU                               
+                   END-IF                                                       
+*                  OM MAN VILL BERÄKNA PROCENT PÅ                               
+*                  SAMLTLIGA KLASS 1 RADER                                      
+*                  TOT-SUM-CL1-AU =          +                                  
+*                  TOT-SUM-CL1-AU + SUM-CL1-AU                                  
+                                                                                
+                ELSE                                                            
+                   GET W4795RD1                                                 
+                END-IF                                                          
+             ELSE                                                               
+                GET W4795RD1                                                    
+             END-IF                                                             
+          END-IF                                                                
+       ELSE                                                                     
+          GET W4795RD1                                                          
+       END-IF                                                                   
+    END-DO                                                                      
+    IF TOT-SUM-LATE-JP GT 0000000                                               
+       PERFORM SKAPA-JP-FIL-TOT                                                 
+       PUT W4795RD2                                                             
+    END-IF                                                                      
+    IF TOT-SUM-LATE-AU GT 0000000                                               
+       PERFORM SKAPA-AU-FIL-TOT                                                 
+       PUT W4795RD3                                                             
+    END-IF                                                                      
+    STOP                                                                        
+*    --- S23-CHECK-IN-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'IN-'                                                                   
+*                                                                               
+SKAPA-JP-FIL-RAD. PROC                                                          
+                                                                                
+      JP-IDPTYP          = '001'                                                
+      JP-IDDC            = NDC-JP-61                                            
+      JP-IDKUNDNR        = WS-IDKUNDNR-JP                                       
+      JP-KVRADER-LATE    = SUM-LATE-JP                                          
+      JP-KVRADER-CL1     = SUM-CL1-JP                                           
+END-PROC                                                                        
+                                                                                
+                                                                                
+SKAPA-JP-FIL-TOT. PROC                                                          
+                                                                                
+      JP-IDPTYP          = '002'                                                
+      JP-IDDC            = NDC-JP-61                                            
+      JP-IDKUNDNR        = 0000000                                              
+      JP-KVRADER-LATE    = TOT-SUM-LATE-JP                                      
+      JP-KVRADER-CL1     = TOT-SUM-CL1-JP                                       
+END-PROC                                                                        
+                                                                                
+SKAPA-AU-FIL-RAD. PROC                                                          
+                                                                                
+      AU-IDPTYP          = '001'                                                
+      AU-IDDC            = NDC-AU                                               
+      AU-IDKUNDNR        = WS-IDKUNDNR-AU                                       
+      AU-KVRADER-LATE    = SUM-LATE-AU                                          
+      AU-KVRADER-CL1     = SUM-CL1-AU                                           
+END-PROC                                                                        
+                                                                                
+SKAPA-AU-FIL-TOT. PROC                                                          
+                                                                                
+      AU-IDPTYP          = '002'                                                
+      AU-IDDC            = NDC-AU                                               
+      AU-IDKUNDNR        = 0000000                                              
+      AU-KVRADER-LATE    = TOT-SUM-LATE-AU                                      
+      AU-KVRADER-CL1     = TOT-SUM-CL1-AU                                       
+END-PROC                                                                        
+                                                                                

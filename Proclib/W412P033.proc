@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR EN RENSNINGSFIL OCH EN PRINTFIL FÖR                                 
+//*  ORDERBEKRÄFTELSER.                                                         
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W412D3                                            
+//*                                                                             
+//*  ÅTERSTART:    W4123300  NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W412P033 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W412..W412D3,                                             
+//             INDUT=&W412..W412D3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41233   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W41233,W41233,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W41233D1 DD  DSN=&INDIN..W41232(+0),DISP=SHR                                  
+//************ INFIL                                                            
+//*                                                                             
+//W41233D2 DD  DSN=&INDUT..W41233(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ REGISTER EJ UTSKRIVNA OBKR                                       
+//             MGMTCLAS=&BACKUPC,SPACE=(23440,(25,5),RLSE)                      
+//*                                                                             
+//W41233D3 DD  DSN=&INDUT..W41234(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRINTFIL                                                         
+//             MGMTCLAS=&DEL2BKPC,SPACE=(27945,(25,5),RLSE)                     
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

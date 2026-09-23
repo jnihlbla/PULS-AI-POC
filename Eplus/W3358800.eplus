@@ -1,0 +1,95 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W3358800                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR W33589- OCH W33587-FIL(ARTINFO-FIL) TILL      *        
+*                W33588 MED HUVUDLEV OCH LOKALA LEVERATÖRERS SJÄLV-    *        
+*                KOST TILL MÅNADSKURS                                  *        
+*                W33587 INNEHÅLLER BARA LOKALA LEVERANTÖRERS SJÄLV-    *        
+*                KOST UTAN HANTERINGSKOSTNAD.                          *        
+*                                                                      *        
+*  FÖRFATTARE :  ELEONOR ÖSTRÖM                                        *        
+*                                                                      *        
+*  DATUM      :  JAN 03                                                *        
+*----------------------------------------------------------------------*        
+FILE W33588D1                                                                   
+%W33589  'PRIS-'                                                                
+                                                                                
+FILE W33588D2                                                                   
+%W33587  'LOK-'                                                                 
+                                                                                
+FILE W33588D3   FB (1714 0)                                                     
+%W33589  'UT-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  PARAMETRAR TILL WDATKONV            *                                        
+* -------------------------------------*                                        
+%WDATAREA                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  ARBETSFÄLT                          *                                        
+* -------------------------------------*                                        
+*                                                                               
+IX              W  3 N                                                          
+MAX-IX          W  3 N VALUE 100                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+*STEG 1. MATCHAR IHOP W33588D1(PRIS-FIL) MED W33588D2(LOKALA ART)  *            
+*------------------------------------------------------------------*            
+                                                                                
+JOB INPUT(W33588D1 KEY (PRIS-IDARTNR)                                  +        
+          W33588D2 KEY (LOK-IDARTNR)) START A-INIT                              
+                                                                                
+ IF MATCHED                                                                     
+                                                                                
+   PERFORM FYLL-I-RADER                                                         
+                                                                                
+   IF NOT DUPLICATE W33588D2 OR LAST-DUP W33588D2                               
+     PERFORM FYLL-I-0-RADER                                                     
+     PUT W33588D3 FROM W33588D1                                                 
+   END-IF                                                                       
+ ELSE                                                                           
+   IF W33588D1                                                                  
+     PERFORM FYLL-I-0-RADER                                                     
+     PUT W33588D3 FROM W33588D1                                                 
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+A-INIT. PROC                                                                    
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+ FYLL-I-RADER. PROC                                                             
+                                                                                
+  IX = 1                                                                        
+  DO WHILE IX < MAX-IX                                                          
+    IF PRIS-IDDC(IX) > '  '                                                     
+      IF PRIS-IDLEVNR(IX)  = LOK-IDLEVNR-PR                                     
+        IF PRIS-PRARTBES-PR(IX) = 0                                             
+          PRIS-PRARTBES-PR(IX)  = LOK-PRARTBES                                  
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+    IX = IX + 1                                                                 
+  END-DO                                                                        
+                                                                                
+ END-PROC                                                                       
+NEWPAGE                                                                         
+ FYLL-I-0-RADER. PROC                                                           
+                                                                                
+  IX = 1                                                                        
+  DO WHILE IX < MAX-IX                                                          
+    IF PRIS-IDDC(IX) > '  '                                                     
+      IF PRIS-PRARTBES-PR(IX) = 0                                               
+         PRIS-PRARTBES-PR(IX)  = PRIS-PRARTSJK                                  
+      END-IF                                                                    
+    END-IF                                                                      
+    IX = IX + 1                                                                 
+  END-DO                                                                        
+                                                                                
+ END-PROC                                                                       
+ *                                                                              

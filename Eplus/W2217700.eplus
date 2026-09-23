@@ -1,0 +1,63 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2217700                                              *        
+*                                                                      *        
+*  FUNKTION   :  IDENTIFY ALL THE PART NUMBERS THAT HAVE GOT THE       *        
+*                SUPERSESSION  CODE CHAGED FROM 00 TO X1/X2 IN THE     *        
+*                CURRENT WEEK BY COMPARING FILE W011.QASE.W01160(+0)   *        
+*                AND W011.W01177(-1)                                   *        
+*  FÖRFATTARE :  UMESH JAIN                                            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W22177D1                                                                   
+%W011100   'IN1-'                                                               
+                                                                                
+FILE W22177D2                                                                   
+%W01160    'IN2-'                                                               
+                                                                                
+FILE W22177D3 FB(58 0)                                                          
+%W2217701  'UT-'                                                                
+                                                                                
+*                                                                               
+  W-KDERS-TEMP                     W  3   N                                     
+*                                                                               
+  W-KDERS                          W  3   N                                     
+  W-KDERS-2          W-KDERS          2   N                                     
+  W-KDERS-3          W-KDERS       +2 1   N                                     
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT (W22177D1 KEY (IN1-IDARTNR) +                                         
+           W22177D2 KEY (IN2-CLAG-IDARTNR))                                     
+                                                                                
+  IF MATCHED                                                                    
+    IF IN1-KDERS = +0                                                           
+      W-KDERS-TEMP = IN2-CLAG-KDERS                                             
+      W-KDERS = W-KDERS-TEMP                                                    
+      IF W-KDERS-3 = 1 2                                                        
+        UT-IDARTNR       = IN2-CLAG-IDARTNR                                     
+        UT-IDARTNR-EMBQ0 = IN2-CLAG-IDARTNR-EMBQ0                               
+        UT-IDARTNR-EMBQ1 = IN2-CLAG-IDARTNR-EMBQ1                               
+        UT-IDARTNR-EMBQ2 = IN2-CLAG-IDARTNR-EMBQ2                               
+        UT-IDARTNR-EMBQ3 = IN2-CLAG-IDARTNR-EMBQ3                               
+        UT-IDARTNR-EMBQ4 = IN2-CLAG-IDARTNR-EMBQ4                               
+        UT-KDEMBKOD-0    = IN2-CLAG-KDEMBKOD-0                                  
+        UT-KDEMBKOD-1    = IN2-CLAG-KDEMBKOD-1                                  
+        UT-KVQPACK-0     = IN2-CLAG-KVQPACK-0                                   
+        UT-KVQPACK-1     = IN2-CLAG-KVQPACK-1                                   
+        UT-KVQPACK-2     = IN2-CLAG-KVQPACK-2                                   
+        UT-KVQPACK-3     = IN2-CLAG-KVQPACK-3                                   
+        UT-KVQPACK-4     = IN2-CLAG-KVQPACK-4                                   
+        UT-KVPALL        = IN2-CLAG-KVPALL                                      
+        UT-KVVECKOR-LT   = IN2-CLAG-KVVECKOR-LT                                 
+        UT-FLMANLT       = IN2-CLAG-FLMANLT                                     
+        UT-BEFT       = IN2-CLAG-BEFT                                           
+        PUT W22177D3                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                

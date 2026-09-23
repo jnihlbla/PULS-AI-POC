@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHES EFR-FILE WITH WDQ4-EXTRACT AND WRITES A PRINTFILE                  
+//*  WITH SCRAP ORDERED PARTS WHICH ARE STILL ON "EFR"                          
+//*                                                                             
+//*  FREQUENCE:    WEEK      RTN W261V1                                         
+//*                                                                             
+//*  RESTART:      W26152    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W261P052 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W261..W261V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W26152   EXEC PGM=V16459,PARM='W26152/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR  (DATKORT)                     
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR  TKORT)                   
+//DATUT    DD  SYSOUT=*                             (DATKORT)                   
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W26152D1 DD  DSN=&INDIN..W26154(+0),DISP=SHR                                  
+//************ WDQ4-EXTRACT ON DISTRICT 81, CUSTOMER 11 AND 111                 
+//*                                                                             
+//W26152D2 DD  DSN=&INDIN..W26156(+0),DISP=SHR                                  
+//************ ALL EFR-LINES ON DISTRICT 81, CUSTOMER 11 AND 111                
+//*                                                                             
+//TFIL01   DD  DATACLAS=PSEN  TEMP DISTR/CUST + VALUE FROM W26152D1             
+//TFIL02   DD  DATACLAS=PSEN  TEMP DISTR/CUST + VALUE FROM W26152D2             
+//TFIL03   DD  DATACLAS=PSEN  TEMP ANSK-GRP FROM W26152D1                       
+//TFIL04   DD  DATACLAS=PSEN  TEMP ANSK-GRP FROM W26152D2                       
+//TFIL05   DD  DATACLAS=PSEN  TEMP IDANSK FROM W26152D1                         
+//TFIL06   DD  DATACLAS=PSEN  TEMP IDANSK FROM W26152D2                         
+//*                                                                             
+//W26152D3 DD  DSN=&&W26152,DISP=(MOD,PASS,DELETE),                             
+//*********** REPORT DATA                                                       
+//             DATACLAS=PSEN                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGEN1  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W261PD52),DISP=SHR                         
+//SYSUT1   DD  DSN=&&W26152,DISP=(OLD,DELETE,DELETE)                            
+//SYSUT2   DD  DSN=&INDIN..W26152(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ REPRT FILE CLEANSED FROM CNTRL-CHARS IN COL 1                    
+//             RECFM=VB,                                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 

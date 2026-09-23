@@ -1,0 +1,110 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4121A00                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR LAGERBAND OCH LDC ORDERRADER.                 *        
+*                KOLLAR OM DISPONIBEL ANTAL FINNS. OM INTE             *        
+*                SKAPAR FIL FÖR CLEARING TILL CDC                      *        
+*                                                                      *        
+*  FÖRFATTARE :  GERRY CARMICHAEL                                      *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W4121AD1                                                                   
+*                                                                               
+%W01184                                                                         
+                                                                                
+NEWPAGE                                                                         
+FILE W4121AD2                                                                   
+*                                                                               
+%W41239    'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W4121AD3    FB (166 0)                                                     
+*                                                                               
+%W41239    'UT-'                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*                 WORKING STORAGE                                               
+WS-DISPONIBEL          W  4  P 0                                                
+ZERO                   W  6  N  VALUE  000000                                   
+NEWPAGE                                                                         
+*                                                                               
+*                                                                               
+* STEG 1. MATCHAR LAGERBAND MED ORDERRADER                                      
+*                                                                               
+JOB INPUT (W4121AD1 KEY (SLAG-IDDC SLAG-IDARTNR)             +                  
+           W4121AD2 KEY (IN-IDDC   IN-IDARTNR)) START A-INIT +                  
+                                         NAME STEG01                            
+IF MATCHED                                                                      
+  IF FIRST-DUP W4121AD2 OR NOT DUPLICATE SECONDARY                              
+    PERFORM DISPONIBEL                                                          
+  END-IF                                                                        
+  PERFORM MATCH-PROC                                                            
+END-IF                                                                          
+*                                                                               
+A-INIT. PROC                                                                    
+  WS-DISPONIBEL    =  ZERO                                                      
+END-PROC.                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+DISPONIBEL. PROC                                                                
+  WS-DISPONIBEL    =  ZERO                                                      
+  WS-DISPONIBEL    =  SLAG-KVLS                           +                     
+                   +  SLAG-KVAKS-SDC                      +                     
+                   +  SLAG-KVAKS-PAV                      +                     
+                   -  SLAG-KVUTRS                         +                     
+                   -  SLAG-KVSPARR-KVAL                                         
+END-PROC.                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+MATCH-PROC. PROC                                                                
+   IF IN-KVBEART-Q <=  WS-DISPONIBEL                                            
+     WS-DISPONIBEL  =  WS-DISPONIBEL - IN-KVBEART-Q                             
+   ELSE                                                                         
+     UT-IDORDER     =  IN-IDORDER                                               
+     UT-IDDISTR     =  IN-IDDISTR                                               
+     UT-IDKUNDNR    =  IN-IDKUNDNR                                              
+     UT-IDORDNR7    =  IN-IDORDNR7                                              
+     UT-IDDC        =  IN-IDDC                                                  
+     UT-IDARTNR     =  IN-IDARTNR                                               
+     UT-DARFS       =  IN-DARFS                                                 
+     UT-IDSYSTEM    =  IN-IDSYSTEM                                              
+     UT-KVBEART     =  IN-KVBEART                                               
+     UT-KVBEART-Q   =  IN-KVBEART-Q                                             
+     UT-KDKVBRYT    =  IN-KDKVBRYT                                              
+     UT-KDDSP       =  IN-KDDSP                                                 
+     UT-KDORDKL     =  IN-KDORDKL                                               
+     UT-BERADREF    =  IN-BERADREF                                              
+     UT-KVANT-ART   =  IN-KVANT-ART                                             
+     UT-IDPRQUES    =  IN-IDPRQUES                                              
+     UT-PRARTNTO-LOC = IN-PRARTNTO-LOC                                          
+     UT-PRARTNTO-LOCPREL   =  IN-PRARTNTO-LOCPREL                               
+     UT-BEKUNDRF    = IN-BEKUNDRF                                               
+     UT-FLEMBORD    = IN-FLEMBORD                                               
+     UT-FLFORBI     = IN-FLFORBI                                                
+     UT-FLRESTN     = IN-FLRESTN                                                
+     UT-FLSDCLEV    = IN-FLSDCLEV                                               
+     UT-FLORDSPE    = IN-FLORDSPE                                               
+     UT-FLOVRLEV    = IN-FLOVRLEV                                               
+     UT-IDBIL       = IN-IDBIL                                                  
+     UT-IDKUNDRF-RO = IN-IDKUNDRF-RO                                            
+     UT-KDFAKTYP    = IN-KDFAKTYP                                               
+     UT-KDPRTYP     = IN-KDPRTYP                                                
+     UT-KDTPOTYP    = IN-KDTPOTYP                                               
+     UT-TIRODAT     = IN-TIRODAT                                                
+     UT-TITPO       = IN-TITPO                                                  
+     PUT W4121AD3                                                               
+   END-IF                                                                       
+END-PROC.                                                                       
+*                                                                               

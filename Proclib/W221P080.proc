@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPA LEVERANSPLANER DIREKTÖVERFÖRING                                      
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W221D2                                            
+//*                                                                             
+//*  ÅTERSTART:    W22180    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W221P080 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDUT=&W221..W221D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22180   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W22180,W22180,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(0),DISP=SHR                -- DATKORT         
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR        -- DATKORT         
+//DATUT    DD  SYSOUT=*                                      -- DATKORT         
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//W22180D1 DD  DSN=&INDUT..W22181(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TILL ODETTE (EDI)                                                
+//             SPACE=(12,(1,16),RLSE),AVGREC=K,                                 
+//             MGMTCLAS=&BACKUPC                                                
+//W22180D2 DD  DSN=&INDUT..W22182(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ DELETE WDGX2218                                                  
+//             SPACE=(10,(1,3),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,109 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2713E00                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  ARUP DATTA                                            *        
+*                                                                      *        
+*  DATUM      :  161007                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAM CREATES REPORT FOR UNNORMAL FORECAST          *        
+*                (KVPBREOI) OF LOCALLY SOURCED PARTS                   *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W2713ED1                                                                   
+*                                                                               
+%W2713A       'IN-'                                                             
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W2713ED2 VB (75 0) PRINTER                                                 
+*                                                                               
+*                                                                               
+  UT-IDANSK            W  3  N                                                  
+  UT-IDARTNR           W  9  N      MASK 'ZZZZZZZZ9'                            
+  UT-IDDC              W  2  A                                                  
+  UT-KVPBREOI          W  4  P  1   MASK 'ZZZZZ9.9-'                            
+  UT-NY-KVPBREOI       W  4  P  1   MASK 'ZZZZZ9.9-'                            
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1  A   VALUE 'J'                                
+  NEJ                       W   1  A   VALUE 'N'                                
+  W-SEM1                    W   1  A   VALUE ';'                                
+  SW-FIRST                  S   1  A   VALUE 'J'                                
+*                                                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT W2713ED1 +                                                          
+      NAME   STEG01                                                             
+                                                                                
+                                                                                
+     UT-IDANSK           = IN-IDANSK                                            
+     UT-IDARTNR          = IN-IDARTNR                                           
+     UT-IDDC             = IN-IDDC                                              
+     UT-KVPBREOI         = IN-KVPBREOI                                          
+     UT-NY-KVPBREOI      = IN-NY-KVPBREOI                                       
+                                                                                
+     PRINT RAPPORT01                                                            
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    REPORT SECTION                              *              
+*----------------------------------------------------------------*              
+*                                                                               
+    REPORT RAPPORT01 PRINTER W2713ED2                            +              
+                     LINESIZE      70                            +              
+                     NODATE                                      +              
+                     NOHEADING                                   +              
+                     NOADJUST                                    +              
+                     NOSPREAD                                    +              
+                     SPACE          0                                           
+    SEQUENCE  UT-IDANSK UT-IDARTNR                                              
+*                                                                               
+    LINE 01                         +                                           
+              UT-IDANSK             +                                           
+              W-SEM1                +                                           
+              UT-IDARTNR            +                                           
+              W-SEM1                +                                           
+              UT-IDDC               +                                           
+              W-SEM1                +                                           
+              UT-KVPBREOI           +                                           
+              W-SEM1                +                                           
+              UT-NY-KVPBREOI        +                                           
+              W-SEM1                                                            
+                                                                                
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF SW-FIRST = JA                                                               
+   DISPLAY '¤DAPW2713E-001'                                                     
+   DISPLAY '¤DAPW2713E'                                                         
+   DISPLAY 'PURCHASE PLANNER;PART NUMBER;DC;OLD FORECAST;NEW FORECAST;'         
+   SW-FIRST = NEJ                                                               
+ END-IF                                                                         
+END-PROC                                                                        

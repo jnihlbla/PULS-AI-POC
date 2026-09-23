@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*         FINLAND-1091                                                        
+//*  NOAC   IMPORTÖRSBEROENDE BEARBETNING                                       
+//*         SKAPAR TRANS OCH LOGG FILER                                         
+//*                                                                             
+//*  FREKVENS:         DAG    VECKA                                             
+//*                RTN W461D2 W461V1                                            
+//*                                                                             
+//*  ÅTERSTART:    W46128     NORMAL                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W461P028 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W461..W461D2,                                             
+//             INDIN2=&W476..W461D2,                                            
+//             INDUT=&W461..W461D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46128   EXEC PGM=W46128                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(0),DISP=SHR                -- DATKORT         
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR        -- DATKORT         
+//DATUT    DD  SYSOUT=*                                      -- DATKORT         
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//W46128D1 DD  DSN=&INDIN2..W476FI2,DISP=SHR                                    
+//         DD  DSN=&INDIN..W4612Z,DISP=SHR                                      
+//************ INFIL                                                            
+//*                                                                             
+//W46128D2 DD  DSN=&INDUT..W46148(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ TRANSFIL TILL VCOM-JOBB W461JZ02                                 
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46128D3 DD  DSN=&INDUT..W4614A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LOGGFIL                                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,44 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WDMR1600                                              *        
+*                                                                      *        
+*  FUNKTION   :  LISTA FEL FRÅN LADDNING AV DATA MANAGER               *        
+*                                                                      *        
+*  FÖRFATTARE :  ODD OLSÉN                                             *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*----------------------------------------------------------------------*        
+FILE WDMR16D1                                                                   
+  SYSOUT-FIL              1 137 A                                               
+    DM-MSG                2   2 A                                               
+    DM-MSG-NR             4   5 A                                               
+    DM-MSG-ID             9   2 A                                               
+                                                                                
+FILE WDMR16D2  PRINTER FB (121 121)                                             
+                                                                                
+    TEXT-V                W 139 A VARYING                                       
+    TEXT                  W 120 A VARYING                                       
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+JOB INPUT WDMR16D1                                                              
+                                                                                
+  IF DM-MSG = 'DM'  AND +                                                       
+     DM-MSG-ID = 'S ' 'E ' AND +                                                
+     DM-MSG-NR NE '01219' '01220' '01250' '01240'                               
+    MOVE WDMR16D1 TO TEXT-V                                                     
+    TEXT-V:LENGTH = RECORD-LENGTH                                               
+    TEXT = TEXT-V                                                               
+    PRINT RAPPORT                                                               
+  END-IF                                                                        
+  GOTO JOB                                                                      
+                                                                                
+REPORT RAPPORT PRINTER WDMR16D2 LINESIZE 120                                    
+TITLE 1  'VOLVO CAR PARTS'                                                      
+TITLE 2  'RAPPORT ÖVER FELMEDDELANDE VID LADDNING AV DATA MANAGER'              
+HEADING  TEXT:DATA  ('FELMEDDELANDE')                                           
+LINE 1 TEXT:DATA                                                                

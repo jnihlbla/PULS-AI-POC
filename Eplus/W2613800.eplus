@@ -1,0 +1,146 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2613800                                              *        
+*                                                                      *        
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2613800                                              *        
+*                                                                      *        
+*  FUNKTION   :  FRÅN INFIL W26141, INNEHÅLLANDE LISTPOSTER            *        
+*                LAGERBALANSERING, SKAPAS LISTA :                      *        
+*                W26138-001 ARTIKLAR MED ÖVERSKOTTSLAGER >= 500 KR     *        
+*                                                                      *        
+*  FÖRFATTARE :  ANNELI WAHLSTRÖM                                      *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     SDC...      PAH...............       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W26138D1                                                                   
+*------------------*                                                            
+* COPYTEXT         *                                                            
+*------------------*                                                            
+%W2613801  'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W26138D2  PRINTER FB (121 0)                                               
+                                                                                
+*------------------*                                                            
+* ARBETSAREOR      *                                                            
+*------------------*                                                            
+W-IDANSK          W                 3 N                     +                   
+                             HEADING (' ' 'ANS')                                
+W-IDLEVNR         W                 5 A                     +                   
+                             HEADING (' ' 'LEVNR')                              
+W-IDARTNR         W                 9 N   MASK 'ZZZZZZZZ9'  +                   
+                             HEADING (' ' 'ARTIKELNR')                          
+W-KVDISP-TOT      W                 7 N   MASK 'ZZZZZZ9'    +                   
+                             HEADING (' ' ' DISP OKS')                          
+W-KVAKS           W                 7 N   MASK 'ZZZZZZ9'    +                   
+                             HEADING (' ' '     AK')                            
+W-KVBR            W                 7 N   MASK 'ZZZZZZ9'    +                   
+                             HEADING (' ' '     BR')                            
+W-SUTPO-TOT       W                 7 N   MASK 'ZZZZZZ9'    +                   
+                             HEADING (' ' '    TPO')                            
+W-KVPB-TOT        W                 7 N 1 MASK 'ZZZZZ9.9'   +                   
+                             HEADING (' ' '   TOT PB')                          
+W-BER-MAX         W                 8 N   MASK 'ZZZZZZZ9'   +                   
+                             HEADING ('BER' 'ÖSKOTT.P')                         
+W-KVOI-TOT        W                 7 N   MASK '------9'    +                   
+                             HEADING ('   OING' '   SEN 8')                     
+W-VARDE-MAX       W                 8 N   MASK 'ZZZZZZZ9'   +                   
+                             HEADING (' VÄRDE' ' ÖSKOTT')                       
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LÄSER INFIL                                                           
+*                                                                               
+JOB INPUT (W26138D1 +                                                           
+          )                                                                     
+                                                                                
+  W-IDANSK    = IN-IDANSK                                                       
+  W-IDLEVNR   = IN-IDLEVNR                                                      
+  W-IDARTNR   = IN-IDARTNR                                                      
+  W-KVBR      = IN-KVBR                                                         
+  W-SUTPO-TOT = IN-SUTPO-TOT (1)                                                
+  W-KVOI-TOT  = IN-KVOI-TOT                                                     
+  W-KVAKS     = IN-KVAKS (1)                                                    
+  PERFORM RAKNA-TOTALER                                                         
+  PRINT W26138-001                                                              
+                                                                                
+*------------------*                                                            
+*  TOTALER         *                                                            
+*------------------*                                                            
+RAKNA-TOTALER. PROC.                                                            
+W-KVDISP-TOT  = IN-KVLS      (1) -                            +                 
+                (IN-KVRESS   (1) +                            +                 
+                IN-KVOKS-BULK(1) +                            +                 
+                IN-KVOKS-DAG (1) +                            +                 
+                IN-KVOKS-VOR (1) )                                              
+W-KVPB-TOT    = IN-KVPB-SEP  (1) +                            +                 
+                IN-KVPB-SATS (1)                                                
+IF IN-KDVVKL = 1                                                                
+   W-BER-MAX = (3 * IN-KVOI-TOT) + IN-KVSLAGER (1)                              
+ELSE                                                                            
+   IF IN-KDVVKL = 2                                                             
+      W-BER-MAX = (3 * IN-KVOI-TOT / 2) + IN-KVSLAGER (1)                       
+   ELSE                                                                         
+      IF IN-KDVVKL = 3                                                          
+         W-BER-MAX = (3 * IN-KVOI-TOT / 5) + IN-KVSLAGER (1)                    
+       ELSE                                                                     
+         IF IN-KDVVKL = 4                                                       
+            W-BER-MAX = (3 * IN-KVOI-TOT / 10) + IN-KVSLAGER (1)                
+         ELSE                                                                   
+            IF IN-KDVVKL = 5                                                    
+               W-BER-MAX = (IN-KVOI-TOT / 5) + IN-KVSLAGER (1)                  
+            END-IF                                                              
+         END-IF                                                                 
+      END-IF                                                                    
+   END-IF                                                                       
+END-IF                                                                          
+W-VARDE-MAX = (W-KVDISP-TOT - W-BER-MAX) * IN-PRARTSTD                          
+END-PROC                                                                        
+NEWPAGE                                                                         
+*------------------*                                                            
+*  REPORT          *                                                            
+*------------------*                                                            
+NEWPAGE                                                                         
+REPORT W26138-001  PRINTER W26138D2 NOADJUST NOSPREAD   +                       
+                   LINESIZE 120 NODATE DTLCTL FIRST                             
+SEQUENCE W-IDANSK                              +                                
+         W-IDLEVNR                             +                                
+         W-IDARTNR                                                              
+CONTROL  FINAL NOPRINT                         +                                
+         W-IDANSK   NEWPAGE NOPRINT            +                                
+         W-IDLEVNR  NOPRINT                    +                                
+         W-IDARTNR  NOPRINT                                                     
+TITLE 1  COL 2   'VOLVO AFTERSALES'                       +                     
+         COL 20  'W26138-001'                             +                     
+         COL 32  'ARTIKLAR MED ÖVERSKOTTSLAGER >= 500 KR' +                     
+         COL 81  'ANSK'                                   +                     
+         COL 86  W-IDANSK                                 +                     
+         COL 93  'DATUM' -2 SYSDATE                                             
+                                                                                
+HEADING  IN-BEART-SVE  (' ' 'BENÄMNING               ')                         
+HEADING  IN-KDERS      (' ' '    EK')                                           
+LINE  1  W-IDANSK        -2            +                                        
+         W-IDLEVNR       -2            +                                        
+         W-IDARTNR       -2            +                                        
+         IN-BEART-SVE    -4            +                                        
+         W-KVDISP-TOT    -3            +                                        
+         W-KVAKS         -3            +                                        
+         W-KVBR          -3            +                                        
+         W-SUTPO-TOT     -2            +                                        
+         IN-KDERS        -5            +                                        
+         W-KVPB-TOT      -2            +                                        
+         W-BER-MAX       -2            +                                        
+         W-KVOI-TOT      -3            +                                        
+         W-VARDE-MAX                                                            

@@ -1,0 +1,67 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR LEVERANSAVROPS OCH AVISERINGSFILEN                            
+//*  MED ARTIKELUPPGIFTER OCH ADINLOMR-FP                                       
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611V1                                            
+//*                                                                             
+//*  ÅTERSTART:    W61134      NORMAL                                           
+//*                LÄSER  WDK6 W6G1                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P034 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611V1,                                             
+//             INDUT=&WXTR..W611V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD34),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61132(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W61133(+0),DISP=SHR                                  
+//************ FIL MED LEVERANSAVROP OCH AVISERINGAR                            
+//*                                                                             
+//SORTOUT  DD  DSN=&&TEMPFIL,DISP=(NEW,PASS,DELETE),                            
+//             SPACE=(43,(100,20),RLSE),AVGREC=K                                
+//*                                                                             
+//W61134   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W61134,W61134,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W6G1     INCLUDE MEMBER=W6G1                                                  
+//W61134D1 DD  DSN=&&TEMPFIL,DISP=SHR                                           
+//************ FIL MED LEVERANSAVROP OCH AVISERINGAR                            
+//*                                                                             
+//W61134D2 DD  DSN=&&TEMPFIL2,DISP=(NEW,PASS,DELETE),                           
+//************ FIL MED LEVERANSINFORMATION FÖR PRODUKTIONSPLANERING             
+//             SPACE=(43,(100,20),RLSE),AVGREC=K                                
+//*                                                                             
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD35),DISP=SHR                         
+//SORTIN   DD  DSN=&&TEMPFIL2,DISP=SHR                                          
+//************ OSORTERAD FIL MED LEVERANSINFORMATION                            
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WXTRC2(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SORTERAD FIL MED LEVERANSINFORMATION TILL VIOS                   
+//*            SPACE=(43,(100,20),RLSE),AVGREC=K,                               
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

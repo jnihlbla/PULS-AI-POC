@@ -1,0 +1,68 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR FILER IFRÅN W6D1 OCH W6G3 FÖR ATT SKAPA                            
+//*  EN FIL MED NYCKLAR TILL DE POSTER SOM SKALL RENSAS                         
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611D2                                            
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                          NORMAL                                             
+//*                W61184    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P084 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611D1,                                             
+//             INDIN1=&WXTR..W611D1,                                            
+//             INDUT=&W611..W611D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD84),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W61110(+0),DISP=SHR                                 
+//************ POSTER FRÅN W6D1                                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61110,DISP=(NEW,PASS,DELETE),                             
+//************ POSTER FRÅN W6D1 SORTERAD PÅ DC, IDLOPNRM, IDRADNR               
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD85),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61141(+0),DISP=SHR                                  
+//************ POSTER FRÅN W6G3                                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61141,DISP=(NEW,PASS,DELETE),                             
+//************ POSTER FRÅN W6G3. SORTERAD PÅ DC, IDLOPNRM, IDRADNR              
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61184   EXEC PGM=V16459,PARM='W61184/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=NJORS2,HOLD=YES                            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W61184D1 DD  DSN=&&W61110,DISP=(OLD,DELETE,DELETE)                            
+//************ POSTER FRÅN W6G3. SORTERAD PÅ DC, IDLOPNRM, IDRADNR              
+//*                                                                             
+//W61184D2 DD  DSN=&&W61141,DISP=(OLD,DELETE,DELETE)                            
+//************ POSTER FRÅN W6G3. SORTERAD PÅ DC, IDLOPNRM, IDRADNR              
+//*                                                                             
+//W61184D3 DD  DSN=&INDUT..W61184(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ POSTER FÖR RENSNING AV W6G3                                      
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W61184D4 DD  DSN=&INDUT..W61128(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ HISTORIK POSTER FÖR UPPFÖLJNING                                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

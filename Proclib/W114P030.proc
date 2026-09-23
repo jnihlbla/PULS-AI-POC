@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  BOKAR AV KÖP FRÅN PV-INKÖP PÅ NYPON                                        
+//*                                                                             
+//*  FREKVENS:     1 GÅNG PER DAG       RTN W114D2                              
+//*                                                                             
+//*  ÅTERSTART:    W11430   NORMAL                                              
+//*                .                                                            
+//*                .                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W114P030 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN2=&W212..W114D2,                                            
+//             INDUT=&W212..W114D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11430   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W11430,W11430,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W11430D1 DD  DSN=&INDIN2..W21211(+0),DISP=SHR                                 
+//************ INFIL FRÅN PROC W212P001 +EV OMSTART FRÅN W11430                 
+//*                                                                             
+//W11430D2 DD  DSN=&INDUT..W21211(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ UTFIL SOM TAS IN SOM INFIL VID OMSTART VIA PGM                   
+//             MGMTCLAS=&NOBACKUP,SPACE=(6204,(10,13),RLSE)                     
+//*                                                                             
+//SOPDD1   DD  DSN=&INDRTE..SOP,DISP=SHR                                        
+//*********    DD-KORT FÖR SOPSUB, (OMSTART AV PGM)                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TOMDEL  EXEC WEMPDEL,DSIN=&INDUT..W21211(+1)                                  

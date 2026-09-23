@@ -1,0 +1,92 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6129700                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR FIL MED ARTIKLAR DÄR PLATSSÄTTNING SKALL NOLLAS*        
+*                                                                      *        
+*  FÖRFATTARE :  JOHAN LINDKVIST 051004                                *        
+*                                                                      *        
+*             :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     070220      ANDERS HENRIKSSON        9236                                 
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+FILE W61297D1                                                                   
+%W01184 'IN-'                                                                   
+                                                                                
+NEWPAGE                                                                         
+FILE W61297D2 FB(14 0)                                                          
+%W61297 'UT-'                                                                   
+                                                                                
+*--------------------------*                                                    
+* IDDC-KONTROLL            *                                                    
+*--------------------------*                                                    
+*    --- VALID IDDC CODES                                                       
+%WWDC99                                                                         
+                                                                                
+*--------------------------*                                                    
+* WORKING STORAGE AREA     *                                                    
+*--------------------------*                                                    
+  PROGRAM-NAMN                   W     6  A   VALUE 'W61297'                    
+                                                                                
+  WS-RETUR-ADLAGOMR              W     2  N   VALUE 0                           
+  WS-RETUR-ADLAGOMR-2            W     2  N   VALUE 0                           
+  WS-RETUR-ADGANG-1              W     2  N   VALUE 0                           
+  WS-RETUR-ADGANG-2              W     2  N   VALUE 0                           
+*--------------------------*                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LÄSER WCDCDAY (SDC/LDC-LAGERBAND) OCH VÄLJER                          
+*         UT ARTIKLAR SOM LIGGER PLATSSATTA PÅ RETURLAGEROMRÅDEN                
+*         UTAN LAGERSALDO MM.                                                   
+*                                                                               
+                                                                                
+JOB INPUT (W61297D1)                                                            
+                                                                                
+     PERFORM B-LADDA-DC-DATA                                                    
+     IF IN-SLAG-ADLAGOMR EQ WS-RETUR-ADLAGOMR WS-RETUR-ADLAGOMR-2               
+       IF IN-SLAG-ADGANG EQ WS-RETUR-ADGANG-1 WS-RETUR-ADGANG-2                 
+         IF IN-SLAG-KVLS = 0                                                    
+           IF IN-SLAG-KVAKS-PAV = 0                                             
+             IF IN-SLAG-KVAKS-SDC = 0                                           
+               IF IN-SLAG-KVBEART = 0                                           
+                 IF IN-SLAG-KVEFRS = 0                                          
+                   IF IN-SLAG-KVOKS-DAG = 0                                     
+                     IF IN-SLAG-KVOKS-BULK = 0                                  
+                        PERFORM SKAPA-TEMP                                      
+                        PUT W61297D2                                            
+                     END-IF                                                     
+                   END-IF                                                       
+                 END-IF                                                         
+               END-IF                                                           
+             END-IF                                                             
+           END-IF                                                               
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+                                                                                
+B-LADDA-DC-DATA. PROC                                                           
+**** DET SKALL OMFATTA LAGEROMRÅDE 98                                           
+*     IF IN-SLAG-IDDC = LDC                                                     
+         WS-RETUR-ADLAGOMR   = 98                                               
+         WS-RETUR-ADLAGOMR-2 = 88                                               
+         WS-RETUR-ADGANG-1   = 01                                               
+         WS-RETUR-ADGANG-2   = 02                                               
+*     END-IF                                                                    
+END-PROC                                                                        
+                                                                                
+SKAPA-TEMP. PROC                                                                
+                                                                                
+      UT-IDARTNR       = IN-SLAG-IDARTNR                                        
+      UT-IDDC          = IN-SLAG-IDDC                                           
+      UT-ADLAGOMR-SDC  = IN-SLAG-ADLAGOMR                                       
+      UT-ADGANG-SDC    = IN-SLAG-ADGANG                                         
+      UT-ADPLATS-SDC   = IN-SLAG-ADPLATS                                        
+                                                                                
+END-PROC                                                                        
+                                                                                

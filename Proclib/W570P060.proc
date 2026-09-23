@@ -1,0 +1,67 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER IN ALLA PEDALHÄNDELSER PÅ FIL OCH KOMPLETTERAR DESSA                 
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W570D2                                           
+//*                                                                             
+//*  ÅTERSTART:    W57060    NORMAL  (BATCH)                                    
+//*                READS     WDK6                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W570P060 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W510..W570D2,                                            
+//             INDIN2=&W418..W570D2,                                            
+//             INDIN3=&W476..W570D2,                                            
+//             INDIN4=&W426..W570D2,                                            
+//             INDUT=&W570..W570D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W570S1  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN1..W51041,DISP=SHR                                     
+//         DD  DSN=&INDIN1..W51047,DISP=SHR                                     
+//************ INFIL-FAKTURA HÄNDELSER                                          
+//         DD  DSN=&INDIN2..W41832,DISP=SHR                                     
+//************ INFIL-KREDIT HÄNDELSER                                           
+//         DD  DSN=&INDIN3..W4768E,DISP=SHR                                     
+//************ INFIL-FAKTURA HÄNDELSER                                          
+//         DD  DSN=&INDIN4..W42634,DISP=SHR                                     
+//************ INFIL-KRF HÄNDELSER                                              
+//*                                                                             
+//SORTOUT  DD  DSN=&&W57060,DISP=(NEW,PASS,DELETE),                             
+//******** SORTERADE PÅ IDVERGL STIGANDE O IDARTNR FALLANDE                     
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W570PD60),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W57060   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W57060,W57060,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W57060D1 DD  DSN=&&W57060,DISP=(OLD,PASS,DELETE)                              
+//************ SORTERADE PEDAL-HÄNDELSER                                        
+//W57060D2 DD  DSN=&INDUT..W57061A(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)        
+//************ KOMPLETTERADE PEDAL-HÄNDELSER                                    
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//W57060D3 DD  DSN=&INDUT..W57061C(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)        
+//************ KOMPLETTERADE PEDAL-HÄNDELSER                                    
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  

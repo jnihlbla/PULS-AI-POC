@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE EXTRACT FILE FOR REFILL PROPOSALS                                   
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W271XX                                         
+//*                                                                             
+//*  RESTART:      W2711B      NORMAL                                           
+//*                READS        WDK6 WDK7 WDL7                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271J01B PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=NULLFILE,                                                  
+//             INDUT=NULLFILE                                                   
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W2711B   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W2711B,W2711B,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDL7     INCLUDE MEMBER=WDL7                                                  
+//W2711BD1 DD  DSN=&INDIN..W27110(+0),DISP=SHR                                  
+//************ ORDERS AND PROPOSALS FOR UPDATE WDE3                             
+//*                                                                             
+//W2711BD2 DD  DSN=&INDUT..W2711B(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ CREATE EXTRACT FILE FOR REFILL PROPOSALS                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

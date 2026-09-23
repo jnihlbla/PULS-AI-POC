@@ -1,0 +1,466 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6122800                                              *        
+*                                                                      *        
+*  FUNKTION   :  CALCULATE ETA-POD-DEP DATE FOR SEA CONTAINERS.        *        
+*                OUTPUT FROM THIS PROGRAM IS USED TO CREATE            *        
+*                PROPOSED ETA IN NEXT JOB IN THIS ROUTINE.             *        
+*                                                                      *        
+*  FÖRFATTARE :  SRINADH NADIMPALLI                                    *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61228D1                                                                   
+*                                                                               
+%W61225  'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W61228D2 FB (4 0)                                                          
+*                                                                               
+%W6122801  'OUT1-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W61228D3 FB (55 0)                                                         
+*                                                                               
+%W6122802  'OUT2-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE TMPFIL1 FB (69 0) VIRTUAL RETAIN                                           
+*                                                                               
+  TMP1-IDDC-REC         1     2       A                                         
+  TMP1-IDLBBET          3    12       A                                         
+  TMP1-IDDC-SEND       15     2       A                                         
+  TMP1-TIFAKT          17     6       N                                         
+  TMP1-KDTRPSTA        23     1       A                                         
+  TMP1-KDTRPSTA-SORT   24     1       A                                         
+  TMP1-KVRADER-PRIO    25     5       N                                         
+  TMP1-KVRADER-FAKT    30     5       N                                         
+  TMP1-KVRADER-MOT     35     5       N                                         
+  TMP1-DABERANK-DISCH  40     6       N                                         
+  TMP1-DABERANK        46     8       N                                         
+  TMP1-DABERANK-PROP   54     6       N                                         
+  TMP1-FLMANETA        60     1       A                                         
+  TMP1-ETA-POD-DEP     61     6       N                                         
+  TMP1-KVDAGAR-ETA     67     3       N                                         
+                                                                                
+NEWPAGE                                                                         
+FILE TMPFIL2 FB (69 0) VIRTUAL RETAIN                                           
+*                                                                               
+  TMP2-IDDC-REC         1     2       A                                         
+  TMP2-IDLBBET          3    12       A                                         
+  TMP2-IDDC-SEND       15     2       A                                         
+  TMP2-TIFAKT          17     6       N                                         
+  TMP2-KDTRPSTA        23     1       A                                         
+  TMP2-KDTRPSTA-SORT   24     1       A                                         
+  TMP2-KVRADER-PRIO    25     5       N                                         
+  TMP2-KVRADER-FAKT    30     5       N                                         
+  TMP2-KVRADER-MOT     35     5       N                                         
+  TMP2-DABERANK-DISCH  40     6       N                                         
+  TMP2-DABERANK        46     8       N                                         
+  TMP2-DABERANK-PROP   54     6       N                                         
+  TMP2-FLMANETA        60     1       A                                         
+  TMP2-ETA-POD-DEP     61     6       N                                         
+  TMP2-KVDAGAR-ETA     67     3       N                                         
+                                                                                
+NEWPAGE                                                                         
+FILE TMPFIL3 FB (69 0) VIRTUAL RETAIN                                           
+*                                                                               
+  TMP3-IDDC-REC         1     2       A                                         
+  TMP3-IDLBBET          3    12       A                                         
+  TMP3-IDDC-SEND       15     2       A                                         
+  TMP3-TIFAKT          17     6       N                                         
+  TMP3-KDTRPSTA        23     1       A                                         
+  TMP3-KDTRPSTA-SORT   24     1       A                                         
+  TMP3-KVRADER-PRIO    25     5       N                                         
+  TMP3-KVRADER-FAKT    30     5       N                                         
+  TMP3-KVRADER-MOT     35     5       N                                         
+  TMP3-DABERANK-DISCH  40     6       N                                         
+  TMP3-DABERANK        46     8       N                                         
+  TMP3-DABERANK-PROP   54     6       N                                         
+  TMP3-FLMANETA        60     1       A                                         
+  TMP3-ETA-POD-DEP     61     6       N                                         
+  TMP3-KVDAGAR-ETA     67     3       N                                         
+                                                                                
+NEWPAGE                                                                         
+FILE TMPFIL4 FB (69 0) VIRTUAL RETAIN                                           
+*                                                                               
+  TMP4-AREA             1    69       A                                         
+  TMP4-IDDC-REC         1     2       A                                         
+  TMP4-IDLBBET          3    12       A                                         
+  TMP4-IDDC-SEND       15     2       A                                         
+  TMP4-TIFAKT          17     6       N                                         
+  TMP4-KDTRPSTA        23     1       A                                         
+  TMP4-KDTRPSTA-SORT   24     1       A                                         
+  TMP4-KVRADER-PRIO    25     5       N                                         
+  TMP4-KVRADER-FAKT    30     5       N                                         
+  TMP4-KVRADER-MOT     35     5       N                                         
+  TMP4-DABERANK-DISCH  40     6       N                                         
+  TMP4-DABERANK        46     8       N                                         
+  TMP4-DABERANK-PROP   54     6       N                                         
+  TMP4-FLMANETA        60     1       A                                         
+  TMP4-ETA-POD-DEP     61     6       N                                         
+  TMP4-KVDAGAR-ETA     67     3       N                                         
+                                                                                
+NEWPAGE                                                                         
+FILE TMPFIL5 FB (69 0) VIRTUAL RETAIN                                           
+*                                                                               
+  TMP5-AREA             1    69       A                                         
+  TMP5-IDDC-REC         1     2       A                                         
+  TMP5-IDLBBET          3    12       A                                         
+  TMP5-IDDC-SEND       15     2       A                                         
+  TMP5-TIFAKT          17     6       N                                         
+  TMP5-KDTRPSTA        23     1       A                                         
+  TMP5-KDTRPSTA-SORT   24     1       A                                         
+  TMP5-KVRADER-PRIO    25     5       N                                         
+  TMP5-KVRADER-FAKT    30     5       N                                         
+  TMP5-KVRADER-MOT     35     5       N                                         
+  TMP5-DABERANK-DISCH  40     6       N                                         
+  TMP5-DABERANK        46     8       N                                         
+  TMP5-DABERANK-PROP   54     6       N                                         
+  TMP5-FLMANETA        60     1       A                                         
+  TMP5-ETA-POD-DEP     61     6       N                                         
+  TMP5-KVDAGAR-ETA     67     3       N                                         
+                                                                                
+NEWPAGE                                                                         
+FILE TMPFIL6 FB (69 0) VIRTUAL RETAIN                                           
+*                                                                               
+  TMP6-IDDC-REC         1     2       A                                         
+  TMP6-IDLBBET          3    12       A                                         
+  TMP6-IDDC-SEND       15     2       A                                         
+  TMP6-TIFAKT          17     6       N                                         
+  TMP6-KDTRPSTA        23     1       A                                         
+  TMP6-KDTRPSTA-SORT   24     1       A                                         
+  TMP6-KVRADER-PRIO    25     5       N                                         
+  TMP6-KVRADER-FAKT    30     5       N                                         
+  TMP6-KVRADER-MOT     35     5       N                                         
+  TMP6-DABERANK-DISCH  40     6       N                                         
+  TMP6-DABERANK        46     8       N                                         
+  TMP6-DABERANK-PROP   54     6       N                                         
+  TMP6-FLMANETA        60     1       A                                         
+  TMP6-ETA-POD-DEP     61     6       N                                         
+  TMP6-KVDAGAR-ETA     67     3       N                                         
+                                                                                
+***********************************************************************         
+***** WORKING STORAGE     ********************                                  
+***********************************************************************         
+WS-KVRADER-PRIO  W 3 P 0                                                        
+WS-KVRADER-FAKT  W 3 P 0                                                        
+WS-KVRADER-MOT   W 3 P 0                                                        
+SAVE-IDDC-REC    W 2 A                                                          
+SAVE-IDLBBET     W 12 A                                                         
+WS-IDDC-SEND     W 2 A                                                          
+SAVE-IDDC-SEND   W 2 A                                                          
+WS-TIFAKT        W 6 N                                                          
+WS-KDTRPSTA      W 1 A                                                          
+WS-KDTRPSTA-SORT W 1 A                                                          
+WS-DABERANK-DISCH W 6 N                                                         
+WS-DABERANK       W 8 N                                                         
+WS-DABERANK-PROP  W 6 N                                                         
+WS-FLMANETA      W 1 A                                                          
+WS-ETA-POD-DEP   W 6 N                                                          
+WS-KVDAGAR-ETA   W 3 N                                                          
+WS-ETA-AVG-DAYS  W 3 N                                                          
+WS-CHECK-ETA-DAYS W 5 N                                                         
+W-SEA-CONTAINER  W 1 A VALUE 'N'                                                
+W-IDLBBET       W 12 A                                                          
+W-IDLBBET-1 W-IDLBBET 4 A                                                       
+W-IDLBBET-2 W-IDLBBET +4 7 A                                                    
+W-FILLER    W-IDLBBET +11 1 A                                                   
+W-IDLBBET-1-POS1 W-IDLBBET-1 1 A                                                
+W-IDLBBET-1-POS2 W-IDLBBET-1 +1 1 A                                             
+W-IDLBBET-1-POS3 W-IDLBBET-1 +2 1 A                                             
+W-IDLBBET-1-POS4 W-IDLBBET-1 +3 1 A                                             
+W-FORSTA-SW    W  1 A   VALUE 'J'                                               
+W-FORSTA       W  1 A   VALUE 'J'                                               
+WS-AVG-ETA-DATE W 6 N                                                           
+WS-SUM-ETA-DAYS W 5 N   VALUE 0                                                 
+WS-SUM-CONT     W 3 N   VALUE 0                                                 
+WS-IDDC         W 2 A                                                           
+*    --- VALID IDDC CODES                                                       
+%WWDC99                                                                         
+                                                                                
+*--------------------------------------*                                        
+*  PARAMETRAR TILL WDAGKONV            *                                        
+* -------------------------------------*                                        
+                                                                                
+WDAGKONV                   W  8 A   VALUE 'WDAGKONV'                            
+%WDAGAREA                                                                       
+                                                                                
+NEWPAGE                                                                         
+* STEG 1. FETCH ALL SEA CONTAINERS FROM INPUT FILE.                             
+JOB INPUT W61228D1                                                              
+                                                                                
+ W-IDLBBET = IN-IDLBBET                                                         
+ IF W-IDLBBET-1-POS1 = 'A' 'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'J' 'K' +            
+                         'L' 'M' 'N' 'O' 'P' 'Q' 'R' 'S' 'T' 'U'     +          
+                         'V' 'W' 'X' 'Y' 'Z' 'Å' 'Ä' 'Ö'                        
+                                                                                
+  IF W-IDLBBET-1-POS2 = 'A' 'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'J' 'K' +           
+                         'L' 'M' 'N' 'O' 'P' 'Q' 'R' 'S' 'T' 'U'     +          
+                         'V' 'W' 'X' 'Y' 'Z' 'Å' 'Ä' 'Ö'                        
+   IF W-IDLBBET-1-POS3 = 'A' 'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'J' 'K' +          
+                         'L' 'M' 'N' 'O' 'P' 'Q' 'R' 'S' 'T' 'U'     +          
+                         'V' 'W' 'X' 'Y' 'Z' 'Å' 'Ä' 'Ö'                        
+    IF W-IDLBBET-1-POS4 = 'A' 'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'J' 'K' +         
+                         'L' 'M' 'N' 'O' 'P' 'Q' 'R' 'S' 'T' 'U'     +          
+                         'V' 'W' 'X' 'Y' 'Z' 'Å' 'Ä' 'Ö'                        
+      IF W-IDLBBET-2 NUMERIC                                                    
+         W-SEA-CONTAINER = 'J'                                                  
+      ELSE                                                                      
+         W-SEA-CONTAINER = 'N'                                                  
+      END-IF                                                                    
+    ELSE                                                                        
+      W-SEA-CONTAINER = 'N'                                                     
+    END-IF                                                                      
+   ELSE                                                                         
+      W-SEA-CONTAINER = 'N'                                                     
+   END-IF                                                                       
+  ELSE                                                                          
+      W-SEA-CONTAINER = 'N'                                                     
+  END-IF                                                                        
+ ELSE                                                                           
+      W-SEA-CONTAINER = 'N'                                                     
+ END-IF                                                                         
+ IF W-SEA-CONTAINER = 'J'                                                       
+    MOVE IN-IDDC-SEND TO WS-IDDC                                                
+    PERFORM S23-CHECK-WS-IDDC                                                   
+    IF IN-IDDC-LEV > ' '                                                        
+      MOVE IN-IDDC-LEV  TO TMP1-IDDC-SEND                                       
+    ELSE                                                                        
+      MOVE IN-IDDC-SEND TO WS-IDDC                                              
+      IF WS-IDDC = DDC-SE                                                       
+        MOVE '11' TO  TMP1-IDDC-SEND                                            
+      ELSE                                                                      
+        MOVE IN-IDDC-SEND TO TMP1-IDDC-SEND                                     
+      END-IF                                                                    
+    END-IF                                                                      
+ IF IN-KDTRPSTA = 'R'                                                           
+   TMP1-KDTRPSTA-SORT = '1'                                                     
+ ELSE                                                                           
+  IF IN-KDTRPSTA = 'M' 'L'                                                      
+   TMP1-KDTRPSTA-SORT = '2'                                                     
+  ELSE                                                                          
+    TMP1-KDTRPSTA-SORT = '3'                                                    
+  END-IF                                                                        
+ END-IF                                                                         
+  TMP1-IDDC-REC       = IN-IDDC-REC                                             
+  TMP1-IDLBBET        = IN-IDLBBET                                              
+  TMP1-TIFAKT         = IN-TIFAKT                                               
+  TMP1-KDTRPSTA       = IN-KDTRPSTA                                             
+  TMP1-DABERANK       = IN-DABERANK                                             
+  TMP1-DABERANK-PROP  = IN-DABERANK-PROP                                        
+  TMP1-KVRADER-PRIO   = IN-KVRADER-PRIO                                         
+  TMP1-KVRADER-FAKT   = IN-KVRADER-FAKT                                         
+  TMP1-KVRADER-MOT    = IN-KVRADER-MOT                                          
+  TMP1-DABERANK-DISCH = IN-DABERANK-DISCH                                       
+  TMP1-FLMANETA       = IN-FLMANETA                                             
+  TMP1-ETA-POD-DEP    = 0                                                       
+  TMP1-KVDAGAR-ETA    = 0                                                       
+  PUT TMPFIL1                                                                   
+ END-IF                                                                         
+*                                                                               
+NEWPAGE                                                                         
+%WWDC02  'WS-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2 SORT TMPFIL1 TO TMPFIL2                                                
+*                                                                               
+SORT TMPFIL1 TO +                                                               
+     TMPFIL2 USING (TMP1-IDDC-REC, TMP1-IDLBBET, TMP1-KDTRPSTA-SORT)            
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 3. REMOVE DUPLICATES (ONLY ONE RECORD FOR EACH CONTAINER NO)             
+*                                                                               
+JOB INPUT TMPFIL2 FINISH Z-FINIT1                                               
+  IF W-FORSTA-SW = 'J'                                                          
+    SAVE-IDDC-REC   = TMP2-IDDC-REC                                             
+    SAVE-IDLBBET    = TMP2-IDLBBET                                              
+    W-FORSTA-SW     = 'N'                                                       
+    WS-IDDC-SEND    = TMP2-IDDC-SEND                                            
+    WS-TIFAKT       = TMP2-TIFAKT                                               
+    WS-KDTRPSTA     = TMP2-KDTRPSTA                                             
+    WS-KDTRPSTA-SORT  = TMP2-KDTRPSTA-SORT                                      
+    WS-DABERANK-DISCH = TMP2-DABERANK-DISCH                                     
+    WS-FLMANETA     = TMP2-FLMANETA                                             
+    WS-ETA-POD-DEP  = TMP2-ETA-POD-DEP                                          
+    WS-KVDAGAR-ETA  = TMP2-KVDAGAR-ETA                                          
+    WS-KVRADER-PRIO = TMP2-KVRADER-PRIO                                         
+    WS-KVRADER-FAKT = TMP2-KVRADER-FAKT                                         
+    WS-KVRADER-MOT  = TMP2-KVRADER-MOT                                          
+    WS-DABERANK       = TMP2-DABERANK                                           
+    WS-DABERANK-PROP  = TMP2-DABERANK-PROP                                      
+  ELSE                                                                          
+    IF SAVE-IDDC-REC = TMP2-IDDC-REC AND +                                      
+       SAVE-IDLBBET  = TMP2-IDLBBET                                             
+     WS-KVRADER-PRIO = WS-KVRADER-PRIO + TMP2-KVRADER-PRIO                      
+     WS-KVRADER-FAKT = WS-KVRADER-FAKT + TMP2-KVRADER-FAKT                      
+     WS-KVRADER-MOT  = WS-KVRADER-MOT  + TMP2-KVRADER-MOT                       
+    ELSE                                                                        
+     TMP3-IDDC-SEND     = WS-IDDC-SEND                                          
+     TMP3-TIFAKT        = WS-TIFAKT                                             
+     TMP3-KDTRPSTA      = WS-KDTRPSTA                                           
+     TMP3-KDTRPSTA-SORT = WS-KDTRPSTA-SORT                                      
+     TMP3-DABERANK-DISCH = WS-DABERANK-DISCH                                    
+     TMP3-FLMANETA      = WS-FLMANETA                                           
+     TMP3-ETA-POD-DEP   = WS-ETA-POD-DEP                                        
+     TMP3-KVDAGAR-ETA   = WS-KVDAGAR-ETA                                        
+     TMP3-IDDC-REC      = SAVE-IDDC-REC                                         
+     TMP3-IDLBBET       = SAVE-IDLBBET                                          
+     TMP3-KVRADER-PRIO  = WS-KVRADER-PRIO                                       
+     TMP3-KVRADER-FAKT  = WS-KVRADER-FAKT                                       
+     TMP3-KVRADER-MOT   = WS-KVRADER-MOT                                        
+     TMP3-DABERANK      = WS-DABERANK                                           
+     TMP3-DABERANK-PROP = WS-DABERANK-PROP                                      
+     IF TMP3-DABERANK-DISCH > 0 AND (TMP3-TIFAKT < TMP3-DABERANK-DISCH)         
+      DAG-TISEKEL-FOM = 20                                                      
+      DAG-TIAAMMDD-FOM = TMP3-TIFAKT                                            
+      DAG-TISEKEL-TOM  = 20                                                     
+      DAG-TIAAMMDD-TOM = TMP3-DABERANK-DISCH                                    
+      DAG-KDCALL       = +001                                                   
+      CALL WDAGKONV USING (DAG-KDCALL      +                                    
+                           DAG-DATUM-AREA  +                                    
+                           DAG-KDSVAR)                                          
+      IF DAG-KDSVAR = ' '                                                       
+        WS-CHECK-ETA-DAYS = DAG-KVKALDAG                                        
+      ELSE                                                                      
+        DISPLAY 'FEL FRÅN WDAGKONV I W61228'                                    
+        STOP EXECUTE                                                            
+      END-IF                                                                    
+      IF WS-CHECK-ETA-DAYS > 20 AND WS-CHECK-ETA-DAYS < 180                     
+        TMP3-ETA-POD-DEP   = TMP3-DABERANK-DISCH                                
+        TMP3-KVDAGAR-ETA   = WS-CHECK-ETA-DAYS                                  
+      END-IF                                                                    
+     END-IF                                                                     
+     PUT TMPFIL3                                                                
+     WS-IDDC-SEND    = TMP2-IDDC-SEND                                           
+     WS-TIFAKT       = TMP2-TIFAKT                                              
+     WS-KDTRPSTA     = TMP2-KDTRPSTA                                            
+     WS-KDTRPSTA-SORT  = TMP2-KDTRPSTA-SORT                                     
+     WS-DABERANK-DISCH = TMP2-DABERANK-DISCH                                    
+     WS-FLMANETA     = TMP2-FLMANETA                                            
+     WS-ETA-POD-DEP  = TMP2-ETA-POD-DEP                                         
+     WS-KVDAGAR-ETA  = TMP2-KVDAGAR-ETA                                         
+     WS-KVRADER-PRIO = TMP2-KVRADER-PRIO                                        
+     WS-KVRADER-FAKT = TMP2-KVRADER-FAKT                                        
+     WS-KVRADER-MOT  = TMP2-KVRADER-MOT                                         
+     WS-DABERANK       = TMP2-DABERANK                                          
+     WS-DABERANK-PROP  = TMP2-DABERANK-PROP                                     
+    END-IF                                                                      
+    SAVE-IDDC-REC = TMP2-IDDC-REC                                               
+    SAVE-IDLBBET  = TMP2-IDLBBET                                                
+  END-IF                                                                        
+Z-FINIT1. PROC                                                                  
+  IF W-FORSTA-SW = 'N'                                                          
+     TMP3-IDDC-SEND     = WS-IDDC-SEND                                          
+     TMP3-TIFAKT        = WS-TIFAKT                                             
+     TMP3-KDTRPSTA      = WS-KDTRPSTA                                           
+     TMP3-KDTRPSTA-SORT = WS-KDTRPSTA-SORT                                      
+     TMP3-DABERANK-DISCH = WS-DABERANK-DISCH                                    
+     TMP3-DABERANK       = WS-DABERANK                                          
+     TMP3-DABERANK-PROP  = WS-DABERANK-PROP                                     
+     TMP3-FLMANETA      = WS-FLMANETA                                           
+     TMP3-ETA-POD-DEP   = WS-ETA-POD-DEP                                        
+     TMP3-KVDAGAR-ETA   = WS-KVDAGAR-ETA                                        
+     TMP3-IDDC-REC      = SAVE-IDDC-REC                                         
+     TMP3-IDLBBET       = SAVE-IDLBBET                                          
+     TMP3-KVRADER-PRIO  = WS-KVRADER-PRIO                                       
+     TMP3-KVRADER-FAKT  = WS-KVRADER-FAKT                                       
+     TMP3-KVRADER-MOT   = WS-KVRADER-MOT                                        
+     IF TMP3-DABERANK-DISCH > 0 AND (TMP3-TIFAKT < TMP3-DABERANK-DISCH)         
+      DAG-TISEKEL-FOM = 20                                                      
+      DAG-TIAAMMDD-FOM = TMP3-TIFAKT                                            
+      DAG-TISEKEL-TOM  = 20                                                     
+      DAG-TIAAMMDD-TOM = TMP3-DABERANK-DISCH                                    
+      DAG-KDCALL       = +001                                                   
+      CALL WDAGKONV USING (DAG-KDCALL      +                                    
+                          DAG-DATUM-AREA  +                                     
+                          DAG-KDSVAR)                                           
+      IF DAG-KDSVAR = ' '                                                       
+       WS-CHECK-ETA-DAYS = DAG-KVKALDAG                                         
+      ELSE                                                                      
+         DISPLAY 'FEL FRÅN WDAGKONV I W61228'                                   
+         STOP EXECUTE                                                           
+      END-IF                                                                    
+      IF WS-CHECK-ETA-DAYS > 20 AND WS-CHECK-ETA-DAYS < 180                     
+       TMP3-ETA-POD-DEP   = TMP3-DABERANK-DISCH                                 
+       TMP3-KVDAGAR-ETA   = WS-CHECK-ETA-DAYS                                   
+      END-IF                                                                    
+     END-IF                                                                     
+     PUT TMPFIL3                                                                
+  END-IF                                                                        
+END-PROC.                                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 4. SORT TMPFIL3 TO TMPFIL4                                               
+*                                                                               
+SORT TMPFIL3 TO +                                                               
+     TMPFIL4 USING (TMP3-IDDC-REC, TMP3-IDDC-SEND, TMP3-ETA-POD-DEP D)          
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 5. CREATE OUTPUT FILE WITH ALL FLOWS (IDDC-REC + IDDC-SEND)              
+*                                                                               
+JOB INPUT TMPFIL4 FINISH Z-FINIT2                                               
+                                                                                
+  TMP5-AREA      = TMP4-AREA                                                    
+  PUT TMPFIL5                                                                   
+  IF W-FORSTA    = 'J'                                                          
+    SAVE-IDDC-REC   = TMP4-IDDC-REC                                             
+    SAVE-IDDC-SEND    = TMP4-IDDC-SEND                                          
+    W-FORSTA        = 'N'                                                       
+  ELSE                                                                          
+    IF TMP4-IDDC-REC = SAVE-IDDC-REC AND +                                      
+       TMP4-IDDC-SEND = SAVE-IDDC-SEND                                          
+       CONTINUE                                                                 
+    ELSE                                                                        
+       OUT1-IDDC-REC   = SAVE-IDDC-REC                                          
+       OUT1-IDDC-SEND  = SAVE-IDDC-SEND                                         
+       PUT W61228D2                                                             
+    END-IF                                                                      
+    SAVE-IDDC-REC   = TMP4-IDDC-REC                                             
+    SAVE-IDDC-SEND    = TMP4-IDDC-SEND                                          
+  END-IF                                                                        
+Z-FINIT2. PROC                                                                  
+ IF W-FORSTA    = 'N'                                                           
+    OUT1-IDDC-REC   = SAVE-IDDC-REC                                             
+    OUT1-IDDC-SEND  = SAVE-IDDC-SEND                                            
+    PUT W61228D2                                                                
+ END-IF                                                                         
+END-PROC.                                                                       
+NEWPAGE                                                                         
+*                                                                               
+* STEG 6. SORT TMPFIL5 TO TMPFIL6                                               
+*                                                                               
+SORT TMPFIL5 TO +                                                               
+     TMPFIL6 USING (TMP5-IDDC-REC, TMP5-KDTRPSTA-SORT, TMP5-ETA-POD-DEP)        
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 7. CREATE OUTPUT FILE WITH DATA TO CREATE PROPOSED ETA IN                
+*         NEXT PROGRAM.                                                         
+*                                                                               
+JOB INPUT TMPFIL6                                                               
+                                                                                
+    OUT2-IDDC-REC   = TMP6-IDDC-REC                                             
+    OUT2-IDLBBET    = TMP6-IDLBBET                                              
+    OUT2-IDDC-SEND    = TMP6-IDDC-SEND                                          
+    OUT2-TIFAKT       = TMP6-TIFAKT                                             
+    OUT2-KDTRPSTA     = TMP6-KDTRPSTA                                           
+    OUT2-KDTRPSTA-SORT  = TMP6-KDTRPSTA-SORT                                    
+    OUT2-KVRADER-PRIO = TMP6-KVRADER-PRIO                                       
+    OUT2-KVRADER-FAKT = TMP6-KVRADER-FAKT                                       
+    OUT2-KVRADER-MOT  = TMP6-KVRADER-MOT                                        
+    OUT2-DABERANK-DISCH = TMP6-DABERANK-DISCH                                   
+    OUT2-DABERANK       = TMP6-DABERANK                                         
+    OUT2-DABERANK-PROP  = TMP6-DABERANK-PROP                                    
+    OUT2-FLMANETA     = TMP6-FLMANETA                                           
+    OUT2-ETA-POD-DEP  = TMP6-ETA-POD-DEP                                        
+    OUT2-KVDAGAR-ETA  = TMP6-KVDAGAR-ETA                                        
+                                                                                
+                                                                                
+  PUT W61228D3                                                                  

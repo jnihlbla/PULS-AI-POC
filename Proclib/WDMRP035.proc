@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LADDA DATA MANAGER                                                         
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN WDMRV5                                      
+//*                                                                             
+//*  ÅTERSTART:    WDMR35    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMRP035 PROC INDIN=&WDMR..WDMRV5,                                            
+//             INDUT=&WDMR..WDMRV5,                                             
+//             DMR=W.PROD,                                                      
+//             MPAID=F1DAV1.MPAID,                                              
+//             STPLIB=F1DAV1.DMR.LOAD                                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDMR35  EXEC PGM=MPR00,REGION=4096K                                           
+//STEPLIB   DD DSN=&STPLIB.,DISP=SHR                                            
+//MPOUT     DD DSN=&INDUT..WDMR35(+1),                         -LIM(04)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=NOBACKUP,                                               
+//             SPACE=(130,(500,500),RLSE),AVGREC=K                              
+//SYSUDUMP  DD SYSOUT=*                                                         
+//PROD   DD DSN=&DMR..INDEX,DISP=SHR                                            
+//PRODD  DD DSN=&DMR..DATA,DISP=SHR                                             
+//PRODS  DD DSN=&DMR..DMSOURCE,DISP=SHR                                         
+//PRODE  DD DSN=&DMR..RECOVER,DISP=SHR                                          
+//PRODJ  DD DSN=&DMR..LOG,DISP=SHR                                              
+//MPAID  DD DSN=&MPAID.,DISP=SHR                                                
+//MPIN   DD DDNAME=SYSIN                                                        
+//SYSIN  DD DSN=&INDRTE..CONSTANT(WDMRLON),DISP=SHR                             
+//       DD DSN=&INDIN..WDMR34(0),DISP=OLD                                      
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

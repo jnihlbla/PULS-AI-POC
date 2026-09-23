@@ -1,0 +1,52 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR DC51.W01184(CANADA), ARTFIL, W11604                                
+//*  OCH SKAPAR UTFIL W11612                                                    
+//*  SOM LIGGER TILL GRUND FÖR ÄNDRINGSKONTROLLEN I PGM: W11622                 
+//*                                                                             
+//*  FREKVENS:     DAG                                                          
+//*                                                                             
+//*  ÅTERSTART:                                                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P012 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W116,                                                    
+//             INDIN=&W116..W116D1,                                             
+//             INDREG=&W011..NDC,                                               
+//             INDUT=&W116..W116D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* EXTRACT ONLY DC51 RECORDS FROM NDC FILE                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDREG..W01184(+0),DISP=SHR                                 
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PD05),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11612   EXEC PGM=V16459,PARM='W11612/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(150000,10000))                                      
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W11612D1 DD  DSN=&INDIN1..W11602(+0),DISP=SHR                                 
+//************ BUY-BACK KOD FRÅN W116V1                                         
+//*                                                                             
+//W11612D2 DD  DSN=&INDIN..W11609(+0),DISP=SHR                                  
+//************ ARTIKELINFO FRÅN WDK6 OCH WDK7                                   
+//*                                                                             
+//W11612D3 DD  DSN=&&W01184,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKELINFO FRÅN  DC51 (CANADA)                                  
+//*                                                                             
+//W11612D4 DD  DSN=&INDUT..W11612(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ ARTIKELINFO TILL VIPS (BUYBACK-KOD MM)                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

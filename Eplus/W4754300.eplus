@@ -1,0 +1,261 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4754300                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  CAMELIA OLGRENER                                      *        
+*                                                                      *        
+*  DATUM      :  931015                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET SKAPAR MÅNATLIG TULLISTA FÖR HOLLÄNDSKA    *        
+*                IMP:ER.                                               *        
+*                                                                      *        
+*                                                                      *        
+*                PROGRAMMET SKAPAR:                                    *        
+*                  LISTA R47543-001                                    *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W47543D1                                                                   
+*                                                                               
+%W475894       'IN-'                                                            
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W47543D2 PRINTER                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+ W01-IDSTATNR      W   9  N     MASK 'ZZZZZZZZ9'                                
+ W01-KDARTURS      W   2  A                                                     
+ W01-KVLEVART      W   7  N     MASK 'ZZZZZZ9'                                  
+ W01-VKLEV         W   7  N 1   MASK 'ZZZZZ9,9'                                 
+ W01-SUEEC         W  11  N 2   MASK 'ZZZZZZZZ9,99'                             
+ W01-SUEFTA        W  11  N 2   MASK 'ZZZZZZZZ9,99'                             
+ W01-SUOEVR        W  11  N 2   MASK 'ZZZZZZZZ9,99'                             
+ W01-SUFAKT        W  11  N 2   MASK 'ZZZZZZZZ9,99'                             
+ W01-SUFAKT-P&H    W  11  N 2   MASK 'ZZZZZZZZ9,99'                             
+*                                                                               
+ SPAR-IDSTATNR     W   9  N                                                     
+ SPAR-KDARTURS     W   2  A                                                     
+ SPAR-KVLEVART     W   7  N                                                     
+ SPAR-VKLEV        W   7  N 1                                                   
+ SPAR-SUEEC        W  11  N 2                                                   
+ SPAR-SUEFTA       W  11  N 2                                                   
+ SPAR-SUOEVR       W  11  N 2                                                   
+ SPAR-SUFAKT       W  11  N 2                                                   
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT  W47543D1   START A-INIT                             +              
+                        FINISH Z-FINIT                           +              
+                                                  NAME   STEG01                 
+    IF IN-IDSTATNR  NE SPAR-IDSTATNR AND                         +              
+       SPAR-KVLEVART > 0             AND                         +              
+       SPAR-SUFAKT   > 0                                                        
+                                                                                
+      W01-IDSTATNR   = SPAR-IDSTATNR                                            
+      W01-KDARTURS   = SPAR-KDARTURS                                            
+      W01-KVLEVART   = SPAR-KVLEVART                                            
+      W01-VKLEV      = SPAR-VKLEV                                               
+      W01-SUEEC      = SPAR-SUEEC                                               
+      W01-SUEFTA     = SPAR-SUEFTA                                              
+      W01-SUOEVR     = SPAR-SUOEVR                                              
+      W01-SUFAKT     = SPAR-SUFAKT                                              
+      W01-SUFAKT-P&H ROUNDED = SPAR-SUFAKT * 1.046                              
+                                                                                
+      PRINT RAPPORT01                                                           
+      SPAR-IDSTATNR  = 0                                                        
+      SPAR-KDARTURS  = '  '                                                     
+      SPAR-KVLEVART  = 0                                                        
+      SPAR-VKLEV     = 0                                                        
+      SPAR-SUEEC     = 0                                                        
+      SPAR-SUEFTA    = 0                                                        
+      SPAR-SUOEVR    = 0                                                        
+      SPAR-SUFAKT    = 0                                                        
+    END-IF                                                                      
+                                                                                
+    IF IN-IDSTATNR = SPAR-IDSTATNR                                              
+      IF IN-KDARTURS NE SPAR-KDARTURS AND                        +              
+         SPAR-KVLEVART > 0            AND                        +              
+         SPAR-SUFAKT   > 0                                                      
+                                                                                
+        W01-IDSTATNR = SPAR-IDSTATNR                                            
+        W01-KDARTURS   = SPAR-KDARTURS                                          
+        W01-KVLEVART   = SPAR-KVLEVART                                          
+        W01-VKLEV      = SPAR-VKLEV                                             
+        W01-SUEEC      = SPAR-SUEEC                                             
+        W01-SUEFTA     = SPAR-SUEFTA                                            
+        W01-SUOEVR     = SPAR-SUOEVR                                            
+        W01-SUFAKT     = SPAR-SUFAKT                                            
+        W01-SUFAKT-P&H ROUNDED = SPAR-SUFAKT * 1.046                            
+                                                                                
+        PRINT RAPPORT01                                                         
+        SPAR-IDSTATNR  = 0                                                      
+        SPAR-KDARTURS  = '  '                                                   
+        SPAR-KVLEVART  = 0                                                      
+        SPAR-VKLEV     = 0                                                      
+        SPAR-SUEEC     = 0                                                      
+        SPAR-SUEFTA    = 0                                                      
+        SPAR-SUOEVR    = 0                                                      
+        SPAR-SUFAKT    = 0                                                      
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+    IF IN-IDSTATNR = SPAR-IDSTATNR OR                            +              
+       (SPAR-IDSTATNR = 0 AND                                    +              
+        SPAR-KVLEVART = 0 AND                                    +              
+        SPAR-VKLEV    = 0 AND                                    +              
+        SPAR-SUEEC    = 0 AND                                    +              
+        SPAR-SUEFTA   = 0 AND                                    +              
+        SPAR-SUOEVR   = 0 AND                                    +              
+        SPAR-SUFAKT   = 0)                                                      
+                                                                                
+      IF IN-KDARTURS = SPAR-KDARTURS OR                          +              
+         (SPAR-IDSTATNR = 0 AND                                  +              
+          SPAR-KVLEVART = 0 AND                                  +              
+          SPAR-VKLEV    = 0 AND                                  +              
+          SPAR-SUEEC    = 0 AND                                  +              
+          SPAR-SUEFTA   = 0 AND                                  +              
+          SPAR-SUOEVR   = 0 AND                                  +              
+          SPAR-SUFAKT   = 0)                                                    
+                                                                                
+        SPAR-KVLEVART = SPAR-KVLEVART + IN-KVLEVART                             
+        SPAR-VKLEV    = SPAR-VKLEV    + IN-VKLEV                                
+        SPAR-SUEEC    = SPAR-SUEEC    + IN-SUEEC                                
+        SPAR-SUEFTA   = SPAR-SUEFTA   + IN-SUEFTA                               
+        SPAR-SUOEVR   = SPAR-SUOEVR   + IN-SUOEVR                               
+        SPAR-SUFAKT   = SPAR-SUFAKT   + IN-SUFAKT                               
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+    SPAR-IDSTATNR  = IN-IDSTATNR                                                
+    SPAR-KDARTURS  = IN-KDARTURS                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  A-INIT. PROC                                                                  
+                                                                                
+    SPAR-IDSTATNR   = 0                                                         
+    SPAR-KDARTURS   = '  '                                                      
+    SPAR-KVLEVART   = 0                                                         
+    SPAR-VKLEV      = 0                                                         
+    SPAR-SUEEC      = 0                                                         
+    SPAR-SUEFTA     = 0                                                         
+    SPAR-SUOEVR     = 0                                                         
+    SPAR-SUFAKT     = 0                                                         
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  Z-FINIT. PROC                                                                 
+                                                                                
+    W01-IDSTATNR   = SPAR-IDSTATNR                                              
+    W01-KDARTURS   = SPAR-KDARTURS                                              
+    W01-KVLEVART   = SPAR-KVLEVART                                              
+    W01-VKLEV      = SPAR-VKLEV                                                 
+    W01-SUEEC      = SPAR-SUEEC                                                 
+    W01-SUEFTA     = SPAR-SUEFTA                                                
+    W01-SUOEVR     = SPAR-SUOEVR                                                
+    W01-SUFAKT     = SPAR-SUFAKT                                                
+    W01-SUFAKT-P&H ROUNDED = SPAR-SUFAKT * 1.046                                
+                                                                                
+    PRINT RAPPORT01                                                             
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  REPORT RAPPORT01 PRINTER W47543D2                              +              
+                   LINESIZE     120                              +              
+                   PAGESIZE      41                              +              
+                   NODATE                                        +              
+                   NOADJUST                                      +              
+                   NOSPREAD                                      +              
+                   SUMSPACE       0                              +              
+                   SPACE          3                                             
+*                                                                               
+  SEQUENCE W01-IDSTATNR                                          +              
+           W01-KDARTURS                                                         
+*                                                                               
+  CONTROL W01-IDSTATNR                                                          
+*                                                                               
+  SUM W01-VKLEV                                                  +              
+      W01-SUFAKT                                                 +              
+      W01-SUFAKT-P&H                                                            
+*                                                                               
+  TITLE 01                                                       +              
+    COL 02 'VOLVO CAR PARTS                 W47543-001'                         
+*                                                                               
+  TITLE 04                                                       +              
+    COL 12 'MONTHLY REPORT PER CUSTOMS TARIFF NUMBER - HOLLAND'  +              
+    COL 68 SYSDATE                                                              
+*                                                                               
+  HEADING  W01-IDSTATNR     'CUST.TARIFF'                                       
+  HEADING  W01-KDARTURS     'ORG.'                                              
+  HEADING  W01-KVLEVART     'QUANTITY'                                          
+  HEADING  W01-VKLEV        'NET WEIGHT'                                        
+  HEADING  W01-SUEEC        'EEC TOTAL'                                         
+  HEADING  W01-SUEFTA       'EFTA TOTAL'                                        
+  HEADING  W01-SUOEVR       'NON ORIGIN'                                        
+  HEADING  W01-SUFAKT       'TOT.AMOUNT'                                        
+  HEADING  W01-SUFAKT-P&H   'AMOUNT INCL.P&H'                                   
+*                                                                               
+  LINE 01                                                        +              
+           W01-IDSTATNR                                          +              
+           W01-KDARTURS                                          +              
+           W01-KVLEVART                                          +              
+           W01-VKLEV                                             +              
+           W01-SUEEC                                             +              
+           W01-SUEFTA                                            +              
+           W01-SUOEVR                                            +              
+           W01-SUFAKT                                            +              
+           W01-SUFAKT-P&H                                                       
+*                                                                               
+  TERMINATION. PROC                                                             
+                                                                                
+    DISPLAY NEWPAGE '                                          '                
+    DISPLAY '                                                  '                
+    DISPLAY 'I, THE UNDERSIGNED; EXPORTER OF THE GOODS COVERED '                
+    DISPLAY 'BY THIS DOCUMENT DECLARE THAT, EXCEPT WHERE OTHER-'                
+    DISPLAY 'WISE INDICATE, THE GOODS MEET THE CONDITIONS      '                
+    DISPLAY 'REQUIRED TO OBTAIN ORIGINATING STATUS IN PREFEREN-'                
+    DISPLAY 'TIAL TRADE WITH NL AND THAT THE COUNTRY OF ORIGIN '                
+    DISPLAY 'OF THE GOODS IS ACCORDING TO INVOICE.             '                
+    DISPLAY 'BERTIL AXBOM, VOLVO TRANSPORT CORP: IS RESPONSIBLE'                
+    DISPLAY 'FOR THE CORRECTNESS OF ABOVE DECLARATION.         '                
+    DISPLAY 'APPROVED EXPORTER AUTHORIZATION NO GBG 1.         '                
+    DISPLAY '                                                  '                
+    DISPLAY 'INVOER MET MAANDEKIJSKE AANGIFTE                  '                
+    DISPLAY '138 V 92 OF 28-6-93                               '                
+    DISPLAY 'INSP 1 + A IN VENLO                               '                
+    DISPLAY 'TRUCK NO ............ TL NO .............         '                
+    DISPLAY 'VAT NO NL  800213609B07                           '                
+    DISPLAY '                                                  '                
+    DISPLAY 'GÖTEBORG   ........                               '                
+    DISPLAY '                                                  '                
+    DISPLAY '                                                  '                
+    DISPLAY 'I, THE UNDERSIGNED, CERTIFY THAT THE GOODS DES-   '                
+    DISPLAY 'CRIBED ABOVE ORIGINATE IN THE COUNTRY SHOWN IN    '                
+    DISPLAY 'THE BOX USA                                       '                
+  END-PROC                                                                      
+*                                                                               

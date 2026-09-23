@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  EXTRACT DATA FOR REFILL FOLLOW-UP                                          
+//*                                                                             
+//*  FREQUENCE:    PERIOD    RTN W612R2                                         
+//*                                                                             
+//*  RESTART:      W6128F      NORMAL                                           
+//*                READS       WDB6                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P08F PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W612..W612R2,                                             
+//             INDUT=&W612..W612R2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD8F),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61284(+0),DISP=SHR                                  
+//************ INLEVERANSHISTORIK                                               
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61284,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED ON IDDC                                                   
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W6128F   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W6128F,W6128F,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                    -- DATKORT           
+//V16247D3 DD  SYSOUT=*                                    -- POSTSUM           
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//*                                                                             
+//W6128FD1 DD  DSN=&&W61284,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD PÅ IDDC                                                 
+//*                                                                             
+//W6128FD2 DD  DSN=&INDUT..W6128F(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ FOLLOW-UP SUMMARY PER DC                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

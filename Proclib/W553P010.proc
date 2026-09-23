@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  KOLLA INFIL, OM FÖR STOR SKAPA TOMFIL, RENSA POSTER              *         
+//*                                                                   *         
+//*  PERIODICITET: DAG    RTN W553D2                                  *         
+//*                                                                   *         
+//*  ÅTERSTART:    NORMAL                                             *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W553P010 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W092..W553D2,                                             
+//             INDUT=&W553..W553D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55310   EXEC PGM=V16459,PARM='W55310/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W55310D1 DD  DSN=&INDIN..W09286,DISP=SHR                                      
+//************ PRISPOSTER FRÅN INKÖP                                            
+//*                                                                             
+//W55310D2 DD  DSN=&INDUT..W55310(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UTFIL MED SORTERADE SAP-TRANSAR                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W55310D3 DD  DSN=&INDUT..W55310F(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ UTFIL MED FELMEDDELANDE                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

@@ -1,0 +1,98 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RO-AVSTÄMNING C-LAGER                                                      
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W440V3                                          
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                DFUP   NORMAL                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P056 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W440,                                                    
+//             INDIN=&W440..W440V3,                                             
+//             INDIN1=&W219..W440V3,                                            
+//             DEST1=&CPRINT,                                                   
+//             INDUT=&W440..W440V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W440PD56),DISP=SHR                         
+//SORTIN   DD  DSN=&INDREG..W44061(+0),DISP=SHR                                 
+//************ FIL FRÅN W440P260 MED WDA5-INFO                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W44061,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD TEMP-FIL MED WDA5-INFO                                  
+//             SPACE=(27885,(2158,239),RLSE)                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W44056   EXEC PGM=V16459,PARM='W44056/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(10000,1000))                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//W44056D1 DD  DSN=&INDIN..W44050(+0),DISP=SHR                                  
+//************ FIL FRÅN W440P050 MED SORTERAD WDJ2-INFO                         
+//WDJ2     DD  DSN=&&WDJ2,DISP=(NEW,PASS,DELETE),                               
+//************ MELLANLAGRINGSFIL                                                
+//             SPACE=(11,(63,21)),AVGREC=K                                      
+//J2Q4Q1   DD  DSN=&&J2Q4Q1,DISP=(NEW,PASS,DELETE),                             
+//************ MELLANLAGRINGSFIL                                                
+//             SPACE=(11,(63,21)),AVGREC=K                                      
+//J2Q4Q1M2 DD  DSN=&&J2Q4Q1M2,DISP=(NEW,PASS,DELETE),                           
+//************ MELLANLAGRINGSFIL                                                
+//             SPACE=(19,(63,21)),AVGREC=K                                      
+//*                                                                             
+//W44056D2 DD  DSN=&INDIN..W44052(+0),DISP=SHR                                  
+//************ FIL FRÅN W440P052 MED SORTERAD WDK9-INFO                         
+//RADSALDO DD  DSN=&&RADSALDO,DISP=(NEW,PASS,DELETE),                           
+//***********  MELLANLAGRINGSFIL                                                
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W44056D3 DD  DSN=&INDIN1..W21901(+0),DISP=SHR                                 
+//************ FIL FRÅN W221P101 MED SORTERAD IDDC+IDARTNR                      
+//WDM2     DD  DSN=&&WDM2,DISP=(NEW,PASS,DELETE),                               
+//************ MELLANLAGRINGSFIL                                                
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W44056D4 DD  DSN=&INDIN..W44054(+0),DISP=SHR                                  
+//************ FIL FRÅN W440P054 MED SORTERAD WDK6-INFO                         
+//ARTSALDO DD  DSN=&&ARTSALDO,DISP=(NEW,PASS,DELETE),                           
+//************ MELLANLAGRINGSFIL                                                
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W44056D5 DD  DSN=&&W44061,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMP-FIL MED SORTERAD WDA5-INFO                                  
+//WDA5     DD  DSN=&&WDA5,DISP=(NEW,PASS,DELETE),                               
+//************ MELLANLAGRINGSFIL                                                
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W44056D6 DD  DSN=&INDIN..W44051(+0),DISP=SHR                                  
+//************ FIL FRÅN W440P051 MED SORTERAD WDQ4-INFO                         
+//WDQ4     DD  DSN=&&WDQ4,DISP=(NEW,PASS,DELETE),                               
+//************ MELLANLAGRINGSFIL                                                
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W44056D7 DD  DSN=&INDIN..W44070(+0),DISP=SHR                                  
+//************ FIL FRÅN W440P070 MED SORTERAD WDQ1-INFO                         
+//WDQ1     DD  DSN=&&WDQ1,DISP=(NEW,PASS,DELETE),                               
+//************ MELLANLAGRINGSFIL                                                
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W44056D8 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W44056  LISTA MED DIFFAR                                         
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W44056D9 DD  DSN=&INDUT..W44056(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//             MGMTCLAS=&BACKUPC,SPACE=(6232,(200,50),RLSE)                     
+//************ FIL FÖR UPPDATERING AV SALDON                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

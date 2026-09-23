@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER FIL INNEHÅLLANDE ARTIKELINFO-TOTALFIL                                
+//*  DENNA FIL SKAPAS "LAGOM STOR" UTFIL SOM SKALL SKICKAS                      
+//*  VIA DISTRIBUTION PRINT.  POSTER SKRIVS SOM NY GENERATION                   
+//*  EV. RESTERANDE POSTER SKRIVS SOM NY GENERATION AV INFILEN.                 
+//*    OM RESTERANDE POSTER FINNS LÄMNAS RETURKOD 8 FRÅN PGM.                   
+//*  RETURKODEN TESTAS SEDAN I JCL OCH OM DEN ÄR 8 BESTÄLLS                     
+//*  JOBBET IGEN OCH DEN NYA GENERATIONEN TAS IN FÖR ATT KUNNA                  
+//*  SKICKA RESTERANDE POSTER OSV.                                              
+//*                                                                             
+//*  FREKVENS:     ORDER    RTN W116S2                                          
+//*                                                                             
+//*  ÅTERSTART:    W11628    NORMAL                                             
+//*                          NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P028 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W116..W116S2,                                             
+//             INDUT=&W116..W116S2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11628   EXEC PGM=W11628                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W11628D1 DD  DSN=&INDIN..W11683(+0),DISP=SHR                                  
+//************ TOTALFIL PARTSINFO                                               
+//************ POSTER ATT SÄNDA TILL BESTÄLLARE VIA VCOM                        
+//*                                                                             
+//W11628D2 DD  DSN=&INDUT..W11683(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ FIL MED PARTSINFO                                                
+//************ EV. POSTER KVAR ATT SÄNDA EFTER DENNA SÄNDNING.                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=DEL2                                                    
+//*                                                                             
+//W11628D3 DD  DSN=&INDUT..W11628(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FIL MED PARTSINFO                                                
+//************ 'DEL-FIL' ATT SÄNDA VIA DISTRIBUTION PRINT                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

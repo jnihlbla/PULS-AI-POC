@@ -1,0 +1,249 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4795R00                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKRIVER LISTOR, JAPANSKA DEALERS OCH AUSTRALISKA    *          
+*                DEALERS MED FÖRSENT LAGGDA ORDRAR     *                        
+*                                                                      *        
+*  FÖRFATTARE :  STEFAN KIHLBERG                                       *        
+*                                                                      *        
+*             :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+FILE W4795SD1                                                                   
+%W4795S 'JP-'                                                                   
+                                                                                
+NEWPAGE                                                                         
+FILE W4795SD2                                                                   
+%W4795S 'AU-'                                                                   
+                                                                                
+NEWPAGE                                                                         
+FILE W4795SD3  PRINTER FB (121 0)                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W4795SD4  PRINTER FB (121 0)                                               
+                                                                                
+                                                                                
+*--------------------------*                                                    
+* DATUMKORT                *                                                    
+*--------------------------*                                                    
+                                                                                
+                                                                                
+%WDATKORT 'DATKORT-'                                                            
+                                                                                
+*--------------------------*                                                    
+* DATAREA                  *                                                    
+*--------------------------*                                                    
+                                                                                
+NEWPAGE                                                                         
+%WDATAREA                                                                       
+                                                                                
+                                                                                
+  PROGRAM-NAMN          W  6 A   VALUE 'W4795R'                                 
+  DATUMKORT-ID          W  6 A   VALUE 'WDATUM'                                 
+  WDATKONV              W  8 A   VALUE 'WDATKONV'                               
+                                                                                
+  DAGENS-DATUM        W                     6   N                               
+  DAGENS-DATUM-AA     DAGENS-DATUM          2   N                               
+  DAGENS-DATUM-MM     DAGENS-DATUM       +2 2   N                               
+  DAGENS-DATUM-DD     DAGENS-DATUM       +4 2   N                               
+                                                                                
+  DD-TIAAVVD                          W   5  N                                  
+  DD-TIAA             DD-TIAAVVD          2  N                                  
+  DD-TIVV             DD-TIAAVVD      +2  2  N                                  
+  DD-TID              DD-TIAAVVD      +2  1  N                                  
+                                                                                
+* WS-DC-SVAR                W   1  A   VALUE 'N'                                
+                                                                                
+                                                                                
+  PROS-LATE-JP              W   4  N  1 MASK (BWZ)                              
+                                                                                
+  PROS-LATE-AU              W   4  N  1 MASK (BWZ)                              
+                                                                                
+  UT-JP-IDKUNDNR            W   7  N       MASK 'ZZZZZZZ'                       
+  UT-JP-LATE-DEALER         W   7  N       MASK 'ZZZZZZ9'                       
+  UT-JP-CL1-DEALER          W   7  N       MASK 'ZZZZZZ9'                       
+                                                                                
+  UT-AU-IDKUNDNR            W   7  N       MASK 'ZZZZZZZ'                       
+  UT-AU-LATE-DEALER         W   7  N       MASK 'ZZZZZZ9'                       
+  UT-AU-CL1-DEALER          W   7  N       MASK 'ZZZZZZ9'                       
+  UT-AU-REL-DEALER          W   3  N  2    MASK 'Z9.9'                          
+                                                                                
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SKRIVER LISTA, LATE DEALERS DC 61                                     
+*                                                                               
+                                                                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+JOB INPUT W4795SD1 +                                                            
+START(A-INIT)                                                                   
+                                                                                
+PROS-LATE-JP = 0                                                                
+                                                                                
+   PROS-LATE-JP =                   +                                           
+   JP-KVRADER-LATE * 100 / JP-KVRADER-CL1                                       
+                                                                                
+   UT-JP-LATE-DEALER     = JP-KVRADER-LATE                                      
+   UT-JP-CL1-DEALER      = JP-KVRADER-CL1                                       
+                                                                                
+   IF JP-IDPTYP EQ '001'                                                        
+      UT-JP-IDKUNDNR        = JP-IDKUNDNR                                       
+   END-IF                                                                       
+   IF JP-IDPTYP EQ '002'                                                        
+      UT-JP-IDKUNDNR        = 0                                                 
+   END-IF                                                                       
+                                                                                
+   PRINT LISTA-JAPAN                                                            
+                                                                                
+A-INIT. PROC                                                                    
+                                                                                
+                                                                                
+*  HÄMTA DATUM FRÅN DATKORT                                                     
+                                                                                
+   CALL DATKORT USING (PROGRAM-NAMN +                                           
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+                                                                                
+   MOVE DATKORT-D-AAR    TO DAGENS-DATUM-AA                                     
+   MOVE DATKORT-D-MAANAD TO DAGENS-DATUM-MM                                     
+   MOVE DATKORT-D-DAG    TO DAGENS-DATUM-DD                                     
+                                                                                
+   DISPLAY 'DAGENS DATUM = ' DAGENS-DATUM                                       
+                                                                                
+*  HÄMTA DAGENS VECKA                                                           
+*                                                                               
+                                                                                
+   DAT-I-TIDATUM = DAGENS-DATUM                                                 
+   DAT-KDDATFORM = 'AAMMDD'                                                     
+   CALL WDATKONV USING (DAT-KDDATFORM  +                                        
+                        DAT-I-TIDATUM  +                                        
+                        DAT-O-TIDATUM  +                                        
+                        DAT-KDSVAR)                                             
+   IF DAT-KDSVAR = ' '                                                          
+      DD-TIAAVVD        = DAT-TIAAVVD                                           
+   ELSE                                                                         
+      DISPLAY 'FEL FRÅN DATKONV 1 I A-INIT'                                     
+      STOP EXECUTE                                                              
+   END-IF                                                                       
+                                                                                
+   DISPLAY 'DD-TIVV = ' DD-TIVV                                                 
+END-PROC                                                                        
+                                                                                
+                                                                                
+                                                                                
+REPORT LISTA-JAPAN                +                                             
+       PRINTER W4795SD3           +                                             
+       LINESIZE 120               +                                             
+       NOADJUST                   +                                             
+       NOHEADING                  +                                             
+       TITLESKIP 1                +                                             
+       SKIP 1                     +                                             
+       SPACE 1                                                                  
+                                                                                
+                                                                                
+                                                                                
+ TITLE 1   ' '                                                                  
+                                                                                
+ TITLE 2   COL 010  'VOLVO CAR PARTS'                 +                         
+           COL 035  'W4795S-001'                      +                         
+           COL 050  'ORDERS FC 15, 16 AND 19, JAPAN'                            
+                                                                                
+ TITLE 3   ' '                                                                  
+                                                                                
+ TITLE 4   COL 010  'WEEK'                            +                         
+           COL 016  DAT-TIAAVV-GRP                                              
+                                                                                
+ TITLE 5 ' '                                                                    
+                                                                                
+ TITLE 6   COL 024 'NO OF'                  +                                   
+                                                                                
+ TITLE 7   COL 024 'LATE'                   +                                   
+           COL 037 'NO OF'                  +                                   
+           COL 052 '% LATE'                                                     
+                                                                                
+ TITLE 8   COL 010 'DEALER'                 +                                   
+           COL 024 'LINES'                  +                                   
+           COL 037 'CLASS 1'                +                                   
+           COL 052 'CLASS 1'                                                    
+                                                                                
+ TITLE 9 ' '                                                                    
+                                                                                
+  LINE      COL 009  UT-JP-IDKUNDNR     +                                       
+            COL 022  UT-JP-LATE-DEALER  +                                       
+            COL 037  UT-JP-CL1-DEALER   +                                       
+            COL 054  PROS-LATE-JP                                               
+                                                                                
+                                                                                
+JOB INPUT W4795SD2                                                              
+                                                                                
+PROS-LATE-AU = 0                                                                
+                                                                                
+   PROS-LATE-AU =                   +                                           
+   AU-KVRADER-LATE * 100 / AU-KVRADER-CL1                                       
+                                                                                
+   UT-AU-LATE-DEALER     = AU-KVRADER-LATE                                      
+   UT-AU-CL1-DEALER      = AU-KVRADER-CL1                                       
+                                                                                
+   IF AU-IDPTYP EQ '001'                                                        
+      UT-AU-IDKUNDNR        = AU-IDKUNDNR                                       
+   END-IF                                                                       
+   IF AU-IDPTYP EQ '002'                                                        
+      UT-AU-IDKUNDNR        = 0                                                 
+   END-IF                                                                       
+                                                                                
+   PRINT LISTA-AUSTRALIEN                                                       
+                                                                                
+                                                                                
+                                                                                
+REPORT LISTA-AUSTRALIEN           +                                             
+       PRINTER W4795SD4           +                                             
+       LINESIZE 120               +                                             
+       NOADJUST                   +                                             
+       NOHEADING                  +                                             
+       TITLESKIP 1                +                                             
+       SKIP 1                     +                                             
+       SPACE 1                                                                  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ TITLE 1   ' '                                                                  
+                                                                                
+ TITLE 2   COL 010  'VOLVO CAR PARTS'                 +                         
+           COL 035  'W4795S-002'                      +                         
+           COL 050  'ORDERS FC 15 AND 25, AUSTRALIEN'                           
+                                                                                
+ TITLE 3   ' '                                                                  
+                                                                                
+ TITLE 4   COL 010  'WEEK'                            +                         
+           COL 016  DAT-TIAAVV-GRP                                              
+                                                                                
+ TITLE 5 ' '                                                                    
+                                                                                
+ TITLE 6   COL 024 'NO OF'                  +                                   
+                                                                                
+ TITLE 7   COL 024 'LATE'                   +                                   
+           COL 037 'NO OF'                  +                                   
+           COL 052 '% LATE'                                                     
+                                                                                
+ TITLE 8   COL 010 'DEALER'                 +                                   
+           COL 024 'LINES'                  +                                   
+           COL 037 'CLASS 1'                +                                   
+           COL 052 'CLASS 1'                                                    
+                                                                                
+ TITLE 9 ' '                                                                    
+                                                                                
+  LINE      COL 009  UT-AU-IDKUNDNR       +                                     
+            COL 022  UT-AU-LATE-DEALER    +                                     
+            COL 037  UT-AU-CL1-DEALER     +                                     
+            COL 054  PROS-LATE-AU                                               
+                                                                                

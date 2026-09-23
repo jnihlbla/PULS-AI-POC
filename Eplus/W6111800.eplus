@@ -1,0 +1,135 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6111800                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET SKRIVER UT EN AVVIKELSELISTA               *        
+*                                                                      *        
+*  FÖRFATTARE :  ANNELIE ENGLUND                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING   PROJEKT/ÄT      *        
+*     941129      CONNY EGHOLT .....       57053.      SDC ST....      *        
+*     ......      ..................       ......      ..........      *        
+*     ......      ..................       ......      ..........      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61118D1                                                                   
+*                                                                               
+%W6111001  'IN-'                                                                
+NEWPAGE                                                                         
+*                                                                               
+%WDATKORT                                                                       
+NEWPAGE                                                                         
+*                                                                               
+IDARTNR   W     8   N    MASK 'ZZZZZZZ9'                                        
+IDLOPNRM  W     9   N                                                           
+KVAVIS    W     6   N    MASK 'ZZZZZ9'                                          
+IDANSTNR  W     5   N                                                           
+KVINLART  W     6   N  0 MASK '-----9'                                          
+TIUPPDAT  W     6   N                                                           
+*                                                                               
+W-DATUM           W  6  N                                                       
+W-AA  W-DATUM        2  N                                                       
+W-MM  W-DATUM     +2 2  N                                                       
+W-DD  W-DATUM     +4 2  N                                                       
+*                                                                               
+PGM-NAMN    W  6  A  VALUE 'W61118'                                             
+DATKORT-ID  W  6  A  VALUE 'WDATUM'                                             
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W61118D2 PRINTER FB (121 121)        . * CDC GBG                           
+*                                                                               
+FILE W61118D3 PRINTER FB (121 121)        . * ST BORN                           
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+JOB INPUT (W61118D1) START A-INIT                                               
+                                                                                
+   IDARTNR  = IN-IDARTNR                                                        
+   IDLOPNRM = IN-IDLOPNRM                                                       
+   KVAVIS   = IN-KVAVIS                                                         
+   IDANSTNR = IN-IDANSTNR                                                       
+   KVINLART = IN-KVINLART                                                       
+   TIUPPDAT = IN-ART-TIUPPDAT                                                   
+                                                                                
+  IF  IN-FLKLAR       = 'J'           +                                         
+  AND IN-KDKVAANT     > 0             +                                         
+  AND IN-KDINLSTA     = 'AVV'         +                                         
+  AND IN-ART-TIUPPDAT = W-DATUM                                                 
+    IF IN-IDDC = CDC-SE                                                         
+      PRINT W61118D2                                                            
+    ELSE                                                                        
+      IF IN-IDDC = CDC-TR                                                       
+        PRINT W61118D3                                                          
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+*                                                                               
+A-INIT. PROC                                                                    
+   CALL DATKORT USING (PGM-NAMN DATKORT-ID DATUMKORT)                           
+   W-AA = D-AAR                                                                 
+   W-MM = D-MAANAD                                                              
+   W-DD = D-DAG                                                                 
+END-PROC                                                                        
+*                                                                               
+REPORT  W61118D2                                                  +             
+        SPACE 12                                                  +             
+        LINESIZE 120                                              +             
+        PRINTER W61118D2                                                        
+*                                                                               
+CONTROL FINAL    NOPRINT                                          +             
+        IDLOPNRM NOPRINT                                          +             
+        IDARTNR  NOPRINT                                          +             
+        KVAVIS   NOPRINT                                                        
+*                                                                               
+TITLE 1 'W61118-001  VOLVO CAR AFTERSALES  AVVIKELSERAPPORTERINGAR'             
+*                                                                               
+HEADING IDARTNR  'ARTNR  '                                                      
+HEADING IDLOPNRM 'PARTINR'                                                      
+HEADING KVAVIS   'AVIS ANTAL '                                                  
+HEADING IDANSTNR 'ANSTNR '                                                      
+HEADING KVINLART 'AVVIKELSE'                                                    
+HEADING TIUPPDAT 'DATUM'                                                        
+*                                                                               
+LINE 1  IDLOPNRM                                                  +             
+        IDARTNR                                                   +             
+        KVAVIS                                                    +             
+        IDANSTNR                                                  +             
+        KVINLART                                                  +             
+        TIUPPDAT                                                                
+*----------------------------------------------------------------               
+*                                                                               
+REPORT  W61118D3                                                  +             
+        SPACE 12                                                  +             
+        LINESIZE 120                                              +             
+        PRINTER W61118D3                                                        
+*                                                                               
+CONTROL FINAL    NOPRINT                                          +             
+        IDLOPNRM NOPRINT                                          +             
+        IDARTNR  NOPRINT                                          +             
+        KVAVIS   NOPRINT                                                        
+*                                                                               
+TITLE 1 'W61118-002  VOLVO CAR AFTERSALES  DEVIATION REPORT    '                
+*                                                                               
+HEADING IDARTNR  'PARTNO.'                                                      
+HEADING IDLOPNRM 'LOT NO.'                                                      
+HEADING KVAVIS   'QTY.ADVICED'                                                  
+HEADING IDANSTNR 'EMPL.ID'                                                      
+HEADING KVINLART 'DEVIATION'                                                    
+HEADING TIUPPDAT 'DATE '                                                        
+*                                                                               
+LINE 1  IDLOPNRM                                                  +             
+        IDARTNR                                                   +             
+        KVAVIS                                                    +             
+        IDANSTNR                                                  +             
+        KVINLART                                                  +             
+        TIUPPDAT                                                                

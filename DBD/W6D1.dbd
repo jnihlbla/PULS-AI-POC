@@ -1,0 +1,112 @@
+*        INLEVERANSREGISTER                                                     
+*                                                                               
+         DBD   NAME=W6D1,RMNAME=(V12008,4,41400),                      *        
+               ACCESS=(HDAM,OSAM)                                               
+         DATASET DD1=W6D1V,DEVICE=3390,SIZE=4096,SCAN=0                         
+*                                                                               
+         SEGM  NAME=W6D101,PARENT=0,BYTES=87,PTR=T                              
+         FIELD NAME=(W6D101KY,SEQ,U),BYTES=19,START=1,TYPE=X                    
+         FIELD NAME=(IDDC),BYTES=2,START=1,TYPE=X                               
+         FIELD NAME=(IDLEVNR),BYTES=5,START=3,TYPE=X                            
+         FIELD NAME=(IDFS),BYTES=8,START=8,TYPE=X                               
+         FIELD NAME=(TIAVIDAT),BYTES=4,START=16,TYPE=P                          
+         FIELD NAME=(IDLBBET),BYTES=12,START=56,TYPE=X                          
+         FIELD NAME=(TIINLMOT),BYTES=4,START=75,TYPE=P                          
+*                                                                               
+         LCHILD NAME=(W6D1A1,W6D1A),PTR=INDX                                    
+         XDFLD NAME=W6D1ASEQ,SEGMENT=W6D101,                           *        
+               SRCH=(IDDC,IDLEVNR,IDFS,TIAVIDAT,IDLBBET),              *        
+               EXTRTN=W6D1AEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR TIINLMOT = 0                                                   
+*                                                                               
+         SEGM  NAME=W6D111,PARENT=W6D101,BYTES=137,PTR=T                        
+         FIELD NAME=(IDRADNRI,SEQ,U),BYTES=3,START=1,TYPE=P                     
+         FIELD NAME=(IDARTNR),BYTES=5,START=4,TYPE=P                            
+         FIELD NAME=(FLKLAR),BYTES=1,START=52,TYPE=X                            
+         FIELD NAME=(IDLOPNRM),BYTES=5,START=58,TYPE=P                          
+         FIELD NAME=(IDDC),BYTES=2,START=63,TYPE=X                              
+         FIELD NAME=(/CK01),BYTES=19,START=1,TYPE=X                             
+*                                                                               
+         LCHILD NAME=(W6D1B1,W6D1B),PTR=INDX                                    
+         XDFLD NAME=W6D1BSEQ,SEGMENT=W6D111,                           *        
+               SRCH=(IDLOPNRM),                                        *        
+               DDATA=(IDRADNRI,/CK01),                                 *        
+               EXTRTN=W6D1BEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR IDLOPNRM > 0                                                   
+*                                                                               
+         LCHILD NAME=(W6D1C1,W6D1C),PTR=INDX                                    
+         XDFLD NAME=W6D1CSEQ,SEGMENT=W6D121,                           *        
+               SRCH=(IDLEVNRK,IDOKOLLI),                               *        
+               SUBSEQ=(/CK11,/CK01,IDRADNR),                           *        
+               EXTRTN=W6D1CEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR IDOKOLLI > 0                                                   
+*                                                                               
+         LCHILD NAME=(W6D1D1,W6D1D),PTR=INDX                                    
+         XDFLD NAME=W6D1DSEQ,SEGMENT=W6D121,                           *        
+               SRCH=(IDILIST,IDILIRAD),                                *        
+               SUBSEQ=(/CK11,/CK01,IDRADNR),                           *        
+               EXTRTN=W6D1DEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR IDILIST > 0                                                    
+*                                                                               
+         LCHILD NAME=(W6D1E1,W6D1E),PTR=INDX                                    
+         XDFLD NAME=W6D1ESEQ,SEGMENT=W6D121,                           *        
+               SRCH=(ADINLOMR),                                        *        
+               SUBSEQ=(KDINLPRI,/CK11,/CK01,IDRADNR),                  *        
+               DDATA=(FLINLFB,FLINLFP,KDINLSTA,IDINLVGN),              *        
+               EXTRTN=W6D1EEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR ADINLOMR NOT = SPACE                                           
+*                                                                               
+         LCHILD NAME=(W6D1F1,W6D1F),PTR=INDX                                    
+         XDFLD NAME=W6D1FSEQ,SEGMENT=W6D121,                           *        
+               SRCH=(IDINLVGN),                                        *        
+               SUBSEQ=(/CK11,/CK01,IDRADNR),                           *        
+               EXTRTN=W6D1FEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR IDINLVGN > 0                                                   
+*                                                                               
+         LCHILD NAME=(W6D1G1,W6D1G),PTR=INDX                                    
+         XDFLD NAME=W6D1GSEQ,SEGMENT=W6D121,                           *        
+               SRCH=(ADINLOMN),                                        *        
+               SUBSEQ=(KDINLPRI,/CK11,/CK01,IDRADNR),                  *        
+               DDATA=(FLINLFB,FLINLFP,KDINLSTA,IDINLVGN),              *        
+               EXTRTN=W6D1GEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR ADINLOMN NOT = SPACE                                           
+*                                                                               
+         LCHILD NAME=(W6D1H1,W6D1H),PTR=INDX                                    
+         XDFLD NAME=W6D1HSEQ,SEGMENT=W6D111,                           *        
+               SRCH=(IDARTNR),                                         *        
+               SUBSEQ=(/CK01,IDRADNRI)                                          
+*                                                                               
+         LCHILD NAME=(W6D1I1,W6D1I),PTR=INDX                                    
+         XDFLD NAME=W6D1ISEQ,SEGMENT=W6D111,                           *        
+               SRCH=(IDARTNR),                                         *        
+               SUBSEQ=(/CK01,IDRADNRI),                                *        
+               EXTRTN=W6D1IEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR FLKLAR = N                                                     
+*                                                                               
+         SEGM  NAME=W6D121,PARENT=W6D111,BYTES=65,PTR=T                         
+         FIELD NAME=(IDRADNR,SEQ,U),BYTES=3,START=1,TYPE=P                      
+         FIELD NAME=(ADINLOMR),BYTES=4,START=4,TYPE=X                           
+         FIELD NAME=(ADINLOMN),BYTES=4,START=8,TYPE=X                           
+         FIELD NAME=(FLINLFP),BYTES=1,START=13,TYPE=X                           
+         FIELD NAME=(FLINLFB),BYTES=1,START=18,TYPE=X                           
+         FIELD NAME=(IDILIRAD),BYTES=3,START=22,TYPE=P                          
+         FIELD NAME=(IDILIST),BYTES=5,START=25,TYPE=X                           
+         FIELD NAME=(IDINLVGN),BYTES=3,START=30,TYPE=X                          
+         FIELD NAME=(IDLEVNRK),BYTES=5,START=33,TYPE=X                          
+         FIELD NAME=(IDOKOLLI),BYTES=9,START=38,TYPE=X                          
+         FIELD NAME=(KDINLPRI),BYTES=2,START=47,TYPE=P                          
+         FIELD NAME=(KDINLSTA),BYTES=3,START=49,TYPE=X                          
+         FIELD NAME=(/CK01),BYTES=19,START=1,TYPE=X                             
+         FIELD NAME=(/CK11),BYTES=3,START=20,TYPE=X                             
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

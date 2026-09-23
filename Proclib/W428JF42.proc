@@ -1,0 +1,37 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SELEKTERAR UT PERIODENS KREDITERADE RADER                                  
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD    RTN W428R1                             
+//*                                                                             
+//*  ÅTERSTART:    W42842    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P042 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W428..W428R1,                                            
+//             INDUT=&W428..W428R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42842   EXEC PGM=V16459,PARM='W42842/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W42842D1 DD  DSN=&INDIN2..W42840,DISP=SHR                                     
+//************ KREDITERINGAR UNDER PERIODEN                                     
+//*                                                                             
+//W42842D2 DD  DSN=&INDUT..W42841(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ PERIODENS KREDITERADE RADER ALLA LAGER                           
+//             SPACE=(36,(5,2),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W42842D3 DD  DSN=&INDUT..W42842(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ PERIODENS KREDITERADE RADER NDC 41,42,43 OCH 51                  
+//             SPACE=(36,(5,2),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

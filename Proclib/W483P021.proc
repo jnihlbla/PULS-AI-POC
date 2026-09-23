@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TO EXTRACT DATA FROM WDE6                                                  
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W483V2                                         
+//*                                                                             
+//*  RESTART:      W48321      NORMAL                                           
+//*                READS        WDE6                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W4839021 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W483..W483V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W48321   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W48321,W48321,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDE6     INCLUDE MEMBER=WDE6                                                  
+//W48321D1 DD  DSN=&INDUT..W48321(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ EXTRACT FROM WDE6                                                
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEB                                 
+//W48321D2 DD  DSN=&INDUT..W48322(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ EXTRACT FROM WDE621 WITH STATUS 9                                
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEB                                 
+//W48321D3 DD  DSN=&INDUT..W48323(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ EXTRACT FROM WDE621 WITH STATUS NOT 9                            
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEB                                 
+//*                                                                             

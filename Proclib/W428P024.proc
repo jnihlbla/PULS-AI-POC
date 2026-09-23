@@ -1,0 +1,54 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LEVERANSANMÄRKNINGSFIL FÖR NDC:ER.                                  
+//*                                                                             
+//*  FREQUENCE:    DAILY    RTN W428V1                                          
+//*                                                                             
+//*  RESTART:      W42824    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P024 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W418..W418D2,                                            
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDUT1=&W428..W428V1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42824   EXEC PGM=V16459,PARM='W42824/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W42824D1 DD  DSN=&INDIN1..W41842(+0),DISP=SHR                                 
+//************ KOPIA AV WDA2                                                    
+//*                                                                             
+//W42824D2 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ DAGLIGA LAGERBANDET                                              
+//*                                                                             
+//W42824D3 DD  DSN=&&W42824,DISP=(NEW,PASS,DELETE),                             
+//************ UPPFÖLJNINGSFIL, LEVERANSANMÄRKNINGAR, NDC-POSTER                
+//             SPACE=(309,(300,100),RLSE),AVGREC=K                              
+//*                                                                             
+//TEMPFIL  DD  DSN=&&TEMP1,DISP=(NEW,PASS,DELETE),                              
+//************ UPPFÖLJNINGSFIL, LEVERANSANMÄRKNINGAR, NDC-POSTER                
+//             SPACE=(309,(300,100),RLSE),AVGREC=K                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//SORT24  EXEC PGM=SORT                                                         
+//*                                                                             
+//SYSOUT    DD SYSOUT=*                                                         
+//SORTMSG   DD SYSOUT=*                                                         
+//SYSUDUMP  DD SYSOUT=*                                                         
+//SYSIN     DD DSN=&INDRTE..CONSTANT(W428PD24),DISP=SHR                         
+//*  SORTAS PÅ IDDC, IDARTNR                                                    
+//SORTIN    DD DSN=&&W42824,DISP=(OLD,DELETE,DELETE)                            
+//SORTOUT   DD DSN=&INDUT1..W42824(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ UPPFÖLJNINGSFIL, LEVERANSANMÄRKNINGAR, NDC-POSTER                
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

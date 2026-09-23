@@ -1,0 +1,54 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CLASSIC   SKAPA MAIL FÖR SKROTVARNING                                      
+//*                                                                             
+//*  FREKVENS:     VECKA       RTN W261V5                                       
+//*                                                                             
+//*  ÅTERSTART:    W26123      NORMAL                                           
+//*                LÄSER       WDK6 WDL8  TP1KAMP TP1ARTK                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W261P023 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W261..W261V5,                                             
+//             INDUT=&W261..W261V5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W26123   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,DSNMTV01,W26123,,00')                                
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//DDOTV02  DD  DSN=&&W26123BT,DISP=(NEW,PASS,DELETE),                           
+//             SPACE=(TRK,(1,1),RLSE),                                          
+//             DCB=(RECFM=VB,LRECL=4092)                                        
+//DDITV02  DD  DSN=&INDRTE..CONSTANT(W26123I2),DISP=SHR                         
+//*                                                                             
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDL8     INCLUDE MEMBER=WDL8                                                  
+//WDJ1     INCLUDE MEMBER=WDJ1                                                  
+//WDC1     INCLUDE MEMBER=WDC1                                                  
+//*                                                                             
+//W26123D1 DD  DSN=&INDIN..W26123(+0),DISP=SHR                                  
+//************ CLASSIC                                                          
+//*                                                                             
+//W26123D2 DD  DSN=&INDUT..W26124(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MAIL                                                             
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

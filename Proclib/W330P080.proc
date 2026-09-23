@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  ARTIKELSTATISTIK                                                           
+//*                                                                             
+//*  SKAPAR LISTFIL VA2                                                         
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W330B2                                      
+//*                                                                             
+//*  ÅTERSTART:    W33080   NORMAL                                              
+//*                .                                                            
+//*                DFUP   NORMAL                                                
+//*                .        .                                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P080 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W330..W330B2,                                             
+//             INDUT=&W330..W330B2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33080   EXEC PGM=V16459,PARM='W33080/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(1400,500))                                          
+//W33080D1 DD  DSN=&INDIN..W33079(+0),DISP=SHR                                  
+//************ SUMMERADE VA2 URVAL OCH RESULTAT                                 
+//*                                                                             
+//W33080D2 DD  DSN=&INDUT..W33080(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//************ LISTFIL VA2                                                      
+//**           DCB=(RECFM=FBA,LRECL=122,BLKSIZE=23424),                         
+//             MGMTCLAS=NOBACKUP,VOL=(,,,3),                                    
+//             SPACE=(23424,(3500,2000),RLSE)                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

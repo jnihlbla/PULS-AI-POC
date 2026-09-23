@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UTSKRIFT AV UPPFöLJNING:                                                   
+//*  ORDER KLARA INNOM RäTT RFSDATUM PER PRC                                    
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W478V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W47841    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W478P041 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W478..W478V1,                                             
+//             INDUT=&W478..W478V1.DC61,                                        
+//             INDUT2=&W478..W478V1.DC62,                                       
+//             DEST1=LOCAL                                                      
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W478PD41),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W47840,DISP=SHR                                      
+//************ DAGFILER                                                         
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47841,DISP=(NEW,PASS,DELETE),                             
+//************ SORTADE DAGFILER                                                 
+//             SPACE=(34,(3,2),RLSE),AVGREC=K                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47841   EXEC PGM=V16459,PARM='W47841/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W47841D1 DD  DSN=&&W47841,DISP=(OLD,DELETE,DELETE)                            
+//************ DAGFILER                                                         
+//*                                                                             
+//W47841D2 DD  SYSOUT=(A,,STD),DEST=&DEST1                                      
+//************ W47841-001  WECKOLISTA                                           
+//W47841D3 DD  DSN=&INDUT..W47841(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//****************LISTA SOM UTFIL TILL D&P DC61                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//W47841D4 DD  DSN=&INDUT2..W47841(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)        
+//****************LISTA SOM UTFIL TILL D&P DC62                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             

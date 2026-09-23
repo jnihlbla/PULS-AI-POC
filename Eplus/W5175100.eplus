@@ -1,0 +1,73 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5175100                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATE WEEKLY REPORT FOR MARKET 95                    *        
+*                                                                      *        
+*  FÖRFATTARE :  ARCHANA BHAT                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W51751D1                                                                   
+*                                                                               
+%W517RW1  'IN-'                                                                 
+                                                                                
+**** EXCEL-FIL, MAIL VIA DAP  IN JCL W517J151                                   
+FILE W51751D2  PRINTER VB(79 0)                                                 
+                                                                                
+W-DAVVREG                   W    6 N                                            
+W-SEM1                      W    1 A VALUE ';'                                  
+W-IDDISTR                   W    5 N 0 MASK 'ZZZZ9'                             
+W-SUARTFSG                  W   11 N 2 MASK 'ZZZZZZZZ9.99'                      
+W-SUARTSJK                  W   11 N 2 MASK 'ZZZZZZZZ9.99'                      
+W-SUARTSTD                  W   11 N 2 MASK 'ZZZZZZZZ9.99'                      
+FIRST-TIME-SW               W    1 A VALUE 'Y'                                  
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. CREATE REPORT FOR MARKET 95                                           
+*                                                                               
+                                                                                
+JOB INPUT  W51751D1                                                             
+                                                                                
+ IF IN-IDPTYP EQ 'RW1'                                                          
+   IF IN-KDMARK EQ 95                                                           
+      W-DAVVREG  = IN-DAVVREG                                                   
+      W-IDDISTR  = IN-IDDISTR                                                   
+      W-SUARTFSG = IN-SUARTFSG                                                  
+      W-SUARTSJK = IN-SUARTSJK                                                  
+      W-SUARTSTD = IN-SUARTSTD                                                  
+      PRINT XL-LIST                                                             
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+NEWPAGE                                                                         
+  REPORT   XL-LIST              +                                               
+           PRINTER W51751D2     +                                               
+           LINESIZE 74          +                                               
+           SPACE 0              +                                               
+           NOHEADING            +                                               
+           NOSPREAD             +                                               
+           NOADJUST             +                                               
+           NODATE                                                               
+  LINE  1  W-DAVVREG            +                                               
+           W-SEM1               +                                               
+           W-IDDISTR            +                                               
+           W-SEM1               +                                               
+           W-SUARTFSG           +                                               
+           W-SEM1               +                                               
+           W-SUARTSJK           +                                               
+           W-SEM1               +                                               
+           W-SUARTSTD           +                                               
+           W-SEM1                                                               
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF FIRST-TIME-SW = 'Y'                                                         
+   DISPLAY '¤DAPW51751-001'                                                     
+   DISPLAY '¤DAPW51751'                                                         
+   DISPLAY 'PERIOD;DISTRICT;SUM SALES;SUM COST;SUM STD'                         
+   FIRST-TIME-SW = 'N'                                                          
+ END-IF                                                                         
+END-PROC                                                                        

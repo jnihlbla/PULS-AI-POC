@@ -1,0 +1,72 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SVAR FRÅN SI+. POSTER SOM UPPNÅTT DAGENS DATUM SKICKAS VIDARE              
+//*  TILL EKONMI OCH UPPDATERING AV WDK7                                        
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W212S1                                       
+//*                                                                             
+//*  ÅTERSTART:    W21212      NORMAL                                           
+//*                LÄSER       WDK7 WDF1 WDB6                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W212P012 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W212..W212S1,                                             
+//             INDUT=&W212..W212S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21212   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W21212,W21212,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDF1     INCLUDE MEMBER=WDF1                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W21212D1 DD  DSN=&INDIN..EPICCN(+0),DISP=SHR                                  
+//************ EPIC-INFO (KINA)                                                 
+//         DD  DSN=&INDIN..W21212(+0),DISP=SHR                                  
+//************ EPIC-INFO (KINA) ÄNNU EJ GÄLLANDE                                
+//*                                                                             
+//W21212D2 DD  DSN=&INDUT..W21212(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ SPARADE EPIC-TRANSAR (KINA)                                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W21212D3 DD  DSN=&INDUT..W21213(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ GODKÄNDA EPIC-POSTER (KINA)                                      
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W21212D4 DD  DSN=&&W21214,DISP=(NEW,PASS,DELETE),                             
+//************ GODKÄNDA EPIC-POSTER TILL EKONOMI                                
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W21212D5 DD  DSN=&INDUT..W21215(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ FELAKTIGA EPIC-POSTER (KINA)                                     
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//*                                                                             
+//*                                                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W212PD14),DISP=SHR                         
+//SORTIN   DD  DSN=&&W21214,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKLAR MED SÄSONGSVARIATION                                    
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W21214(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ GODKÄNDA EPIC-POSTER TILL EKONOMI                                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

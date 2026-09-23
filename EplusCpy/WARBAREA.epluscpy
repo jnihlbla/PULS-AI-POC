@@ -1,0 +1,125 @@
+MACRO P                                                                         
+  &P.ARB-WARBAREA                                         W    31 A             
+*                                 PARAMETRAR TILL WARBKONV F÷R                  
+*                                 BERƒKNING AV ARBETSDAGAR.                     
+*                                 EXEMPEL P≈ ANROP:                             
+*                                 BERƒKNA ANTAL ARB.DAGAR MELLAN                
+*                                 TIAAMMDD-FOM OCH -TOM  INKL.                  
+*                                 SEMESTER OCH HALVDAGAR:                       
+*                                 MOVE 101 TO ARB-KDCALL.                       
+*                                 CALL WARBKONV USING                           
+*                                      ARB-KDCALL,                              
+*                                      ARB-DATUM-AREA,                          
+*                                      ARB-KDSVAR                               
+*                                 RESULTAT ERH≈LLS I                            
+*                                 ARB-DATUM-AREA.                               
+*                                 STATUSKOD I ARB-KDSVAR.                       
+*                                 -------------------------------               
+*                                 PARAMETERS TO WARBKONV FOR                    
+*                                 COMPUTATION OF WORKING DAYS.                  
+*                                 EXAMPLE OF CALL::                             
+*                                 COMPUTE NBR OF WORKING DAYS                   
+*                                 BETWEEN TIAAMMDD-FOM AND -TOM                 
+*                                 INCLUDING PARTS DIV. SUMMER                   
+*                                 VACATION AND "HALF DAYS".                     
+*                                 MOVE 101 TO ARB-KDCALL.                       
+*                                 CALL WARBKONV USING                           
+*                                      ARB-KDCALL,                              
+*                                      ARB-DATUM-AREA,                          
+*                                      ARB-KDSVAR                               
+*                                 RESULTAT IS PLACED IN                         
+*                                 ARB-DATUM-AREA.                               
+*                                 RETURN CODE IN ARB-KDSVAR                     
+*                                 -------------------------------               
+    &P.ARB-KDCALL                        &P.ARB-WARBAREA        3 N             
+*                                 BEARBETNINGSTYP I WARBKONV:                   
+*                                 OM KDCALL > 500 ANVƒNDS                       
+*                                 LAGRETS LEDIGA DAGAR                          
+*                                 HUNDRATALS-SIFFRAN:                           
+*                                  0=  SEMESTERDAG = ARBETSDAG                  
+*                                  1=  KONTORSEMESTER = LEDIG DAG               
+*                                  5=  SEMESTERDAG = ARBETSDAG                  
+*                                  6=  LAGER-SEMESTER = LEDIG DAG               
+*                                 TIOTALS-SIFFRAN:                              
+*                                  0=  HALVDAG = ARBETSDAG                      
+*                                  1=  HALVDAG = LEDIG DAG                      
+*                                  2=  1 HALVDAG  = 0 ARBETSDAGAR               
+*                                      2 HALVDAGAR= 1 ARBETSDAG                 
+*                                      3 HALVDAGAR= 1 ARBETSDAG                 
+*                                      4 HALVDAGAR= 2 ARBETSDAGAR               
+*                                      OSV                                      
+*                                 ENTALS-SIFFRAN:                               
+*                                  1=  BERƒKNA ARBDAG = TOM MINUS               
+*                                      FOM     (1 DAG OM TOM=FOM)               
+*                                  2=  BERƒKNA TOM = FOM + ARBDAG               
+*                                          (1 ARBDAG GER TOM=FOM)               
+*                                  3=  BERƒKNA FOM = TOM MINUS                  
+*                                      ARBDAG (1 DAG GER FOM=TOM)               
+*                                  4=  ARBETSTIMMAR PER DAG                     
+*                                      OM FOM ƒR FRIDAG  GES 0                  
+*                                      OM FOM ƒR HALVDAG GES 5                  
+*                                      OM FOM ƒR HELDAG  GES 8                  
+*                                                                               
+*                                  DE FƒLT SOM BEH÷VS F÷R BE-                   
+*                                  RƒKNINGEN SKA FYLLAS I F÷RE                  
+*                                  ANROPET.                                     
+*                                 TYPE OF COMPUTATION IN WARBKONV               
+*                                 IF KDCALL > 500 THE WAREHOUSE                 
+*                                 FREE DAYS WILL BE USED                        
+*                                 FIRST (100) DIGIT                             
+*                                  0=  SUMMER VACATION = WORK DAY               
+*                                  1=  OFFICE VICATION = FREE DAY               
+*                                  5=  SUMMER VACATION = WORK DAY               
+*                                  6=  WAREHOUSE VICATION = FREE                
+*                                 SECOND (010) DIGIT:                           
+*                                  0=  HALF DAY = WORKING DAY                   
+*                                  1=  HALF DAY = FREE DAY                      
+*                                  2=  1 HALF DAY = 0 WORK DAYS                 
+*                                      2 HALF DAYS = 1 WORK DAY                 
+*                                      3 HALF DAYS = 1 WORK DAY                 
+*                                      4 HALF DAYS = 2 WORK DAYS                
+*                                      ETC                                      
+*                                 THIRD (001) DIGIT:                            
+*                                  1=  COMPUTE ARBDAG = TOM MINUS               
+*                                      FOM   (1 DAY IF FOM = TOM)               
+*                                  2=  COMPUTE TOM = FOM + ARBDAG               
+*                                      (1 ARBDAG MAKES TOM = FOM)               
+*                                  3=  COMPUTE FOM =                            
+*                                                TOM MINUS ARBDAG               
+*                                      (1 ARBDAG MAKES TOM = FOM)               
+*                                  4=  WORKING HOURS PER DAY                    
+*                                      IF FOM = FREE DAY ==> 0                  
+*                                      IF FOM = HALF DAY ==> 5                  
+*                                      IF FOM = WORK DAY ==> 8                  
+*                                                                               
+*                                  THE FIELDS NEEDED FOR THE                    
+*                                  COMPUTATION MUST BE ASSIGNED                 
+*                                  BEFORE THE CALL.                             
+*                                                                               
+    &P.ARB-DATUM-AREA                    &P.ARB-WARBAREA +3    27 A             
+      &P.ARB-TIAAMMDD-FOM                &P.ARB-WARBAREA +3     6 N             
+*                                 ≈R - M≈NAD - DAG  (≈≈MMDD)                    
+*                                 YEAR - MONTH - DAY  (YYMMDD)                  
+      &P.ARB-TIAAMMDD-TOM                 &P.ARB-WARBAREA +9    6 N             
+*                                 ≈R - M≈NAD - DAG  (≈≈MMDD)                    
+*                                 YEAR - MONTH - DAY  (YYMMDD)                  
+      &P.ARB-KVARBDAG                     &P.ARB-WARBAREA +15   3 N             
+*                                 ANTAL ARBETSDAGAR                             
+*                                 NUMBER OF WORKING DAYS                        
+      &P.ARB-KVARBTIM                     &P.ARB-WARBAREA +15   3 N             
+*                                 ANTAL ARBETSTIMMAR                            
+*                                 NUMBER OF WORKING HOURS                       
+      &P.ARB-TIAAMMDD-NAESTA-ARBDAG       &P.ARB-WARBAREA +18   6 N             
+*                                 ≈R - M≈NAD - DAG  (≈≈MMDD)                    
+*                                 YEAR - MONTH - DAY  (YYMMDD)                  
+      &P.ARB-TIAAMMDD-NAESTA-VECKA        &P.ARB-WARBAREA +24   6 N             
+*                                 ≈R - M≈NAD - DAG  (≈≈MMDD)                    
+*                                 YEAR - MONTH - DAY  (YYMMDD)                  
+    &P.ARB-KDSVAR                         &P.ARB-WARBAREA +30   1 A             
+*     88 ARB-KDSVAR-OK       VALUE ' '.                                         
+*     88 ARB-KDSVAR-FEL      VALUE 'F'.                                         
+*                                                       KDSVAR-88               
+*                                 SVARSKOD FR≈N SUBPROGRAM                      
+*                                                       KDSVAR-88               
+*                                 RETURN CODE FROM SUBPROGRAM                   
+*** END COPY  WARBAREA               LENGTH =            31                     

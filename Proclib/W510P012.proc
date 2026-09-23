@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER KONTO OCH KUNDINFO IFRÅN BILLIT, SKAPAR 2 UTFILER                    
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W510S2                                           
+//*                                                                             
+//*  ÅTERSTART:    W51012    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P012 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W510..W510D6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51012   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W51012,W51012,W51012T,,N00,,,,,,,,&IMS')                         
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W51012D1 DD  DSN=&&W51014,DISP=(NEW,PASS,DELETE),                             
+//************ TEMP UTFIL MED KONTO O ANALYS FÖR VIDARE BEHANDLING              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51012D2 DD  DSN=&INDUT..W51016(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UTFIL MED KUND INFO                                              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51012D3 DD  DSN=&INDUT..W51017(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UTFIL VAT INFO                                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *        
+//W51013  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&&W51014,DISP=(OLD,DELETE,DELETE)                            
+//************** TEMP FIL MED KONTON                                ***         
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W51014(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************** UTFIL MED SAP KONTON SORTERAD                      ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W510PD12),DISP=SHR                         

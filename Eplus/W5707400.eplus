@@ -1,0 +1,90 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5707400                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER IN FILER OCH SKAPAR EN DAGFIL FÖR SENARE        *        
+*                AVSTÄMNING AV MÅNADENS LAGERBOKNINGAR                 *        
+*  FÖRFATTARE :  ANDERS HENRIKSSON                                     *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+**************************************************                              
+* PEDAL FILER: W57070, PEDAL-POSTER              *                              
+*            : W57069, ÖVRIGA PEDAL-POSTER       *                              
+**************************************************                              
+FILE W57074D1                                                                   
+                                                                                
+%W57070  'IN-'                                                                  
+ IN-HHTSHT        18 6 N                                                        
+ IN-IDKONTO-1-6   44 6 N                                                        
+                                                                                
+NEWPAGE                                                                         
+**************************************************                              
+* SORTERADE INPOSTER                             *                              
+**************************************************                              
+FILE TPFIL1 FB(83 0)                                                            
+*                                                                               
+%W57070  'TP1-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+***************************************************                             
+* LAGERBAND W01172                                *                             
+***************************************************                             
+FILE W57074D2                                                                   
+                                                                                
+%W011100 'LB-'                                                                  
+NEWPAGE                                                                         
+                                                                                
+**************************************************                              
+* UTFIL MED DAGENS LAGERBOKADE POSTER            *                              
+**************************************************                              
+FILE W57074D3 FB(24 0)                                                          
+%W57074  'UT-'                                                                  
+                                                                                
+********************************************************                        
+* WORKING-STORAGE                                      *                        
+********************************************************                        
+%WWDC99                                                                         
+                                                                                
+W-IDDC          W  2 A                                                          
+W-HHTSHT        W  6 A                                                          
+                                                                                
+*********************************************************                       
+* STEG 1. SORTAR INFILERNA PÅ DC, PRODSL OCH HÄNDELSETYP*                       
+*********************************************************                       
+                                                                                
+SORT W57074D1 TO TPFIL1 USING (IN-IDARTNR) +                                    
+    BEFORE SORT-PROC SIZE 500000                                                
+                                                                                
+SORT-PROC. PROC                                                                 
+ IF IN-IDDC NQ DDC-DE                                                           
+  IF IN-KDEKHHT = '103' AND IN-KDEKSHT = '101' AND +                            
+     IN-IDKONTO-1-6 = 145402                                                    
+    CONTINUE                                                                    
+  ELSE                                                                          
+    IF IN-KDEKNIVA = 'DET'                                                      
+      SELECT                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+ END-IF                                                                         
+END-PROC                                                                        
+                                                                                
+***********************************************************                     
+* STEG 2. MATCHA IHOP MED LAGERBAND FÖR ATT FÅ MED KDSORT *                     
+*         SKRIV UTFIL MED DAGENS SAPBOKADE HÄNDELSER      *                     
+***********************************************************                     
+                                                                                
+ JOB  INPUT (W57074D2 KEY (LB-IDARTNR) TPFIL1 KEY (TP1-IDARTNR))                
+                                                                                
+   IF MATCHED                                                                   
+     UT-KDEKHHT    =  TP1-KDEKHHT                                               
+     UT-KDEKSHT    =  TP1-KDEKSHT                                               
+     UT-IDDC       =  TP1-IDDC                                                  
+     UT-KDPRODSL   =  TP1-KDPRODSL                                              
+     UT-SUBEL      =  TP1-SUBEL                                                 
+     UT-FLLSBOK    =  TP1-FLLSBOK                                               
+     UT-KVANTAL    =  TP1-KVANTAL                                               
+     UT-KDSORT     =  LB-KDSORT                                                 
+     PUT W57074D3                                                               
+   END-IF                                                                       

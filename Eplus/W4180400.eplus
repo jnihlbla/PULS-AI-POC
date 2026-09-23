@@ -1,0 +1,187 @@
+                                                                                
+*                                                                      *        
+*  SYSTEM     : W418 KREDITERING                                       *        
+*                                                                      *        
+*  FUNKTION   : DUBLETTKONTROLL.                                       *        
+*                                                                      *        
+*  FÖRFATTARE : JAN-ERIK FRANTZEN                                      *        
+*                                                                      *        
+*  INFILER    : W41807   VIPS RJE VCOM                                 *        
+*             : W41802   VIPS VCOM                                     *        
+*                                                                      *        
+*  UTFILER    : W41808 GODKÄNDA POSTER                                 *        
+*             : W41804 FELPOSTER TILL VIPS                             *        
+*                                                                      *        
+*  LISTOR     : INGA                                                   *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVD                         *        
+*     20031015    SUSANNE OLSSON......     9233..........              *        
+*                                                                               
+FILE W41804D1                                                                   
+INPOST                          1 344 A                                         
+  IN-IDPTYP                     1   3 A                                         
+  IN-DATA                       4 341 A                                         
+NEWPAGE                                                                         
+*                                                                               
+FILE W41804D2 FB(344 0)                                                         
+%W41808 'UT1-'                                                                  
+NEWPAGE                                                                         
+*                                                                               
+FILE W41804D3 VB(125 0)                                                         
+%W461RKDN                                                                       
+NEWPAGE                                                                         
+*                                                                               
+%W418002A-CTX  'IN02-'                                                          
+NEWPAGE                                                                         
+*                                                                               
+%W41807    'IN07-'                                                              
+NEWPAGE                                                                         
+*---- WS-STORAGE                                                                
+   JA                         W   1  A     VALUE 'J'                            
+   NEJ                        W   1  A     VALUE 'N'                            
+   GAMMAL-POST                W  25  A     VALUE ' '                            
+   NY-POST-GRP                W  25  A     VALUE ' '                            
+     NY-POST NY-POST-GRP           22 A                                         
+     NY-POST-IDORDNR NY-POST-GRP  +22 3 P 0                                     
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+*NEWPAGE                                                                        
+*-------------*                                                                 
+* JOB         *                                                                 
+*-------------*                                                                 
+*                                                                               
+JOB INPUT W41804D1                                                              
+*                                                                               
+   IN02-W418002A-CTX                     = ' '                                  
+   IN07-W41807-CTX                       = ' '                                  
+                                                                                
+   IF IN-IDPTYP                          = '002'                                
+      IN02-W418002A-CTX                  = INPOST                               
+      NY-POST                            = IN02-W418002A-001-GRP                
+      NY-POST-IDORDNR                    = 0                                    
+   ELSE                                                                         
+      IN07-W41807-CTX                    = INPOST                               
+      NY-POST                            = IN07-W41807-001-GRP                  
+      NY-POST-IDORDNR                    = IN07-IDORDNR                         
+   END-IF                                                                       
+   IF NY-POST-GRP = GAMMAL-POST                                                 
+      IF IN-IDPTYP                       = '002'                                
+         PERFORM E-SKRIV-FELPOST-VIPS-BKR                                       
+      ELSE                                                                      
+         PERFORM D-SKRIV-FELPOST-VIPS-BAT                                       
+      END-IF                                                                    
+   ELSE                                                                         
+      IF IN-IDPTYP                       = '002'                                
+         PERFORM C-SKRIV-GODK-POST-BKR                                          
+      ELSE                                                                      
+         PERFORM B-SKRIV-GODK-POST-BAT                                          
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+   GAMMAL-POST                           = NY-POST-GRP                          
+*                                                                               
+ B-SKRIV-GODK-POST-BAT.  PROC                                                   
+*                                                                               
+     PUT W41804D2 FROM W41804D1                                                 
+                                                                                
+ END-PROC                                                                       
+*                                                                               
+ C-SKRIV-GODK-POST-BKR.  PROC                                                   
+*                                                                               
+     UT1-IDPTYP                          = 'BKR'                                
+     UT1-IDDISTR                         = IN02-IDDISTR                         
+     UT1-IDKUNDNR                        = IN02-IDKUNDNR                        
+     UT1-IDRAPPNR                        = IN02-IDRAPPNR                        
+     UT1-IDARTNR                         = IN02-IDARTNR                         
+     UT1-IDRADNR                         = IN02-IDRADNR                         
+     UT1-FLAUTKRE                        = ' '                                  
+     UT1-FLDIRLEV                        = ' '                                  
+     UT1-IDFAKT                          = +0                                   
+     UT1-IDFAKT-LOC                      = +0                                   
+     UT1-IDFTG                           = +0                                   
+     UT1-IDKOLLI                         = +0                                   
+     UT1-IDLOPNRM                        = +0                                   
+     UT1-IDORDNR                         = +0                                   
+     UT1-KDANMORS                        = ' '                                  
+     UT1-IDDC                            = ' '                                  
+     UT1-IDDC-RET                        = ' '                                  
+     UT1-KDEMBLEV                        = +0                                   
+     UT1-KDFAKTYP                        = ' '                                  
+     UT1-KDFRAKT                         = +0                                   
+     UT1-KVLEVANM                        = IN02-KVLEVANM-BEKR                   
+     UT1-PRARTBTO                        = +0                                   
+     UT1-PRARTBTO-LOC                    = +0                                   
+     UT1-PRARTBTO-LOCINV                 = +0                                   
+     UT1-PRFRAKT                         = +0                                   
+     UT1-TIFAKT                          = +0                                   
+     UT1-TIFAKT-LOC                      = +0                                   
+     UT1-TILEVANM                        = +0                                   
+     UT1-TEANMNOT-REG (1)                = ' '                                  
+     UT1-TEANMNOT-REG (2)                = ' '                                  
+     UT1-TEANMNOT-REG (3)                = ' '                                  
+     UT1-KDVAT                           = ' '                                  
+     UT1-KDVALISO                        = ' '                                  
+     UT1-BEART-VIPS                      = ' '                                  
+     UT1-PRARTSTD                        = +0                                   
+     UT1-PRARTSJK                        = +0                                   
+                                                                                
+     PUT W41804D2                                                               
+                                                                                
+ END-PROC                                                                       
+*                                                                               
+ D-SKRIV-FELPOST-VIPS-BAT. PROC                                                 
+*                                                                               
+     RKD-IDPTYP                          = 'RKD'                                
+     RKD-IDDISTR                         = IN07-IDDISTR                         
+     RKD-IDKUNDNR                        = IN07-IDKUNDNR                        
+     RKD-IDDC                            = IN07-IDDC                            
+     RKD-IDRAPPNR                        = IN07-IDRAPPNR                        
+     RKD-IDORDNR                         = 0                                    
+     RKD-IDKOLLI                         = 0                                    
+     RKD-IDARTNR                         = 0                                    
+     RKD-REKSIFFR                        = 0                                    
+     RKD-IDRADNR                         = 0                                    
+     RKD-KDKREBEH                        = 'N55'                                
+     RKD-KDANMORS                        = 0                                    
+     RKD-KVLEVANM                        = 0                                    
+     RKD-PRARTBTO                        = 0                                    
+     RKD-FLSKROT                         = 0                                    
+     RKD-KDVALISO                        = ' '                                  
+     RKD-PRARTBTO-LOC                    = 0                                    
+     RKD-SULNELOC                        = 0                                    
+     RKD-PRARTSTD                        = 0                                    
+     RKD-PRARTSJK                        = 0                                    
+                                                                                
+     PUT W41804D3                                                               
+                                                                                
+ END-PROC                                                                       
+*                                                                               
+ E-SKRIV-FELPOST-VIPS-BKR. PROC                                                 
+*                                                                               
+     RKD-IDPTYP                          = 'RKD'                                
+     RKD-IDDISTR                         = IN02-IDDISTR                         
+     RKD-IDKUNDNR                        = IN02-IDKUNDNR                        
+     RKD-IDDC                            = '  '                                 
+     RKD-IDRAPPNR                        = IN02-IDRAPPNR                        
+     RKD-IDORDNR                         = 0                                    
+     RKD-IDKOLLI                         = 0                                    
+     RKD-IDARTNR                         = 0                                    
+     RKD-REKSIFFR                        = 0                                    
+     RKD-IDRADNR                         = 0                                    
+     RKD-KDKREBEH                        = 'N55'                                
+     RKD-KDANMORS                        = 0                                    
+     RKD-KVLEVANM                        = 0                                    
+     RKD-PRARTBTO                        = 0                                    
+     RKD-FLSKROT                         = 0                                    
+     RKD-KDVALISO                        = '   '                                
+     RKD-PRARTBTO-LOC                    = 0                                    
+     RKD-SULNELOC                        = 0                                    
+     RKD-PRARTSTD                        = 0                                    
+     RKD-PRARTSJK                        = 0                                    
+                                                                                
+     PUT W41804D3                                                               
+                                                                                
+ END-PROC                                                                       

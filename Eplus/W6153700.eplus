@@ -1,0 +1,156 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6153700                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR INFILER                                       *        
+*                                                                      *        
+*  FÖRFATTARE :  JOHAN LINDKVIST                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61537D1                                                                   
+*                                                                               
+%W61530  'IN1-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE SORTFIL VIRTUAL RETAIN FB(80 0)                                            
+*                                                                               
+%W61530  'SORT-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61537D2                                                                   
+*                                                                               
+%W91042  'LB-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE MATCH1 VIRTUAL RETAIN  FB(77 0)                                            
+*                                                                               
+%W61537  'TMP1-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61537D3                                                                   
+*                                                                               
+%W61533  'IN2-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE MATCH2 VIRTUAL RETAIN  FB(77 0)                                            
+*                                                                               
+%W61537  'TMP2-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61537D4 FB(77 0)                                                          
+*                                                                               
+%W61537  'UT-'                                                                  
+                                                                                
+*****************                                                               
+* ARBETSAREA    *                                                               
+*****************                                                               
+  WS-KVPB-DC            W  4 P 1                                                
+                                                                                
+  WS-ADLAGOMR           W        2 N   VALUE 0                                  
+  WS-ADLAGOMR-1   WS-ADLAGOMR    1 N                                            
+  WS-ADLAGOMR-2   WS-ADLAGOMR +1 1 N                                            
+                                                                                
+*****************                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORTERAR INFIL PÅ ARTIKELNUMMER                                       
+*                                                                               
+SORT W61537D1 TO +                                                              
+     SORTFIL USING (IN1-IDARTNR) +                                              
+    NAME INSORT                                                                 
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. MATCHAR SORTERAD INFIL MED LAGERBAND 91042 FÖR ATT                    
+*         UPPDATERA INFILEN MED KVPB-DC                                         
+*                                                                               
+JOB INPUT (SORTFIL KEY(SORT-IDARTNR) +                                          
+            W61537D2 KEY(LB-IDARTNR) +                                          
+          ) +                                                                   
+    NAME MATCH1                                                                 
+IF MATCHED                                                                      
+  MOVE SORT-IDARTNR      TO TMP1-IDARTNR                                        
+  MOVE SORT-IDDC         TO TMP1-IDDC                                           
+  MOVE SORT-ADLAGOMR     TO TMP1-ADLAGOMR                                       
+  MOVE SORT-BEART-ENG    TO TMP1-BEART-ENG                                      
+  MOVE SORT-KDTECKEN     TO TMP1-KDTECKEN                                       
+  MOVE SORT-KVPB-TOT     TO TMP1-KVPB-TOT                                       
+  MOVE SORT-KVQPACK-3    TO TMP1-KVQPACK-3                                      
+  MOVE SORT-FLCDART      TO TMP1-FLCDART                                        
+  MOVE SORT-FLSEASON     TO TMP1-FLSEASON                                       
+  MOVE SORT-VKART        TO TMP1-VKART                                          
+  MOVE SORT-KDFREQ       TO TMP1-KDFREQ                                         
+  MOVE SORT-KDSTOR       TO TMP1-KDSTOR                                         
+  MOVE SORT-ADGANG       TO TMP1-ADGANG                                         
+  MOVE SORT-ADPLATS      TO TMP1-ADPLATS                                        
+  MOVE SORT-TIRELOC-DATE TO TMP1-TIRELOC-DATE                                   
+                                                                                
+* SUMMERAR KVPB-DC FÖR ALL SDC, LDC, NDC                                        
+  WS-KVPB-DC = LB-KVPB-SEP(2) + LB-KVPB-SEP(3) + LB-KVPB-SEP(4) +               
+             + LB-KVPB-SEP(5) + LB-KVPB-SEP(6)                                  
+  MOVE WS-KVPB-DC       TO TMP1-KVPB-DC                                         
+                                                                                
+* KVPLOCK & KVLEVART TILLKOMMER I NÄSTA STEG                                    
+  MOVE 0                TO TMP1-KVPLOCK                                         
+  MOVE 0                TO TMP1-KVLEVART                                        
+  MOVE SPACE            TO TMP1-KDLAGOMR                                        
+                                                                                
+  PUT MATCH1                                                                    
+END-IF                                                                          
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 3. MATCHAR UPPD. INFIL MED ANTAL PLOCK MM.                               
+*                                                                               
+JOB INPUT (MATCH1 KEY(TMP1-IDARTNR) +                                           
+         W61537D3 KEY(IN2-IDARTNR) +                                            
+          ) +                                                                   
+    NAME MATCH2                                                                 
+IF MATCHED                                                                      
+  MOVE TMP1-W61537      TO TMP2-W61537                                          
+  MOVE IN2-KVPLOCK      TO TMP2-KVPLOCK                                         
+  MOVE IN2-KVLEVART     TO TMP2-KVLEVART                                        
+  PERFORM TILLDELA-KDLAGOMR                                                     
+  PUT MATCH2                                                                    
+ELSE                                                                            
+  IF MATCH1                                                                     
+     MOVE TMP1-W61537   TO TMP2-W61537                                          
+     PERFORM TILLDELA-KDLAGOMR                                                  
+     MOVE ZERO          TO TMP2-KVPLOCK                                         
+     MOVE ZERO          TO TMP2-KVLEVART                                        
+     PUT MATCH2                                                                 
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+TILLDELA-KDLAGOMR. PROC                                                         
+                                                                                
+  MOVE TMP1-ADLAGOMR    TO WS-ADLAGOMR                                          
+  IF WS-ADLAGOMR-1 = 1                                                          
+     MOVE '1X' TO TMP2-KDLAGOMR                                                 
+  ELSE                                                                          
+     IF WS-ADLAGOMR-1 = 2                                                       
+        MOVE '2X' TO TMP2-KDLAGOMR                                              
+     ELSE                                                                       
+        IF WS-ADLAGOMR-1 = 3                                                    
+           MOVE '3X' TO TMP2-KDLAGOMR                                           
+        ELSE                                                                    
+           IF WS-ADLAGOMR-1 = 7                                                 
+              MOVE '7X' TO TMP2-KDLAGOMR                                        
+           ELSE                                                                 
+              MOVE 'ÖX' TO TMP2-KDLAGOMR                                        
+           END-IF                                                               
+        END-IF                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+END-PROC                                                                        
+NEWPAGE                                                                         
+*                                                                               
+* STEG 4. SORTERAR UTFIL                                                        
+*                                                                               
+SORT MATCH2 TO +                                                                
+     W61537D4 USING (TMP2-KDLAGOMR TMP2-KDFREQ TMP2-ADLAGOMR   +                
+                     TMP2-ADGANG TMP2-ADPLATS TMP2-IDARTNR)    +                
+    NAME SORT2                                                                  

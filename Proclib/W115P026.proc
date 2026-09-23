@@ -1,0 +1,37 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER FIL FRÅN W11522 (DO-BEHOV BASLAGER)                                  
+//*  ART. SUMMERAS IHOP PER ART TIBEHOV-VECKA                                   
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W115D1                                            
+//*                                                                             
+//*  ÅTERSTART:    W11526   NORMAL                                              
+//*                                                                             
+//*                DFUP     NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W115P026 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W115..W115D1,                                             
+//             INDUT=&W115..W115D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11526   EXEC PGM=V16459,PARM='W11526/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W11526D1 DD  DSN=&INDIN..W11522(+0),DISP=SHR                                  
+//************ FIL FRÅN PGM W11520                                              
+//*                                                                             
+//W11526D2 DD  DSN=&INDUT..W11526(+1),DISP=(NEW,CATLG,DELETE),  -LIM(2)         
+//************ DO-BEHOV BASL. SUMMERAT PÅ ART TIBEHOV-VECKA                     
+//             DCB=(RECFM=FB,LRECL=17,BLKSIZE=23460),                           
+//             MGMTCLAS=&BACKUPC,SPACE=(23460,(100,50),RLSE)                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

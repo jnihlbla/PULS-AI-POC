@@ -1,0 +1,173 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2615000                                              *        
+*                                                                      *        
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2615000                                              *        
+*                                                                      *        
+*  FUNKTION   :  FRÅN INFIL W26137, INNEHÅLLANDE LISTPOSTER            *        
+*                LAGERBALANSERING, SKAPAS LISTA :                      *        
+*                W26150-001 ARTIKLAR MED ÖVERSKOTTSLAGER < 500 KR      *        
+*                                                                      *        
+*  FÖRFATTARE :  ANNELI WAHLSTRÖM                                      *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     SDC...      PAH...............       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W26150D1                                                                   
+*------------------*                                                            
+* COPYTEXT         *                                                            
+*------------------*                                                            
+%W261LI02  'IN1-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE SORT-FIL VIRTUAL RETAIN FB (337 0)                                         
+*------------------------------*                                                
+*  COPYTEXT                    *                                                
+*------------------------------*                                                
+%W261LI02  'IN2-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W26150D2  PRINTER FB (121 0)                                               
+                                                                                
+*------------------*                                                            
+* ARBETSAREOR      *                                                            
+*------------------*                                                            
+W-IX              W                 2 N                                         
+W-IDANSK          W                 3 N                                         
+W-IDARTNR         W                 9 N   MASK 'ZZZZZZZZ9'  +                   
+                             HEADING (' ' 'ARTIKELNR')                          
+W-IDLEVNR         W                 5 A                     +                   
+                             HEADING (' ' 'LEVNR')                              
+W-KVBR            W                 7 N   MASK 'ZZZZZZ9'    +                   
+                             HEADING (' ' '     BR')                            
+W-KVSKKNST        W                 2 N   MASK 'Z9'         +                   
+                             HEADING ('SK' 'ÅR')                                
+W-TIURPROD        W                 4 N   MASK 'ZZZZ'       +                   
+                             HEADING ('UTG UR' 'PROD')                          
+W-DISP-TOT        W                 7 N   MASK 'ZZZZZZ9'    +                   
+                             HEADING (' ' ' DISP OKS')                          
+W-SUTPO-TOT       W                 7 N   MASK 'ZZZZZZ9'    +                   
+                             HEADING (' ' '    TPO')                            
+W-TT              W                 2 N   MASK 'ZZ'         +                   
+                             HEADING (' ' 'TT')                                 
+W-PUBLDAT         W                 4 N                     +                   
+                             HEADING ('PUBL ' ' DAT')                           
+W-KVOI-TOT        W                 7 N   MASK '------9'    +                   
+                             HEADING ('   OING' '   SEN 8')                     
+W-KVAKS           W                 7 N   MASK 'ZZZZZZ9'    +                   
+                             HEADING (' ' '     AK')                            
+W-KVPB-TOT        W                 7 N 1 MASK 'ZZZZZ9.9'   +                   
+                             HEADING (' ' '        PB')                         
+W-NETTO-LAGER     W                 7 N 1                                       
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORTERAR FIL                                                          
+*                                                                               
+SORT W26150D1 TO SORT-FIL USING (IN1-IDANSK    +                                
+                                 IN1-IDLEVNR   +                                
+                                 IN1-IDARTNR)                                   
+*                                                                               
+* STEG 2. LÄSER FIL - SKAPA LISTA                                               
+*                                                                               
+JOB INPUT NULL                                                                  
+GET SORT-FIL                                                                    
+DO WHILE NOT EOF SORT-FIL                                                       
+   W-IDANSK    = IN2-IDANSK                                                     
+   W-IDLEVNR   = IN2-IDLEVNR                                                    
+   W-IDARTNR   = IN2-IDARTNR                                                    
+   W-KVBR      = IN2-KVBR                                                       
+   W-SUTPO-TOT = IN2-SUTPO-TOT (1)                                              
+   W-KVSKKNST  = IN2-KVSKKNST                                                   
+   W-TIURPROD  = IN2-TIURPROD                                                   
+   W-KVAKS     = IN2-KVAKS (1)                                                  
+   PERFORM RAKNA-TOTALER.                                                       
+   PRINT W26150-001                                                             
+   GET SORT-FIL                                                                 
+END-DO                                                                          
+STOP                                                                            
+*------------------*                                                            
+*  TOTALER         *                                                            
+*------------------*                                                            
+RAKNA-TOTALER. PROC.                                                            
+W-IX = 1                                                                        
+W-KVOI-TOT = 0                                                                  
+DO WHILE W-IX < 9                                                               
+   W-KVOI-TOT = W-KVOI-TOT                     +              +                 
+              ( IN2-KVOI-C1KUND-PROGNOS (W-IX) +              +                 
+                IN2-KVOI-C1KUND-DIVERSE (W-IX) +              +                 
+                IN2-KVOI-C1KUND-SATS    (W-IX) +              +                 
+                IN2-KVOI-C2KUND-PROGNOS (W-IX) +              +                 
+                IN2-KVOI-C2KUND-DIVERSE (W-IX) +              +                 
+                IN2-KVOI-C2KUND-SATS    (W-IX) )                                
+   W-IX = W-IX + 1                                                              
+END-DO                                                                          
+                                                                                
+W-DISP-TOT    = IN2-KVLS     (1) -                            +                 
+                (IN2-KVRESS  (1) +                            +                 
+                IN2-KVOKS-BULK(1) +                           +                 
+                IN2-KVOKS-DAG(1) +                            +                 
+                IN2-KVOKS-VOR(1) )                                              
+W-KVPB-TOT    = IN2-KVPB-SEP (1) +                            +                 
+                IN2-KVPB-SATS(1)                                                
+W-NETTO-LAGER = IN2-KVLS     (1) -                            +                 
+                IN2-KVRESS   (1) -                            +                 
+                IN2-SUTPO-TOT(1) -                            +                 
+                IN2-KVROS    (1) +                            +                 
+                IN2-KVAKS    (1)                                                
+IF W-NETTO-LAGER < 1                                                            
+   W-TT = 0                                                                     
+ELSE                                                                            
+   IF W-KVOI-TOT = 0                                                            
+      W-TT = 99                                                                 
+   ELSE                                                                         
+      W-TT ROUNDED = W-NETTO-LAGER / W-KVOI-TOT                                 
+   END-IF                                                                       
+END-IF                                                                          
+W-PUBLDAT = IN2-TIFINLV / 10                                                    
+END-PROC                                                                        
+NEWPAGE                                                                         
+*------------------*                                                            
+*  REPORT          *                                                            
+*------------------*                                                            
+NEWPAGE                                                                         
+REPORT W26150-001  PRINTER W26150D2 NOADJUST NOSPREAD   +                       
+                   LINESIZE 120 PAGESIZE 42 SKIP 1                              
+CONTROL  FINAL NOPRINT                         +                                
+         W-IDANSK   NEWPAGE NOPRINT            +                                
+         W-IDLEVNR  NOPRINT                    +                                
+         W-IDARTNR  NOPRINT                                                     
+TITLE 1  COL 3   'VOLVO AFTERSALES'                      +                      
+         COL 20  'W26150-001'                            +                      
+         COL 32  'ARTIKLAR MED ÖVERSKOTTSLAGER < 500 KR' +                      
+         COL 86  'DATUM' -2 SYSDATE                                             
+TITLE 3  COL 3   'ANSKNR'                                +                      
+         COL 10  W-IDANSK                                +                      
+                                                                                
+HEADING  IN2-BEART-SVE  (' ' 'BENÄMNING               ')                        
+HEADING  IN2-KDERS      (' ' '    EK')                                          
+LINE  1  W-IDARTNR       -2            +                                        
+         W-IDLEVNR       -2            +                                        
+         IN2-BEART-SVE   -5            +                                        
+         W-DISP-TOT      -2            +                                        
+         W-KVAKS         -2            +                                        
+         W-KVBR          -2            +                                        
+         W-SUTPO-TOT     -2            +                                        
+         IN2-KDERS       -3            +                                        
+         W-KVPB-TOT      -2            +                                        
+         W-KVOI-TOT      -2            +                                        
+         W-TT            -2            +                                        
+         W-KVSKKNST      -2            +                                        
+         W-PUBLDAT       -2            +                                        
+         W-TIURPROD                                                             

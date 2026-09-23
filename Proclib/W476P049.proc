@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FAKTURA-RADER FRÅN BILL-IT                                                 
+//*  FÖRDELAS UT TILL OLIKA SYSTEM                                              
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W476D5                                           
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W47649    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W476P049 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W476..W476D5,                                             
+//             INDUT=&W476..W476D5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47649S  EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W476PD49),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W47650(+0),DISP=SHR                                  
+//************ FAKTURA-INFO                                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47650,DISP=(NEW,PASS,DELETE),                             
+//************ SORT PER (FAKT,DIST,KUND,ORDER,PRODNR)                           
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47649   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W47649,W47649,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                    -- ABEND         
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W47649D1 DD  DSN=&&W47650,DISP=(OLD,DELETE,DELETE)                            
+//************ SORT PER (FAKT,DIST,KUND,ORDER,PRODNR)                           
+//*                                                                             
+//W47649D2 DD  DSN=&INDUT..W47649(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FAKTURA-RADER TILL OLIKA SYSTEM                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

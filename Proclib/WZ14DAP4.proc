@@ -1,0 +1,73 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  GENERAL PROCEDURE TO DISTRIBUTE A FILE USING THE                           
+//*  DISTRIBUTION AND PRINT APPLICATION.                                        
+//*  THIS PROCEDURE CALLS THE D&P PROGRAM DIRECTLY AND DOES NOT                 
+//*  SEND DATA VIA THE IMS QUEUE.                                               
+//*                                                                             
+//*  THIS PROCEDURE DIFFERS FROM THE NORMAL WZ14PDAP/DAP2 PROCEDURES            
+//*  IN THAT THE INPUT FILE SHOULD CONTAIN THE CONTROL INFORMATION              
+//*  FOR DIRECTING THE DATA TO THE CORRECT DESTINATION WHILE                    
+//*  WZ14PDAP/DAP2 READS SUCH INFO FROM A SEPARATE "SYSIN"                      
+//*  CONTROL FILE. THIS IS THE SAME FUNCTIONALITY AS WZ14DAP3                   
+//*                                                                             
+//*  THIS PROCEDURE CAN ALSO PROCESS MULTIPLE REPORTS IN THE SAME               
+//*  INPUT FILE.                                                                
+//*                                                                             
+//*  THE CONTROL INFORMATION CONSISTS OF 1-3 "HEADER" RECORDS                   
+//*  BEFORE THE ACTUAL REPORT DATA, EACH RECORD STARTING WITH THE               
+//*  PREFIX "¤DAP" AND FOLLOWED BY:                                             
+//*                                                                             
+//*    RCD 1: REPORT TYPE (OUTPUT TYPE) - MUST BE SPECIFIED                     
+//*    RCD 2: SUB TYPE (OUTPUT RECEIVER) - OPTIONAL, DFLT=SPACE                 
+//*    RCD 3: LIST ID - OPTIONAL, DEFAULT IS YYMMDDHHMMSS                       
+//*                                                                             
+//*  PARAMETERS:                                                                
+//*    DSIN=    FILE CONTAINING THE REPORT (AND CONTROL) DATA                   
+//*                                                                             
+//*  SYSIN: (SENT FROM JCL)                                                     
+//*    CODE WHICH SAYS HOW TO HANDLE CONTROL CHAR FOR VBA FILES                 
+//*                                                                             
+//*      0 OR NONE - DEFAULT. FIRST POS IS PART OF DATA                         
+//*      1         - SKIP FIRST POS IN THE DATA.                                
+//*                  TO BE USED ONLY FOR VBA FILES.                             
+//*                                                                             
+//*  FREQUENCE:  NOW AND THEN                                                   
+//*                                                                             
+//*  RESTART:    WZ1413    NORMAL (BMP) (USES PSB WZ1412)                       
+//*              USE "CKPTID=LAST" IN JCL DURING RESTART TO START               
+//*              FROM LAST CHECKPOINT.                                          
+//*              ALSO CHECK THAT THE FILE VERSION IS CORRECT                    
+//*  EXAMPLE:                                                                   
+//*  EXEC WZ14DAP4,DSIN=WXXX.WXXXXX.WXXXXX(0),CPU=3,CKPTID=LAST                 
+//*                                        -       ------------                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ14DAP4 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,PSB=WZ1412,    NOTE: PSB FOR WZ1412 PGM REUSED             
+//             SOPREG=&INDRTE..SOP,CKPTID=                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ1413   EXEC PGM=DFSRRC00,                                                   
+//         PARM=('BMP,WZ1413,&PSB,,,N00,,,&CKPTID,,&CPU,,,&IMS')                
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//WDS3G    DD  DSN=&DSIN,DISP=SHR                                               
+//************ INPUT DATA AND CONTROL FILE                                      
+//*                                                                             
+//SYSIN    DD  DUMMY                                                            
+//*                                                                             
+//WSOPDD1  DD  DSN=&SOPREG,DISP=SHR            -- SOP DATA BASE                 

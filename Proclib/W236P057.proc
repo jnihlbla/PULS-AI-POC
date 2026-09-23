@@ -1,0 +1,69 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MERGAR SAMMAN ORDERINFO FRÅN WDL8/WDL7 OCH SKAPAR                          
+//*  WXTR-FIL.                                                                  
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD     RTN W236R1                            
+//*                                                                             
+//*  ÅTERSTART:    W23657    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W236P057 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W236..W236R1,                                             
+//             INDUT=&W236..W236R1,                                             
+//             INDUT2=&WXTR..ORDERINF                                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORTL8   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W236PD57),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W23655(+0),DISP=SHR                                  
+//************ WDL8-INFO                                                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W23655,DISP=(NEW,PASS,DELETE),                             
+//************ W23655 SORTED ON PARTNUMBER                                      
+//         DATACLAS=PSEN                                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORTL7   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W236PD57),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W23656(+0),DISP=SHR                                  
+//************ WDL7-INFO                                                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W23656,DISP=(NEW,PASS,DELETE),                             
+//************ W23656 SORTED ON PARTNUMBER                                      
+//         DATACLAS=PSEN                                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23657   EXEC PGM=V16459,PARM='W23657/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W23657D1 DD  DSN=&&W23655,DISP=(OLD,DELETE,DELETE)                            
+//************ WDL8-INFO                                                        
+//*                                                                             
+//W23657D2 DD  DSN=&&W23656,DISP=(OLD,DELETE,DELETE)                            
+//************ WDL7-INFO                                                        
+//*                                                                             
+//W23657D3 DD  DSN=&INDUT..W23657(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ WDL8+WDL7-INFO                                                   
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGEN1  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W23657(+1),DISP=SHR                                  
+//************ OVANSTÅENDE FIL TILL KOPIERING                                   
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..W23657(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ WXTR-FIL FÖR ANVÄNDARE                                           
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

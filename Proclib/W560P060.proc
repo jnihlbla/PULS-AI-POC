@@ -1,0 +1,52 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PRISTILLÄMPAR ALLA ARTIKLAR PÅ WDK6 FÖR USA                                
+//*                                                                             
+//*  FREKVENS:     ÅRLIGEN       RTN W560Y2                                     
+//*                                                                             
+//*  ÅTERSTART:    W56060      NORMAL                                           
+//*                ANROPAR BASER I PRISTILLÄMPNINGEN + VALUTAKURSBAS            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W560P060 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDUT=&W560..W560Y2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56060   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W56060,W56060,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDG2     INCLUDE MEMBER=WDG2                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//WDC1     INCLUDE MEMBER=WDC1                                                  
+//WDC2     INCLUDE MEMBER=WDC2                                                  
+//WDF1     INCLUDE MEMBER=WDF1                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W56060D1 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ ARTIKELREGISTER-EXTRAKT                                          
+//*                                                                             
+//W56060D2 DD  DSN=&INDUT..W56061(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL MED PRISTILLÄMPADE ARTIKLAR                                  
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  

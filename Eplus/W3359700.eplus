@@ -1,0 +1,244 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W3359700                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATE COST & STDPRICEFILE 97 IN RUTINE W335V6        *        
+*                TO SALES & TARGET                                     *        
+*  FÖRFATTARE :  GAVIN SMITH                                           *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W33597D1                                                                   
+*TOTALFIL MED LOKALA ART                                                        
+%W33589  'NDC-'                                                                 
+                                                                                
+FILE W33597D2   VB (36 0)                                                       
+%W33597A 'UTA-'                                                                 
+%W33597  'UT-'                                                                  
+                                                                                
+FILE W33597D4                                                                   
+*WDK711 - NDC                                                                   
+%W01184  'W011-'                                                                
+*                                                                               
+                                                                                
+FILE TPFIL1 FB (483 0)                                                          
+%W01184  'T1-'                                                                  
+*                                                                               
+FILE W33597D3                                                                   
+*KURSFIL MED AKTUELL MÅNAD                                                      
+%W33592  'KURS-'                                                                
+                                                                                
+FILE TPFIL2 FB (4 0)                                                            
+T2-IDDC               1   2   A                                                 
+T2-IDLANDX2           3   2   A                                                 
+                                                                                
+* ARBETSFÄLT                                                                    
+*                                                                               
+IX                W   3 N    VALUE 1                                            
+MAX-IX            W   3 N    VALUE 100                                          
+FORSTA-GANG       W   2 A    VALUE 'J'                                          
+FORSTA-CHINA      W   2 A    VALUE 'J'                                          
+W-NDC-IDDC        W   2 A                                                       
+WS-IDLANDX2-FOUND W   1 A                                                       
+WS-PREV-IDDC      W   2 A                                                       
+*                                                                               
+W-DAGENS-DATUM            W  8  A                                               
+WS-AR     W-DAGENS-DATUM      2  N                                              
+W-FILLER  W-DAGENS-DATUM   +2 1  A                                              
+WS-MM     W-DAGENS-DATUM   +3 2  N                                              
+WS-FILLER W-DAGENS-DATUM   +5 1  A                                              
+WS-DD     W-DAGENS-DATUM   +6 2  N                                              
+*                                                                               
+WS-DATUM             W  6  N                                                    
+WS-DATAR    WS-DATUM    2  N                                                    
+WS-DATMAN   WS-DATUM +2 2  N                                                    
+WS-DATDAG   WS-DATUM +4 2  N                                                    
+                                                                                
+W-DAAAMM          W  6  N                                                       
+W-SEKEL W-DAAAMM     2  N                                                       
+W-AAR   W-DAAAMM  +2 2  N                                                       
+W-MM    W-DAAAMM  +4 2  N                                                       
+                                                                                
+PROGRAM-NAMN      W  6  A VALUE 'W33597'                                        
+DATUMKORT-ID      W  6  A VALUE 'WDATUM'                                        
+                                                                                
+%WDATKORT                                                                       
+*                                                                               
+*--------------------------------------*                                        
+*  WWDC99 - NDC-ER                     *                                        
+* -------------------------------------*                                        
+%WWDC99                                                                         
+*                                                                               
+FILE EXCHSUP VIRTUAL RETAIN FB (4 0) TABLE 400000                               
+ARG 1 2 A. DESC 3 2 A                                                           
+                                                                                
+WS-IDDC           W   2 A                                                       
+WS-IDLANDX2       W   2 A                                                       
+*                                                                               
+*                                                                               
+* STEP 1. SORT W01184 INTO TPFILE1 ON IDDC                                      
+*                                                                               
+SORT W33597D4 TO TPFIL1 USING W011-SLAG-IDDC SIZE 9000000                       
+*                                                                               
+* STEP 2 SELECT DC AND IDLANDX2 FROM TPFIL1 TO TPFIL2                           
+*                                                                               
+JOB INPUT (TPFIL1 KEY(T1-SLAG-IDDC))                                            
+                                                                                
+  IF LAST-DUP TPFIL1 OR NOT DUPLICATE TPFIL1                                    
+    T2-IDDC     = T1-SLAG-IDDC                                                  
+    T2-IDLANDX2 = T1-SLAG-IDLANDX2                                              
+    PUT TPFIL2                                                                  
+  END-IF                                                                        
+*                                                                               
+* STEP 3. SORT TPFIL2 INTO EXCHSUP ON IDDC                                      
+*                                                                               
+SORT TPFIL2 TO EXCHSUP USING T2-IDDC SIZE 9000000                               
+                                                                                
+NEWPAGE                                                                         
+* ALLA ARTIKLAR INKL LOKALA - NDC SORTERAD PÅ ARTNR                             
+***JOB INPUT W33597D1 START A-INIT                                              
+JOB INPUT NULL                                                                  
+                                                                                
+   GET W33597D1                                                                 
+                                                                                
+   IF NOT EOF W33597D1                                                          
+     PERFORM A-LAS-KURSFIL                                                      
+   END-IF                                                                       
+                                                                                
+    DO WHILE NOT EOF W33597D1                                                   
+       UT-IDARTNR  EQ NDC-IDARTNR                                               
+       UT-PRARTSJK EQ NDC-PRARTSJK                                              
+       UT-PRARTSTD EQ NDC-PRARTSTD                                              
+       UT-KDPRODSL EQ NDC-KDPRODSL                                              
+       UT-IDLANDX2 EQ 'P0'                                                      
+       IF UT-PRARTSJK NE 0                                                      
+         RECORD-LENGTH(W33597D2) = 32                                           
+         PUT W33597D2                                                           
+       END-IF                                                                   
+                                                                                
+  *** SOLLA BORT ALLA ARTIKLAR MED INGEN HUVUDLEV???                            
+                                                                                
+    FORSTA-GANG = 'J'                                                           
+    FORSTA-CHINA = 'J'                                                          
+                                                                                
+    IF NDC-IDLEVNR-HUV > '     '                                                
+                                                                                
+      IX = 1                                                                    
+      DO WHILE IX < MAX-IX                                                      
+        IF NDC-IDDC(IX) NE '  '                                                 
+          W-NDC-IDDC = NDC-IDDC (IX)                                            
+          PERFORM S23-CHECK-W-NDC-IDDC                                          
+          WS-IDDC    = NDC-IDDC (IX)                                            
+          SEARCH EXCHSUP WITH WS-IDDC GIVING WS-IDLANDX2                        
+          IF NDC-IDLEVNR(IX) NE '1441 ' 'BP2TW' '     '                         
+             IF W-NDC-IDDC = NDC-US                                             
+               UT-IDLANDX2 = WS-IDLANDX2                                        
+               IF FORSTA-GANG = 'J'                                             
+                 IF NDC-IDLEVNR (IX) > '     '                                  
+                   UT-PRARTSJK = NDC-PRARTBES-PR (IX)                           
+                   UT-IDARTNR = NDC-IDARTNR                                     
+                   UT-PRARTSTD = NDC-PRARTSTD                                   
+                   UT-KDPRODSL = NDC-KDPRODSL                                   
+                   IF UT-PRARTSJK NE 0                                          
+                     RECORD-LENGTH(W33597D2) = 32                               
+                     PUT W33597D2                                               
+                     FORSTA-GANG = 'N'                                          
+                   END-IF                                                       
+                 END-IF                                                         
+               END-IF                                                           
+             ELSE                                                               
+              IF W-NDC-IDDC = NDC-CA                                            
+                UT-IDLANDX2 = WS-IDLANDX2                                       
+                UT-PRARTSJK = NDC-PRARTBES-PR (IX)                              
+                UT-IDARTNR = NDC-IDARTNR                                        
+                UT-PRARTSTD = NDC-PRARTSTD                                      
+                UT-KDPRODSL = NDC-KDPRODSL                                      
+                IF UT-PRARTSJK NE 0                                             
+                  RECORD-LENGTH(W33597D2) = 32                                  
+                  PUT W33597D2                                                  
+                END-IF                                                          
+              ELSE                                                              
+                IF W-NDC-IDDC = NDC-JP                                          
+                  UT-IDLANDX2 = WS-IDLANDX2                                     
+                  UT-PRARTSJK = NDC-PRARTBES-PR (IX)                            
+                  UT-IDARTNR = NDC-IDARTNR                                      
+                  UT-PRARTSTD = NDC-PRARTSTD                                    
+                  UT-KDPRODSL = NDC-KDPRODSL                                    
+                  IF UT-PRARTSJK NE 0                                           
+                    RECORD-LENGTH(W33597D2) = 32                                
+                    PUT W33597D2                                                
+                  END-IF                                                        
+                ELSE                                                            
+                  IF W-NDC-IDDC = NDC-AU                                        
+                    UT-IDLANDX2 = WS-IDLANDX2                                   
+                    UT-PRARTSJK = NDC-PRARTBES-PR (IX)                          
+                    UT-IDARTNR = NDC-IDARTNR                                    
+                    UT-PRARTSTD = NDC-PRARTSTD                                  
+                    UT-KDPRODSL = NDC-KDPRODSL                                  
+                    IF UT-PRARTSJK NE 0                                         
+                      RECORD-LENGTH(W33597D2) = 32                              
+                      PUT W33597D2                                              
+                    END-IF                                                      
+                  ELSE                                                          
+                    IF W-NDC-IDDC = NDC-CN                                      
+                       UT-IDLANDX2 = WS-IDLANDX2                                
+                       IF FORSTA-CHINA = 'J'                                    
+                          IF NDC-IDLEVNR (IX) > '     '                         
+                             UT-PRARTSJK = NDC-PRARTBES-PR (IX)                 
+                             UT-IDARTNR = NDC-IDARTNR                           
+                             UT-PRARTSTD = NDC-PRARTSTD                         
+                             UT-KDPRODSL = NDC-KDPRODSL                         
+                             IF UT-PRARTSJK NE 0                                
+                                RECORD-LENGTH(W33597D2) = 32                    
+                                PUT W33597D2                                    
+                                FORSTA-CHINA = 'N'                              
+                             END-IF                                             
+                          END-IF                                                
+                       END-IF                                                   
+                    ELSE                                                        
+                      IF W-NDC-IDDC = XDC-NON-VCC-OWNED                         
+                        UT-IDLANDX2 =  WS-IDLANDX2                              
+                        UT-PRARTSJK = NDC-PRARTBES-PR (IX)                      
+                        UT-IDARTNR = NDC-IDARTNR                                
+                        UT-PRARTSTD = NDC-PRARTSTD                              
+                        UT-KDPRODSL = NDC-KDPRODSL                              
+                        IF UT-PRARTSJK NE 0                                     
+                          RECORD-LENGTH(W33597D2) = 32                          
+                          PUT W33597D2                                          
+                        END-IF                                                  
+                      END-IF                                                    
+                    END-IF                                                      
+                  END-IF                                                        
+                END-IF                                                          
+              END-IF                                                            
+             END-IF                                                             
+          END-IF                                                                
+        END-IF                                                                  
+        IX = IX + 1                                                             
+      END-DO                                                                    
+    END-IF                                                                      
+    GET W33597D1                                                                
+    END-DO                                                                      
+STOP                                                                            
+                                                                                
+A-LAS-KURSFIL. PROC                                                             
+* W-DAGENS-DATUM = SYSDATE                                                      
+  GET W33597D3                                                                  
+  WS-DATUM = KURS-TISTADAT                                                      
+  W-SEKEL  = 20                                                                 
+  W-AAR    = WS-DATAR                                                           
+  W-MM     = WS-DATMAN                                                          
+* W-AAR    = WS-AR                                                              
+* W-MM     = WS-MM                                                              
+  UTA-DAAAMM = W-DAAAMM                                                         
+  RECORD-LENGTH(W33597D2) = 6                                                   
+  PUT W33597D2                                                                  
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*  ---  S23-CHECK-W-NDC-IDDC (MACRO PROCEDURE)                                  
+%WWDC02 'W-NDC-'                                                                
+*                                                                               

@@ -1,0 +1,36 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER SB FIL FRÅN W6H7 OCH SKRIVER UT POSTER                               
+//*  VILKA SKA RENSAS.                                                          
+//*                                                                             
+//*  FREKVENS:     ÅRSKÖRNING    RTN W426Y1                                     
+//*                                                                             
+//*  ÅTERSTART:    W42650    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W426P050 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W426..W426D2,                                            
+//             INDUT=&W426..W426Y1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42650   EXEC PGM=V16459,PARM='W42650/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W42650D1 DD  DSN=&INDREG..W42620(+0),DISP=SHR                                 
+//************ INFIL W6H7 SB FIL                                                
+//*                                                                             
+//W42650D2 DD  DSN=&INDUT..W42650(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ POSTER SOM SKA RENSAS FRÅN W6H7                                  
+//             MGMTCLAS=&DEL2BKPC,SPACE=(31,(12,2),RLSE),                       
+//             AVGREC=K                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

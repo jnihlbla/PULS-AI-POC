@@ -1,0 +1,271 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4755F00                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  MARGARETA GABRIELSSON                                 *        
+*                                                                      *        
+*  DATUM      :  940825                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET SKAPAR FICHELISTOR MED ÖVERSÄTTNING        *        
+*                STATNUMMER - FAKTURANUMMER - ARTIKELNUMMER.           *        
+*                EN FICHELISTA PER TULLISTA                            *        
+*                                                                      *        
+*                                                                      *        
+*                PROGRAMMET SKAPAR:                                    *        
+*                  LISTA W4755F-001  FICHE PÅ DATAT FRÅN W4758T        *        
+*                  LISTA W4755F-002  FICHE PÅ DATAT FRÅN W47588        *        
+*                  LISTA W4755F-003  FICHE PÅ DATAT FRÅN W47587        *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     950216      MARGARETA G              57054 (SDC-PROJ)            *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W4755FD1                                                                   
+*                                                                               
+%W475894E      'IN-'                                                            
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W4755FD2 PRINTER                                                           
+*                                                                               
+FILE W4755FD3 PRINTER                                                           
+*                                                                               
+FILE W4755FD4 PRINTER                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+*                                                                               
+ SPAR-IDPTYP       W   3  A                                                     
+ SPAR-IDSTATNR     W   9  N     MASK 'ZZZZZZZZ9'                                
+ SPAR-IDARTNR      W   9  N     MASK 'ZZZZZZZZ9'                                
+ SPAR-IDFAKT       W   7  N     MASK 'ZZZZZZ9'                                  
+ SPAR-IDDISTR      W   5  N     MASK 'ZZZZ9'                                    
+ SPAR-VKLEV        W   7  N 1   MASK 'ZZZZZ9,9'                                 
+ SPAR-SUFAKT       W  11  N 2   MASK 'ZZZZZZZZ9,99'                             
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT  W4755FD1   START A-INIT                             +              
+                        FINISH Z-FINIT                           +              
+                                                  NAME   STEG01                 
+    IF RECORD-COUNT = 1                                                         
+      PERFORM SPARA-NYCKLAR                                                     
+    END-IF                                                                      
+                                                                                
+      IF IN-IDSTATNR = SPAR-IDSTATNR AND                           +            
+        IN-IDFAKT = SPAR-IDFAKT AND                                +            
+        IN-IDARTNR = SPAR-IDARTNR                                               
+          PERFORM SUMMERA-VARDEN                                                
+      ELSE                                                                      
+        PERFORM PRINTA-LISTA                                                    
+        PERFORM SPARA-NYCKLAR                                                   
+        PERFORM NOLLA-VARDEN                                                    
+        PERFORM SUMMERA-VARDEN                                                  
+      END-IF                                                                    
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  A-INIT. PROC                                                                  
+                                                                                
+    SPAR-IDSTATNR   = 0                                                         
+    SPAR-IDFAKT     = 0                                                         
+    SPAR-IDDISTR    = 0                                                         
+    SPAR-IDARTNR    = 0                                                         
+    SPAR-VKLEV      = 0                                                         
+    SPAR-SUFAKT     = 0                                                         
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  SPARA-NYCKLAR. PROC                                                           
+                                                                                
+    SPAR-IDPTYP    = IN-IDPTYP                                                  
+    SPAR-IDSTATNR  = IN-IDSTATNR                                                
+    SPAR-IDFAKT    = IN-IDFAKT                                                  
+    SPAR-IDDISTR   = IN-IDDISTR                                                 
+    SPAR-IDARTNR   = IN-IDARTNR                                                 
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  SUMMERA-VARDEN. PROC                                                          
+                                                                                
+    SPAR-VKLEV    = SPAR-VKLEV    + IN-VKLEV                                    
+    SPAR-SUFAKT   = SPAR-SUFAKT   + IN-SUFAKT                                   
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  NOLLA-VARDEN. PROC                                                            
+                                                                                
+    SPAR-VKLEV     = 0                                                          
+    SPAR-SUFAKT    = 0                                                          
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  PRINTA-LISTA. PROC                                                            
+                                                                                
+    IF SPAR-IDPTYP = 'SDC'                                                      
+      PRINT RAPPORT01                                                           
+    ELSE                                                                        
+      IF SPAR-IDPTYP = 'CAR'                                                    
+        PRINT RAPPORT02                                                         
+      ELSE                                                                      
+        IF SPAR-IDPTYP = 'HOL'                                                  
+          PRINT RAPPORT03                                                       
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  Z-FINIT. PROC                                                                 
+                                                                                
+    PERFORM PRINTA-LISTA                                                        
+                                                                                
+  END-PROC                                                                      
+NEWPAGE                                                                         
+*                                                                               
+  REPORT RAPPORT01 PRINTER W4755FD2                              +              
+                   LINESIZE     120                              +              
+                   PAGESIZE      41                              +              
+                   NODATE                                        +              
+                   NOADJUST                                      +              
+                   NOSPREAD                                      +              
+                   SUMSPACE       0                              +              
+                   SPACE          3                                             
+*                                                                               
+  CONTROL SPAR-IDSTATNR                                          +              
+          SPAR-IDFAKT  NOPRINT                                   +              
+          SPAR-IDDISTR NOPRINT                                                  
+*                                                                               
+  SUM SPAR-VKLEV                                                 +              
+      SPAR-SUFAKT                                                               
+*                                                                               
+  TITLE 01                                                       +              
+    COL 02 'VOLVO CAR PARTS                 W4755F-001'                         
+*                                                                               
+  TITLE 04                                                       +              
+    COL 12 'MONTHLY SUM. OF CUSTOMS TARIFF NO. INV. FROM DC21'   +              
+    COL 68 SYSDATE                                                              
+*                                                                               
+  HEADING  SPAR-IDSTATNR    'CUST.TARIFF'                                       
+  HEADING  SPAR-IDFAKT      'INVOICE'                                           
+  HEADING  SPAR-IDDISTR     'DISTRICT'                                          
+  HEADING  SPAR-IDARTNR     'PART NO.'                                          
+  HEADING  SPAR-VKLEV       'NET WEIGHT'                                        
+  HEADING  SPAR-SUFAKT      'TOT.AMOUNT'                                        
+*                                                                               
+  LINE 01                                                        +              
+           SPAR-IDSTATNR                                         +              
+           SPAR-IDFAKT                                           +              
+           SPAR-IDDISTR                                          +              
+           SPAR-IDARTNR                                          +              
+           SPAR-VKLEV                                            +              
+           SPAR-SUFAKT                                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  REPORT RAPPORT02 PRINTER W4755FD3                              +              
+                   LINESIZE     120                              +              
+                   PAGESIZE      41                              +              
+                   NODATE                                        +              
+                   NOADJUST                                      +              
+                   NOSPREAD                                      +              
+                   SUMSPACE       0                              +              
+                   SPACE          3                                             
+*                                                                               
+  CONTROL SPAR-IDSTATNR                                          +              
+          SPAR-IDFAKT  NOPRINT                                   +              
+          SPAR-IDDISTR NOPRINT                                                  
+*                                                                               
+  SUM SPAR-VKLEV                                                 +              
+      SPAR-SUFAKT                                                               
+*                                                                               
+  TITLE 01                                                       +              
+    COL 02 'VOLVO CAR PARTS                 W4755F-002'                         
+*                                                                               
+  TITLE 04                                                       +              
+    COL 12 'MONTHLY SUM. OF CUSTOMS TARIFF NO. REFILL DC21  '    +              
+    COL 68 SYSDATE                                                              
+*                                                                               
+  HEADING  SPAR-IDSTATNR    'CUST.TARIFF'                                       
+  HEADING  SPAR-IDFAKT      'INVOICE'                                           
+  HEADING  SPAR-IDDISTR     'DISTRICT'                                          
+  HEADING  SPAR-IDARTNR     'PART NO.'                                          
+  HEADING  SPAR-VKLEV       'NET WEIGHT'                                        
+  HEADING  SPAR-SUFAKT      'TOT.AMOUNT'                                        
+*                                                                               
+  LINE 01                                                        +              
+           SPAR-IDSTATNR                                         +              
+           SPAR-IDFAKT                                           +              
+           SPAR-IDDISTR                                          +              
+           SPAR-IDARTNR                                          +              
+           SPAR-VKLEV                                            +              
+           SPAR-SUFAKT                                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  REPORT RAPPORT03 PRINTER W4755FD4                              +              
+                   LINESIZE     120                              +              
+                   PAGESIZE      41                              +              
+                   NODATE                                        +              
+                   NOADJUST                                      +              
+                   NOSPREAD                                      +              
+                   SUMSPACE       0                              +              
+                   SPACE          3                                             
+*                                                                               
+  CONTROL SPAR-IDSTATNR                                          +              
+          SPAR-IDFAKT  NOPRINT                                   +              
+          SPAR-IDDISTR NOPRINT                                                  
+*                                                                               
+  SUM SPAR-VKLEV                                                 +              
+      SPAR-SUFAKT                                                               
+*                                                                               
+  TITLE 01                                                       +              
+    COL 02 'VOLVO CAR PARTS                 W4755F-003'                         
+*                                                                               
+  TITLE 04                                                       +              
+    COL 12 'MONTHLY SUM. OF CUSTOMS TARIFF NO. DUTCH IMP.   '    +              
+    COL 68 SYSDATE                                                              
+*                                                                               
+  HEADING  SPAR-IDSTATNR    'CUST.TARIFF'                                       
+  HEADING  SPAR-IDFAKT      'INVOICE'                                           
+  HEADING  SPAR-IDDISTR     'DISTRICT'                                          
+  HEADING  SPAR-IDARTNR     'PART NO.'                                          
+  HEADING  SPAR-VKLEV       'NET WEIGHT'                                        
+  HEADING  SPAR-SUFAKT      'TOT.AMOUNT'                                        
+*                                                                               
+  LINE 01                                                        +              
+           SPAR-IDSTATNR                                         +              
+           SPAR-IDFAKT                                           +              
+           SPAR-IDDISTR                                          +              
+           SPAR-IDARTNR                                          +              
+           SPAR-VKLEV                                            +              
+           SPAR-SUFAKT                                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               

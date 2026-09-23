@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      AGGREGERING AV FAKTURARADER/MERGE ÖVRIGA SAP-POSTER          *         
+//*                                                                   *         
+//*      PERIODICITET: DAG    RTN W510D4                              *         
+//*                                                                   *         
+//*      ÅTERSTART:    NORMAL                                         *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P069 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..W510D4,                                             
+//             INDUT=&W510..W510D4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51069   EXEC PGM=V16459,PARM='W51069/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//***VFM   DD  SPACE=(4096,(10000,5000))                                        
+//EZTVFM   DD  DATACLAS=PSEB,DCB=BLKSIZE=27968                                  
+//SORTMSG  DD  SYSOUT=*                                                         
+//W51069D1 DD  DSN=&INDIN..W51071(+0),DISP=SHR                                  
+//************ ÖVRIGA TRANSAR TILL SAP                                          
+//*                                                                             
+//W51069D2 DD  DSN=&INDIN..W51072(+0),DISP=SHR                                  
+//************ FAKTURARADER SOM SKALL SUMMERAS                                  
+//*                                                                             
+//W51069D3 DD  DSN=&INDIN..W51073(+0),DISP=SHR                                  
+//************ FAKTURAHUVUDEN                                                   
+//*                                                                             
+//W51069D4 DD  DSN=&INDUT..W51074(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UTFIL MED SORTERADE SAP-TRANSAR                                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEB                                 
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR FIL MED SORTERADE FAKT.RADER                            
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR FIL FÖR SORTERING AV ALLA SAP-POSTERNA                  
+//             DATACLAS=PSEB                                                    

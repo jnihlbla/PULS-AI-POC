@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKRIVER UT ALLA PROCESSER I SOP SOM INTE EXEKVERATS EFTER ETT              
+//*  VISST DATUM. DATUMET GES VIA PARM.                                         
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W980B2                                      
+//*                                                                             
+//*  ÅTERSTART:    W98060    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W980P060 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W980..W980B2,                                             
+//             SOPREG=&INDRTE..SOP,                                             
+//             DATUM=000000                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//BI       EXEC PGM=WGDGDEF,PARM=('&INDUT.',W98060,3)                           
+//STEPLIB  DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//WGDGDED1 DD                                                                   
+//WGDGDED2 DD                                                                   
+//*                                                                             
+//W98060   EXEC PGM=W98060,PARM='&DATUM'                                        
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W98060D1 DD  DSN=&SOPREG,DISP=SHR                                             
+//************ SOPDATABAS                                                       
+//W98060D2 DD  DSN=&INDUT..W98060(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ GAMLA PROCESSER                                                  
+//             MGMTCLAS=DEL2,SPACE=(23460,(4,2),RLSE)                           
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

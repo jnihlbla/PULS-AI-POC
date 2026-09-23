@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR FIL(-1) MED FIL(+0), SKRIVER UT ALLA EV                            
+//*  FÖRANDRINGAR TILL WLXXBJ-BASEN(WDG3) SAMT UPPDATERAR                       
+//*  WLARTM-BASEN(WDK9) MED DESSA                                               
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W115D1                                            
+//*                                                                             
+//*  ÅTERSTART:    W11527    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W115P027 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W115..W115D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11527   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('BMP,W11527,W11527,,,N00,,,,,&CPU,,,&IMS')                 
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W11527D1 DD  DSN=&INDIN..W11526(+0),DISP=SHR                                  
+//************ INFIL (+0)                                                       
+//*                                                                             
+//W11527D2 DD  DSN=&INDIN..W11526(-1),DISP=SHR                                  
+//************ INFIL (-1)                                                       
+//*                                                                             
+//W11527D3 DD DSN=&INDIN..W11527(+1),DISP=(NEW,CATLG,CATLG),    -LIM(2)         
+//************ FEL-MEDDELANDEN VIA DISPLAY                                      
+//             RECFM=FB,LRECL=80,                                               
+//             SPACE=(80,(100,500),RLSE),AVGREC=U,                              
+//             MGMTCLAS=&DEL2BKPC                                               

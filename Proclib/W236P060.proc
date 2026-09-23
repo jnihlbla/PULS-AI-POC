@@ -1,0 +1,59 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  LEVERANSFÖRSENADE ARTIKLAR.                                      *         
+//*                                                                   *         
+//*  FREKVENS:    DAG    RTN W200V2                                   *         
+//*                                                                   *         
+//*  ÅTERSTART:   NORMAL                                              *         
+//*               LÄSER WDD9 MED SB OCH                             *           
+//*                     WDK6, WDD3, WDK9, WDL2, WDA5  MED DLI.        *         
+//*               SKAPAR FIL INNEHÅLLANDE ARTIKLAR SOM INTE           *         
+//*               BLIVIT INLEVERERADE I TID,                          *         
+//*               SAMT FIL MED INFO FRÅN WDD924.                      *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W236P060 PROC INDUT=&W236..W200V2,                                            
+//             STPLIB=&INDRTE..LOAD                                             
+//*                                                                             
+//W23660   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W23660,W23660,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//WDL2     INCLUDE MEMBER=WDL2                                                  
+//WDA5     INCLUDE MEMBER=WDA5                                                  
+//WDK9     INCLUDE MEMBER=WDK9                                                  
+//WDF5     INCLUDE MEMBER=WDF5                                                  
+//W23660D1 DD  DSN=&INDUT..W23660(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//*            ARTIKLAR FRÅN WDD9 EJ LEVERERADE I TID.                          
+//             MGMTCLAS=&DEL2BKPC,SPACE=(23408,(200,100),RLSE)                  
+//*                                                                             
+//W23660D2 DD  DSN=&INDUT..W23661(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//*            ARTIKLAR FRÅN WDD9 SEGM WDD924.                                  
+//             MGMTCLAS=&DEL2BKPC,SPACE=(23472,(200,100),RLSE)                  
+//*                                                                             
+//*                                                                             

@@ -1,0 +1,66 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5708600                                              *        
+*                                                                      *        
+*  FUNKTION   :  THIS PROGRAM MATCHES PARTS AGAINST THE W01160 FILE TO *        
+*                GET THE PRODUCT GROUP                                 *        
+*                                                                      *        
+*  FÖRFATTARE :  ARCHANA BHAT                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W57086D1                                                                   
+*                                                                               
+%W57085  'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE TPFIL1 FB(18 0)                                                            
+*                                                                               
+%W57085  'T1-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W57086D2                                                                   
+*                                                                               
+%W01160  'K6-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W57086D3 FB(20 0)                                                          
+*                                                                               
+%W57086  'UT-'                                                                  
+                                                                                
+ W-KDPRODSL               W  2 P 0                                              
+NEWPAGE                                                                         
+* STEG 1. SORT ON IDARTNR AND IDDC                                              
+*                                                                               
+SORT W57086D1 TO +                                                              
+     TPFIL1 USING (IN-L6-IDARTNR, IN-L6-IDDC)                                   
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. MATCH TPFIL1 AND W01160                                               
+*                                                                               
+JOB INPUT (W57086D2 KEY(K6-CLAG-IDARTNR) +                                      
+           TPFIL1 KEY(T1-L6-IDARTNR))                                           
+*                                                                               
+IF MATCHED                                                                      
+                                                                                
+   IF DUPLICATE TPFIL1 AND NOT FIRST-DUP TPFIL1                                 
+       UT-KDPRODSL      =  W-KDPRODSL                                           
+       UT-IDARTNR       =  T1-L6-IDARTNR                                        
+       UT-IDDC          =  T1-L6-IDDC                                           
+       UT-IDLEVNR       =  T1-L6-IDLEVNR                                        
+       UT-PERIOD        =  T1-L6-PERIOD                                         
+                                                                                
+       PUT W57086D3                                                             
+   ELSE                                                                         
+       UT-KDPRODSL      =  K6-CLAG-KDPRODSL                                     
+       W-KDPRODSL       =  K6-CLAG-KDPRODSL                                     
+       UT-IDARTNR       =  T1-L6-IDARTNR                                        
+       UT-IDDC          =  T1-L6-IDDC                                           
+       UT-IDLEVNR       =  T1-L6-IDLEVNR                                        
+       UT-PERIOD        =  T1-L6-PERIOD                                         
+                                                                                
+       PUT W57086D3                                                             
+   END-IF                                                                       
+END-IF                                                                          

@@ -1,0 +1,93 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOPIERAR VECKANS SKAPADE FILER MED INFORMATION OM                          
+//*  PACKADE RADER TILL EN FIL.                                                 
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN WXTRV2                                          
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTRP001 PROC INDIN=&WXTR..WXTRV2,                                            
+//             INDUT=&WXTR..WXTRV2,                                             
+//             INDUT2=&WXTR                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGENER EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDIN..WXTRA0,DISP=SHR                                      
+//************ SAMTLIGA VECKANS DAGLIGA 'PACKAT'-FILER                          
+//************ OBS, INGET GENERATIONSNUMMER!                                    
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..WXTR01(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ VECKANS 'PACKAT'-FIL                                             
+//************ WXTR01 RENAMAS TILL WXTR.VAAVV.PACKRAD NÄR WXTRV2RE              
+//************        HAR GÅTT.                                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*            KOPIERAR OVANSTÅENDE UTFIL TILL ANTON LUNDGREN                   
+//ICEGEN2  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..WXTR01(+1),DISP=SHR                                  
+//************ VECKANS 'PACKAT'-FIL                                             
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..WPACKDC(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ VECKANS 'PACKAT'-FIL TILL EASYTRIEVE-KÖRNING                     
+//************ I W810D1-W810JWEE 'W8.IC.JCL(PICKER51)'                          
+//             MGMTCLAS=DEL2,DATACLAS=PSEN                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*  KOPIERAR OVANSTÅENDE UTFIL TILL GENERATIONSFIL                             
+//ICEGEN3  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..WXTR01(+1),DISP=SHR                                  
+//************ VECKANS 'PACKAT'-FIL                                             
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..PACKRAD(+1),                        -LIM(1)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*  KOPIERAR VECKANS FAKTURERADE RADER TILL GENERATIONSFIL                     
+//ICEGEN4  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDIN..WXTRA5,DISP=SHR                                      
+//************ SAMTLIGA VECKANS DAGLIGA 'FAKTURERAT'-FILER                      
+//************ OBS, INGET GENERATIONSNUMMER!                                    
+//*                                                                             
+//************ VECKANS 'FAKTURERAT'-FIL                                         
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..FAKTRADX(+1),                       -LIM(1)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*  KOPIERAR VECKANS FAKTURERADE RADER TILL HJÄLPFIL FÖR SENARE                
+//*  HISTORIKFIL WXTRA.VAAVV.WFAKTRADX                                          
+//ICEGEN5  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDIN..WXTRA5,DISP=SHR                                      
+//************ SAMTLIGA VECKANS DAGLIGA 'FAKTURERAT'-FILER                      
+//************ OBS, INGET GENERATIONSNUMMER!                                    
+//*                                                                             
+//************ VECKANS 'FAKTURERAT'-FIL                                         
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..WXTRA6(+1),                       -LIM(1)            
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             
+//ICEGEN6  EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT2..PACKRAD(+1),DISP=SHR                                
+//SYSUT2   DD  DSN=&INDUT..PACKRAD(+1),                       -LIM(1)           
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//************* INPUT TO W810P113  **********                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

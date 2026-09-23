@@ -1,0 +1,301 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4407500                                              *        
+*                                                                      *        
+*  FUNKTION   :  SALDOAVSTÄMNING KVOFFERT.                             *        
+*                JÄMFÖR SALDON SOM LIGGER PÅ WDK9 MED SALDON SOM       *        
+*                LIGGER PÅ WDE9 OCH WDQ1.                              *        
+*                VID MISSTÄMNING AV SALDON SKRIVS ARTIKELNUMMER, SAL-  *        
+*                DO OCH DIFF UT PÅ LISTA OCH FIL.                      *        
+*                                                                      *        
+*  FÖRFATTARE :  PER BERGH                                             *        
+*                                                                      *        
+*  ÄNDRING    :                                                                 
+*                                                                               
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*----------------------------------------------------------------------*        
+*                            FILE SECTION                              *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W44075D1                                                                   
+%W440072 'WDE9-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W44075D2                                                                   
+%W440072 'WDQ1-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W44075D3                                                                   
+%W440074  'WDK9-'                                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W44075D4  PRINTER FB (121 121)                                             
+*       LISTA KVOFFERT-DIFFAR                                                   
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W44075D5  FB (42 0)                                                        
+%W440056  'UT-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------------*        
+*                            WORKING STORAGE                           *        
+*----------------------------------------------------------------------*        
+*                                                                               
+*                                                                               
+  JA                        W    1     A     VALUE 'J'                          
+  NEJ                       W    1     A     VALUE 'N'                          
+*                                                                               
+  SW-FORSTA-GANG            W    1     A     VALUE 'J'                          
+  SW-SALDO-DIFF-KVOFFERT    W    1     A     VALUE 'N'                          
+*                                                                               
+  ACK-KVOFFERT-K9           W    5     P 0   VALUE 0                            
+*                                                                               
+  ACK-KVOFFERT-E9           W    5     P 0   VALUE 0                            
+*                                                                               
+  ACK-KVOFFERT-Q1           W    5     P 0   VALUE 0                            
+*                                                                               
+  SUM-KVOFFERT              W    3     P 0   VALUE 0                            
+  SUM-KVOFFERT-E9           W    3     P 0   VALUE 0                            
+  SUM-KVOFFERT-Q1           W    3     P 0   VALUE 0                            
+  SUM-KVOFFERT-K9           W    3     P 0   VALUE 0                            
+*                                                                               
+  PRINT-KVOFFERT-E9         W    3     P 0   VALUE 0  MASK '----9'              
+  PRINT-KVOFFERT-Q1         W    3     P 0   VALUE 0  MASK '----9'              
+*                                                                               
+  PRINT-KVOFFERT-K9         W    5     P 0   VALUE 0  MASK '--------9'          
+  PRINT-KVOFFERT-TOT        W    5     P 0   VALUE 0  MASK '--------9'          
+  PRINT-DIFF-KVOFFERT       W    5     P 0   VALUE 0  MASK '--------9'          
+*                                                                               
+  PRINT-KDCLAGER            W    1     P     VALUE 0                            
+  PRINT-IDDISTR             W    3     P     VALUE 0                            
+  PRINT-IDKUNDNR            W    4     P     VALUE 0                            
+  PRINT-IDKUNDRF            W   10     A     VALUE '          '                 
+  PRINT-IDARTNR             W    5     P     VALUE 0                            
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------------*        
+*                            PROCEDURE DIVISION                        *        
+*----------------------------------------------------------------------*        
+*                                                                               
+JOB INPUT NULL                                                   +              
+                                              NAME   STEG01                     
+                                                                                
+  GET W44075D1                                                                  
+  GET W44075D2                                                                  
+  GET W44075D3                                                                  
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  DO WHILE NOT EOF W44075D3                                                     
+                                                                                
+    PERFORM SUMMERA-WDK9-SALDO                                                  
+                                                                                
+    DO WHILE NOT EOF W44075D1 AND                                +              
+      WDE9-IDARTNR LE WDK9-IDARTNR                                              
+      IF WDE9-IDARTNR = WDK9-IDARTNR                                            
+        PERFORM SUMMERA-WDE9-SALDO                                              
+      END-IF                                                                    
+      GET W44075D1                                                              
+    END-DO                                                                      
+                                                                                
+    DO WHILE NOT EOF W44075D2 AND                                +              
+      WDQ1-IDARTNR LE WDK9-IDARTNR                                              
+      IF WDQ1-IDARTNR = WDK9-IDARTNR                                            
+        PERFORM SUMMERA-WDQ1-SALDO                                              
+      END-IF                                                                    
+      GET W44075D2                                                              
+    END-DO                                                                      
+                                                                                
+    PERFORM BERAKNA-SALDO-DIFFAR                                                
+    PERFORM KONTROLLERA-OM-SALDO-DIFFAR                                         
+    PERFORM PRINTA-RAPPORTER-SKRIV-FIL                                          
+    PERFORM NOLLSTALL-ACKAR                                                     
+                                                                                
+    GET W44075D3                                                                
+                                                                                
+  END-DO                                                                        
+                                                                                
+  STOP                                                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+SUMMERA-WDE9-SALDO.  PROC                                                       
+                                                                                
+  ACK-KVOFFERT-E9 = ACK-KVOFFERT-E9 + WDE9-KVOFFERT                             
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+SUMMERA-WDQ1-SALDO.  PROC                                                       
+                                                                                
+  ACK-KVOFFERT-Q1 = ACK-KVOFFERT-Q1 + WDQ1-KVOFFERT                             
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+SUMMERA-WDK9-SALDO.  PROC                                                       
+                                                                                
+  ACK-KVOFFERT-K9 = ACK-KVOFFERT-K9 + WDK9-KVOFFERT                             
+                                                                                
+END-PROC                                                                        
+NEWPAGE                                                                         
+*                                                                               
+BERAKNA-SALDO-DIFFAR.  PROC                                                     
+                                                                                
+  SUM-KVOFFERT-E9     =  ACK-KVOFFERT-E9                                        
+  SUM-KVOFFERT-Q1     =  ACK-KVOFFERT-Q1                                        
+  SUM-KVOFFERT-K9     =  ACK-KVOFFERT-K9                                        
+                                                                                
+  SUM-KVOFFERT        =   (ACK-KVOFFERT-E9  +                 +                 
+                           ACK-KVOFFERT-Q1) -                 +                 
+                           ACK-KVOFFERT-K9                                      
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+KONTROLLERA-OM-SALDO-DIFFAR.  PROC                                              
+                                                                                
+  IF SUM-KVOFFERT          NE 0                                                 
+    SW-SALDO-DIFF-KVOFFERT = JA                                                 
+  END-IF                                                                        
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+PRINTA-RAPPORTER-SKRIV-FIL.  PROC                                               
+                                                                                
+  IF SW-SALDO-DIFF-KVOFFERT = JA                                                
+                                                                                
+    PERFORM FYLL-DETALJRAD-MED-KVOFFERT-DIFFAR                                  
+    PERFORM SKRIV-UTFIL-MED-KVOFFERT-DIFFAR                                     
+                                                                                
+    PRINT RAPPORT01                                                             
+    SW-SALDO-DIFF-KVOFFERT = NEJ                                                
+  END-IF                                                                        
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FYLL-DETALJRAD-MED-KVOFFERT-DIFFAR.     PROC                                    
+                                                                                
+  PRINT-IDARTNR       = WDK9-IDARTNR                                            
+  PRINT-KDCLAGER      = 1                                                       
+  PRINT-KVOFFERT-K9   = SUM-KVOFFERT-K9                                         
+  PRINT-KVOFFERT-TOT  = SUM-KVOFFERT-E9 + SUM-KVOFFERT-Q1                       
+  PRINT-DIFF-KVOFFERT = SUM-KVOFFERT                                            
+  PRINT-KVOFFERT-E9   = SUM-KVOFFERT-E9                                         
+  PRINT-KVOFFERT-Q1   = SUM-KVOFFERT-Q1                                         
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+                                                                                
+SKRIV-UTFIL-MED-KVOFFERT-DIFFAR.     PROC                                       
+                                                                                
+  UT-IDDB            = '901'                                                    
+  UT-IDDC            = CDC-SE                                                   
+  UT-IDARTNR         = WDK9-IDARTNR                                             
+  UT-TIBEHOV         = 0                                                        
+  IF SUM-KVOFFERT NE 0                                                          
+      UT-KVANTAL     = SUM-KVOFFERT                                             
+      IF SUM-KVOFFERT LE 0                                                      
+          UT-KDMETOD = 'SUB'                                                    
+       ELSE                                                                     
+          UT-KDMETOD = 'ADD'                                                    
+      END-IF                                                                    
+      UT-IDSALDO     = 'KVOFFERT     '                                          
+      PUT W44075D5                                                              
+  END-IF                                                                        
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*                                                                               
+NOLLSTALL-ACKAR.  PROC                                                          
+                                                                                
+  ACK-KVOFFERT-K9     = 0                                                       
+*                                                                               
+  ACK-KVOFFERT-E9     = 0                                                       
+*                                                                               
+  ACK-KVOFFERT-Q1     = 0                                                       
+*                                                                               
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*----------------------------------------------------------------*              
+*                     REPORT SECTION                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+    REPORT RAPPORT01 PRINTER W44075D4                            +              
+                     LINESIZE     120                            +              
+                     PAGESIZE      41                            +              
+                     NODATE                                      +              
+                     NOADJUST                                    +              
+                     NOSPREAD                                    +              
+                     SPACE 1                                                    
+*                                                                               
+*   SEQUENCE                                                     +              
+*             PRINT-IDARTNR                                      +              
+*             PRINT-KDCLAGER                                                    
+*                                                                               
+    CONTROL   FINAL                  NOPRINT                     +              
+              PRINT-IDARTNR          NOPRINT                     +              
+              PRINT-KDCLAGER         NOPRINT                                    
+*                                                                               
+    TITLE 01                                                     +              
+    COL   02 'VOLVO TRUCK PARTS AB   W44075-001'                 +              
+    COL   93  SYSDATE                                                           
+*                                                                               
+    TITLE 02                                                     +              
+    COL   30 'DIFFLISTA  -  KVOFFERT      '                                     
+*                                                                               
+    HEADING   PRINT-IDARTNR             'ART'                                   
+    HEADING   PRINT-KDCLAGER            'CL'                                    
+    HEADING   PRINT-KVOFFERT-K9         '          K9 '                         
+    HEADING   PRINT-KVOFFERT-TOT        '      TOT'                             
+    HEADING   PRINT-DIFF-KVOFFERT       '         DIFF'                         
+    HEADING   PRINT-KVOFFERT-E9         '       E9'                             
+    HEADING   PRINT-KVOFFERT-Q1         '         Q1  '                         
+*                                                                               
+    LINE 01                                                      +              
+              PRINT-IDARTNR                                      +              
+              PRINT-KDCLAGER                                     +              
+              PRINT-KVOFFERT-K9                                  +              
+              PRINT-KVOFFERT-TOT                                 +              
+              PRINT-DIFF-KVOFFERT                                +              
+              PRINT-KVOFFERT-E9                                  +              
+              PRINT-KVOFFERT-Q1                                                 
+*                                                                               
+  AFTER-BREAK.  PROC                                                            
+    IF LEVEL = 1                                                                
+      DISPLAY '             '                                                   
+    END-IF                                                                      
+  END-PROC                                                                      
+*                                                                               
+NEWPAGE                                                                         

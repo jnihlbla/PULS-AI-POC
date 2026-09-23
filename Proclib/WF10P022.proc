@@ -1,0 +1,49 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  ADDS ADDITIONAL INFO TO CURRENCY FILE - NON-VCC                            
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN WF10R3                                         
+//*                                                                             
+//*  RESTART:      WF1022    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF10P022 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&WF10..WF10R3,                                             
+//             INDUT=&WF10..WF10R3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF1022   EXEC PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                               
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WF1022D1 DD  DSN=&INDIN..WF1020(+0),DISP=SHR                                  
+//************  CHINA                                                           
+//WF1022D2 DD  DSN=&INDIN..WF1024(+0),DISP=SHR                                  
+//************  INDIA                                                           
+//WF1022D3 DD  DSN=&INDIN..WF1028(+0),DISP=SHR                                  
+//************  US                                                              
+//WF1022D4 DD  DSN=&INDIN..WF1040,DISP=SHR                                      
+//************  ALL OTHER NON-VCC                                               
+//*                                                                             
+//WF1022D5 DD  DSN=&INDUT..WF1022(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ CURRENCY FILE - NON-VCC                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//WF1022D6 DD  DSN=&INDUT..WF1022A(+1),                        -LIM(1)          
+//************ ERROR FILE WITH MISSING COUNTRIES INFO *****                     
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//         IF  (WF1022.RC GT 4) THEN                                            
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456'                               
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                     -- ABEND           
+//         ENDIF                                                                

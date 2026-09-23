@@ -1,0 +1,168 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2226300                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  ARUP DATTA                                            *        
+*                                                                      *        
+*  DATUM      :  161023                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAM CREATES REPORT FOR UNNORMAL FORECAST          *        
+*                (KVPB-SEP) OF LOCALLY SOURCED AND REFILLED PARTS      *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W22263D1                                                                   
+*                                                                               
+%W22221E      'IN-'                                                             
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W22263D2 VB (75 0) PRINTER                                                 
+*                                                                               
+*                                                                               
+  UT1-IDANSK            W  3  N                                                 
+  UT1-IDARTNR           W  9  N      MASK 'ZZZZZZZZ9'                           
+  UT1-KVPB-SEP          W  4  P  1   MASK 'ZZZZZ9.9-'                           
+  UT1-NY-KVPB-SEP       W  4  P  1   MASK 'ZZZZZ9.9-'                           
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W22263D3 VB (75 0) PRINTER                                                 
+*                                                                               
+*                                                                               
+  UT2-IDPERSON-BUY      W  3  N                                                 
+  UT2-IDARTNR           W  9  N      MASK 'ZZZZZZZZ9'                           
+  UT2-IDDC              W  2  A                                                 
+  UT2-BEART             W 25  A                                                 
+  UT2-KVPB-SEP          W  4  P  1   MASK 'ZZZZZ9.9-'                           
+  UT2-NY-KVPB-SEP       W  4  P  1   MASK 'ZZZZZ9.9-'                           
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1  A   VALUE 'J'                                
+  NEJ                       W   1  A   VALUE 'N'                                
+  W-SEM1                    W   1  A   VALUE ';'                                
+  SW-FIRST-D2               S   1  A   VALUE 'J'                                
+  SW-FIRST-D3               S   1  A   VALUE 'J'                                
+*                                                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+JOB INPUT W22263D1                                                              
+                                                                                
+    IF IN-IDDC-REF        EQ ' '                                                
+                                                                                
+       UT1-IDANSK          = IN-IDANSK                                          
+       UT1-IDARTNR         = IN-IDARTNR                                         
+       UT1-KVPB-SEP        = IN-KVPB-SEP                                        
+       UT1-NY-KVPB-SEP     = IN-NY-KVPB-SEP                                     
+                                                                                
+       PRINT RAPPORT01                                                          
+                                                                                
+    ELSE                                                                        
+                                                                                
+       UT2-IDPERSON-BUY    = IN-IDPERSON-BUY                                    
+       UT2-IDARTNR         = IN-IDARTNR                                         
+       UT2-IDDC            = IN-IDDC                                            
+       UT2-BEART           = IN-BEART                                           
+       UT2-KVPB-SEP        = IN-KVPB-SEP                                        
+       UT2-NY-KVPB-SEP     = IN-NY-KVPB-SEP                                     
+                                                                                
+       PRINT RAPPORT02                                                          
+    END-IF                                                                      
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    REPORT SECTION                              *              
+*----------------------------------------------------------------*              
+*                                                                               
+REPORT RAPPORT01 PRINTER W22263D2                            +                  
+                     LINESIZE      70                        +                  
+                     NODATE                                  +                  
+                     NOHEADING                               +                  
+                     NOADJUST                                +                  
+                     NOSPREAD                                +                  
+                     SPACE          0                                           
+SEQUENCE  UT1-IDANSK UT1-IDARTNR                                                
+*                                                                               
+LINE 01                             +                                           
+              UT1-IDANSK            +                                           
+              W-SEM1                +                                           
+              UT1-IDARTNR           +                                           
+              W-SEM1                +                                           
+              UT1-KVPB-SEP          +                                           
+              W-SEM1                +                                           
+              UT1-NY-KVPB-SEP       +                                           
+              W-SEM1                                                            
+                                                                                
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF SW-FIRST-D2 = JA                                                            
+   DISPLAY '¤DAPW22263-001'                                                     
+   DISPLAY '¤DAPW22263'                                                         
+   DISPLAY 'PURCHASE PLANNER;PART NUMBER;OLD FORECAST;NEW FORECAST;'            
+   SW-FIRST-D2 = NEJ                                                            
+ END-IF                                                                         
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*                                                                               
+REPORT RAPPORT02 PRINTER W22263D3                            +                  
+                     LINESIZE      70                        +                  
+                     NODATE                                  +                  
+                     NOHEADING                               +                  
+                     NOADJUST                                +                  
+                     NOSPREAD                                +                  
+                     SPACE          0                                           
+SEQUENCE  UT2-IDPERSON-BUY UT2-IDARTNR                                          
+*                                                                               
+LINE 01                             +                                           
+              UT2-IDPERSON-BUY      +                                           
+              W-SEM1                +                                           
+              UT2-IDARTNR           +                                           
+              W-SEM1                +                                           
+              UT2-IDDC              +                                           
+              W-SEM1                +                                           
+              UT2-BEART             +                                           
+              W-SEM1                +                                           
+              UT2-KVPB-SEP          +                                           
+              W-SEM1                +                                           
+              UT2-NY-KVPB-SEP       +                                           
+              W-SEM1                                                            
+                                                                                
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF SW-FIRST-D3 = JA                                                            
+   DISPLAY '¤DAPW22263-002'                                                     
+   DISPLAY '¤DAPW22263'                                                         
+   DISPLAY 'BUYER;PART NO;DC;PART DESCRIPTION;CURRENT PB;NEW PB;'               
+   SW-FIRST-D3 = NEJ                                                            
+ END-IF                                                                         
+END-PROC                                                                        

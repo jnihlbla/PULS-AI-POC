@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER WDC6 MED SB OCH SKAPAR FIL SOM ÄR SORTERAD PÅ ARTIKELNR.             
+//*  OM ÅRETS FÖRSTA KÖRNING, SKAPAR PROGRAMMET TOMFIL.                         
+//*                                                                             
+//*  FREKVENS:     BESTÄLLNING   RTN W551B1                                     
+//*                                                                             
+//*  ÅTERSTART:    W55147      NORMAL                                           
+//*                LÄSER  WDC6, WDR4                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W551P047 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W551..W551B1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55147   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W55147,W55147,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDC6     INCLUDE MEMBER=WDC6                                                  
+//WDR4     INCLUDE MEMBER=WDR4                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDP3     INCLUDE MEMBER=WDP3                                                  
+//*                                                                             
+//W55147D1 DD  DSN=&INDUT..W55147(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL MED SPIS-INFO (WDC6)                                         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=BACKUPC                                                 

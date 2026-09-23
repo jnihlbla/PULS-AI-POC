@@ -1,0 +1,313 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4793200                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  BERT ANDERSSON                                        *        
+*                                                                      *        
+*  DATUM      :  080701                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET SKAPAR VECKOFIL FÖR NIL PICKS AND          *        
+*                DEVIATIONS WEEKLY FOLLOW UP.                          *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*                                                                      *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*    --- WXTR01                                                                 
+*                                                                               
+FILE W47932D1                                                                   
+%W47905C       'PU-HIST-'                                                       
+*                                                                               
+NEWPAGE                                                                         
+FILE W47932D2 FB(104 0)                                                         
+%W47905C       'SORT1-'                                                         
+*                                                                               
+NEWPAGE                                                                         
+FILE W47932D3 FB(28  0)                                                         
+%W47932        'UT-'                                                            
+*                                                                               
+NEWPAGE                                                                         
+FILE W47932D4 FB(28  0)                                                         
+%W47932        'UT2-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*    --- VALID IDDC CODES                                                       
+%WWDC99                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+*COPYTEXTER FÖR CALL                                                            
+*                                                                               
+%WL10WBDC     'S23-'                                                            
+*                                                                               
+*                                                                               
+%WDATAREA                                                                       
+*                                                                               
+WDATKONV        W  8   A   VALUE 'WDATKONV'                                     
+*                                                                               
+*---------------- LÄNKAREA FÖR DATUMKORT                                        
+%WDATKORT     'DAT-'                                                            
+*                                                                               
+    PROGRAM-NAMN          W          6         A  VALUE 'W47932'                
+    DATUMKORT-ID          W          6         A  VALUE 'WDATUM'                
+    WS1START              W          8         A  VALUE 'WS1START'              
+    LDC-1A                W          2         A  VALUE '1A'                    
+                                                                                
+    WS-TIAAVVD            W             5      N                                
+    WS-TIAAVV         WS-TIAAVVD        4      N                                
+    WS-TIAA           WS-TIAAVV         2      N                                
+    WS-TIVV           WS-TIAAVV     +2  2      N                                
+    WS-TIDD           WS-TIAAVVD    +4  1      N                                
+                                                                                
+    WS-DATUM-MON          W             6      N                                
+    WS-AAR-MON        WS-DATUM-MON      2      N                                
+    WS-MAANAD-MON     WS-DATUM-MON  +2  2      N                                
+    WS-DAG-MON        WS-DATUM-MON  +4  2      N                                
+                                                                                
+    WS-DATUM-SUN          W             6      N                                
+    WS-AAR-SUN        WS-DATUM-SUN      2      N                                
+    WS-MAANAD-SUN     WS-DATUM-SUN  +2  2      N                                
+    WS-DAG-SUN        WS-DATUM-SUN  +4  2      N                                
+                                                                                
+  WS2START                  W   8 A  VALUE 'WS2START'                           
+  JA                        W   1 A  VALUE 'J'                                  
+  NEJ                       W   1 A  VALUE 'N'                                  
+  FIRST-TIME-SW             W   1 A  VALUE 'J'                                  
+  WS-JAMFOR-IDDC            W   2 A                                             
+  WS-ANTAL                  W   8 A  VALUE 'WS-ANTAL'                           
+  ANTAL-AVVIKELSE-RADER     W   7 N  0                                          
+  TOTALT-ANTAL-RADER        W   7 N  0                                          
+  PROCENT                   W   6 P  3                                          
+                                                                                
+  ARTIKELNUMMER             W   9 N  0                                          
+  WS-KDMFUP                 W   2 A                                             
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+* STEG 1             JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+***                                                                             
+*SORTERA VECKO-PACKRAD (WXTR01) PÅ DC.                                          
+***                                                                             
+                                                                                
+SORT W47932D1 TO W47932D2 USING  (PU-HIST-IDDC)                                 
+                                                                                
+***                                                                             
+                                                                                
+  JOB INPUT (W47932D2 KEY (SORT1-IDDC)) START A-INIT +                          
+                                        FINISH Z-FINIT                          
+    S23-WBDC-IDDC    = SORT1-IDDC                                               
+    CALL WL10WBDC USING S23-WBDC-AREA                                           
+    IF FIRST-TIME-SW = JA                                                       
+      WS-JAMFOR-IDDC = SORT1-IDDC                                               
+      WS-KDMFUP = S23-WBDC-KDMFUP                                               
+      FIRST-TIME-SW  = NEJ                                                      
+*     DISPLAY 'WS-JAMFOR-IDDC=' WS-JAMFOR-IDDC                                  
+*     DISPLAY 'SORT1-IDDC='  SORT1-IDDC                                         
+    END-IF                                                                      
+                                                                                
+    IF S23-WBDC-FLWEBDC = 'J'                                                   
+      IF SORT1-IDDC = WS-JAMFOR-IDDC                                            
+        IF SORT1-TIBEGPAC >= WS-DATUM-MON     +                                 
+       AND SORT1-TIBEGPAC <= WS-DATUM-SUN                                       
+          IF SORT1-KDRADSTA = +4                                                
+          TOTALT-ANTAL-RADER = TOTALT-ANTAL-RADER + 1                           
+          IF SORT1-FLFYSAVV = JA                                                
+            IF SORT1-KVBEART  > SORT1-KVLEVART                                  
+              ANTAL-AVVIKELSE-RADER = ANTAL-AVVIKELSE-RADER + 1                 
+              ARTIKELNUMMER     = SORT1-IDARTNR                                 
+      DISPLAY 'ARTIKELNUMMER     ='  ARTIKELNUMMER                              
+                                                                                
+            END-IF                                                              
+          END-IF                                                                
+          END-IF                                                                
+        END-IF                                                                  
+      ELSE                                                                      
+        IF  ANTAL-AVVIKELSE-RADER = 0                                           
+        ELSE                                                                    
+          IF TOTALT-ANTAL-RADER   = 0                                           
+          ELSE                                                                  
+                                                                                
+      DISPLAY 'ANTAL-AVVIKELSE-RADER=' ANTAL-AVVIKELSE-RADER                    
+      DISPLAY 'TOTALT-ANTAL-RADER   =' TOTALT-ANTAL-RADER                       
+            PROCENT = ANTAL-AVVIKELSE-RADER * 100                      +        
+                      / TOTALT-ANTAL-RADER                                      
+      DISPLAY 'PROCENT              =' PROCENT                                  
+      DISPLAY 'WS-JAMFOR-IDDC       =' WS-JAMFOR-IDDC                           
+                                                                                
+            UT-IDDC                 = WS-JAMFOR-IDDC                            
+            UT-ANTAL-AVVIKELSE-RADER = ANTAL-AVVIKELSE-RADER                    
+            UT-TOTALT-ANTAL-RADER   = TOTALT-ANTAL-RADER                        
+            UT-PROCENT              = PROCENT                                   
+            UT-TIAAVV               = WS-TIAAVV                                 
+            UT-KDMFUP               = WS-KDMFUP                                 
+                                                                                
+            PUT W47932D3                                                        
+***        UTFIL W47932 FÖR VECKORAPPORT                                        
+                                                                                
+            UT2-IDDC                 = WS-JAMFOR-IDDC                           
+            UT2-ANTAL-AVVIKELSE-RADER = ANTAL-AVVIKELSE-RADER                   
+            UT2-TOTALT-ANTAL-RADER   = TOTALT-ANTAL-RADER                       
+            UT2-PROCENT              = PROCENT                                  
+            UT2-TIAAVV               = WS-TIAAVV                                
+            UT2-KDMFUP               = WS-KDMFUP                                
+                                                                                
+            PUT W47932D4                                                        
+***        UTFIL W47935 FÖR ACCUMULERAD MÅNAD I PGM W4793500                    
+          END-IF                                                                
+        END-IF                                                                  
+                                                                                
+        WS-JAMFOR-IDDC = SORT1-IDDC                                             
+        WS-KDMFUP      = S23-WBDC-KDMFUP                                        
+        PROCENT                 = 0                                             
+        ANTAL-AVVIKELSE-RADER   = 0                                             
+        TOTALT-ANTAL-RADER      = 0                                             
+***                                                                             
+        IF SORT1-TIBEGPAC >= WS-DATUM-MON     +                                 
+       AND SORT1-TIBEGPAC <= WS-DATUM-SUN                                       
+          IF SORT1-KDRADSTA = +4                                                
+            TOTALT-ANTAL-RADER = TOTALT-ANTAL-RADER + 1                         
+                                                                                
+            IF SORT1-FLFYSAVV = JA                                              
+              IF SORT1-KVBEART > SORT1-KVLEVART                                 
+                                                                                
+              ANTAL-AVVIKELSE-RADER = ANTAL-AVVIKELSE-RADER + 1                 
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+***                                                                             
+NEWPAGE                                                                         
+*--------------------------------------------------------*                      
+* A-INIT                                                 *                      
+*--------------------------------------------------------*                      
+*                                                                               
+ A-INIT.  PROC                                                                  
+*                                                                               
+ CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DAT-DATUMKORT)                   
+*                                                                               
+ WS-AAR-MON    = DAT-D-AAR                                                      
+ WS-TIAA       = DAT-D-AAR                                                      
+ WS-MAANAD-MON = DAT-D-MAANAD                                                   
+ WS-DAG-MON    = DAT-D-DAG                                                      
+ WS-TIVV       = DAT-D-VECKA                                                    
+ DISPLAY ' DATKORT DATUM : ' WS-DATUM-MON                                       
+*                                                                               
+ DAT-I-TIDATUM = WS-TIAAVV                                                      
+ DAT-KDDATFORM = 'AAVV'                                                         
+ DISPLAY ' WS-TIAAVV DAT : ' WS-TIAAVV                                          
+ CALL WDATKONV USING (DAT-KDDATFORM DAT-I-TIDATUM DAT-O-TIDATUM +               
+                      DAT-KDSVAR)                                               
+*                                                                               
+ IF DAT-KDSVAR NE ' '                                                           
+    DISPLAY ' *************************** '                                     
+    DISPLAY ' FEL VID ANROP TILL WDATKONV '                                     
+    DISPLAY ' *************************** '                                     
+    STOP EXECUTE                                                                
+ END-IF                                                                         
+                                                                                
+ WS-TIAA          = DAT-TIAA-VECKA                                              
+ WS-TIVV          = DAT-TIVV                                                    
+                                                                                
+ WS-AAR-MON       = DAT-TIAA                                                    
+ WS-MAANAD-MON    = DAT-TIMM                                                    
+ WS-DAG-MON       = DAT-TIDD                                                    
+                                                                                
+ DISPLAY ' VECKANS MÅNDAGS DATUM=' WS-DATUM-MON                                 
+                                                                                
+ WS-TIDD          = 7                                                           
+ DAT-I-TIDATUM = WS-TIAAVVD                                                     
+ DAT-KDDATFORM = 'AAVVD'                                                        
+ DISPLAY ' WS-TIAAVVD DAT : ' WS-TIAAVVD                                        
+ CALL WDATKONV USING (DAT-KDDATFORM DAT-I-TIDATUM DAT-O-TIDATUM +               
+                      DAT-KDSVAR)                                               
+*                                                                               
+ IF DAT-KDSVAR NE ' '                                                           
+    DISPLAY ' *************************** '                                     
+    DISPLAY ' FEL VID ANROP TILL WDATKONV '                                     
+    DISPLAY ' *************************** '                                     
+    STOP EXECUTE                                                                
+ END-IF                                                                         
+                                                                                
+ WS-TIAA          = DAT-TIAA-VECKA                                              
+ WS-TIVV          = DAT-TIVV                                                    
+                                                                                
+ WS-AAR-SUN       = DAT-TIAA                                                    
+ WS-MAANAD-SUN    = DAT-TIMM                                                    
+ WS-DAG-SUN       = DAT-TIDD                                                    
+                                                                                
+ DISPLAY ' VECKANS SUNDAYS DATUM=' WS-DATUM-SUN                                 
+                                                                                
+         PROCENT                 = 0                                            
+         ANTAL-AVVIKELSE-RADER   = 0                                            
+         TOTALT-ANTAL-RADER      = 0                                            
+*                                                                               
+ END-PROC                                                                       
+*                                                                               
+***                                                                             
+NEWPAGE                                                                         
+*--------------------------------------------------------*                      
+* Z-FINIT                                                *                      
+*--------------------------------------------------------*                      
+*                                                                               
+ Z-FINIT.  PROC                                                                 
+*                                                                               
+*                                                                               
+      DISPLAY 'WS-JAMFOR-IDDC       =' WS-JAMFOR-IDDC                           
+      DISPLAY 'ANTAL-AVVIKELSE-RADER=' ANTAL-AVVIKELSE-RADER                    
+      DISPLAY 'TOTALT-ANTAL-RADER   =' TOTALT-ANTAL-RADER                       
+                                                                                
+          IF TOTALT-ANTAL-RADER > 0                                             
+            PROCENT = ANTAL-AVVIKELSE-RADER * 100                      +        
+                      / TOTALT-ANTAL-RADER                                      
+          ELSE                                                                  
+            PROCENT                 = 0                                         
+          END-IF                                                                
+                                                                                
+      DISPLAY 'PROCENT              =' PROCENT                                  
+                                                                                
+          UT-IDDC                   = WS-JAMFOR-IDDC                            
+          UT-ANTAL-AVVIKELSE-RADER = ANTAL-AVVIKELSE-RADER                      
+          UT-TOTALT-ANTAL-RADER     = TOTALT-ANTAL-RADER                        
+          UT-PROCENT                = PROCENT                                   
+          UT-TIAAVV                 = WS-TIAAVV                                 
+          UT-KDMFUP                 = WS-KDMFUP                                 
+                                                                                
+          IF ANTAL-AVVIKELSE-RADER > 0                                          
+            PUT W47932D3                                                        
+***      UTFIL W47932 FÖR VECKORAPPORT                                          
+                                                                                
+            UT2-IDDC                   = WS-JAMFOR-IDDC                         
+            UT2-ANTAL-AVVIKELSE-RADER = ANTAL-AVVIKELSE-RADER                   
+            UT2-TOTALT-ANTAL-RADER     = TOTALT-ANTAL-RADER                     
+            UT2-PROCENT                = PROCENT                                
+            UT2-TIAAVV                 = WS-TIAAVV                              
+            UT2-KDMFUP                 = WS-KDMFUP                              
+                                                                                
+            PUT W47932D4                                                        
+          END-IF                                                                
+***        UTFIL W47935 FÖR ACCUMULERAD MÅNAD I PGM W4793500                    
+*                                                                               
+ END-PROC                                                                       
+*                                                                               
+***                                                                             

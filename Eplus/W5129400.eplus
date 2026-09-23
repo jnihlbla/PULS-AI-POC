@@ -1,0 +1,239 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5129400                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATE REPORTS FROM T01DLIN_ARC TABLE                 *        
+*                                                                      *        
+*  FÖRFATTARE :  BARSHARANI BISHOYE                                    *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W51294D1                                                                   
+*                                                                               
+%W51293  'IN1-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51294D2                                                                   
+*                                                                               
+%W51293  'IN2-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51294D3                                                                   
+*                                                                               
+%W51293  'IN3-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51294D4                                                                   
+*                                                                               
+%W51293  'IN4-'                                                                 
+NEWPAGE                                                                         
+FILE W51294D5 PRINTER VB (39 0)                                                 
+*** FILE STRUCTURE                                                              
+*                                                                               
+UT1-IDLEGSEL         W   4  A                                                   
+UT1-IDDC             W   2  A                                                   
+UT1-IDARTNR-FINANCE  W   9  A                                                   
+UT1-KVLEVART         W   9  N                                                   
+UT1-SEM              W   1  A VALUE ';'                                         
+                                                                                
+NEWPAGE                                                                         
+FILE W51294D6 PRINTER VB (39 0)                                                 
+*** FILE STRUCTURE                                                              
+*                                                                               
+UT2-IDLEGSEL         W   4  A                                                   
+UT2-IDDC             W   2  A                                                   
+UT2-IDARTNR-FINANCE  W   9  A                                                   
+UT2-KVLEVART         W   9  N                                                   
+UT2-SEM              W   1  A VALUE ';'                                         
+                                                                                
+NEWPAGE                                                                         
+FILE W51294D7 PRINTER VB (37 0)                                                 
+*** FILE STRUCTURE                                                              
+*                                                                               
+UT3-IDLEGSEL         W   4  A                                                   
+UT3-IDARTNR-FINANCE  W   9  A                                                   
+UT3-KVLEVART         W   9  N                                                   
+UT3-SEM              W   1  A VALUE ';'                                         
+                                                                                
+NEWPAGE                                                                         
+FILE W51294D8 PRINTER VB (37 0)                                                 
+*** FILE STRUCTURE                                                              
+*                                                                               
+UT4-IDLEGSEL         W   4  A                                                   
+UT4-IDARTNR-FINANCE  W   9  A                                                   
+UT4-KVLEVART         W   9  N                                                   
+UT4-SEM              W   1  A VALUE ';'                                         
+                                                                                
+*********WORKING STORAGE ********************                                   
+FIRST-LINE1          S   1  A VALUE 'J'                                         
+FIRST-LINE2          S   1  A VALUE 'J'                                         
+FIRST-LINE3          S   1  A VALUE 'J'                                         
+FIRST-LINE4          S   1  A VALUE 'J'                                         
+W-IDLEGSEL           W   4  A                                                   
+W-IDLEGSEL1          W   4  A                                                   
+W-PREV-IDLEGSEL      W   4  A                                                   
+W-PREV-IDLEGSEL1     W   4  A                                                   
+*                                                                               
+*                                                                               
+NEWPAGE                                                                         
+JOB INPUT W51294D1                                                              
+                                                                                
+  UT1-IDLEGSEL        = IN1-IDLEGSEL                                            
+  UT1-IDDC            = IN1-IDDC                                                
+  UT1-IDARTNR-FINANCE = IN1-IDARTNR-FINANCE                                     
+  UT1-KVLEVART        = IN1-SULEVANT                                            
+  PRINT REPORT01                                                                
+                                                                                
+NEWPAGE                                                                         
+    REPORT   REPORT01             +                                             
+             PRINTER W51294D5     +                                             
+             PAGESIZE 32000       +                                             
+             LINESIZE 34          +                                             
+             SPACE 0              +                                             
+             NOHEADING            +                                             
+             NOSPREAD             +                                             
+             NOADJUST             +                                             
+             NOPAGE               +                                             
+             NODATE                                                             
+                                                                                
+    LINE     UT1-IDLEGSEL         +                                             
+             UT1-SEM              +                                             
+             UT1-IDDC             +                                             
+             UT1-SEM              +                                             
+             UT1-IDARTNR-FINANCE  +                                             
+             UT1-SEM              +                                             
+             UT1-KVLEVART         +                                             
+             UT1-SEM                                                            
+                                                                                
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE1 = 'J'                                                          
+   DISPLAY '¤DAPW51294-001'                                                     
+   DISPLAY '¤DAPW51294'                                                         
+   DISPLAY 'COMPANY;DC;PART NO;QUANTITY;'                                       
+    FIRST-LINE1  = 'N'                                                          
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+JOB INPUT W51294D2  START A-INIT                                                
+                                                                                
+  W-IDLEGSEL          = IN2-IDLEGSEL                                            
+  UT2-IDLEGSEL        = W-IDLEGSEL                                              
+  UT2-IDDC            = IN2-IDDC                                                
+  UT2-IDARTNR-FINANCE = IN2-IDARTNR-FINANCE                                     
+  UT2-KVLEVART        = IN2-SULEVANT                                            
+  IF W-IDLEGSEL  NE  ' '                                                        
+    PRINT REPORT02                                                              
+  END-IF                                                                        
+                                                                                
+  A-INIT. PROC                                                                  
+    W-PREV-IDLEGSEL = '    '                                                    
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+    REPORT   REPORT02             +                                             
+             PRINTER W51294D6     +                                             
+             PAGESIZE 32000       +                                             
+             LINESIZE 34          +                                             
+             SPACE 0              +                                             
+             NOHEADING            +                                             
+             NOSPREAD             +                                             
+             NOADJUST             +                                             
+             NOPAGE               +                                             
+             NODATE                                                             
+                                                                                
+    LINE     UT2-IDLEGSEL         +                                             
+             UT2-SEM              +                                             
+             UT2-IDDC             +                                             
+             UT2-SEM              +                                             
+             UT2-IDARTNR-FINANCE  +                                             
+             UT2-SEM              +                                             
+             UT2-KVLEVART         +                                             
+             UT2-SEM                                                            
+                                                                                
+BEFORE-LINE. PROC                                                               
+  IF W-IDLEGSEL NE W-PREV-IDLEGSEL                                              
+   DISPLAY '¤DAPW51294-002'                                                     
+   DISPLAY '¤DAP' W-IDLEGSEL                                                    
+   DISPLAY 'COMPANY;DC;PART NO;QUANTITY;'                                       
+    W-PREV-IDLEGSEL = W-IDLEGSEL                                                
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+JOB INPUT W51294D3                                                              
+                                                                                
+  UT3-IDLEGSEL        = IN3-IDLEGSEL                                            
+  UT3-IDARTNR-FINANCE = IN3-IDARTNR-FINANCE                                     
+  UT3-KVLEVART        = IN3-SULEVANT                                            
+  PRINT REPORT03                                                                
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+    REPORT   REPORT03             +                                             
+             PRINTER W51294D7     +                                             
+             PAGESIZE 32000       +                                             
+             LINESIZE 32          +                                             
+             SPACE 0              +                                             
+             NOHEADING            +                                             
+             NOSPREAD             +                                             
+             NOADJUST             +                                             
+             NOPAGE               +                                             
+             NODATE                                                             
+                                                                                
+    LINE     UT3-IDLEGSEL         +                                             
+             UT3-SEM              +                                             
+             UT3-IDARTNR-FINANCE  +                                             
+             UT3-SEM              +                                             
+             UT3-KVLEVART         +                                             
+             UT3-SEM                                                            
+                                                                                
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE3 = 'J'                                                          
+   DISPLAY '¤DAPW51294-003'                                                     
+   DISPLAY '¤DAPW51294'                                                         
+   DISPLAY 'COMPANY;PART NO;QUANTITY;'                                          
+    FIRST-LINE3  = 'N'                                                          
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+JOB INPUT W51294D4   START A-INIT1                                              
+                                                                                
+  W-IDLEGSEL1         = IN4-IDLEGSEL                                            
+  UT4-IDLEGSEL        = W-IDLEGSEL1                                             
+  UT4-IDARTNR-FINANCE = IN4-IDARTNR-FINANCE                                     
+  UT4-KVLEVART        = IN4-SULEVANT                                            
+  IF W-IDLEGSEL1  NE  ' '                                                       
+    PRINT REPORT04                                                              
+  END-IF                                                                        
+                                                                                
+  A-INIT1. PROC                                                                 
+    W-PREV-IDLEGSEL1 = '    '                                                   
+  END-PROC                                                                      
+NEWPAGE                                                                         
+    REPORT   REPORT04             +                                             
+             PRINTER W51294D8     +                                             
+             PAGESIZE 32000       +                                             
+             LINESIZE 32          +                                             
+             SPACE 0              +                                             
+             NOHEADING            +                                             
+             NOSPREAD             +                                             
+             NOADJUST             +                                             
+             NOPAGE               +                                             
+             NODATE                                                             
+                                                                                
+    LINE     UT4-IDLEGSEL         +                                             
+             UT4-SEM              +                                             
+             UT4-IDARTNR-FINANCE  +                                             
+             UT4-SEM              +                                             
+             UT4-KVLEVART         +                                             
+             UT4-SEM                                                            
+                                                                                
+BEFORE-LINE. PROC                                                               
+  IF W-IDLEGSEL1 NE W-PREV-IDLEGSEL1                                            
+   DISPLAY '¤DAPW51294-004'                                                     
+   DISPLAY '¤DAP' W-IDLEGSEL1                                                   
+   DISPLAY 'COMPANY;PART NO;QUANTITY;'                                          
+    W-PREV-IDLEGSEL1 = W-IDLEGSEL1                                              
+  END-IF                                                                        
+END-PROC                                                                        

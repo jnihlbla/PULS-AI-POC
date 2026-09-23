@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TAR EMOT VCOM-ÖVERFÖRD FIL FRÅN PIE.                                       
+//*  SKAPAR FIL TILL AUTOMATPACKNINGSRUTIN                                      
+//*         OCH TILL ORDER                                                      
+//*         OCH TILL LISTA ÖVER INTERN DISTRIKT (W463M1)                        
+//*                                                                             
+//*  FREKVENS:     FLERA GGR PER DAG     RTN W463S5                             
+//*                                                                             
+//*  ÅTERSTART:    W46335    NORMAL                                             
+//*                                                                             
+//*                LÄSER        WDD3                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W463P035 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W463..W463S5,                                             
+//             INDUT=&W463..W463S5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46335   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W46335,W46335,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W46335D1 DD  DSN=&INDIN..W46334(+0),DISP=SHR                                  
+//************ INFIL FRÅN PIE'S VCOM-ÖVERFÖRING                                 
+//*                                                                             
+//W46335D2 DD  DSN=&INDUT..W46335(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PIE'S FIL TILL AUTOMATPACKNING                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W46335D3 DD  DSN=&INDUT..W46333(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ PIE'S FIL TILL ORDER                                             
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//W46335D4 DD  DSN=&INDUT..W46337(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FIL TILL LISTA INTERNDISTRIKT                                    
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 

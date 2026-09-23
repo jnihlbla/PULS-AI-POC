@@ -1,0 +1,83 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WF105200                                              *        
+*                                                                      *        
+*  FUNKTION   :  SAFT POLAND REPORT FROM T01DHEA_ARC AND T01DLIN_ARC   *        
+*                                                                      *        
+*  FÖRFATTARE :  BARSHARANI BISHOYE                                    *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WF1052D1                                                                   
+*                                                                               
+%WF1051  'IN-'                                                                  
+NEWPAGE                                                                         
+FILE WF1052D2 PRINTER VB(66 0)                                                  
+                                                                                
+UT-IDFINDOC             W    9   N                                              
+UT-IDSTATNR             W    9   N                                              
+UT-IDEXCUST             W    5   A                                              
+UT-DAFINDOC             W    8   N                                              
+UT-SUNTO-TOT-N          W   11   N                                              
+UT-SUNTO-TOT-D          W    2   N                                              
+UT-SEM1                 W    1   A   VALUE ';'                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************                           
+*WORKING STORAGE                                    *                           
+W-SUNTO-TOT-FMT                   W  13  N 2                                    
+W-SUNTO-TOT-N     W-SUNTO-TOT-FMT     11  N                                     
+W-SUNTO-TOT-D     W-SUNTO-TOT-FMT +11  2  N                                     
+                                                                                
+W-DECIMAL         W   1 A    VALUE '.'                                          
+FIRST-LINE        S   1 A  VALUE 'J'                                            
+******************************************************                          
+  JOB INPUT  WF1052D1                                                           
+  UT-IDFINDOC           = IN-IDFINDOC                                           
+  UT-IDSTATNR           = IN-IDSTATNR                                           
+  UT-IDEXCUST           = IN-IDEXCUST                                           
+  UT-DAFINDOC           = IN-DAFINDOC                                           
+  W-SUNTO-TOT-FMT       = IN-SUNTO-TOT                                          
+  UT-SUNTO-TOT-N        = W-SUNTO-TOT-N                                         
+  UT-SUNTO-TOT-D        = W-SUNTO-TOT-D                                         
+  UT-SEM1               = ';'                                                   
+                                                                                
+  PRINT RPT1                                                                    
+*-----------------------------------------------------------------*             
+*     REPORT  WF1052-001                                                        
+*-----------------------------------------------------------------*             
+  REPORT    RPT1                +                                               
+            PRINTER   WF1052D2  +                                               
+            LINESIZE  61        +                                               
+            PAGESIZE  32000     +                                               
+            NOHEADING           +                                               
+            SPACE     0         +                                               
+            SKIP      0         +                                               
+            TITLESKIP 0         +                                               
+            NOADJUST            +                                               
+            NOSPREAD                                                            
+*                                                                               
+LINE 1      UT-IDFINDOC         +                                               
+            UT-SEM1             +                                               
+            UT-IDSTATNR         +                                               
+            UT-SEM1             +                                               
+            UT-IDEXCUST         +                                               
+            UT-SEM1             +                                               
+            UT-DAFINDOC         +                                               
+            UT-SEM1             +                                               
+            UT-SUNTO-TOT-N      +                                               
+            W-DECIMAL           +                                               
+            UT-SUNTO-TOT-D      +                                               
+            UT-SEM1                                                             
+                                                                                
+BEFORE-LINE. PROC                                                               
+ IF FIRST-LINE = 'J'                                                            
+  DISPLAY '¤DAPWF1052-001'                                                      
+  DISPLAY '¤DAPWF1052'                                                          
+  DISPLAY 'INVOICE NO;STATISTICAL NO;DISTRICT;INVOICE DATE;'      +             
+          'TOTAL AMOUNT;'                                                       
+    FIRST-LINE = 'N'                                                            
+ END-IF                                                                         
+END-PROC                                                                        

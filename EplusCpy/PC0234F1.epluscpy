@@ -1,0 +1,138 @@
+MACRO P                                                                         
+* COPYTEXT FÖR FIL PC0227F1 TILL TIKO                                           
+* INTRODUCERADE ARTIKLAR BASERADE PÅ ÅTGÅNGAR                                   
+*                                                                               
+* COPYTEXTEN NÅGOT ÄNDRAD 2003-01-22 EFTER PROJEKTMÖTE                          
+*                                                                               
+* -POSTTYP           KOMMENTAR ÄNDRAD. MAN VILL HA ENKLARE NAMN                 
+* -POST              BORTTAGET                                                  
+* -DATUM-STATUS      INLAGT                                                     
+* -FORDNR            MAN FÅR EJ BARA PRINTFÄLT UTAN GRUNDDATA                   
+* -ALLMÄNT           FÖRKLARANDE KOMMENTARER INLAGDA                            
+*                                                                               
+* -LOGIKÄNDRING   MAN BEHÖVER SE NÄR EN ARTIKEL ÄNDRAR SIG SÅ                   
+*                 ATT DEN INTE LÄNGRE ÄÄR VANLIG ÅTGÅNG UTAN                    
+*                 BLIR EN ARTIKEL SOM INGÅR I 'BILDSYSTEM'.                     
+*                 I SÅDANT FALL SKAPAS 2 POSTER                                 
+*                 = EN MED BILDSYSTEMMÄRKNING BLANKT                            
+*                 = EN MED BILDSYSTEMMÄRKNING ='B'                              
+*                (OM TIKO VILL KAN VI DELA DESSA PÅ 2 FILER)                    
+*                                                                               
+  &P.PC0234F1                                             1   338 A             
+*                      POSTTYP   'KD1'                                          
+    &P.POSTTYP                                            1     3 A             
+*                                                                               
+*                      ARTIKEL SOM ÄR NY. KAN VARA ETT FÖRSERIENR               
+*                      - NY LEVERANSENHET                                       
+*                      - OFÄRGAD (VIT ENLIGT FORD) ELLER FÄRGAD                 
+*                      - NY INGÅENDE                                            
+*                      - NY MODUL                                               
+    &P.ARTNR                                              4     8 N             
+*                      FÄLT SOM HÄMTATS FRÅN 1:STA ÅTGÅNG                       
+*                        OBS GRUPP ÄR ALLTSÅ EJ DET SOM                         
+*                            REGISTRERAS PÅ TRANS AF                            
+*                                 (GRUPP      I TIKO)                           
+*                                                                               
+    &P.ARTNR-SOP                                         12     8 N             
+    &P.FKNGRUPPNR                                        20     4 N             
+*                                 (POS 0 ARTTYP REGISTRERAS                     
+*                                  I TIKO SOM SMARK)                            
+    &P.POS                                               24     3 N             
+    &P.ARTTYP                                            27     4 A             
+*                          PSLAG OCH TYPNR KAN ÖVERSÄTTAS                       
+*                          TILL TYPBET GENOM SUB PC14GXXX                       
+    &P.PSLAG                                             31     2 A             
+    &P.TYPNR                                             33     2 A             
+*                                 (AEONR-B    I TIKO)                           
+    &P.AONR-T                                            35     6 A             
+    &P.AOUTG-T                                           41     2 N             
+*                                 (AAVV-PROD-INFORANDE I TIKO)                  
+    &P.AOINFTID6-T                                       43     6 N             
+*                      NORMALT X, MEN KAN OCSÅ VARA                             
+*                      T (TILLS.MAT) E (ERSART) MM                              
+    &P.LEVMARK                                           49     1 A             
+*                      NORMALT BLANKT. A INNEBÄR AVVEKELSE                      
+    &P.AVVIKELSEKOD                                      50     1 A             
+*                      FÄLT SOM HÄMTAS FRÅN SISTA ÅTGÅNG                        
+    &P.AONR-U                                            51     6 A             
+    &P.AOUTG-U                                           57     2 N             
+*                      FÖR POSTER UTAN ANOR-U                                   
+*                      ÄR UTG-TID AOINFTID6-U = 999952                          
+*                      AAMMDD-UTG-ART I TIKO                                    
+    &P.AOINFTID6-U                                       59     6 N             
+*                      FÄLT BASERADE PÅ FÄRGTABELL/FÄRGMÄRKNING                 
+*                            (ARTNR I SEGM ACD222 I TIKO)                       
+    &P.ARTNR-OFARGAT                                     65     8 N             
+*                               N=NEUTRAL, O=OFÄRGAD F=FÄRGAD                   
+*                                 (MARK-OFARG I TIKO)                           
+    &P.FARGSTATUS                                        73     1 A             
+*                      LEVERANSENHET VARMED DENNA ARTIKEL                       
+*                      INTRODUCERAS (NOLL OM ARTNR=LEVENHET)                    
+*                            (ARTNR-LEVENH I SEGM ACD227 I TIKO)                
+    &P.ARTNR-LEV                                         74     8 N             
+*                      ARTIKELDATA                                              
+    &P.ARTBEN                                            82    25 A             
+    &P.GENANV                                           107    25 A             
+    &P.ARTBEN-ENG                                       132    25 A             
+    &P.GENANV-ENG                                       157    25 A             
+*                          STYCK    BLANKT                                      
+*                          G      = GRAM                                        
+*                          MM     = MILIMETRE                                   
+*                          KVCM   = SQUARE CENTIMETRE                           
+*                          ML     = MILILITRE                                   
+    &P.ARTSORT                                          182     4 A             
+*                         3 FÄLT NEDAN ERSÄTTER DAGENS DOKPLIKT                 
+*                            (FKLASS I TIKO)                                    
+    &P.DOKPLIKT-D                                       186     2 A             
+    &P.DOKPLIKT-T                                       188     1 A             
+    &P.DOKPLIKT-Y                                       189     1 A             
+*                                                                               
+    &P.ARTUTF                                           190     3 A             
+    &P.ARTUTF-SOP                                       193     3 A             
+    &P.HDOKUTG                                          196     2 N             
+*                          KAN VARA KOMPUTV,ANSK,PROD,VERKT                     
+*                          (I SPECIALFALL EXP)                                  
+    &P.ARTUTFGILT                                       198     8 A             
+*                            DATUM FÖR FASTSTÄLLANDE AV HUVUDDOK                
+*                            AAAAVVD                                            
+    &P.DATUM-STATUS                                     206     7 N             
+*                            SUPERCEDED PART                                    
+*                            (ARTNR I SEGM ACD222 I TIKO)                       
+    &P.ARTNR-GAMMALT                                    213     8 N             
+*                      UPPGIFTER SOM ÄR TVEKSAMMA. JOL TÄNKER                   
+*                            (RITNR I TIKO)                                     
+    &P.RITNNR                                           221     8 A             
+*                            (UTGAVA-AKT I TIKO)                                
+    &P.DOKUTG                                           229     3 A             
+*                            (AAVV-UTGAVA-AKT I TIKO)                           
+    &P.AAAAMMDD-DOKUTG                                  232     8 A             
+    &P.BILDSYSTMARKN                                    240     1 A             
+*                                                                               
+*FORDS NR SKRIVS UT SOM PPPP-BBBBBBBB-SSSSSSSS?                                 
+*                            (FORD-INFO I SEGM ACD223 I TIKO)                   
+    &P.FORD-DATA                                        241    28 A             
+      &P.PARTNO-EX                                      241    22 A             
+        &P.PARTNO-PREF-EX                               241     6 A             
+*              PARTBASE-FORD           PV3402                                   
+        &P.PARTNO-BASE-EX                               247     8 A             
+*              PARTPREF-FORD           PV3401                                   
+        &P.PARTNO-SUF-EX                                255     8 A             
+*              PARTVAR-FORD            PV3403                                   
+*              AT PRESENT, ONLY POS 1 IN PART-VERS IS USED?                     
+      &P.OWNER                                          263     5 A             
+*                                                                               
+      &P.COMMONMARK                                     268     1 A             
+*                                                                               
+*                                    (UPPDRAG I TIKO)                           
+    &P.UPDNR-KU                                         269     8 A             
+*                                    (UPPDRAG-S I TIKO)                         
+    &P.UPDNR-SU                                         277     8 A             
+*                                                                               
+    &P.PROJEKT                                          285     4 A             
+*                                    J/N                                        
+    &P.MDSMARK                                          289     1 A             
+    &P.PSSID                                            290     5 A             
+    &P.AEOORS                                           295     5 A             
+    &P.DOKPLIKT-C                                       300     2 A             
+    &P.FILLER01                                         302    37 A             
+*** END COPY PC0234F1                LENGTH =           338                     

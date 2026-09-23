@@ -1,0 +1,159 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4799300                                              *        
+*                                                                      *        
+*  FUNKTION      SKAPAR EN FIL MED GEMENSAMT UTSEENDE FÖR OKS-         *        
+*                OCH EFR-POSTER. FÄLT SOM INTE ÄR UNIKA FÖR VISS       *        
+*                POSTTYP BLANKAS/NOLLAS FÖR DEN ANDRA.                 *        
+*                                                                      *        
+*                PGMET HETTE FRAM TILL 970317 WXTRA300.                *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFANO GIOBBI                                        *        
+*                                                                      *        
+*  DATUM      :  920521                                                *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*  PROGRAMMET ANPASSAT NAMNMÄSSIGT FÖR ATT INGÅ I EXTRAKTMILJÖN,VCASC. *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     920701      STEFANO GIOBBI           30631                       *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W47993D1                                                                   
+* DAGLIG EFR                                                                    
+%W4795Q        'I5Q-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W47993D2                                                                   
+* DAGLIG OKS                                                                    
+%W47991        'I91-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W47993D3 FB(146 0)                                                         
+* DAGLIG UTFIL MED OKS- OCH EFR-INFO                                            
+%W47993        'U93-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W    1     A     VALUE 'J'                          
+  NEJ                       W    1     A     VALUE 'N'                          
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT NULL                                                 +              
+                                                 NAME   STEG01                  
+    GET W47993D1                                                                
+                                                                                
+    DO WHILE NOT EOF W47993D1                                                   
+                                                                                
+      PERFORM A-FYLL-W47993-POST-MED-EFR                                        
+                                                                                
+      PUT W47993D3                                                              
+      GET W47993D1                                                              
+                                                                                
+    END-DO                                                                      
+                                                                                
+    GET W47993D2                                                                
+                                                                                
+    DO WHILE NOT EOF W47993D2                                                   
+                                                                                
+      PERFORM B-FYLL-W47993-POST-MED-OKS                                        
+                                                                                
+      PUT W47993D3                                                              
+      GET W47993D2                                                              
+                                                                                
+    END-DO                                                                      
+                                                                                
+  STOP                                                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  A-FYLL-W47993-POST-MED-EFR.  PROC                                             
+                                                                                
+    U93-IDDISTR           = I5Q-IDDISTR                                         
+    U93-IDKUNDNR          = I5Q-IDKUNDNR                                        
+    U93-IDKUNDRF          = I5Q-IDKUNDRF                                        
+    U93-IDPRODNR          = I5Q-IDPRODNR                                        
+    U93-IDPLKLST          = I5Q-IDPLKLST                                        
+    U93-IDARTNR           = I5Q-IDARTNR                                         
+    U93-IDDC              = I5Q-IDDC                                            
+    U93-KVBEART-Q         = 0                                                   
+    U93-KVEFRS-PACK       = I5Q-KVEFRS-PACK                                     
+    U93-KVEFRS-OPACK      = I5Q-KVEFRS-OPACK                                    
+    U93-KVEFRS-SKEPP      = I5Q-KVEFRS-SKEPP                                    
+    U93-KDFRAKT           = I5Q-KDFRAKT                                         
+    U93-KDORDKL           = I5Q-KDORDKL                                         
+    U93-TIBEGPAC          = I5Q-TIBEGPAC                                        
+    U93-TIORDREG          = I5Q-TIORDREG                                        
+    U93-ADLAGOMR          = I5Q-ADLAGOMR                                        
+    U93-VLARTNTO          = I5Q-VLARTNTO                                        
+    U93-VKARTNTO          = I5Q-VKARTNTO                                        
+    U93-PRARTSTD          = I5Q-PRARTSTD                                        
+    U93-PRARTNTO          = I5Q-PRARTNTO                                        
+    U93-PRARTNTO-LOC      = I5Q-PRARTNTO-LOC                                    
+    U93-PRARTNTO-LOCPREL  = I5Q-PRARTNTO-LOCPREL                                
+    U93-KDVALISO          = I5Q-KDVALISO                                        
+    U93-IDPRC             = I5Q-IDPRC                                           
+    U93-KDPRODSL          = I5Q-KDPRODSL                                        
+    U93-FLDIRLEV          = I5Q-FLDIRLEV                                        
+                                                                                
+  END-PROC.                                                                     
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  B-FYLL-W47993-POST-MED-OKS.  PROC                                             
+                                                                                
+    U93-IDDISTR           = I91-IDDISTR                                         
+    U93-IDKUNDNR          = I91-IDKUNDNR                                        
+    U93-IDKUNDRF          = I91-IDKUNDRF                                        
+    U93-IDPRODNR          = I91-IDPRODNR                                        
+    U93-IDARTNR           = I91-IDARTNR                                         
+    U93-IDDC              = I91-IDDC                                            
+    U93-KVBEART-Q         = I91-KVBEART-Q                                       
+    U93-KVEFRS-PACK       = 0                                                   
+    U93-KVEFRS-OPACK      = 0                                                   
+    U93-KVEFRS-SKEPP      = 0                                                   
+    U93-KDFRAKT           = I91-KDFRAKT                                         
+    U93-KDORDKL           = I91-KDORDKL                                         
+    U93-TIBEGPAC          = I91-TIBEGPAC                                        
+    U93-TIORDREG          = I91-TIREGDAT                                        
+    U93-ADLAGOMR          = I91-ADLAGOMR                                        
+    U93-VLARTNTO          = I91-VLARTNTO                                        
+    U93-VKARTNTO          = I91-VKART / 1000                                    
+    U93-PRARTSTD          = I91-PRARTSTD                                        
+    U93-PRARTNTO          = I91-PRARTNTO                                        
+    U93-PRARTNTO-LOC      = I91-PRARTNTO-LOC                                    
+    U93-PRARTNTO-LOCPREL  = I91-PRARTNTO-LOCPREL                                
+    U93-KDVALISO          = I91-KDVALISO                                        
+    U93-IDPRC             = I91-IDPRC                                           
+    U93-KDPRODSL          = I91-KDPRODSL                                        
+                                                                                
+    IF I91-IDLEVNR  = '     '                                                   
+      U93-FLDIRLEV    = NEJ                                                     
+    ELSE                                                                        
+      U93-FLDIRLEV    = JA                                                      
+    END-IF                                                                      
+                                                                                
+  END-PROC.                                                                     
+*                                                                               
+NEWPAGE                                                                         

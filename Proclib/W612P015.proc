@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER WDL6 OCH SKRIVER SEGMENT SOM SKA RENSAS                              
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD    RTN W612R1                             
+//*                                                                             
+//*  ÅTERSTART:    W61215      NORMAL                                           
+//*                LÄSER  WDL6                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P015 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W612..W612R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61215   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W61215,W61215,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDL6     INCLUDE MEMBER=WDL6                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W61215D1 DD  DSN=&INDUT..W61215(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ FIL MED SEGMENT FRÅN WDL6 SOM SKA RENSAS                         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                

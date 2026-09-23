@@ -1,0 +1,52 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  NEDLÄSNING WDF7                                                            
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W011D2                                         
+//*                                                                             
+//*  RESTART:      W01169      NORMAL                                           
+//*                READS        WDF7                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W011P069 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W011..&RTEGRP.                                            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W01169   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W01169,W01169,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//WDF7V    DD   DSN=&INDBAS..WDF7V,DISP=SHR                                     
+//WDF7AK   DD   DSN=&INDBAS..WDF7AK,DISP=SHR                                    
+//*                                                                             
+//W01169D1 DD  DSN=&&W01169,DISP=(NEW,PASS,DELETE),                             
+//************  NEDLÄST WDF7 MASTER PARTNR CROSSREF                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W011PD69),DISP=SHR                         
+//SORTIN   DD  DSN=&&W01169,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD PER ARTIKELNR LEVNR BENNR                               
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W01169(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ SORTERING PER ARTIKEL PARTNERNR                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=NOBACKUP                                                
+//*                                                                             

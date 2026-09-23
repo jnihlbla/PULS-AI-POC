@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*            TRANSAR FRÅN RESTORDERREGISTRET                                  
+//*                                                                   *         
+//*                                                                   *         
+//*            PERIODICITET: VECKA                                    *         
+//*                                                                   *         
+//*            ÅTERSTART:    NORMAL                                   *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W225P001 PROC INDUT=&W225..W225V1,INDREG=&W440,INDREG2=&W221,                 
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SORTIN   DD  DSN=&INDREG..W44061(+0),DISP=SHR                                 
+//SORTOUT  DD  DSN=&&W22501,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//*            SPACE=(6154,(2000,200),RLSE)                                     
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W225PD01),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22504   EXEC PGM=W22504                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                UTSKRIFT AV RÄKNEVERK (POSTSUM)          
+//IGZSRTCD DD  DUMMY                                                            
+//W22504D1 DD  DSN=&&W22501,DISP=(OLD,DELETE,DELETE)                            
+//**************                                                    ***         
+//*                                                                             
+//W22504D2 DD  DSN=&INDUT..W22505(+1),DISP=(NEW,CATLG,DELETE),  -LIM(2)         
+//**************                                                    ***         
+//             SPACE=(6208,(500,50),RLSE),                                      
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W22504D3 DD  DSN=&INDREG2..W22101(+0),DISP=SHR                                
+//**************                                                    ***         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

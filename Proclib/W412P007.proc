@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPA PULS-ORDER, UPPDATERA WDI1, SKAPPA KVITTO                            
+//*  OCH RENSA GAMLA PIE SW-ORDER                                               
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W412D4                                           
+//*                                                                             
+//*  ÅTERSTART:    W41207    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W412P007 PROC STPLIB=&INDRTE..LOAD, -- TA EV BORT KOMMA                       
+//*                                                                             
+//             INDIN=&W412..W412D4,                                             
+//             INDUT=&W412..IN,                                                 
+//             INDUT2=&W412..W412D4                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41207   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W41207,W41207,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W41207D1 DD  DSN=&INDIN..W41227(+0),DISP=SHR                                  
+//************ KONSOLIDERADE PIE SW-ORDER                                       
+//*                                                                             
+//W41207D2 DD  DSN=&INDUT2..W41228(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ PIE SW-ORDER KVITTO TILL VCOM                                    
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W41207D3 DD  DSN=&INDUT..W41210(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ PIE SW-ORDER TILL ORDER ENTRY (VIA W412S1)                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W41207D4 DD  DSN=&INDUT2..W41229(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ PIE SW-ORDER SERVICEAVTAL                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

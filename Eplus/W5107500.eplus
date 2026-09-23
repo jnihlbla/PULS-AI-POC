@@ -1,0 +1,184 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5107500                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR EXCELFIL AV MÅNADENS LAGERBOKNINGAR I SAP      *        
+*                                                                      *        
+*  FÖRFATTARE :  MARKUS ASPFJÄLL                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+**************************************************                              
+* MÅNADENS LAGERBOKNINGAR I SAP                  *                              
+**************************************************                              
+FILE W51075D1                                                                   
+%W51072  'IN-'                                                                  
+IN-HHTSHT     1 6 A                                                             
+                                                                                
+**************************************************                              
+* SORTERADE LAGERBOKNINGSTRANSAR                 *                              
+**************************************************                              
+FILE TPFIL1 FB(24 0)                                                            
+%W51072  'TP1-'                                                                 
+TP1-HHTSHT     1 6 A                                                            
+                                                                                
+**************************************************                              
+* PCFIL - FÖR EXCEL                              *                              
+**************************************************                              
+FILE W51075D2     VB(204 0)                                                     
+F-HEADER     1  204 A                                                           
+UTFIL        W  204 A                                                           
+E-IDDC         UTFIL         2  A                                               
+E-FILLER1      UTFIL   +3    1  A  VALUE ';'                                    
+E-KDPRODSL     UTFIL   +4    2  N                                               
+E-FILLER2      UTFIL   +6    1  A  VALUE ';'                                    
+E-HHTSHT       UTFIL   +7    6  A                                               
+E-FILLER3      UTFIL  +13    1  A  VALUE ';'                                    
+E-DEBET        UTFIL  +14   12  N 2                                             
+E-FILLER4      UTFIL  +26    1  A  VALUE ';'                                    
+E-KREDIT       UTFIL  +27   12  N 2                                             
+E-FILLER5      UTFIL  +39    1  A  VALUE ';'                                    
+E-DEBETDIRLEV  UTFIL  +40   12  N 2                                             
+E-FILLER6      UTFIL  +52    1  A  VALUE ';'                                    
+E-KREDITDIRLEV UTFIL  +53   12  N 2                                             
+E-FILLER7      UTFIL  +65    1  A  VALUE ';'                                    
+E-DEBETSW      UTFIL  +66   12  N 2                                             
+E-FILLER8      UTFIL +78     1  A  VALUE ';'                                    
+E-KREDITSW     UTFIL +79    12  N 2                                             
+E-FILLER9      UTFIL +91     1  A  VALUE ';'                                    
+                                                                                
+NEWPAGE                                                                         
+*********************                                                           
+* WORKING-STORAGE   *                                                           
+*********************                                                           
+W-IDDC          W  2 A                                                          
+W-KDPRODSL      W  2 N                                                          
+W-HHTSHT        W  6 A                                                          
+W-DEBET         W 12 N 2                                                        
+W-KREDIT        W 12 N 2                                                        
+W-SALDO         W 12 N 2                                                        
+W-FORSTAPOST    W  1 A                                                          
+                                                                                
+E-RUBRIK        W 106  A                                                        
+W-XFILLER1  E-RUBRIK          2  A VALUE 'DC'                                   
+W-XFILLER2  E-RUBRIK    +3    1  A VALUE ';'                                    
+W-XFILLER3  E-RUBRIK    +4    6  A VALUE 'PRODSL'                               
+W-XFILLER4  E-RUBRIK    +10   1  A VALUE ';'                                    
+W-XFILLER5  E-RUBRIK   +11   11  A VALUE 'HÄNDELSETYP'                          
+W-XFILLER6  E-RUBRIK   +22    1  A VALUE ';'                                    
+W-XFILLER7  E-RUBRIK   +23    8  A VALUE 'LB-DEBET'                             
+W-XFILLER8  E-RUBRIK   +31    1  A VALUE ';'                                    
+W-XFILLER9  E-RUBRIK   +32    9  A VALUE 'LB-KREDIT'                            
+W-XFILLER10 E-RUBRIK   +41    1  A VALUE ';'                                    
+W-XFILLER11 E-RUBRIK   +42   15  A VALUE 'DIREKTLEV-DEBET'                      
+W-XFILLER12 E-RUBRIK   +57    1  A VALUE ';'                                    
+W-XFILLER13 E-RUBRIK   +58   16  A VALUE 'DIREKTLEV-KREDIT'                     
+W-XFILLER14 E-RUBRIK   +74    1  A VALUE ';'                                    
+W-XFILLER15 E-RUBRIK   +75   14  A VALUE 'SOFTWARE-DEBET'                       
+W-XFILLER16 E-RUBRIK   +89    1  A VALUE ';'                                    
+W-XFILLER17 E-RUBRIK   +90   15  A VALUE 'SOFTWARE-KREDIT'                      
+W-XFILLER18 E-RUBRIK  +105    1  A VALUE ';'                                    
+                                                                                
+********************************************************                        
+* STEG 1. SORTAR INFILEN PÅ DC, PRODSL OCH HÄNDELSETYP *                        
+********************************************************                        
+                                                                                
+SORT W51075D1 TO TPFIL1 USING (IN-IDDC IN-KDPRODSL IN-HHTSHT)                   
+                                                                                
+********************************************************                        
+* STEG 2. SUMMERAR PÅ DC,PRODSL OCH HÄNDELSETYP        *                        
+********************************************************                        
+JOB INPUT TPFIL1 START A-INIT FINISH Z-SISTAPOST                                
+                                                                                
+IF W-FORSTAPOST EQ 'N'                                                          
+  IF W-IDDC     = TP1-IDDC     AND +                                            
+     W-KDPRODSL = TP1-KDPRODSL AND +                                            
+     W-HHTSHT   = TP1-HHTSHT                                                    
+  ELSE                                                                          
+     PERFORM E-SKRIV-PCFIL                                                      
+  END-IF                                                                        
+ELSE                                                                            
+  W-IDDC        = TP1-IDDC                                                      
+  W-KDPRODSL    = TP1-KDPRODSL                                                  
+  W-HHTSHT      = TP1-HHTSHT                                                    
+  W-FORSTAPOST  = 'N'                                                           
+END-IF                                                                          
+                                                                                
+IF TP1-FLLSBOK = 'Y' 'J'                                                        
+    PERFORM B-LAGERBOK                                                          
+ELSE                                                                            
+  IF TP1-KDSORT = 'SW'                                                          
+    PERFORM C-SOFTWARE                                                          
+    DISPLAY '******EN SOFTWARE********'                                         
+  ELSE                                                                          
+    PERFORM D-DIREKTLEV                                                         
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+A-INIT. PROC                                                                    
+** NOLLA W-FÄLT                                                                 
+ W-IDDC         = ' '                                                           
+ W-KDPRODSL     = 0                                                             
+ W-HHTSHT       = ' '                                                           
+ E-DEBET        = 0                                                             
+ E-KREDIT       = 0                                                             
+ E-DEBETDIRLEV  = 0                                                             
+ E-KREDITDIRLEV = 0                                                             
+ E-DEBETSW      = 0                                                             
+ E-KREDITSW     = 0                                                             
+ W-FORSTAPOST   = 'J'                                                           
+ F-HEADER EQ E-RUBRIK                                                           
+ PUT W51075D2                                                                   
+                                                                                
+END-PROC                                                                        
+                                                                                
+B-LAGERBOK. PROC                                                                
+  IF TP1-KVANTAL LT 0                                                           
+    E-KREDIT          = TP1-SUBEL * -1  + E-KREDIT                              
+  ELSE                                                                          
+    E-DEBET           = TP1-SUBEL       + E-DEBET                               
+  END-IF                                                                        
+END-PROC                                                                        
+                                                                                
+C-SOFTWARE. PROC                                                                
+  IF TP1-KVANTAL LT 0                                                           
+    E-KREDITSW        = TP1-SUBEL * -1  + E-KREDITSW                            
+  ELSE                                                                          
+    E-DEBETSW         = TP1-SUBEL       + E-DEBETSW                             
+  END-IF                                                                        
+END-PROC                                                                        
+                                                                                
+D-DIREKTLEV. PROC                                                               
+  IF TP1-KVANTAL LT 0                                                           
+      E-KREDITDIRLEV  = TP1-SUBEL * -1  + E-KREDITDIRLEV                        
+  ELSE                                                                          
+      E-DEBETDIRLEV   = TP1-SUBEL       + E-DEBETDIRLEV                         
+  END-IF                                                                        
+END-PROC                                                                        
+                                                                                
+E-SKRIV-PCFIL. PROC                                                             
+  E-IDDC         = W-IDDC                                                       
+  E-KDPRODSL     = W-KDPRODSL                                                   
+  E-HHTSHT       = W-HHTSHT                                                     
+  F-HEADER EQ UTFIL                                                             
+  PUT W51075D2                                                                  
+                                                                                
+  W-IDDC         = TP1-IDDC                                                     
+  W-KDPRODSL     = TP1-KDPRODSL                                                 
+  W-HHTSHT       = TP1-HHTSHT                                                   
+  E-DEBET        = 0                                                            
+  E-KREDIT       = 0                                                            
+  E-DEBETDIRLEV  = 0                                                            
+  E-KREDITDIRLEV = 0                                                            
+  E-DEBETSW      = 0                                                            
+  E-KREDITSW     = 0                                                            
+END-PROC                                                                        
+                                                                                
+Z-SISTAPOST. PROC                                                               
+  E-IDDC         = W-IDDC                                                       
+  E-KDPRODSL     = W-KDPRODSL                                                   
+  E-HHTSHT       = W-HHTSHT                                                     
+  F-HEADER EQ UTFIL                                                             
+  PUT W51075D2                                                                  
+END-PROC                                                                        

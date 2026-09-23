@@ -1,0 +1,207 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SPLITS CORRECT BILLING AND PRICE RECORDS TO EACH MARKET.                   
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W463D6                                         
+//*                                                                             
+//*  RESTART:      W46363    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W463P063 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W463..W463D6,                                             
+//             INDUT=&W463..W463D6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46363   EXEC PGM=W46363                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W46363D1 DD  DSN=&INDIN..W46367(+0),DISP=SHR                                  
+//************ CORRECT RECORDS TO SPLIT                                         
+//*                                                                             
+//W46363DA DD  DSN=&INDUT..W4636A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR GERMANY                                              
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DB DD  DSN=&INDUT..W4636B(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR GREAT BRITAIN                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DC DD  DSN=&INDUT..W4636C(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR BELGIUM                                              
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DD DD  DSN=&INDUT..W4636D(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR AUSTRIA                                              
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DE DD  DSN=&INDUT..W4636E(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR DENMARK                                              
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DF DD  DSN=&INDUT..W4636F(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR FINLAND                                              
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DG DD  DSN=&INDUT..W4636G(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR FRANCE                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DH DD  DSN=&INDUT..W4636H(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR GREECE                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DI DD  DSN=&INDUT..W4636I(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR IRELAND                                              
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DJ DD  DSN=&INDUT..W4636J(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR ITALY                                                
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DK DD  DSN=&INDUT..W4636K(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR NETHERLANDS                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DL DD  DSN=&INDUT..W4636L(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR NORWAY                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DM DD  DSN=&INDUT..W4636M(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR PORTUGAL                                             
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DN DD  DSN=&INDUT..W4636N(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR SPAIN                                                
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DO DD  DSN=&INDUT..W4636O(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR SWEDEN                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DP DD  DSN=&INDUT..W4636P(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR SWITZERLAND                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DQ DD  DSN=&INDUT..W4636Q(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR JAPAN                                                
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DR DD  DSN=&INDUT..W4636R(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR POLEN                                                
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DS DD  DSN=&INDUT..W4636S(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR TURKEY                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DU DD  DSN=&INDUT..W4636U(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR MEXICO                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DV DD  DSN=&INDUT..W4636V(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR BRASIL                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363DW DD  DSN=&INDUT..W4636W(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RECORDS FOR SOUTH AFRICA                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PA DD  DSN=&INDUT..W463PA(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR GERMANY                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PB DD  DSN=&INDUT..W463PB(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR GREAT BRITAIN                                  
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PC DD  DSN=&INDUT..W463PC(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR BELGIUM                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PD DD  DSN=&INDUT..W463PD(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR AUSTRIA                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PE DD  DSN=&INDUT..W463PE(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR DENMARK                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PF DD  DSN=&INDUT..W463PF(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR FINLAND                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PG DD  DSN=&INDUT..W463PG(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR FRANCE                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PH DD  DSN=&INDUT..W463PH(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR GREECE                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PI DD  DSN=&INDUT..W463PI(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR IRELAND                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PJ DD  DSN=&INDUT..W463PJ(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR ITALY                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PK DD  DSN=&INDUT..W463PK(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR NETHERLANDS                                    
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PL DD  DSN=&INDUT..W463PL(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR NORWAY                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PM DD  DSN=&INDUT..W463PM(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR PORTUGAL                                       
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PN DD  DSN=&INDUT..W463PN(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR SPAIN                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PO DD  DSN=&INDUT..W463PO(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR SWEDEN                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PP DD  DSN=&INDUT..W463PP(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR SWITZERLAND                                    
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PQ DD  DSN=&INDUT..W463PQ(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR JAPAN                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PR DD  DSN=&INDUT..W463PR(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR POLEN                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PS DD  DSN=&INDUT..W463PS(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR TURKEY                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PT DD  DSN=&INDUT..W463PT(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR TJECKIEN                                       
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PU DD  DSN=&INDUT..W463PU(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR MEXICO                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PV DD  DSN=&INDUT..W463PV(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR BRASIL                                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W46363PW DD  DSN=&INDUT..W463PW(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRICE RECORDS FOR SOUTH AFRICA                                   
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

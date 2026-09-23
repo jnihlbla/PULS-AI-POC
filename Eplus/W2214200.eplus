@@ -1,0 +1,123 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2214200                                              *        
+*                                                                      *        
+*  FUNKTION   :  UNDERHÅLLER ERSATTA LOKALA ARTIKLAR I KINA OCH USA    *        
+*                NYA ERSÄTTNINGAR NDC USA OCH KINA                     *        
+*                                                                      *        
+*  FÖRFATTARE :  KJELLSON GÖRAN                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+                                                                                
+FILE W22142D1                                                                   
+%W01184                                                                         
+                                                                                
+FILE W22142D2                                                                   
+%W01160                                                                         
+                                                                                
+FILE W22142D3                                                                   
+%W22140  'REGIN-'                                                               
+                                                                                
+                                                                                
+FILE TEMP1 FB(483 0) VIRTUAL                                                    
+%W01184  'TMP1-'                                                                
+                                                                                
+FILE TEMP2 FB(9 0) VIRTUAL                                                      
+%W22140  'TMP2-'                                                                
+                                                                                
+                                                                                
+FILE W22142D4 FB(9 0)                                                           
+%W22140    'REGUT-'                                                             
+                                                                                
+FILE W22142D5 FB(13 0)                                                          
+%W2242204  'UT4B-'                                                              
+                                                                                
+WS-KDLPORS W  2 P 0                                                             
+                                                                                
+*  CHECK IDDC VALUES                                                            
+%WWDC99                                                                         
+*                                                                               
+* STEG 1. SELEKTERA NDC-CN FRÅN W01184, PLUS NDC-US                             
+*                                                                               
+JOB INPUT W22142D1                                                              
+                                                                                
+  PERFORM S23-CHECK-SLAG-IDDC                                                   
+  IF SLAG-IDDC EQ NDC-CN NDC-US                                                 
+     IF SLAG-IDDC-REF EQ '  '                                                   
+        TMP1-SLAG-W01184 = SLAG-W01184                                          
+        PUT TEMP1                                                               
+     END-IF                                                                     
+  END-IF                                                                        
+                                                                                
+                                                                                
+*    --- S23-CHECK-SLAG-IDDC (MACRO PROCEDURE)                                  
+%WWDC02 'SLAG-'                                                                 
+                                                                                
+*                                                                               
+* STEG 2. KOMPLETTERA ERSKOD FRÅN W01160                                        
+*                                                                               
+JOB INPUT (W22142D2 KEY (CLAG-IDARTNR) +                                        
+           TEMP1    KEY (TMP1-SLAG-IDARTNR))                                    
+                                                                                
+  IF MATCHED                                                                    
+     TMP2-IDARTNR  = TMP1-SLAG-IDARTNR                                          
+     TMP2-IDDC     = TMP1-SLAG-IDDC                                             
+     TMP2-KDERS    = CLAG-KDERS                                                 
+                                                                                
+     PUT TEMP2                                                                  
+  END-IF                                                                        
+                                                                                
+*                                                                               
+* STEG 3. SKAPA UTFILER                                                         
+*                                                                               
+JOB INPUT (W22142D3 KEY (REGIN-IDARTNR REGIN-IDDC) +                            
+           TEMP2    KEY (TMP2-IDARTNR TMP2-IDDC))                               
+                                                                                
+  IF MATCHED                                                                    
+     REGUT-W22140 = TMP2-W22140                                                 
+     PUT W22142D4                                                               
+                                                                                
+     IF (REGIN-KDERS = 0)                             +                         
+    AND (TMP2-KDERS > 0 AND TMP2-KDERS < 20)                                    
+        WS-KDLPORS = 21                                                         
+        PERFORM S01-WRITE-SUPERSESSION                                          
+     ELSE                                                                       
+        IF REGIN-KDERS < 20 AND TMP2-KDERS > 20                                 
+           WS-KDLPORS = 02                                                      
+           PERFORM S01-WRITE-SUPERSESSION                                       
+        END-IF                                                                  
+     END-IF                                                                     
+  ELSE                                                                          
+     IF TEMP2                                                                   
+        REGUT-W22140 = TMP2-W22140                                              
+        PUT W22142D4                                                            
+                                                                                
+        IF TMP2-KDERS > 0 AND TMP2-KDERS < 20                                   
+           WS-KDLPORS = 21                                                      
+           PERFORM S01-WRITE-SUPERSESSION                                       
+        ELSE                                                                    
+           IF TMP2-KDERS > 20                                                   
+              WS-KDLPORS = 02                                                   
+              PERFORM S01-WRITE-SUPERSESSION                                    
+           END-IF                                                               
+        END-IF                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+                                                                                
+S01-WRITE-SUPERSESSION. PROC                                                    
+                                                                                
+  PERFORM S23-CHECK-TMP2-IDDC                                                   
+  IF TMP2-IDDC EQ NDC-CN-71 NDC-CN-72 NDC-CN-73 NDC-CN-74 NDC-US                
+     UT4B-IDHTYP  = '2204'                                                      
+     UT4B-IDARTNR = TMP2-IDARTNR                                                
+     UT4B-IDDC    = TMP2-IDDC                                                   
+     UT4B-KDLPORS = WS-KDLPORS                                                  
+     PUT W22142D5                                                               
+  END-IF                                                                        
+                                                                                
+END-PROC                                                                        
+                                                                                
+*    --- S23-CHECK-TMP2-IDDC (MACRO PROCEDURE)                                  
+%WWDC02 'TMP2-'                                                                 

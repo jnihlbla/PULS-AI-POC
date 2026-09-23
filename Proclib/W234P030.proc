@@ -1,0 +1,54 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER HÄNDELSEREGISTER OCH SKAPAR FIL MED ARTIKLAR                         
+//*  MED LV-LEVERANTÖRNR SOM FÅTT GODKÄNDA/ÄNDRADED/..ETC                       
+//*  LEVERANSPLANER PÅ 2103-BILDEN.                                             
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W234V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W23430      NORMAL                                           
+//*                LÄSER  WDD9 WDR5                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W234P030 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W234..W234V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23430   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W23430,W23430,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//WDR5     INCLUDE MEMBER=WDR5                                                  
+//W23430D1 DD  DSN=&&W23430,DISP=(NEW,PASS,DELETE),                             
+//************ ARTIKLAR (INKL. AVROP) MED GODK. LEVPLANER                       
+//             SPACE=(12,(1,1),RLSE),AVGREC=K                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W234PD30),DISP=SHR                         
+//SORTIN   DD  DSN=&&W23430,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKLAR MED GODK. LEVPLANER, OSORTERAD                          
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W23430(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ ARTIKLAR MED GODK. LEVPLANER, SORTERAD PÅ ARTNR + TIAVROP        
+//             MGMTCLAS=&BACKUPC,SPACE=(12,(1,1),RLSE),AVGREC=K                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

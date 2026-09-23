@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATES KVRESS REPORT                                                      
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W51275    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P075 PROC STPLIB=&INDRTE..LOAD,                      MA                   
+//             INDIN=&W011..&RTEGRP.,                                           
+//             INDIN1=&W512..W512M2,                                            
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51275   EXEC PGM=V16459,PARM='W51275/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W51275D1 DD  DSN=&INDIN1..W51274A(0),DISP=SHR                                 
+//************ KVRESS EXTRACT FILE FROM W01184                                  
+//*                                                                             
+//W51275D2 DD  DSN=&INDIN1..W51274B(0),DISP=SHR                                 
+//************ KVRESS EXTRACT FILE FROM W01160                                  
+//*                                                                             
+//W51275D3 DD  DSN=&INDIN..W01160(0),DISP=SHR                                   
+//************ WDK6 EXTRACT FILE                                                
+//*                                                                             
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//************ TEMP FILE                                                        
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51275D4 DD  DSN=&INDUT..W51275(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ KVRESS REPORT                                                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

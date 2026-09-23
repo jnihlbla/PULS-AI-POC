@@ -1,0 +1,75 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5127100                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATE .CSV LIST FOR R32 DELIVERIES ON LAST WORKING   *        
+*                DAY OF MONTH WITH VALUE > 500,000 SEK                 *        
+*                                                                      *        
+*  FÖRFATTARE :  ARCHANA BHAT                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W51271D1                                                                   
+*                                                                               
+%W51270  'IN-'                                                                  
+                                                                                
+**** EXCEL-FIL, MAIL VIA DAP                                                    
+FILE W51271D2  PRINTER VB(125 0)                                                
+                                                                                
+W-PART-NUM                  W    9 N 0 MASK 'ZZZZZZZZ9'                         
+W-SUPPLIER                  W    5 A                                            
+W-DATE                      W    6 N 0 MASK 'ZZZZZ9'                            
+W-PRARTBES-PR               W    9 N 2 MASK 'ZZZZZZ9.99'                        
+W-PRARTSTD                  W    9 N 2 MASK 'ZZZZZZ9.99'                        
+W-R32-VALUE                 W   11 N 2 MASK 'ZZZZZZZZ9.99'                      
+W-QTY                       W    7 N 0 MASK 'ZZZZZZ9'                           
+W-SEM1                      W    1 A VALUE ';'                                  
+FIRST-TIME-SW               W    1 A VALUE 'Y'                                  
+                                                                                
+JOB INPUT W51271D1                                                              
+                                                                                
+  W-PART-NUM        = IN-IDARTNR                                                
+  W-SUPPLIER        = IN-IDLEVNR                                                
+  W-QTY             = IN-KVAVIS                                                 
+  W-PRARTBES-PR     = IN-PRARTBES-PR                                            
+  W-PRARTSTD        = IN-PRARTSTD                                               
+  W-R32-VALUE       = IN-R32-VALUE                                              
+  W-DATE            = IN-R32-DATE                                               
+  PRINT XL-LIST                                                                 
+                                                                                
+NEWPAGE                                                                         
+  REPORT   XL-LIST              +                                               
+           PRINTER W51271D2     +                                               
+           LINESIZE 120         +                                               
+           SPACE 0              +                                               
+           NOHEADING            +                                               
+           NOSPREAD             +                                               
+           NOADJUST             +                                               
+           PAGESIZE 9999        +                                               
+           NODATE                                                               
+  LINE  1  W-PART-NUM           +                                               
+           W-SEM1               +                                               
+           W-SUPPLIER           +                                               
+           W-SEM1               +                                               
+           W-QTY                +                                               
+           W-SEM1               +                                               
+           W-PRARTBES-PR        +                                               
+           W-SEM1               +                                               
+           W-PRARTSTD           +                                               
+           W-SEM1               +                                               
+           W-R32-VALUE          +                                               
+           W-SEM1               +                                               
+           W-DATE               +                                               
+           W-SEM1                                                               
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF FIRST-TIME-SW = 'Y'                                                         
+   DISPLAY '¤DAPW51271-001'                                                     
+   DISPLAY '¤DAPW51271'                                                         
+   DISPLAY 'PART NUMBER;SUPPLIER;QUANTITY;PRICE;STD.PRICE;' +                   
+           'R32-VALUE;DATE;'                                                    
+   FIRST-TIME-SW = 'N'                                                          
+ END-IF                                                                         
+END-PROC                                                                        

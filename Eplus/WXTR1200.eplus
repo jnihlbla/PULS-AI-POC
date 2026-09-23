@@ -1,0 +1,401 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WXTR1200                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  LARS THELL                                            *        
+*                                                                      *        
+*  DATUM      :  950405                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET INGÅR I VCAS UPPFÖLJNINGSMILJÖ.            *        
+*                PROGRAMMET SAMMANSTÄLLER EFR-INFORMATION FÖR          *        
+*                PRODUKTION AV EN FIL MED MEDELVÄRDEN FÖR EN VECKA.    *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     970324      STEFANO GIOBBI           50654                       *        
+*                 ÄNDRINGAR FÖR NDC                                    *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE WXTR12D1                                                                   
+*     VISS EFR-INFO - INFIL                                                     
+   IN-TIAAVV          1    4  A                                                 
+   IN-IDDC            *    2  A                                                 
+   IN-IDPRC           *    4  A                                                 
+   IN-KDORDKL         *    1  N                                                 
+   IN-IDDISTR         *    4  N 0                                               
+   IN-TOTAL-LINES     *   10  P 0                                               
+   IN-OKS-VAL         *   10  P 2                                               
+   IN-EFR-OP-VAL      *   10  P 2                                               
+   IN-EFR-P-VAL       *   10  P 2                                               
+   IN-EFR-S-VAL       *   10  P 2                                               
+   IN-OKS-EFOP-VAL    *   10  P 2                                               
+   IN-TOTAL-VAL       *   10  P 2                                               
+   IN-BACKLOG-LINES   *   10  P 0                                               
+   IN-VKARTNTO        *   10  P 3                                               
+   IN-VLARTNTO        *   10  P 1                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR12D2                                                                   
+*                                                                               
+   TAB-IDDC             1   2  A                                                
+   TAB-IDDISTR          *   4  N                                                
+   TAB-BELAND           *  25  A                                                
+   TAB-BEMARKET         *  25  A                                                
+*                                                                               
+FILE WXTR12D3   FB (64 0)                                                       
+*     VISS EFR-INFO   UTFIL MED MEDELVÄRDE FÖR EN VECKA                         
+   UT-TIAAVV          1    4  A                                                 
+   UT-IDDC            *    2  A                                                 
+   UT-IDPRC           *    4  A                                                 
+   UT-KDORDKL         *    1  P                                                 
+   UT-IDDISTR         *    3  P 0                                               
+   UT-TOTAL-LINES     *   10  P 0                                               
+   UT-EFR-OP-VAL      *   10  P 2                                               
+   UT-EFR-P-VAL       *   10  P 2                                               
+   UT-EFR-S-VAL       *   10  P 2                                               
+   UT-VKARTNTO        *   10  P 3                                               
+*  UT-VLARTNTO        *   10  P 1                                               
+*                                                                               
+FILE WXTR12D4   FB (56 0)                                                       
+*     INFO SOM SKALL PRINTAS                                                    
+   PR-TIAAVV          1    4  A                                                 
+   PR-IDDC            *    2  A                                                 
+   PR-IDPRC           *    4  A                                                 
+   PR-KDORDKL         *    1  P                                                 
+   PR-IDDISTR         *    3  P 0                                               
+   PR-TOTAL-LINES     *    3  P 0       MASK('ZZZZ9')                           
+   PR-OKS-VAL         *    5  P 2       MASK('ZZZZZZ9,99')                      
+   PR-EFR-OP-VAL      *    5  P 2       MASK('ZZZZZZ9,99')                      
+   PR-EFR-P-VAL       *    5  P 2       MASK('ZZZZZZ9,99')                      
+   PR-NON-PACK-VAL    *    5  P 2       MASK('ZZZZZZ9,99')                      
+   PR-TOTAL-VAL       *    6  P 2       MASK('ZZZZZZZZ9,99')                    
+   PR-BACKLOG-LINES   *    3  P 0       MASK('ZZZZ9')                           
+   PR-VKARTNTO        *    5  P 3       MASK('ZZZZZ9,999')                      
+   PR-VLARTNTO        *    5  P 1       MASK('ZZZZZZZ9,9')                      
+*                                                                               
+FILE WXTR12D5 PRINTER                                                           
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1  A   VALUE 'J'                                
+  NEJ                       W   1  A   VALUE 'N'                                
+  POUNDS                    W  21 A    VALUE 'WEIGHT IN POUNDS.'                
+  KILOS                     W  21 A    VALUE 'WEIGHT IN KILOS.'                 
+  LITERS                    W  21 A    VALUE 'VOLUME IN LITERS.'                
+  FT3                       W  21 A    VALUE 'VOLUME IN CUBIC FEET.'            
+  USD                       W  17 A    VALUE 'VALUE IN USD.'                    
+  CAD                       W  17 A    VALUE 'VALUE IN CAD.'                    
+  STD-SEK                   W  17 A    VALUE 'VALUE IN STD SEK.'                
+*                                                                               
+  SW-FORSTA-POST            W   1  A   VALUE 'J'                                
+*                                                                               
+  W-TOTAL-LINES             W  10  P 0                                          
+  W-OKS-VAL                 W  10  P 2                                          
+  W-EFR-OP-VAL              W  10  P 2                                          
+  W-EFR-P-VAL               W  10  P 2                                          
+  W-EFR-S-VAL               W  10  P 2                                          
+  W-NON-PACK-VAL            W  10  P 2                                          
+  W-TOTAL-VAL               W  10  P 2                                          
+  W-BACKLOG-LINES           W  10  P 0                                          
+  W-VKARTNTO                W  10  P 3                                          
+  W-VLARTNTO                W  10  P 1                                          
+  W-SORTFALT                W   1  N                                            
+  W-BELAND                  W   9  A                                            
+*                                                                               
+  SPAR-TIAAVV               W   4  A   VALUE ' '                                
+  SPAR-IDDC                 W   2  A   VALUE ' '                                
+  SPAR-IDPRC                W   4  A   VALUE ' '                                
+  SPAR-KDORDKL              W   1  P 0 VALUE  0                                 
+  SPAR-IDDISTR              W   3  P 0 VALUE  0                                 
+*                                                                               
+  PR-CURRENCY               W  17  A                                            
+  PR-WEIGHT-UNITS           W  21  A                                            
+  PR-VOLUME-UNITS           W  21  A                                            
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+%WWOMVAND                                                                       
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT WXTR12D1                                             +              
+                         FINISH S01-SKRIV-VECKOFIL-PRINTFIL      +              
+                                                 NAME   STEG01                  
+                                                                                
+     IF RECORD-COUNT      = 1                                                   
+       W-TOTAL-LINES      = 0                                                   
+       W-OKS-VAL          = 0                                                   
+       W-EFR-OP-VAL       = 0                                                   
+       W-EFR-P-VAL        = 0                                                   
+       W-EFR-S-VAL        = 0                                                   
+       W-NON-PACK-VAL     = 0                                                   
+       W-TOTAL-VAL        = 0                                                   
+       W-BACKLOG-LINES    = 0                                                   
+       W-VKARTNTO         = 0                                                   
+       W-VLARTNTO         = 0                                                   
+       SPAR-TIAAVV        = IN-TIAAVV                                           
+       SPAR-IDDC          = IN-IDDC                                             
+       SPAR-IDPRC         = IN-IDPRC                                            
+       SPAR-KDORDKL       = IN-KDORDKL                                          
+       SPAR-IDDISTR       = IN-IDDISTR                                          
+     END-IF                                                                     
+                                                                                
+     IF SPAR-TIAAVV      = IN-TIAAVV  AND                        +              
+        SPAR-IDDC        = IN-IDDC    AND                        +              
+        SPAR-IDPRC       = IN-IDPRC   AND                        +              
+        SPAR-KDORDKL     = IN-KDORDKL AND                        +              
+        SPAR-IDDISTR     = IN-IDDISTR                                           
+       W-TOTAL-LINES     = W-TOTAL-LINES   + IN-TOTAL-LINES                     
+       W-OKS-VAL         = W-OKS-VAL       + IN-OKS-VAL                         
+       W-EFR-OP-VAL      = W-EFR-OP-VAL    + IN-EFR-OP-VAL                      
+       W-EFR-P-VAL       = W-EFR-P-VAL     + IN-EFR-P-VAL                       
+       W-EFR-S-VAL       = W-EFR-S-VAL     + IN-EFR-S-VAL                       
+       W-NON-PACK-VAL    = W-NON-PACK-VAL  + IN-OKS-EFOP-VAL                    
+       W-TOTAL-VAL       = W-TOTAL-VAL     + IN-TOTAL-VAL                       
+       W-BACKLOG-LINES   = W-BACKLOG-LINES + IN-BACKLOG-LINES                   
+       W-VKARTNTO        = W-VKARTNTO      + IN-VKARTNTO                        
+       W-VLARTNTO        = W-VLARTNTO      + IN-VLARTNTO                        
+     ELSE                                                                       
+                                                                                
+       PERFORM S01-SKRIV-VECKOFIL-PRINTFIL                                      
+                                                                                
+       W-TOTAL-LINES     = IN-TOTAL-LINES                                       
+       W-OKS-VAL         = IN-OKS-VAL                                           
+       W-EFR-OP-VAL      = IN-EFR-OP-VAL                                        
+       W-EFR-P-VAL       = IN-EFR-P-VAL                                         
+       W-EFR-S-VAL       = IN-EFR-S-VAL                                         
+       W-NON-PACK-VAL    = IN-OKS-EFOP-VAL                                      
+       W-TOTAL-VAL       = IN-TOTAL-VAL                                         
+       W-BACKLOG-LINES   = IN-BACKLOG-LINES                                     
+       W-VKARTNTO        = IN-VKARTNTO                                          
+       W-VLARTNTO        = IN-VLARTNTO                                          
+                                                                                
+       SPAR-TIAAVV       = IN-TIAAVV                                            
+       SPAR-IDDC         = IN-IDDC                                              
+       SPAR-IDPRC        = IN-IDPRC                                             
+       SPAR-KDORDKL      = IN-KDORDKL                                           
+       SPAR-IDDISTR      = IN-IDDISTR                                           
+     END-IF                                                                     
+                                                                                
+  NEWPAGE                                                                       
+                                                                                
+  S01-SKRIV-VECKOFIL-PRINTFIL. PROC                                             
+                                                                                
+    UT-TIAAVV      = SPAR-TIAAVV                                                
+    UT-IDDC        = SPAR-IDDC                                                  
+    UT-IDPRC       = SPAR-IDPRC                                                 
+    UT-KDORDKL     = SPAR-KDORDKL                                               
+    UT-IDDISTR     = SPAR-IDDISTR                                               
+    UT-TOTAL-LINES = W-TOTAL-LINES     / 6                                      
+    UT-EFR-OP-VAL  = W-EFR-OP-VAL      / 6                                      
+    UT-EFR-P-VAL   = W-EFR-P-VAL       / 6                                      
+    UT-EFR-S-VAL   = W-EFR-S-VAL       / 6                                      
+    UT-VKARTNTO    = W-VKARTNTO        / 6                                      
+*   UT-VLARTNTO    = W-VLARTNTO        / 6                                      
+                                                                                
+    PUT WXTR12D3                                                                
+                                                                                
+    PR-TIAAVV        = SPAR-TIAAVV                                              
+    PR-IDDC          = SPAR-IDDC                                                
+    PR-IDPRC         = SPAR-IDPRC                                               
+    PR-KDORDKL       = SPAR-KDORDKL                                             
+    PR-IDDISTR       = SPAR-IDDISTR                                             
+    PR-TOTAL-LINES   = W-TOTAL-LINES   / 6                                      
+    PR-OKS-VAL       = W-OKS-VAL       / 6                                      
+    PR-EFR-OP-VAL    = W-EFR-OP-VAL    / 6                                      
+    PR-EFR-P-VAL     = W-EFR-P-VAL     / 6                                      
+    PR-NON-PACK-VAL  = W-NON-PACK-VAL  / 6                                      
+    PR-TOTAL-VAL     = W-TOTAL-VAL     / 6                                      
+    PR-BACKLOG-LINES = W-BACKLOG-LINES / 6                                      
+    PR-VKARTNTO      = W-VKARTNTO      / 6                                      
+    PR-VLARTNTO      = W-VLARTNTO      / 6                                      
+                                                                                
+    PUT WXTR12D4                                                                
+                                                                                
+  END-PROC                                                                      
+                                                                                
+  Z-FINIT. PROC                                                                 
+                                                                                
+    PERFORM S01-SKRIV-VECKOFIL-PRINTFIL                                         
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  SORT WXTR12D4 TO WXTR12D4 USING (PR-IDDC                       +              
+                                   PR-IDDISTR)                   +              
+                                                 NAME   STEG02                  
+                                                                                
+  NEWPAGE                                                                       
+                                                                                
+  JOB INPUT (WXTR12D2 KEY (TAB-IDDC                              +              
+                           TAB-IDDISTR)                          +              
+             WXTR12D4 KEY (PR-IDDC                               +              
+                           PR-IDDISTR ))                         +              
+                                                 NAME   STEG03                  
+   IF MATCHED                                                                   
+     W-BELAND            = TAB-BELAND                                           
+     W-SORTFALT          = 1                                                    
+     PERFORM S23-CHECK-PR-IDDC                                                  
+     IF PR-IDDC = NDC-NA                                                        
+       IF PR-IDDC = NDC-US                                                      
+         PR-VKARTNTO     = PR-VKARTNTO           * CONV-KG-TO-LB                
+         PR-VLARTNTO     = PR-VLARTNTO / 1000000 * CONV-M3-TO-FT3               
+         PR-CURRENCY     = USD                                                  
+         PR-WEIGHT-UNITS = POUNDS                                               
+         PR-VOLUME-UNITS = FT3                                                  
+       ELSE                                                                     
+         PR-VKARTNTO     = PR-VKARTNTO           * CONV-KG-TO-LB                
+         PR-VLARTNTO     = PR-VLARTNTO / 1000000 * CONV-M3-TO-FT3               
+*        PR-VKARTNTO     = PR-VKARTNTO                                          
+*        PR-VLARTNTO     = PR-VLARTNTO / 1000                                   
+         PR-CURRENCY     = CAD                                                  
+         PR-WEIGHT-UNITS = POUNDS                                               
+         PR-VOLUME-UNITS = FT3                                                  
+*        PR-WEIGHT-UNITS = KILOS                                                
+*        PR-VOLUME-UNITS = LITERS                                               
+       END-IF                                                                   
+     ELSE                                                                       
+       PR-VKARTNTO     = PR-VKARTNTO                                            
+       PR-VLARTNTO     = PR-VLARTNTO / 1000                                     
+       PR-CURRENCY     = STD-SEK                                                
+       PR-WEIGHT-UNITS = KILOS                                                  
+       PR-VOLUME-UNITS = LITERS                                                 
+     END-IF                                                                     
+     PRINT RAPPORT01                                                            
+   ELSE                                                                         
+     IF WXTR12D4                                                                
+        W-BELAND           = 'MISC'                                             
+        W-SORTFALT         = 9                                                  
+       PERFORM S23-CHECK-PR-IDDC                                                
+       IF PR-IDDC = NDC-NA                                                      
+         IF PR-IDDC = NDC-US                                                    
+           PR-VKARTNTO     = PR-VKARTNTO           * CONV-KG-TO-LB              
+           PR-VLARTNTO     = PR-VLARTNTO / 1000000 * CONV-M3-TO-FT3             
+           PR-CURRENCY     = USD                                                
+           PR-WEIGHT-UNITS = POUNDS                                             
+           PR-VOLUME-UNITS = FT3                                                
+         ELSE                                                                   
+           PR-VKARTNTO     = PR-VKARTNTO           * CONV-KG-TO-LB              
+           PR-VLARTNTO     = PR-VLARTNTO / 1000000 * CONV-M3-TO-FT3             
+*          PR-VKARTNTO     = PR-VKARTNTO                                        
+*          PR-VLARTNTO     = PR-VLARTNTO / 1000                                 
+           PR-CURRENCY     = CAD                                                
+           PR-WEIGHT-UNITS = POUNDS                                             
+           PR-VOLUME-UNITS = FT3                                                
+*          PR-WEIGHT-UNITS = KILOS                                              
+*          PR-VOLUME-UNITS = LITERS                                             
+         END-IF                                                                 
+       ELSE                                                                     
+         PR-VKARTNTO     = PR-VKARTNTO                                          
+         PR-VLARTNTO     = PR-VLARTNTO / 1000                                   
+         PR-CURRENCY     = STD-SEK                                              
+         PR-WEIGHT-UNITS = KILOS                                                
+         PR-VOLUME-UNITS = LITERS                                               
+       END-IF                                                                   
+       PRINT RAPPORT01                                                          
+     END-IF                                                                     
+   END-IF                                                                       
+*    --- S23-CHECK-PR-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'PR-'                                                                   
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    REPORT SECTION                              *              
+*----------------------------------------------------------------*              
+*                                                                               
+    REPORT RAPPORT01 PRINTER WXTR12D5                            +              
+                     SUMMARY                                     +              
+                     LINESIZE     120                            +              
+                     PAGESIZE      41                            +              
+                     NODATE                                      +              
+                     NOADJUST                                    +              
+                     NOSPREAD                                    +              
+                     SUMSPACE       0                            +              
+                     SPACE          1                                           
+*                                                                               
+    SEQUENCE                                                     +              
+             PR-IDDC                                             +              
+             PR-IDPRC                                            +              
+             PR-KDORDKL                                          +              
+             W-SORTFALT                                          +              
+             W-BELAND                                                           
+*                                                                               
+    CONTROL                                                      +              
+             FINAL          NOPRINT                              +              
+             PR-IDDC                 NEWPAGE  RENUM              +              
+             PR-IDPRC                                            +              
+             PR-KDORDKL                                          +              
+             W-SORTFALT     NOPRINT                              +              
+             W-BELAND                                                           
+*                                                                               
+    TITLE 01                                                     +              
+    COL   02 'VOLVO CAR CORP., AFTERSALES   WXTR12-001 '         +              
+    COL   93  SYSDATE                                                           
+*                                                                               
+    TITLE 02                                                     +              
+    COL   10 'NON INVOICED LINES PER DC AND DISTRICT.'                          
+*                                                                               
+    TITLE 03                                                     +              
+    COL   10 PR-CURRENCY                                         +              
+    COL   30 PR-WEIGHT-UNITS                                     +              
+    COL   50 PR-VOLUME-UNITS                                                    
+*                                                                               
+    TITLE 04                                                     +              
+    COL   10 'TARGET:  DC' PR-IDDC                               +              
+    COL   30 'AVERAGE FOR WEEK: ' PR-TIAAVV                                     
+*                                                                               
+    HEADING   PR-IDPRC           'PRC'                                          
+    HEADING   PR-KDORDKL         'CL'                                           
+    HEADING   W-BELAND           'COUNTRY  '                                    
+    HEADING   PR-OKS-VAL        ('  ORDER Q.' 'VALUE')                          
+    HEADING   PR-EFR-OP-VAL     ('NOT  ' 'PACK.' 'VALUE')                       
+    HEADING   PR-EFR-P-VAL      ('PACK.' 'LINES' 'VALUE')                       
+    HEADING   PR-NON-PACK-VAL   ('NOT P' '  + ORD OQ' 'VALUE')                  
+    HEADING   PR-TOTAL-VAL      ('TOTAL' 'VALUE')                               
+    HEADING   PR-BACKLOG-LINES  ('NOT  ' 'PACK.' 'LINES')                       
+    HEADING   PR-TOTAL-LINES    ('TOTAL' 'LINES')                               
+    HEADING   PR-VKARTNTO        'WEIGHT'                                       
+    HEADING   PR-VLARTNTO        'VOLUME'                                       
+*                                                                               
+    LINE 01                                                       +             
+              PR-IDPRC                                            +             
+              PR-KDORDKL                                          +             
+              W-BELAND                                            +             
+              PR-OKS-VAL                                          +             
+              PR-EFR-OP-VAL                                       +             
+              PR-EFR-P-VAL                                        +             
+              PR-NON-PACK-VAL                                     +             
+              PR-TOTAL-VAL                                        +             
+              PR-BACKLOG-LINES                                    +             
+              PR-TOTAL-LINES                                      +             
+              PR-VKARTNTO                                         +             
+              PR-VLARTNTO                                                       
+                                                                                
+NEWPAGE                                                                         

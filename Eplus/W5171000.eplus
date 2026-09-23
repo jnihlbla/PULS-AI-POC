@@ -1,0 +1,228 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5171000                                              *        
+*                                                                      *        
+*  FUNKTION   :  TAR IN DAGLIG FIL IFRÅN SAP MED MANUELLA RÄTTNINGAR   *        
+*                SKAPAR AV DESSA EN UTFIL TILL VECKORAPPORTEN OCH      *        
+*                EN FIL TILL MÅNADSRAPPORTEN                           *        
+*                GÖR CALL PÅ W517TRAD FÖR ATT HITTA DISTRIKT TILL      *        
+*                KDTRADP FÖR ATT SEDAN KUNNA SÄTTA MARKNADSKOD         *        
+*                I VECKORAPPORTEN                                      *        
+*  FÖRFATTARE :  MARKUS ASPFJÄLL                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W51710D1                                                                   
+IN-RECTYP         1  3  A                                                       
+IN-SAP-NR        12  9  A                                                       
+IN-DOCNR         51  2  A                                                       
+IN-AAR           86  4  N                                                       
+IN-AA            88  2  N                                                       
+IN-AAMMDD        88  6  N                                                       
+IN-AMOUNT       159 15  N 2                                                     
+IN-AMOUNT-HEL   159 13  N                                                       
+IN-AMOUNT-DEC   172  2  N                                                       
+IN-ACCOUNT      124 10  A                                                       
+IN-KONTO4       124  4  A                                                       
+IN-TECKEN       174  1  A                                                       
+IN-KDPRODSL1    218  1  N                                                       
+IN-KDPRODSL2    218  2  N                                                       
+IN-KDTRADP      243  4  A                                                       
+IN-BESAP        319 30  A                                                       
+                                                                                
+FILE W51710D2 VB(44 0)                                                          
+%W517RW1 'UT-'                                                                  
+                                                                                
+FILE W51710D3 FB(22 0)                                                          
+%W51713  'MON-'                                                                 
+                                                                                
+** RAPPORT SOM EXCEL                                                            
+FILE W51710D4 VB(86 0)                                                          
+UX-HEADER         1 76  A                                                       
+UX-FILLER1        1  1  A                                                       
+UX-SAP-NR         2  9  A                                                       
+UX-FILLER2       11  1  A                                                       
+UX-BESAP         12 30  A                                                       
+UX-FILLER3       43  1  A                                                       
+UX-KDPRODSL2     44  2  A                                                       
+UX-FILLER4       46  1  A                                                       
+UX-KDTRADP       47  4  A                                                       
+UX-FILLER5       51  1  A                                                       
+UX-AAMMDD        52  6  N                                                       
+UX-AAMMDD-A      52  6  A                                                       
+UX-FILLER6       58  1  A                                                       
+UX-AMOUNT-A      59 16  A                                                       
+UX-AMOUNT-HEL    59 13  N                                                       
+UX-AMOUNT-COMMA  72  1  A                                                       
+UX-AMOUNT-DEC    73  2  N                                                       
+UX-AMOUNT-SIGN   75  1  A                                                       
+UX-FILLER7       76  1  A                                                       
+UX-KOMMENTAR     77  6  A                                                       
+                                                                                
+***************************                                                     
+*WORKING STORAGE          *                                                     
+***************************                                                     
+                                                                                
+W-TAB     W  1  A  VALUE X'05'                                                  
+                                                                                
+W-AMOUNT        W  7 P 2                                                        
+W-KDPRODSL      W  2 P 0                                                        
+                                                                                
+W-TIAAVV              W 4  N                                                    
+W-TIAAVV-A W-TIAAVV     2  N                                                    
+W-TIAAVV-V W-TIAAVV  +2 2  N                                                    
+                                                                                
+W-TIDATUM             W 6  N                                                    
+                                                                                
+W-DAVVREG            W 6  N                                                     
+W-REGYEAR W-DAVVREG    4  N                                                     
+W-VECKA   W-DAVVREG +4 2  N                                                     
+                                                                                
+W-PGMNAMN       W 6 A VALUE 'W51710'                                            
+W-WDATUM        W 6 A VALUE 'WDATUM'                                            
+                                                                                
+W-ANT           W 3 N VALUE 0                                                   
+                                                                                
+%WDATKORT                                                                       
+%WDATAREA                                                                       
+%W517TRAD                                                                       
+%W510MARK                                                                       
+                                                                                
+NEWPAGE                                                                         
+************************************************                                
+* STEG 1. TAR IN FIL                           *                                
+************************************************                                
+                                                                                
+JOB INPUT W51710D1 START A-INIT                                                 
+IF IN-RECTYP = 'A21'                                                            
+  IF W-ANT = 0                                                                  
+    UX-HEADER = ' W51710-001  MAN. SAP-RÄTTNINGAR TILL RSREDO, VECKA '          
+    PUT W51710D4                                                                
+                                                                                
+    UX-HEADER = ' '                                                             
+    UX-SAP-NR        = 'SAP-NR   '                                              
+    UX-FILLER2       = W-TAB                                                    
+    UX-BESAP         = 'BESKRIVNING                    '                        
+    UX-FILLER3       = W-TAB                                                    
+    UX-KDPRODSL2     = 'PS'                                                     
+    UX-FILLER4       = W-TAB                                                    
+    UX-KDTRADP       = 'TRAD'                                                   
+    UX-FILLER5       = W-TAB                                                    
+    UX-AAMMDD-A      = 'DATUM '                                                 
+    UX-FILLER6       = W-TAB                                                    
+    UX-AMOUNT-A      = '          BELOPP'                                       
+    UX-FILLER7       = W-TAB                                                    
+    UX-KOMMENTAR     = 'RSREDO'                                                 
+    PUT W51710D4                                                                
+  END-IF                                                                        
+  W-ANT = W-ANT + 1                                                             
+  UX-KOMMENTAR    = '  NEJ  '                                                   
+  IF IN-AAR GE  2000                                                            
+     IF IN-KONTO4  EQ '4321' '4323' '4331' '4333'                 +             
+                      '3021' '3023' '3421' '3423' '3424' '3426'                 
+**  OBS !!! SJK-KONTO => '4321' '4323' '4331' '4333'                            
+**  OBS !!! OM TILLÄGG AV SJK-KONTO HÄR, GLÖM EJ TILLÄGG NEDAN                  
+        TRAD-KDTRADP   = IN-KDTRADP                                             
+        TRAD-KDCALL    = +0                                                     
+        CALL W517TRAD USING TRAD-W517TRAD                                       
+        UT-IDDISTR     = TRAD-IDDISTR                                           
+        IF TRAD-IDDISTR EQ 0                                                    
+          DISPLAY '*SAKNAS** ' IN-KDTRADP                                       
+        ELSE                                                                    
+          UT-IDPTYP       = 'RW1'                                               
+          UT-IDDC         = '11'                                                
+                                                                                
+          IF IN-KDPRODSL2 =  10                                                 
+            IN-KDPRODSL2  =  11                                                 
+          END-IF                                                                
+                                                                                
+          IF IN-KDPRODSL1 EQ 9                                                  
+            IN-KDPRODSL1 EQ 1                                                   
+          END-IF                                                                
+                                                                                
+          W-KDPRODSL     = IN-KDPRODSL2                                         
+          UT-KDPRODSL    = W-KDPRODSL                                           
+          UT-KDMARK      = +0                                                   
+          UT-SUARTSTD    = +0                                                   
+                                                                                
+          MOVE 'AAMMDD'     TO DAT-KDDATFORM                                    
+          DAT-I-TIDATUM  = IN-AAMMDD                                            
+          CALL WDATKONV  USING (DAT-KDDATFORM +                                 
+                                DAT-I-TIDATUM +                                 
+                                DAT-O-TIDATUM +                                 
+                                DAT-KDSVAR)                                     
+          IF DAT-KDSVAR NE ' '                                                  
+            DISPLAY 'DATUMFEL I SAPFILEN ' IN-AAMMDD                            
+          ELSE                                                                  
+            W-VECKA         = DAT-TIVV                                          
+            W-REGYEAR       = IN-AAR                                            
+            UT-DAVVREG      = W-DAVVREG                                         
+            UT-KDWRTYP      = 0110                                              
+            W-AMOUNT        = IN-AMOUNT                                         
+            IF IN-KONTO4  EQ '4321' '4323' '4331' '4333'                        
+              IF IN-TECKEN  = '+'                                               
+                UT-SUARTSJK =  W-AMOUNT                                         
+              ELSE                                                              
+                UT-SUARTSJK =  W-AMOUNT * -1                                    
+              END-IF                                                            
+              UT-SUARTFSG   = 0                                                 
+            ELSE                                                                
+              IF IN-TECKEN  = '+'                                               
+                UT-SUARTFSG =  W-AMOUNT * -1                                    
+              ELSE                                                              
+                UT-SUARTFSG =  W-AMOUNT                                         
+              END-IF                                                            
+              UT-SUARTSJK   = 0                                                 
+            END-IF                                                              
+            PUT W51710D2                                                        
+            PERFORM SKAPA-MON-TRANS                                             
+            UX-KOMMENTAR = '  JA   '                                            
+          END-IF                                                                
+        END-IF                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+  PERFORM SKAPA-LIST-TRANS                                                      
+END-IF                                                                          
+                                                                                
+A-INIT. PROC                                                                    
+  CALL DATKORT USING (W-PGMNAMN W-WDATUM DATUMKORT)                             
+  MOVE 'IDAG  '     TO DAT-KDDATFORM                                            
+  CALL WDATKONV USING (DAT-KDDATFORM DAT-I-TIDATUM DAT-O-TIDATUM +              
+                                                      DAT-KDSVAR)               
+  UX-KOMMENTAR = DAT-O-TIDATUM                                                  
+END-PROC                                                                        
+                                                                                
+SKAPA-MON-TRANS. PROC                                                           
+  MARK-IDDISTR = UT-IDDISTR                                                     
+  MARK-KDCALL  = 0                                                              
+  CALL W510MARK USING MARK-W510MARK                                             
+  MON-KDMARK   = MARK-KDMARK-BUDG                                               
+  W-TIAAVV-A   = IN-AA                                                          
+  W-TIAAVV-V   = DAT-TIVV                                                       
+  MON-TIAAVV   = W-TIAAVV                                                       
+  MON-TIMM     = DAT-TIMM                                                       
+  MON-KDPRODSL = UT-KDPRODSL                                                    
+  MON-SUARTSJK = UT-SUARTSJK                                                    
+  MON-SUARTFSG = UT-SUARTFSG                                                    
+  PUT W51710D3                                                                  
+END-PROC                                                                        
+                                                                                
+SKAPA-LIST-TRANS. PROC                                                          
+  UX-FILLER1     = ' '                                                          
+  UX-FILLER2     = W-TAB                                                        
+  UX-FILLER3     = W-TAB                                                        
+  UX-FILLER4     = W-TAB                                                        
+  UX-FILLER5     = W-TAB                                                        
+  UX-FILLER6     = W-TAB                                                        
+  UX-FILLER7     = W-TAB                                                        
+  UX-SAP-NR      = IN-SAP-NR                                                    
+  UX-BESAP       = IN-BESAP                                                     
+  UX-KDPRODSL2   = IN-KDPRODSL2                                                 
+  UX-KDTRADP     = IN-KDTRADP                                                   
+  UX-AAMMDD      = IN-AAMMDD                                                    
+  UX-AMOUNT-HEL  = IN-AMOUNT-HEL                                                
+  UX-AMOUNT-SIGN = IN-TECKEN                                                    
+  UX-AMOUNT-COMMA = ','                                                         
+  UX-AMOUNT-DEC  = IN-AMOUNT-DEC                                                
+  PUT W51710D4                                                                  
+END-PROC                                                                        

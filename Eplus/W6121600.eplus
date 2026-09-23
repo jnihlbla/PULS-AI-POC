@@ -1,0 +1,88 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6121600                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET LÄSER W61217 OCH SKRIVER LISTA W61216-001  *        
+*                                                                      *        
+*  FÖRFATTARE :  TOMMIE JIVARP                                         *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61216D1                                                                   
+*                                                                               
+%W61211  'IN1-'                                                                 
+                                                                                
+ADLAGOMR     IN1-ADLAGOMR      2 P 0  MASK 'Z99'                                
+ADGANG       IN1-ADGANG        2 P 0  MASK 'Z99'                                
+ADPLATS      IN1-ADPLATS       3 P 0  MASK '99999'                              
+ADLAGOMR-OLD IN1-ADLAGOMR-OLD  2 P 0  MASK 'Z99'                                
+ADGANG-OLD   IN1-ADGANG-OLD    2 P 0  MASK 'Z99'                                
+ADPLATS-OLD  IN1-ADPLATS-OLD   3 P 0  MASK '99999'                              
+                                                                                
+IDARTNR  IN1-IDARTNR           5 P 0  MASK 'ZZZZZZZZ9'                          
+TIINLINL IN1-TIINLINL-OLD      4 P 0  MASK 'ZZZZZZZ'                            
+                                                                                
+WS-PAGE       W  8  A                 VALUE '    PAGE'                          
+WS-TEST       W  2  P 1               VALUE 0                                   
+NEWPAGE                                                                         
+FILE W61216D2  PRINTER FB (121 0)                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LÄSNING AV W61217 OCH UTSKRIFT AV W61216-001                          
+*                                                                               
+JOB INPUT (W61216D1)                                                            
+                                                                                
+                                                                                
+  PRINT                                                                         
+                                                                                
+NEWPAGE                                                                         
+REPORT   PRINTER W61216D2 LINESIZE 120 DTLCTL FIRST +                           
+         NODATE NOADJUST NOHEADING TITLESKIP 1                                  
+                                                                                
+SEQUENCE IN1-IDDC IN1-KDTECKEN ADLAGOMR ADGANG ADPLATS IDARTNR                  
+CONTROL IN1-IDDC NEWPAGE                                                        
+SUM WS-TEST                                                                     
+                                                                                
+TITLE 1  COL 12 'VOLVO CAR AFTERSALES        W61216-001'   +                    
+         COL 90 SYSDATE                           +                             
+         COL 106 WS-PAGE                                                        
+                                                                                
+TITLE 2  COL 12  'DC: ' IN1-IDDC                  +                             
+         COL 40  'LIST OF PARTS TO BE RELOCATED'                                
+                                                                                
+TITLE 4  COL 4  'PARTNO.'                         +                             
+         COL 13 'DESCRIPTION'                     +                             
+         COL 39 'NEW FORC.'                       +                             
+         COL 49 'PRIME LOCATION'                  +                             
+         COL 64 'FR.CDE'                          +                             
+         COL 71 '+/-'                             +                             
+         COL 76 'STR.CDE'                         +                             
+         COL 84 'SEASONAL'                        +                             
+         COL 93 'PREV.LOCATION'                   +                             
+         COL 107 'RELOC.DATE'                                                   
+                                                                                
+LINE 1   COL 2  IDARTNR          +                                              
+         COL 13 IN1-BEART-ENG    +                                              
+         COL 39 IN1-KVPB-REF     +                                              
+         COL 50 ADLAGOMR         +                                              
+         COL 54 ADGANG           +                                              
+         COL 58 ADPLATS          +                                              
+         COL 66 IN1-KDFREQ       +                                              
+         COL 72 IN1-KDTECKEN     +                                              
+         COL 78 IN1-KDSTOR       +                                              
+         COL 87 IN1-FLSEASON     +                                              
+         COL 93 ADLAGOMR-OLD     +                                              
+         COL 97 ADGANG-OLD       +                                              
+         COL 101 ADPLATS-OLD     +                                              
+         COL 108 TIINLINL                                                       

@@ -1,0 +1,40 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE D&P REPORT OF INVOICED STD VALUE FOR PREVIOUS MONTH                 
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W479M3                                       
+//*                                                                             
+//*  RESTART:      W47949    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P049 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479M3,                                             
+//             INDUT=&W479..W479M3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47949   EXEC PGM=V16459,PARM='W47949/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,DELETE,DELETE),                           
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W47949D1 DD  DSN=&INDIN..W47948(+0),DISP=SHR                                  
+//*********** PREVIOUS MONTH DATA                                               
+//*                                                                             
+//TPFIL2   DD  DSN=&&TPFIL2,DISP=(NEW,DELETE,DELETE),                           
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W47949D2 DD  DSN=&INDIN..W47947(+0),DISP=SHR                                  
+//************ FILE WITH COUNTRY AND DITRICT TYPE INFO                          
+//*                                                                             
+//W47949D3 DD  DSN=&INDUT..W47949(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ D&P REPORT                                                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

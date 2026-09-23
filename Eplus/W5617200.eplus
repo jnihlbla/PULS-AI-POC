@@ -1,0 +1,252 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5617200                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAM SOM AGGREGERAR FAKTURARADER ÅT PEDAL          *        
+*                DÄREFTER SKER SORTERING OCH SUMMERING AV FAKTRADER.   *        
+*                SLUTLIGEN LÄGGS ALLA POSTER FKT. SOM ÖVRIGA PÅ UTFIL. *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON                                    *        
+*                                                                      *        
+*  INFILER    :  W56171, ÖVRIGA TRANSAR TILL SAP                       *        
+*                W56172, FAKTURARADSKONTERINGAR SOM SKALL AGGREGERAS   *        
+*                W56173, ÖVRIGA FAKTURAPOSTER                          *        
+*                                                                      *        
+*  UTFIL      :  W56174, FÄRDIG BOKFÖRINGSFIL ÅT SAP                   *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+*----------------------------------*                                            
+* DIVERSE PEDALTRANSAR             *                                            
+*----------------------------------*                                            
+FILE W56172D1                                                                   
+                                                                                
+%R3HEAD41  'IN3-'                                                               
+%R3LINE20  'IN3-'                                                               
+                                                                                
+NEWPAGE                                                                         
+*----------------------------------*                                            
+* FAKTURARAD-POSTER                *                                            
+*----------------------------------*                                            
+FILE W56172D2                                                                   
+                                                                                
+%R3LINE20                                                                       
+                                                                                
+NEWPAGE                                                                         
+*----------------------------------*                                            
+* FAKTURAHUVUD-POSTER              *                                            
+*----------------------------------*                                            
+FILE W56172D3                                                                   
+                                                                                
+%R3HEAD41  'IN-'                                                                
+%R3LINE20  'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+*-----------------------------------*                                           
+* MELLANFIL FÖR SORTERADE FAKTRADER *                                           
+*-----------------------------------*                                           
+FILE TPFIL1  VB(755 0)                                                          
+                                                                                
+%R3HEAD41 'T1-'                                                                 
+%R3LINE20 'T1-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+*----------------------------------------*                                      
+* FAKTURAHUVUDEN + SUMMERADE FAKT-RADER. *                                      
+*----------------------------------------*                                      
+FILE TPFIL2  VB(755 0)                                                          
+                                                                                
+%R3HEAD41 'T2-'                                                                 
+%R3LINE20 'T2-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+*----------------------------------------*                                      
+* UTFIL MED SORTERADE POSTER             *                                      
+*----------------------------------------*                                      
+                                                                                
+FILE W56172D4  VB(755 0)                                                        
+%R3HEAD41 'UT-'                                                                 
+%R3LINE20 'UT-'                                                                 
+%R3INIT20 'UT-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+*--------------------------------------------*                                  
+* ARBETSAREOR, REDIGERAR DATUM OCH MASKINTID *                                  
+*--------------------------------------------*                                  
+                                                                                
+AKT-DAT             W 10 A                                                      
+AKT-YYYY    AKT-DAT      4 N                                                    
+AKT-MM      AKT-DAT   +5 2 N                                                    
+AKT-DD      AKT-DAT   +8 2 N                                                    
+AKT-DATUM           W 8 N                                                       
+AKT-DAYYYY  AKT-DATUM    4 N                                                    
+AKT-DAMM    AKT-DATUM +4 2 N                                                    
+AKT-DADD    AKT-DATUM +6 2 N                                                    
+                                                                                
+AKT-TID             W 8 A                                                       
+AKT-TIM     AKT-TID      2 N                                                    
+AKT-MIN     AKT-TID   +3 2 N                                                    
+AKT-SEK     AKT-TID   +6 2 N                                                    
+AKT-KLTID           W 6 N                                                       
+AKT-KLTIM   AKT-KLTID    2 N                                                    
+AKT-KLMIN   AKT-KLTID +2 2 N                                                    
+AKT-KLSEK   AKT-KLTID +4 2 N                                                    
+W-DOC-REF                 W  16 A                                               
+W-DOC-REF1 W-DOC-REF          9 A                                               
+W-DOC-REF2 W-DOC-REF      +9  1 A                                               
+W-DOC-REF3 W-DOC-REF      +10 6 A                                               
+                                                                                
+FL-INIT-POST-SKRIVEN  W 1 A VALUE 'N'                                           
+                                                                                
+*------------------------------------------------*                              
+* JOBSTEG 1 SORTERAR FAKTURARADER PÅ TEMP1-FILEN                                
+*------------------------------------------------*                              
+                                                                                
+SORT W56172D2 TO TPFIL1 USING (LINE-DOCUMENT-NO-REF +                           
+                               LINE-POSTING-KEY     +                           
+                               LINE-ACCOUNT         +                           
+                               LINE-ORDER           +                           
+                               LINE-COST-CENTER     +                           
+                               LINE-PROFIT-CENTER)  +                           
+                               SIZE 600000                                      
+                                                                                
+*-------------------------------------------*                                   
+* JOBSTEG 2 SUMMERAR RADPOSTERNA OCH LÄGGER                                     
+*           DESSA SAMT FAKTHUVUDEN PÅ TPFIL2                                    
+*-------------------------------------------*                                   
+                                                                                
+JOB INPUT NULL                                                                  
+                                                                                
+*** LÄGG UT ALLA FAKTURAHUVUDPOSTER PÅ TPFIL2                                   
+   GET W56172D3                                                                 
+   DO WHILE NOT EOF W56172D3                                                    
+     IF IN-HEAD-RECORD-TYPE = '200' '300' '600'                                 
+       T2-HEAD-R3     = IN-HEAD-R3                                              
+     ELSE                                                                       
+       T2-LINE-R3     = IN-LINE-R3                                              
+     END-IF                                                                     
+     PUT TPFIL2                                                                 
+     GET W56172D3                                                               
+   END-DO                                                                       
+                                                                                
+*** SUMMERA ALLA FAKTURARADER OCH LÄGG DESSA PÅ TPFIL2                          
+   GET TPFIL1                                                                   
+   IF NOT EOF TPFIL1                                                            
+    T2-LINE-R3         = T1-LINE-R3                                             
+    T2-LINE-AMOUNT     = 0                                                      
+    T2-LINE-AMOUNT-LC  = 0                                                      
+    DO WHILE NOT EOF TPFIL1                                                     
+      IF T1-LINE-DOCUMENT-NO-REF = T2-LINE-DOCUMENT-NO-REF AND +                
+         T1-LINE-POSTING-KEY     = T2-LINE-POSTING-KEY     AND +                
+         T1-LINE-ACCOUNT         = T2-LINE-ACCOUNT         AND +                
+         T1-LINE-ORDER           = T2-LINE-ORDER           AND +                
+         T1-LINE-COST-CENTER     = T2-LINE-COST-CENTER     AND +                
+         T1-LINE-PROFIT-CENTER   = T2-LINE-PROFIT-CENTER                        
+        T2-LINE-AMOUNT           = T2-LINE-AMOUNT + T1-LINE-AMOUNT              
+        T2-LINE-AMOUNT-LC        = T2-LINE-AMOUNT-LC + T1-LINE-AMOUNT-LC        
+      ELSE                                                                      
+        PUT TPFIL2                                                              
+        T2-LINE-R3     = T1-LINE-R3                                             
+      END-IF                                                                    
+      GET TPFIL1                                                                
+    END-DO                                                                      
+    PUT TPFIL2                                                                  
+   END-IF                                                                       
+STOP                                                                            
+                                                                                
+SORT TPFIL2 TO TPFIL2 USING (T2-HEAD-DOCUMENT-NO-REF              +             
+                             T2-HEAD-RECORD-TYPE                  +             
+                             T2-LINE-NEW-COMPANY-CODE             +             
+                             T2-LINE-ACCOUNT)                     +             
+                             SIZE 50000                                         
+                                                                                
+*------------------------------------------------------------------*            
+* JOBSTEG 3   PÅ UTFILEN W56172D4:                                              
+*           - FÖRST LÄGGS ALLA ÖVRIGA POSTER PÅ UTFILEN                         
+*           - DÄREFTER HUVUDPOSTEN 'SEP' FÖR FAKTURAN                           
+*           - DÄRPÅ ALLA RADPOSTER TILL DENNA,                                  
+*             FAKTURA FÖR FAKTURA,                                              
+*             SORTERADE I RÄTT ORDNING (SE SORTEN)                              
+*------------------------------------------------------------------*            
+                                                                                
+JOB INPUT NULL                                                                  
+                                                                                
+*** LÄGG UT ALLA ÖVRIGA SAP-POSTER PÅ UTFILEN                                   
+                                                                                
+   GET W56172D1                                                                 
+   IF NOT EOF W56172D1                                                          
+     PERFORM A-SKAPA-INIT-POST                                                  
+   END-IF                                                                       
+   DO WHILE NOT EOF W56172D1                                                    
+     IF IN3-HEAD-RECORD-TYPE = '200' '300' '600'                                
+       UT-HEAD-R3     = IN3-HEAD-R3                                             
+       W-DOC-REF      = UT-HEAD-DOCUMENT-NO-REF                                 
+       W-DOC-REF2     = ' '                                                     
+       UT-HEAD-DOCUMENT-NO-REF = W-DOC-REF                                      
+       RECORD-LENGTH(W56172D4) = 148                                            
+     ELSE                                                                       
+       UT-LINE-R3   = IN3-LINE-R3                                               
+       W-DOC-REF      = UT-LINE-DOCUMENT-NO-REF                                 
+       W-DOC-REF2     = ' '                                                     
+       UT-LINE-DOCUMENT-NO-REF = W-DOC-REF                                      
+       RECORD-LENGTH(W56172D4) = 751                                            
+     END-IF                                                                     
+     PUT W56172D4                                                               
+     GET W56172D1                                                               
+   END-DO                                                                       
+                                                                                
+*** LÄGG UT ALLA FAKTURAPOSTER PÅ UTFILEN                                       
+                                                                                
+   GET TPFIL2                                                                   
+   IF NOT EOF TPFIL2                                                            
+     PERFORM A-SKAPA-INIT-POST                                                  
+   END-IF                                                                       
+   DO WHILE NOT EOF TPFIL2                                                      
+     IF T2-LINE-RECORD-TYPE = '200' '300' '600'                                 
+       UT-HEAD-R3    = T2-HEAD-R3                                               
+       W-DOC-REF      = UT-HEAD-DOCUMENT-NO-REF                                 
+       W-DOC-REF2     = ' '                                                     
+       UT-HEAD-DOCUMENT-NO-REF = W-DOC-REF                                      
+       RECORD-LENGTH(W56172D4) = 148                                            
+     ELSE                                                                       
+       UT-LINE-R3    = T2-LINE-R3                                               
+       W-DOC-REF      = UT-LINE-DOCUMENT-NO-REF                                 
+       W-DOC-REF2     = ' '                                                     
+       UT-LINE-DOCUMENT-NO-REF = W-DOC-REF                                      
+       RECORD-LENGTH(W56172D4) = 751                                            
+     END-IF                                                                     
+     GET TPFIL2                                                                 
+     PUT W56172D4                                                               
+   END-DO                                                                       
+                                                                                
+STOP                                                                            
+                                                                                
+A-SKAPA-INIT-POST. PROC                                                         
+                                                                                
+  AKT-DAT   = SYSDATE-LONG                                                      
+  AKT-DAYYYY = AKT-YYYY                                                         
+  AKT-DAMM   = AKT-MM                                                           
+  AKT-DADD   = AKT-DD                                                           
+  UT-INIT-TIME-STAMP-DATE = AKT-DATUM                                           
+                                                                                
+  AKT-TID   = SYSTIME                                                           
+  AKT-KLTIM = AKT-TIM                                                           
+  AKT-KLMIN = AKT-MIN                                                           
+  AKT-KLSEK = AKT-SEK                                                           
+  UT-INIT-TIME-STAMP-TIME = AKT-KLTID                                           
+                                                                                
+*** TESTA FÖRST OM INIT-POST REDAN SKAPAD ****                                  
+  IF FL-INIT-POST-SKRIVEN   = 'N'                                               
+    FL-INIT-POST-SKRIVEN   = 'J'                                                
+    UT-INIT-COMPANY-CODE    = 'US01'                                            
+    UT-INIT-FEEDER-SYSTEM   = 'PULS'                                            
+    UT-INIT-FILE-ID         = '0001'                                            
+    UT-INIT-USER            = 'AXF5022'                                         
+    UT-INIT-PASSWORD        = 'INTEREST'                                        
+    UT-INIT-FILLER          = ' '                                               
+    RECORD-LENGTH(W56172D4) = 100                                               
+    PUT W56172D4                                                                
+  END-IF                                                                        
+END-PROC                                                                        

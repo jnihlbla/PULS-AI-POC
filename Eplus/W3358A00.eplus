@@ -1,0 +1,187 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W3358A00                                              *        
+*                                                                      *        
+*  FUNCTION   :  TAR FRAM FÄRSKASTE PRISRAD PER ART + LEV OCH          *        
+*                LÄGGER PÅ UTFIL                                       *        
+*                                                                      *        
+*  WRITER     :  ANDERS HENRIKSSON                                     *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W3358AD1                                                                   
+%W01185   'IN-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W3358AD2                                                                   
+%W3358H      'LEV-'                                                             
+                                                                                
+NEWPAGE                                                                         
+FILE W3358AD3 FB (49 0)                                                         
+%W3358A   'UT-'                                                                 
+                                                                                
+*                                                                               
+FILE TPFIL1  FB (51 0)                                                          
+*                                                                               
+%W01185   'T1-'                                                                 
+                                                                                
+FILE TPFIL2  FB (65 0)                                                          
+%W01185   'T2-'                                                                 
+T2-RETULF-CN       52 4 P 4                                                     
+T2-RETULF-US       56 4 P 4                                                     
+T2-IDLEVNR-MOTSV   60 5 A                                                       
+                                                                                
+FILE TPFIL3  FB (18 0)                                                          
+*                                                                               
+%W3358H   'T3-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+  W-PROGRAM-NAMN   W  6   A   VALUE 'W3358A'                                    
+                                                                                
+* DATUM                    W  8  A                                              
+  W-DAGENS-DATUM           W  8  A                                              
+  W-AA   W-DAGENS-DATUM       2  N                                              
+  W-S1   W-DAGENS-DATUM   +2  1  A                                              
+  W-MM   W-DAGENS-DATUM   +3  2  N                                              
+  W-S2   W-DAGENS-DATUM   +5  1  A                                              
+  W-DD   W-DAGENS-DATUM   +6  2  N                                              
+                                                                                
+  W-DATUM                  W  8  N                                              
+  W-TI   W-DATUM              2  N                                              
+  W-AR   W-DATUM          +2  2  N                                              
+  W-MA   W-DATUM          +4  2  N                                              
+  W-DA   W-DATUM          +6  2  N                                              
+                                                                                
+W-PRISDATUM      W 8 N    VALUE 0                                               
+W-IDARTNR        W 9 P    VALUE 0                                               
+W-IDLEVNR        W 5 A    VALUE '     '                                         
+W-DIFF           W 9 P 2  VALUE 0                                               
+ANT              W 8 P    VALUE 0                                               
+*--------------------------------------*                                        
+*  WWDC99 - NDC-ER                     *                                        
+* -------------------------------------*                                        
+%WWDC99                                                                         
+                                                                                
+NEWPAGE                                                                         
+************************************************************                    
+* STEG 1. SORTERAR IN-FIL  PÅ IDLEVNR TILL TPFIL1          *                    
+************************************************************                    
+                                                                                
+SORT W3358AD1 TO TPFIL1 USING                                        +          
+ (IN-SPRL-IDLEVNR-PR ) SIZE 800000                                              
+*    BEFORE SORT-INIT  SIZE 800000                                              
+NEWPAGE                                                                         
+************************************************************                    
+* STEG 2. SORTERAR W3358AD2 PÅ IDLEVNR TILL TPFIL3         *                    
+************************************************************                    
+                                                                                
+SORT W3358AD2 TO TPFIL3 USING                                      +            
+ (LEV-IDLEVNR ) SIZE 800000                                                     
+*    BEFORE SORT-INIT  SIZE 800000                                              
+NEWPAGE                                                                         
+************************************************************                    
+* STEG 3. MATCHAR TPFIL1 OCH TPFIL3 LEV-FIL OCH BYTER UT   *                    
+*         ALFALEVNR MOT DET GAMLA NUMERISKA LEVNR          *                    
+************************************************************                    
+*                                                                               
+JOB INPUT (TPFIL3 KEY(T3-IDLEVNR) TPFIL1 KEY(T1-SPRL-IDLEVNR-PR))  +            
+                                    START A-INIT                                
+                                                                                
+    IF MATCHED                                                                  
+      IF DUPLICATE TPFIL1 OR NOT DUPLICATE TPFIL1                               
+        T2-SPRL-W01185 = T1-SPRL-W01185                                         
+        IF T3-RETULF-CN = 0                                                     
+           T2-RETULF-CN     = 1                                                 
+        ELSE                                                                    
+           T2-RETULF-CN     = T3-RETULF-CN                                      
+        END-IF                                                                  
+        IF T3-RETULF-US = 0                                                     
+           T2-RETULF-US     = 1                                                 
+        ELSE                                                                    
+           T2-RETULF-US     = T3-RETULF-US                                      
+        END-IF                                                                  
+        T2-IDLEVNR-MOTSV = '     '                                              
+        PUT TPFIL2                                                              
+      END-IF                                                                    
+    ELSE                                                                        
+      IF TPFIL1                                                                 
+        T2-SPRL-W01185    = T1-SPRL-W01185                                      
+        T2-RETULF-CN     = 1                                                    
+        T2-RETULF-US     = 1                                                    
+        T2-IDLEVNR-MOTSV = '     '                                              
+        PUT TPFIL2                                                              
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+A-INIT. PROC                                                                    
+                                                                                
+  W-DAGENS-DATUM = SYSDATE                                                      
+  W-TI     = 20                                                                 
+  W-AR     = W-AA                                                               
+  W-MA     = W-MM                                                               
+  W-DA     = W-DD                                                               
+                                                                                
+END-PROC.                                                                       
+NEWPAGE                                                                         
+************************************************************                    
+* STEG 4. SORTERAR TPFIL2  PÅ ARTNR, IDLEVNR OCH DATUM     *                    
+************************************************************                    
+                                                                                
+SORT TPFIL2 TO TPFIL2 USING                                          +          
+ (T2-SPRL-IDARTNR T2-SPRL-IDLEVNR-PR T2-SPRL-DAPRLIST-9KOMPL)        +          
+     BEFORE SORT-INIT  SIZE 800000                                              
+                                                                                
+ SORT-INIT. PROC                                                                
+ ANT = ANT + 1                                                                  
+ IF T2-SPRL-SUINLEV-PR > 0                                                      
+   W-PRISDATUM = 99999999 - T2-SPRL-DAPRLIST-9KOMPL                             
+   IF W-DATUM >= W-PRISDATUM                                                    
+     SELECT                                                                     
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+ END-PROC                                                                       
+************************************************************                    
+* STEG 5. TAR FRAM FÄRSKASTE PRISRAD PER ARTNR OCH IDLEVNR *                    
+************************************************************                    
+                                                                                
+JOB INPUT TPFIL2 START A-INIT                                                   
+ IF W-IDARTNR = T2-SPRL-IDARTNR AND W-IDLEVNR = T2-SPRL-IDLEVNR-PR              
+ ELSE                                                                           
+   UT-IDARTNR         = T2-SPRL-IDARTNR                                         
+   UT-IDDC            = T2-SPRL-IDDC                                            
+   UT-DAPRLIST-9KOMPL = 99999999 - T2-SPRL-DAPRLIST-9KOMPL                      
+   UT-FLHUVLEV        = 'J'                                                     
+   UT-IDLEVNR-PR      = T2-SPRL-IDLEVNR-PR                                      
+   UT-KDPRURSP        = T2-SPRL-KDPRURSP                                        
+   UT-KDSTATUS-PR     = 0                                                       
+   UT-KDVALISO        = T2-SPRL-KDVALISO                                        
+   UT-PRARTBES-PR     = T2-SPRL-PRARTBES-PR                                     
+   UT-PRARTBEL-PR     = T2-SPRL-PRARTBEL-PR                                     
+   UT-SUINLEV-PR      = T2-SPRL-SUINLEV-PR                                      
+   PERFORM S23-CHECK-T2-SPRL-IDDC                                               
+   IF T2-SPRL-IDDC = NDC-CN                                                     
+      UT-RETULF          = T2-RETULF-CN                                         
+   ELSE                                                                         
+      UT-RETULF          = T2-RETULF-US                                         
+   END-IF                                                                       
+   UT-IDLEVNR-MOTSV   = T2-IDLEVNR-MOTSV                                        
+   PUT W3358AD3                                                                 
+   W-IDARTNR  = T2-SPRL-IDARTNR                                                 
+   W-IDLEVNR  = T2-SPRL-IDLEVNR-PR                                              
+ END-IF                                                                         
+                                                                                
+A-INIT. PROC                                                                    
+   W-IDARTNR  = 0                                                               
+   W-IDLEVNR  = '     '                                                         
+END-PROC                                                                        
+*                                                                               
+                                                                                
+*                                                                               
+*  ---  S23-CHECK-T2-SPRL-IDDC (MACRO PROCEDURE)                                
+%WWDC02 'T2-SPRL-'                                                              
+*                                                                               

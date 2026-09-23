@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER CDC- OCH SDC VECKOLAGERBAND OCH SKRIVER DE                           
+//*  ARTIKLAR SOM HAR KDLEVSP = 20                                              
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W426V4                                          
+//*                                                                             
+//*  ÅTERSTART:    W42683    NORMAL                                             
+//*                          NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W426P083 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDUT=&W426..W426V4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42683   EXEC PGM=V16459,PARM='W42683/8/',REGION=8M                           
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//W42683D1 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ ARTIKLEINFO                                                      
+//*                                                                             
+//W42683D2 DD  DSN=&INDIN2..W01162(+0),DISP=SHR                                 
+//************ ARTIKELINFO                                                      
+//*                                                                             
+//W42683D3 DD  DSN=&INDUT..W42683(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ ARTIKLAR MED KDLEVSP > +0,                                       
+//             SPACE=(49,(10,30),RLSE),AVGREC=K,                                
+//             MGMTCLAS=&DEL2BKPC                                               

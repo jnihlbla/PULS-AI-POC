@@ -1,0 +1,143 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W1164300                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCH W11641 AND W01184 AND W01160 TO GET STOCK       *        
+*                BALACE OF A SUPERSEEDED PART IN EU                    *        
+*                                                                      *        
+*  FÖRFATTARE :  ARUP DATTA                                            *        
+*                                                                      *        
+*  DATUM      :  FEBRUARY 2024                                         *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*--------------------------------------*                                        
+*        FILE SECTION                  *                                        
+* -------------------------------------*                                        
+FILE W11643D1                                                                   
+%W11641    (W11641-)                                                            
+*                                                                               
+FILE W11643D2                                                                   
+%W01160                                                                         
+*                                                                               
+FILE W11643D3                                                                   
+%W01184                                                                         
+*                                                                               
+*--------------------------------------*                                        
+*  UTFIL                               *                                        
+* -------------------------------------*                                        
+FILE W11643D4 FB (26 0)                                                         
+%W11641A   (W11641A-)                                                           
+*                                                                               
+*--------------------------------------*                                        
+*  DC GROUPS                           *                                        
+*--------------------------------------*                                        
+%WWDC99                                                                         
+*                                                                               
+*--------------------------------------*                                        
+*  WORKING STORAGE                     *                                        
+* -------------------------------------*                                        
+                                                                                
+WS-STOCK-BALANCE W  4 P 0                                                       
+WS-KVAKS-CDC     W  4 P                                                         
+WS-KVAKS-SDC     W  4 P                                                         
+FL-CDC           W  1 A                                                         
+JA               W  1 A    VALUE 'J'                                            
+NEJ              W  1 A    VALUE 'N'                                            
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*      JOB INPUT                       *                                        
+* -------------------------------------*                                        
+*                                                                               
+*                                                                               
+                                                                                
+JOB INPUT (W11643D1 KEY (W11641-IDARTNR)                         +              
+           W11643D2 KEY (CLAG-IDARTNR)                           +              
+           W11643D3 KEY (SLAG-IDARTNR))                          +              
+                                         START   A-INIT                         
+                                                                                
+                                                                                
+IF MATCHED                                                                      
+   PERFORM S23-CHECK-SLAG-IDDC                                                  
+   IF FL-CDC EQ NEJ                                                             
+      PERFORM S01-CALC-CDC-STOCK-BAL                                            
+      FL-CDC  = JA                                                              
+   END-IF                                                                       
+   IF SLAG-IDDC EQ SDC LDC-EU                                                   
+      PERFORM S05-CALC-DC-STOCK-BAL                                             
+   END-IF                                                                       
+   IF  (LAST-DUP W11643D3                                    +                  
+   OR   NOT DUPLICATE   W11643D3 )                                              
+      PERFORM S11-WRITE-OUTPUT                                                  
+   END-IF                                                                       
+ELSE                                                                            
+   IF W11643D1 AND W11643D2                                                     
+         PERFORM S01-CALC-CDC-STOCK-BAL                                         
+         PERFORM S11-WRITE-OUTPUT                                               
+   ELSE                                                                         
+      IF W11643D1                                                               
+         WS-STOCK-BALANCE  = 0                                                  
+         WS-KVAKS-CDC      = 0                                                  
+         WS-KVAKS-SDC      = 0                                                  
+         PERFORM S11-WRITE-OUTPUT                                               
+      END-IF                                                                    
+   END-IF                                                                       
+END-IF                                                                          
+                                                                                
+*                                                                               
+A-INIT.  PROC                                                                   
+      WS-STOCK-BALANCE = 0                                                      
+      WS-KVAKS-CDC     = 0                                                      
+      WS-KVAKS-SDC     = 0                                                      
+      FL-CDC           = NEJ                                                    
+END-PROC                                                                        
+                                                                                
+S01-CALC-CDC-STOCK-BAL. PROC                                                    
+                                                                                
+      WS-STOCK-BALANCE = WS-STOCK-BALANCE                    +                  
+                         + CLAG-KVLS                         +                  
+                         + CLAG-KVAKS-PAV                    +                  
+                         + CLAG-KVBEART                                         
+*                                                                               
+      WS-KVAKS-CDC     = WS-KVAKS-CDC                        +                  
+                         + CLAG-KVAKS-CDC                                       
+END-PROC                                                                        
+                                                                                
+                                                                                
+S05-CALC-DC-STOCK-BAL. PROC                                                     
+                                                                                
+      WS-STOCK-BALANCE = WS-STOCK-BALANCE                    +                  
+                         + SLAG-KVLS                         +                  
+                         + SLAG-KVAKS-PAV                    +                  
+                         + SLAG-KVBEART                                         
+*                                                                               
+      WS-KVAKS-SDC     = WS-KVAKS-SDC                        +                  
+                         + SLAG-KVAKS-SDC                                       
+END-PROC                                                                        
+                                                                                
+S11-WRITE-OUTPUT. PROC                                                          
+                                                                                
+   W11641A-IDARTNR     = W11641-IDARTNR                                         
+   W11641A-KDERS       = W11641-KDERS                                           
+   W11641A-FLERSATT    = W11641-FLERSATT                                        
+   W11641A-KVTILLG-TOT = WS-STOCK-BALANCE                                       
+   W11641A-KVAKS-CDC   = WS-KVAKS-CDC                                           
+   W11641A-KVAKS-SDC   = WS-KVAKS-SDC                                           
+   PUT W11643D4                                                                 
+*                                                                               
+*  INITIALIZE COUNTERS                                                          
+*                                                                               
+   WS-STOCK-BALANCE  = 0                                                        
+   WS-KVAKS-CDC      = 0                                                        
+   WS-KVAKS-SDC      = 0                                                        
+   FL-CDC            = NEJ                                                      
+*                                                                               
+END-PROC                                                                        
+                                                                                
+*                                                                               
+*    --- S23-CHECK-SLAG-IDDC (MACRO PROCEDURE)                                  
+%WWDC02 'SLAG-'                                                                 
+*                                                                               

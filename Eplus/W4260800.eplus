@@ -1,0 +1,336 @@
+                                                                                
+*    PROGRAMNAMN:W4260800                                       *               
+*                                                               *               
+*    UTFÄRDARE: INGER NILSSON             DATUM: 900514         *               
+*    KORT BESKRIVNING: KVALITET FELLISTA                        *               
+*                                                               *               
+                                                                                
+FILE W42608D1                                                                   
+%W4260402 'IN-'                                                                 
+                                                                                
+W-TIAARP   IN-TIAARP      3 P                                                   
+W-ADLAGOMR IN-ADLAGOMR    2 P                                                   
+W-KVKVAFPO IN-KVKVAFPO    2 P                                                   
+                                                                                
+                                                                                
+FILE W42608D2 PRINTER FB(121 121)                                               
+FILE W42608D3 PRINTER FB(121 121)                                               
+FILE W42608D4 PRINTER FB(121 121)                                               
+FILE W42608D5 PRINTER FB(121 121)                                               
+FILE W42608D6 PRINTER FB(121 121)                                               
+FILE W42608D7 PRINTER FB(121 121)                                               
+FILE W42608D8 PRINTER FB(121 121)                                               
+*                                                                               
+%WDATKORT                                                                       
+*                                                                               
+PROGRAM-NAMN       W  6  A  VALUE 'W42608'                                      
+DATUMKORT-ID       W  6  A  VALUE 'WDATUM'                                      
+W-BEART            W 22  A                                                      
+W-ADGANG           W  3  N  MASK 'ZZ9'                                          
+W-ADPLATS          W  5  N  MASK 'ZZZZ9'                                        
+W-IDARTNR          W  9  N  MASK 'ZZZZZZZ99'                                    
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+%WY2000W7                                                                       
+ W-Y2K-TIAARP      W  4  N                                                      
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT W42608D1 START A-INIT                                                 
+                                                                                
+    W-ADGANG  = IN-ADGANG                                                       
+    W-ADPLATS = IN-ADPLATS                                                      
+    W-IDARTNR = IN-IDARTNR                                                      
+    W-BEART   = IN-BEART                                                        
+    TMP1-YYRP = W-TIAARP                                                        
+    PERFORM WY2000P7                                                            
+    W-Y2K-TIAARP = TMP1-YYRP                                                    
+    IF IN-IDDC = CDC-SE                                                         
+       PRINT LISTA-CDC                                                          
+    ELSE                                                                        
+      IF IN-IDDC = SDC-NL                                                       
+        PRINT LISTA-DC21                                                        
+      ELSE                                                                      
+*       IF IN-IDDC = DC22                                                       
+*         PRINT LISTA-DC22                                                      
+*       ELSE                                                                    
+          IF IN-IDDC = SDC-GB                                                   
+            PRINT LISTA-DC23                                                    
+          ELSE                                                                  
+            IF IN-IDDC = SDC-ES                                                 
+              PRINT LISTA-DC24                                                  
+            ELSE                                                                
+              IF IN-IDDC = SDC-IT                                               
+                PRINT LISTA-DC25                                                
+              ELSE                                                              
+                IF IN-IDDC = SDC-AT                                             
+                  PRINT LISTA-DC26                                              
+                END-IF                                                          
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+*       END-IF                                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+*                                                                               
+ A-INIT.  PROC                                                                  
+     CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                   
+ END-PROC                                                                       
+*                                                                               
+%WY2000P7                                                                       
+*                                                                               
+NEWPAGE                                                                         
+   REPORT LISTA-CDC +                                                           
+     PRINTER W42608D2 +                                                         
+      DTLCTL FIRST +                                                            
+       LINESIZE 120 SPACE 1 NOADJUST NODATE                                     
+     SEQUENCE IN-IDDC    IN-IDKVAOMR IN-IDKVAGRP W-Y2K-TIAARP +                 
+              W-ADPLATS W-ADGANG W-ADLAGOMR W-IDARTNR IN-IDKVAFEL               
+     CONTROL  IN-IDDC    NOPRINT IN-IDKVAOMR NOPRINT +                          
+              IN-IDKVAGRP NOPRINT W-TIAARP NOPRINT NEWPAGE                      
+   TITLE 01  'VOLVO CAR AFTERSALES      W42608-001         ' +                  
+             'CENTRALLAGRET, GBG                DATUM' +                        
+             D-AAR D-MAANAD D-DAG                                               
+   TITLE 03  'FELLISTA  KVALITET'                                               
+   TITLE 05  'LAGER         ' IN-IDDC                                           
+   TITLE 06  'KONTR OMRÅDE ' COL 16 IN-IDKVAOMR COL 19 IN-BEKVAOMR              
+   TITLE 07  'KONTR GRUPP  ' IN-IDKVAGRP                                        
+   TITLE 09  'PERIOD    ' W-TIAARP                                              
+   HEADING W-ADLAGOMR     (' ' 'OMR')                                           
+   HEADING W-ADGANG       (' ' 'GÅNG')                                          
+   HEADING W-ADPLATS      (' ' 'PLATS')                                         
+   HEADING W-IDARTNR      (' ' '   ART.NR')                                     
+   HEADING W-BEART        (' ' 'BENÄMNING')                                     
+   HEADING IN-IDKVAFEL    ('FEL' 'KOD')                                         
+   HEADING IN-BEKVAFEL    (' ' 'FELAKTIGHET')                                   
+   HEADING IN-BEKVAFGR    (' ' 'ALLV.GRAD')                                     
+   HEADING W-KVKVAFPO     ('POÄN')                                              
+   LINE 1 COL 2   W-ADLAGOMR     +                                              
+          COL 6   W-ADGANG       +                                              
+          COL 11  W-ADPLATS      +                                              
+          COL 17  W-IDARTNR      +                                              
+          COL 27  W-BEART        +                                              
+          COL 51  IN-IDKVAFEL    +                                              
+          COL 55  IN-BEKVAFEL    +                                              
+          COL 96  IN-BEKVAFGR    +                                              
+          COL 117 W-KVKVAFPO                                                    
+   LINE 2 '                                                    '                
+NEWPAGE                                                                         
+   REPORT LISTA-DC21 +                                                          
+     PRINTER W42608D3 +                                                         
+      DTLCTL FIRST +                                                            
+       LINESIZE 120 SPACE 1 NOADJUST NODATE                                     
+     SEQUENCE IN-IDDC    IN-IDKVAOMR IN-IDKVAGRP W-Y2K-TIAARP +                 
+              W-ADLAGOMR W-ADGANG W-ADPLATS W-IDARTNR IN-IDKVAFEL               
+     CONTROL  IN-IDDC    NOPRINT IN-IDKVAOMR NOPRINT +                          
+              IN-IDKVAGRP NOPRINT W-TIAARP NOPRINT NEWPAGE                      
+   TITLE 01  'VOLVO CAR AFTERSALES      W42608-001         ' +                  
+             'SUPPORT DC, BORN                   DATE' +                        
+             D-AAR D-MAANAD D-DAG                                               
+   TITLE 03  'AFKEURLIJST  KWALITEIT'                                           
+   TITLE 05  'MAGAZIJN      ' IN-IDDC                                           
+   TITLE 06  'INSPEC.AREA  ' COL 16 IN-IDKVAOMR COL 19 IN-BEKVAOMR              
+   TITLE 07  'INSPEC.GROEP ' IN-IDKVAGRP                                        
+   TITLE 09  'PERIODE   ' W-TIAARP                                              
+   HEADING W-ADLAGOMR     (' ' 'AREA')                                          
+   HEADING W-ADGANG       (' ' 'GANG')                                          
+   HEADING W-ADPLATS      (' ' 'LOK')                                           
+   HEADING W-IDARTNR      (' ' '   STUKNR')                                     
+   HEADING W-BEART        (' ' 'BENAMING')                                      
+   HEADING IN-IDKVAFEL    ('FOUT' 'KODE')                                       
+   HEADING IN-BEKVAFEL    (' ' 'SOORT DEFEKT')                                  
+   HEADING IN-BEKVAFGR    (' ' 'GRAAD VAN ERNST')                               
+   HEADING W-KVKVAFPO     (' ' 'PUNT')                                          
+   LINE 1 COL 2   W-ADLAGOMR     +                                              
+          COL 6   W-ADGANG       +                                              
+          COL 11  W-ADPLATS      +                                              
+          COL 17  W-IDARTNR      +                                              
+          COL 27  W-BEART        +                                              
+          COL 51  IN-IDKVAFEL    +                                              
+          COL 55  IN-BEKVAFEL    +                                              
+          COL 96  IN-BEKVAFGR    +                                              
+          COL 117 W-KVKVAFPO                                                    
+   LINE 2 '                                                    '                
+NEWPAGE                                                                         
+   REPORT LISTA-DC22 +                                                          
+     PRINTER W42608D4 +                                                         
+      DTLCTL FIRST +                                                            
+       LINESIZE 120 SPACE 1 NOADJUST NODATE                                     
+     SEQUENCE IN-IDDC    IN-IDKVAOMR IN-IDKVAGRP W-Y2K-TIAARP +                 
+              W-ADLAGOMR W-ADGANG W-ADPLATS W-IDARTNR IN-IDKVAFEL               
+     CONTROL  IN-IDDC    NOPRINT IN-IDKVAOMR NOPRINT +                          
+              IN-IDKVAGRP NOPRINT W-TIAARP NOPRINT NEWPAGE                      
+   TITLE 01  'VOLVO CAR AFTERSALES      W42608-001         ' +                  
+             'SUPPORT DC, LE MUREAUX             DATE' +                        
+             D-AAR D-MAANAD D-DAG                                               
+   TITLE 03  'QUALITY CONTROL ERROR LISTING'                                    
+   TITLE 05  'WAREHOUSE     ' IN-IDDC                                           
+   TITLE 06  'INSPEC.AREA  ' COL 16 IN-IDKVAOMR COL 19 IN-BEKVAOMR              
+   TITLE 07  'INSPEC.GROUP ' IN-IDKVAGRP                                        
+   TITLE 09  'PERIOD    ' W-TIAARP                                              
+   HEADING W-ADLAGOMR     (' ' 'AREA')                                          
+   HEADING W-ADGANG       (' ' 'AISLE')                                         
+   HEADING W-ADPLATS      (' ' 'LOC.')                                          
+   HEADING W-IDARTNR      (' ' '  PARTNO.')                                     
+   HEADING W-BEART        (' ' 'DESCRIPTION')                                   
+   HEADING IN-IDKVAFEL    ('ERR.' 'CODE')                                       
+   HEADING IN-BEKVAFEL    (' ' 'ERR.CODE DESCRIPTION')                          
+   HEADING IN-BEKVAFGR    ('ERR.CODE      ' 'SEVERITY LEVEL')                   
+   HEADING W-KVKVAFPO     (' ' 'PTS')                                           
+   LINE 1 COL 2   W-ADLAGOMR     +                                              
+          COL 6   W-ADGANG       +                                              
+          COL 11  W-ADPLATS      +                                              
+          COL 17  W-IDARTNR      +                                              
+          COL 27  W-BEART        +                                              
+          COL 51  IN-IDKVAFEL    +                                              
+          COL 55  IN-BEKVAFEL    +                                              
+          COL 96  IN-BEKVAFGR    +                                              
+          COL 117 W-KVKVAFPO                                                    
+   LINE 2 '                                                    '                
+NEWPAGE                                                                         
+   REPORT LISTA-DC23 +                                                          
+     PRINTER W42608D5 +                                                         
+      DTLCTL FIRST +                                                            
+       LINESIZE 120 SPACE 1 NOADJUST NODATE                                     
+     SEQUENCE IN-IDDC    IN-IDKVAOMR IN-IDKVAGRP W-Y2K-TIAARP +                 
+              W-ADLAGOMR W-ADGANG W-ADPLATS W-IDARTNR IN-IDKVAFEL               
+     CONTROL  IN-IDDC    NOPRINT IN-IDKVAOMR NOPRINT +                          
+              IN-IDKVAGRP NOPRINT W-TIAARP NOPRINT NEWPAGE                      
+   TITLE 01  'VOLVO CAR AFTERSALES      W42608-001         ' +                  
+             'SUPPORT DC, GR.BRITAIN             DATE' +                        
+             D-AAR D-MAANAD D-DAG                                               
+   TITLE 03  'QUALITY CONTROL ERROR LISTING'                                    
+   TITLE 05  'WAREHOUSE     ' IN-IDDC                                           
+   TITLE 06  'INSPEC.AREA  ' COL 16 IN-IDKVAOMR COL 19 IN-BEKVAOMR              
+   TITLE 07  'INSPEC.GROUP ' IN-IDKVAGRP                                        
+   TITLE 09  'PERIOD    ' W-TIAARP                                              
+   HEADING W-ADLAGOMR     (' ' 'AREA')                                          
+   HEADING W-ADGANG       (' ' 'AISLE')                                         
+   HEADING W-ADPLATS      (' ' 'LOC.')                                          
+   HEADING W-IDARTNR      (' ' '  PARTNO.')                                     
+   HEADING W-BEART        (' ' 'DESCRIPTION')                                   
+   HEADING IN-IDKVAFEL    ('ERR.' 'CODE')                                       
+   HEADING IN-BEKVAFEL    (' ' 'ERR.CODE DESCRIPTION')                          
+   HEADING IN-BEKVAFGR    ('ERR.CODE      ' 'SEVERITY LEVEL')                   
+   HEADING W-KVKVAFPO     (' ' 'PTS')                                           
+   LINE 1 COL 2   W-ADLAGOMR     +                                              
+          COL 6   W-ADGANG       +                                              
+          COL 11  W-ADPLATS      +                                              
+          COL 17  W-IDARTNR      +                                              
+          COL 27  W-BEART        +                                              
+          COL 51  IN-IDKVAFEL    +                                              
+          COL 55  IN-BEKVAFEL    +                                              
+          COL 96  IN-BEKVAFGR    +                                              
+          COL 117 W-KVKVAFPO                                                    
+   LINE 2 '                                                    '                
+NEWPAGE                                                                         
+   REPORT LISTA-DC24 +                                                          
+     PRINTER W42608D6 +                                                         
+      DTLCTL FIRST +                                                            
+       LINESIZE 120 SPACE 1 NOADJUST NODATE                                     
+     SEQUENCE IN-IDDC    IN-IDKVAOMR IN-IDKVAGRP W-Y2K-TIAARP +                 
+              W-ADLAGOMR W-ADGANG W-ADPLATS W-IDARTNR IN-IDKVAFEL               
+     CONTROL  IN-IDDC    NOPRINT IN-IDKVAOMR NOPRINT +                          
+              IN-IDKVAGRP NOPRINT W-TIAARP NOPRINT NEWPAGE                      
+   TITLE 01  'VOLVO CAR AFTERSALES      W42608-001         ' +                  
+             'SUPPORT DC, MADRID                 DATE' +                        
+             D-AAR D-MAANAD D-DAG                                               
+   TITLE 03  'QUALITY CONTROL ERROR LISTING'                                    
+   TITLE 05  'WAREHOUSE     ' IN-IDDC                                           
+   TITLE 06  'INSPEC.AREA  ' COL 16 IN-IDKVAOMR COL 19 IN-BEKVAOMR              
+   TITLE 07  'INSPEC.GROUP ' IN-IDKVAGRP                                        
+   TITLE 09  'PERIOD    ' W-TIAARP                                              
+   HEADING W-ADLAGOMR     (' ' 'AREA')                                          
+   HEADING W-ADGANG       (' ' 'AISLE')                                         
+   HEADING W-ADPLATS      (' ' 'LOC.')                                          
+   HEADING W-IDARTNR      (' ' '  PARTNO.')                                     
+   HEADING W-BEART        (' ' 'DESCRIPTION')                                   
+   HEADING IN-IDKVAFEL    ('ERR.' 'CODE')                                       
+   HEADING IN-BEKVAFEL    (' ' 'ERR.CODE DESCRIPTION')                          
+   HEADING IN-BEKVAFGR    ('ERR.CODE      ' 'SEVERITY LEVEL')                   
+   HEADING W-KVKVAFPO     (' ' 'PTS')                                           
+   LINE 1 COL 2   W-ADLAGOMR     +                                              
+          COL 6   W-ADGANG       +                                              
+          COL 11  W-ADPLATS      +                                              
+          COL 17  W-IDARTNR      +                                              
+          COL 27  W-BEART        +                                              
+          COL 51  IN-IDKVAFEL    +                                              
+          COL 55  IN-BEKVAFEL    +                                              
+          COL 96  IN-BEKVAFGR    +                                              
+          COL 117 W-KVKVAFPO                                                    
+   LINE 2 '                                                    '                
+NEWPAGE                                                                         
+   REPORT LISTA-DC25 +                                                          
+     PRINTER W42608D7 +                                                         
+      DTLCTL FIRST +                                                            
+       LINESIZE 120 SPACE 1 NOADJUST NODATE                                     
+     SEQUENCE IN-IDDC    IN-IDKVAOMR IN-IDKVAGRP W-Y2K-TIAARP +                 
+              W-ADLAGOMR W-ADGANG W-ADPLATS W-IDARTNR IN-IDKVAFEL               
+     CONTROL  IN-IDDC    NOPRINT IN-IDKVAOMR NOPRINT +                          
+              IN-IDKVAGRP NOPRINT W-TIAARP NOPRINT NEWPAGE                      
+   TITLE 01  'VOLVO CAR AFTERSALES      W42608-001         ' +                  
+             'SUPPORT DC, BOLOGNA                DATE' +                        
+             D-AAR D-MAANAD D-DAG                                               
+   TITLE 03  'QUALITY CONTROL ERROR LISTING'                                    
+   TITLE 05  'WAREHOUSE     ' IN-IDDC                                           
+   TITLE 06  'INSPEC.AREA  ' COL 16 IN-IDKVAOMR COL 19 IN-BEKVAOMR              
+   TITLE 07  'INSPEC.GROUP ' IN-IDKVAGRP                                        
+   TITLE 09  'PERIOD    ' W-TIAARP                                              
+   HEADING W-ADLAGOMR     (' ' 'AREA')                                          
+   HEADING W-ADGANG       (' ' 'AISLE')                                         
+   HEADING W-ADPLATS      (' ' 'LOC.')                                          
+   HEADING W-IDARTNR      (' ' '  PARTNO.')                                     
+   HEADING W-BEART        (' ' 'DESCRIPTION')                                   
+   HEADING IN-IDKVAFEL    ('ERR.' 'CODE')                                       
+   HEADING IN-BEKVAFEL    (' ' 'ERR.CODE DESCRIPTION')                          
+   HEADING IN-BEKVAFGR    ('ERR.CODE      ' 'SEVERITY LEVEL')                   
+   HEADING W-KVKVAFPO     (' ' 'PTS')                                           
+   LINE 1 COL 2   W-ADLAGOMR     +                                              
+          COL 6   W-ADGANG       +                                              
+          COL 11  W-ADPLATS      +                                              
+          COL 17  W-IDARTNR      +                                              
+          COL 27  W-BEART        +                                              
+          COL 51  IN-IDKVAFEL    +                                              
+          COL 55  IN-BEKVAFEL    +                                              
+          COL 96  IN-BEKVAFGR    +                                              
+          COL 117 W-KVKVAFPO                                                    
+   LINE 2 '                                                    '                
+NEWPAGE                                                                         
+   REPORT LISTA-DC26 +                                                          
+     PRINTER W42608D8 +                                                         
+      DTLCTL FIRST +                                                            
+       LINESIZE 120 SPACE 1 NOADJUST NODATE                                     
+     SEQUENCE IN-IDDC    IN-IDKVAOMR IN-IDKVAGRP W-Y2K-TIAARP +                 
+              W-ADLAGOMR W-ADGANG W-ADPLATS W-IDARTNR IN-IDKVAFEL               
+     CONTROL  IN-IDDC    NOPRINT IN-IDKVAOMR NOPRINT +                          
+              IN-IDKVAGRP NOPRINT W-TIAARP NOPRINT NEWPAGE                      
+   TITLE 01  'VOLVO CAR AFTERSALES      W42608-001         ' +                  
+             'SUPPORT DC, AUSTRIA                DATE' +                        
+             D-AAR D-MAANAD D-DAG                                               
+   TITLE 03  'QUALITY CONTROL ERROR LISTING'                                    
+   TITLE 05  'WAREHOUSE     ' IN-IDDC                                           
+   TITLE 06  'INSPEC.AREA  ' COL 16 IN-IDKVAOMR COL 19 IN-BEKVAOMR              
+   TITLE 07  'INSPEC.GROUP ' IN-IDKVAGRP                                        
+   TITLE 09  'PERIOD    ' W-TIAARP                                              
+   HEADING W-ADLAGOMR     (' ' 'AREA')                                          
+   HEADING W-ADGANG       (' ' 'AISLE')                                         
+   HEADING W-ADPLATS      (' ' 'LOC.')                                          
+   HEADING W-IDARTNR      (' ' '  PARTNO.')                                     
+   HEADING W-BEART        (' ' 'DESCRIPTION')                                   
+   HEADING IN-IDKVAFEL    ('ERR.' 'CODE')                                       
+   HEADING IN-BEKVAFEL    (' ' 'ERR.CODE DESCRIPTION')                          
+   HEADING IN-BEKVAFGR    ('ERR.CODE      ' 'SEVERITY LEVEL')                   
+   HEADING W-KVKVAFPO     (' ' 'PTS')                                           
+   LINE 1 COL 2   W-ADLAGOMR     +                                              
+          COL 6   W-ADGANG       +                                              
+          COL 11  W-ADPLATS      +                                              
+          COL 17  W-IDARTNR      +                                              
+          COL 27  W-BEART        +                                              
+          COL 51  IN-IDKVAFEL    +                                              
+          COL 55  IN-BEKVAFEL    +                                              
+          COL 96  IN-BEKVAFGR    +                                              
+          COL 117 W-KVKVAFPO                                                    
+   LINE 2 '                                                    '                

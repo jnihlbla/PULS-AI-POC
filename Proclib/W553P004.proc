@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE FILE FROM WEB INTO W553D1                                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W553B3                                         
+//*                                                                             
+//*  RESTART:      W55304    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W553P004 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W553..W553B3,                                             
+//             INDUT=&W553..W553B3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55304   EXEC PGM=W55304                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//*                                                                             
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W55304D1 DD  DSN=&INDIN..CSV.W55304(+1),DISP=SHR                              
+//************ STANDARD PRICE FILE FROM WEB-SITE (UNIX)                         
+//************ READS THE (+1) WHILE THE FILE IS CREATED                         
+//************ IN THE SAME JOB AS THIS ALLOCATION.                              
+//*                                                                             
+//W55304D2 DD  DSN=&INDUT..W55304(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)          
+//************ STD PRICE FILE                                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W55304D3 DD  DSN=&INDUT..W55304F(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)         
+//************ ERROR FILE W55304-001                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

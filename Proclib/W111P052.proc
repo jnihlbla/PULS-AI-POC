@@ -1,0 +1,40 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UPDATE WDM1 WDK6 WITH PCOO DATA FROM MIC                                   
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W111D2                                         
+//*                                                                             
+//*  RESTART:      W11152    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W111P052 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W111..W111D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W111PD01),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W11153(+0),DISP=SHR                                  
+//************ W11607 INFILE FOR SORT                                           
+//*                                                                             
+//SORTOUT  DD  DSN=&&W11153,DISP=(NEW,PASS,DELETE),                             
+//************ W11607 INFILE SORTED                                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11152   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W11152,W11152,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W11152D1 DD  DSN=&&W11153,DISP=(OLD,DELETE,DELETE)                            
+//************ PCOO INPUT FROM MIC                                              
+//*                                                                             

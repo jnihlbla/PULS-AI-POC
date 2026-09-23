@@ -1,0 +1,89 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W1221000                                              *        
+*                                                                      *        
+*  FUNKTION   :  EN FIL IN, EN AKTIVITET, LISTA UT                     *        
+*                                                                      *        
+*  FÖRFATTARE :  P DAHLÖF.                                             *        
+*                                                                      *        
+*  INFIL      :  W12205                                                         
+*                                                                      *        
+*  LISTA      :  W12210-001                                            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W12210D1                                                                   
+*                                                                               
+*-------------*                                                                 
+* COPYTEXT    *                                                                 
+*-------------*                                                                 
+*                                                                               
+%W12205                                                                         
+ W-FLERS        2 1 A                                                           
+ W-IDARTNR      3 5 P                                                           
+ W-IDLEVNR      8 5 A                                                           
+ W-IDANSK      13 2 P                                                           
+ W-KVLS        15 4 P                                                           
+ W-KDERS       19 2 P                                                           
+ W-KVAKS       21 4 P                                                           
+ W-KVEFSR      25 4 P                                                           
+ W-KVROS       29 4 P                                                           
+ W-SUTPO-TOT   33 4 P                                                           
+ W-KVRESS      37 4 P                                                           
+ W-KVBR        41 4 P                                                           
+ W-KDPRODSL    45 2 P                                                           
+ W-SALDO-SDC-1 47 1 A                                                           
+ W-SALDO-NDC-2 48 1 A                                                           
+ W-SALDO-LDC-3 49 1 A                                                           
+ W-FLDISC      50 1 A                                                           
+*                                                                               
+                                                                                
+*       -- CHECKED BY WY2000                                                    
+FILE W12210D2  PRINTER FB (121 0)                                               
+*                                                                               
+*-------------*                                                                 
+* JOB         *                                                                 
+*-------------*                                                                 
+*                                                                               
+JOB INPUT W12210D1                                                              
+*                                                                               
+  PRINT RAPPORT01                                                               
+*                                                                               
+*                                                                               
+*-------------*                                                                 
+* REPORT      *                                                                 
+*-------------*                                                                 
+*                                                                               
+  REPORT RAPPORT01 PRINTER W12210D2 LINESIZE 120 +                              
+                   NOADJUST NODATE +                                            
+                   SPACE 0  TITLESKIP 2                                         
+    SEQUENCE W-KDPRODSL IDANSK W-IDARTNR                                        
+    CONTROL  FINAL NOPRINT W-KDPRODSL NEWPAGE NOPRINT                           
+    TITLE 1 COL 02 'VOLVO CAR AFTERSALES' +                                     
+            COL 23 'LISTA W12210-001' +                                         
+            COL 45 'LARMLISTA: SALDO > 0, TILLK. ART ' +                        
+            COL 93 'DATUM ' SYSDATE                                             
+    HEADING W-IDARTNR            ('ARTNR')                                      
+    HEADING W-KDPRODSL           ('PS')                                         
+    HEADING W-IDLEVNR            ('LEVNR')                                      
+    HEADING W-IDANSK             ('ANSK')                                       
+    HEADING W-KDERS              ('EK')                                         
+    HEADING W-KVBR               ('BEST-' 'REST')                               
+    HEADING W-KVLS               ('     LS')                                    
+    HEADING W-KVAKS              ('     AK')                                    
+    HEADING W-KVROS              ('  ROS')                                      
+    HEADING W-KVRESS             ('  RESS')                                     
+    HEADING W-KVEFSR             ('  EFRS')                                     
+    HEADING W-SUTPO-TOT          ('   TPO')                                     
+    HEADING W-FLERS              ('FL-' 'ERS')                                  
+    HEADING W-SALDO-SDC-1        ('SDC')                                        
+    HEADING W-SALDO-NDC-2        ('NDC')                                        
+    HEADING W-SALDO-LDC-3        ('LDC')                                        
+    HEADING W-FLDISC             ('DISC')                                       
+    LINE  COL 02 W-FLERS COL 07 W-KDPRODSL  COL 12 W-IDANSK   COL 16 +          
+             W-IDARTNR   COL 27 W-IDLEVNR   COL 34 W-KVBR     COL 42 +          
+             W-KDERS     COL 46 W-KVLS      COL 55 W-KVAKS    COL 63 +          
+             W-KVROS     COL 71 W-KVRESS    COL 79 W-KVEFSR   COL 88 +          
+             W-SUTPO-TOT +                                                      
+             COL 96   W-SALDO-SDC-1  COL 100  W-SALDO-NDC-2 +                   
+             COL 104  W-SALDO-LDC-3  COL 108  W-FLDISC                          

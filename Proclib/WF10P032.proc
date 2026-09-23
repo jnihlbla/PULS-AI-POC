@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FETCH YEARLY RATES FROM DB2 TABLE T01CUYE                                  
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN WF10B2                                         
+//*                                                                             
+//*  RESTART:      WF1032    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF10P032 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&WF10..WF10B2,                                             
+//             INDUT=&WF10..WF10B2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF1032   EXEC PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                               
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WF1032D1 DD  DSN=&INDIN..WF1032A(0),DISP=SHR                                  
+//WF1032D2 DD  DSN=&INDUT..WF1032A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ DATE FOR RECORD SELECTION                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//WF1032D3 DD  DSN=&INDUT..WF1032(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ T01CUYE DATA                                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//         IF  (WF1032.RC GT 4) THEN                                            
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456'                               
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                     -- ABEND           
+//         ENDIF                                                                

@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  GENERAL PROCEDURE TO SEND A FILE VIA THE WZ01 DISPATCHER                   
+//*  TO AN IMS PROGRAM. FOR TESTING PURPOSES ONLY                               
+//*                                                                             
+//*  PARAMETERS:                                                                
+//*   PSB    = A PSB CONTAING AN ALT-PCB POINTING TO THE RECEIVER               
+//*   CONTROL= MEMBER CONTAINING CONTROL PARAMETERS                             
+//*           (OR USE OVERRIDE VIA SYSIN TO SPECIFY PARAMETERS IN JCL)          
+//*   PARAMETER DATA:                                                           
+//*            LINE1: ABSTRACT ADDRESS OF RECEIVER                              
+//*            LINE2: EXTRA ADDRESS (VCOM SENDER TAG)                           
+//*            LINE3: ABSTRACT RETURN ADDRESS (OPTIONAL)                        
+//*   DSIN   = A FILE CONTAINING DATA TO BE TRANSMITTED (VB FORMAT)             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ11SNDI PROC STPLIB=&INDRTE..LOAD,                                           
+//             PSB=MISSING,CPU=1,                                               
+//             CONTROL=MISSING,                                                 
+//             DSIN=NULLFILE                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ1110   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('BMP,WZ1110,&PSB,,,N00,,,,,&CPU,,,&IMS')                   
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=*                                     -- ABEND            
+//SYSUDUMP DD  SYSOUT=*                                     -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=*                                                         
+//*                                                                             
+//WZ1110D1 DD  DSN=&DSIN,DISP=SHR,LRECL=3004                                    
+//************ DATA TO BE TRANSMITTED                                           
+//*                                                                             
+//WZ1110D2 DD  DDNAME=SYSIN                                                     
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(&CONTROL),DISP=SHR                         
+//************ CONTROL DATA                                                     
+//*                                                                             

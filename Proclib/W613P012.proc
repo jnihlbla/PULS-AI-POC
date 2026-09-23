@@ -1,0 +1,57 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR VECKANS INLEVERANSER MED KVQPACK-1.                           
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W613V2                                         
+//*                                                                             
+//*  ÅTERSTART:    W61312    NORMAL                                             
+//*                          NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W613P012 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W011..&RTEGRP.,                                           
+//             INDIN2=&W613..W613V2,                                            
+//             INDUT=&W613..W613V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61312   EXEC PGM=V16459,PARM='W61312/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61312D1 DD  DSN=&INDIN..W01160(+0),DISP=SHR                                  
+//************ LAGERBAND                                                        
+//*                                                                             
+//W61312D2 DD  DSN=&INDIN2..W61311(+0),DISP=SHR                                 
+//************ VECKANS INLEVERANSER                                             
+//*                                                                             
+//W61312D3 DD  DSN=&INDIN2..W61330(+0),DISP=SHR                                 
+//************ WDT3 FOR CHINESE KDFORP                                          
+//*                                                                             
+//TPFIL1   DD  DATACLAS=PSEB                                                    
+//************                                                                  
+//*                                                                             
+//W61312D4 DD  DSN=&&W61312,DISP=(NEW,PASS,DELETE),                             
+//************ KOMPLETTERAD MED KVQPACK-1                                       
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W613PD12),DISP=SHR                         
+//SORTIN   DD  DSN=&&W61312,DISP=(OLD,DELETE,DELETE)                            
+//************ KOMPLETTERAD MED KVQPACK-1                                       
+//*                                                                             
+//SORTOF01 DD  DSN=&INDUT..W61312(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ SORTAD PÅ FÖRPACKNINGSTYP                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//SORTOF02 DD  DSN=&INDUT..W61312A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ SORTAD PÅ FÖRPACKNINGSTYP                                        
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

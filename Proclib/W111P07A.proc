@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE EXCEL FILE OUT OF FILE W11175, TO BE SENT TO                        
+//*  LOGENT, TEMPORARY SOLUTION                                                 
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W111V5                                         
+//*                                                                             
+//*  RESTART:      W1117A    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W111P07A PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&WUT..W111V5,                                              
+//             INDUT=&W111..W111V5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W1117A   EXEC PGM=W1117A                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W1117AD1 DD  DSN=&INDIN..W11175(+0),DISP=SHR                                  
+//************ NEW AND CHANGED PARTS                                            
+//*                                                                             
+//W1117AD2 DD  DSN=&INDUT..W1117A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ NEW AND CHANGED PARTS, EXCEL                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

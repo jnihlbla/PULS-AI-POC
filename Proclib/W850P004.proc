@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR GRUNDDATA TILL VSOP-SYSTEMET SOM KÖRS AV 31100                      
+//*                                                                             
+//*                                                                             
+//*  FREKVENS:     W850P1                                                       
+//*                                                                             
+//*  ÅTERSTART:    W85004   NORMAL                                              
+//*                DFUP   NORMAL                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W850P004 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W850,INDIN2=&W011                                        
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W85004   EXEC PGM=V16459,PARM='W85004/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(1000,500))                                          
+//W85004D1 DD  DSN=&INDIN2..W01177(+0),DISP=(OLD,KEEP,KEEP)                     
+//************ VLB                                                              
+//*                                                                             
+//W85004D2 DD  DSN=&INDREG..W85004(+0),DISP=(OLD,KEEP,KEEP)                     
+//************ REGISTER IN                                                      
+//*                                                                             
+//W85004D3 DD  DSN=&INDREG..W85004(+1),                        -LIM(02)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ REGISTER UT                                                      
+//             DCB=(RECFM=FB,LRECL=60,BLKSIZE=6180),                            
+//             MGMTCLAS=&BACKUPC,SPACE=(6180,(2100,133),RLSE)                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

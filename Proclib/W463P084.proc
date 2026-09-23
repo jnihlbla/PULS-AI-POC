@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DIREKTLEVERANSER DDGS                                                      
+//*                                                                             
+//*  FREKVENS:     FLERA GGR PER DAG       W463S8                               
+//*                                                                             
+//*  ÅTERSTART:    W46384      NORMAL                                           
+//*                OMFORMAR EDI-ORDER-RESPONS FRÅN LEVERANTÖREN                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W463P084 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W463..W463S8,                                             
+//             INDUT=&W463..W463S8                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46384  EXEC PGM=W46384                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                    -- POSTSUM           
+//*                                                                             
+//W46384D1 DD  DSN=&INDIN..W46383,DISP=SHR                                      
+//************ EDI-ORDER-RESPONS POSTER                                         
+//*                                                                             
+//W46384D2 DD  DSN=&INDUT..W46384(+1),                                          
+//************ OMFORMADE EDI-POSTER                                             
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W46384D3 DD  DSN=&INDUT..W46386(+1),                                          
+//************ LOGG-POSTER                                                      
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

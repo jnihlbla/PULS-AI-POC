@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER FILER MED DAGENS SAPBOKNINGAR OCH SKAPAR EN FIL FÖR                  
+//*  MÅNADS-AVSTÄMNING                                                          
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W570D3                                            
+//*                                                                             
+//*  ÅTERSTART:    W57074    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P074 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W570..W570D3,                                             
+//             INDIN2=&W011,                                                    
+//             INDUT=&W570..W570D3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W57074   EXEC PGM=V16459,PARM='W57074/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W57074D1 DD  DSN=&INDIN..W57070(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W57090(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W57058(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W57038(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W57028(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W57048(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W57018(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W57058B(+0),DISP=SHR                                 
+//         DD  DSN=&INDIN..W57058M(+0),DISP=SHR                                 
+//         DD  DSN=&INDIN..W57058Z(+0),DISP=SHR                                 
+//************ DAGENS PEDALPOSTER FÖR AVSTÄMNING                                
+//*                                                                             
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE AVSTÄMNINGSPOSTER                                      
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W57074D2 DD  DSN=&INDIN2..W01172(+0),DISP=SHR                                 
+//************ LAGERBAND                                                        
+//*                                                                             
+//W57074D3 DD  DSN=&INDUT..W57076(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PCFILEN                                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

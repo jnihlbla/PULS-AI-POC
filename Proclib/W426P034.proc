@@ -1,0 +1,59 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  EKONOMISKA HÄNDELSEPOSTER TILL W510/W570                                   
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W426V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W42634      NORMAL                                           
+//*                LÄSER  W6H7 WDK6 WDG2                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W426P034 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W426..W426V1,                                             
+//             INDUT=&W426..W426V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42634   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W42634,W42634,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W6H7     INCLUDE MEMBER=W6H7                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//*                                                                             
+//W42634D1 DD  DSN=&INDIN..W42693(+0),DISP=SHR                                  
+//************ KONTROLLRAPPORTER SOM SKALL KONTERAS                             
+//*                                                                             
+//W42634D2 DD  DSN=&INDUT..W42634(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FIL TILL W570 (PEDAL)                                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//W42634D3 DD  DSN=&INDUT..W42635(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FIL TILL W510 (PEDAL)                                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               
+//W42634D4 DD  DSN=&INDUT..W42636(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ KONCERNLEVERANTÖRER SOM INTE SKA BOKAS VIA W510                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//W42634D5 DD  DSN=&INDUT..W42637(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FIL TILL W561 (PEDAL)                                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               

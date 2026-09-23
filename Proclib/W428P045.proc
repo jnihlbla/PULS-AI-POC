@@ -1,0 +1,34 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SELEKTERAR UT PERIODENS FAKTURERADE RADER                                  
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD    RTN W428R1                             
+//*                                                                             
+//*  ÅTERSTART:    W42845    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P045 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W428..W428R1,                                            
+//             INDUT=&W428..W428R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42845   EXEC PGM=V16459,PARM='W42845/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W42845D1 DD  DSN=&INDIN2..W42843(+0),DISP=SHR                                 
+//************ FAKTURERADE RADER UNDER PERIODEN I SEK                           
+//*                                                                             
+//W42845D2 DD  DSN=&INDUT..W42845(+1),DISP=(NEW,CATLG,DELETE), -LIM(01)         
+//************ PERIODENS KREDITERADE RADER                                      
+//             SPACE=(38,(1000,200),RLSE),AVGREC=K,                             
+//             MGMTCLAS=&BACKUPC                                                

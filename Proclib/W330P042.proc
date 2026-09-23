@@ -1,0 +1,66 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  AUTHOR P.DAHLÖF                                                            
+//*  ARTIKELSTATISTIK P1-URVAL                                                  
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W330B1                                      
+//*                                                                             
+//*  ÅTERSTART:    SORT31  NORMAL                                               
+//*                .                                                            
+//*                SORT41  NORMAL                                               
+//*                .                                                            
+//*                W33042   NORMAL                                              
+//*                .                                                            
+//*                DFUP   NORMAL                                                
+//*                .                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P042 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W330..W330B1,                                             
+//             INDUT=&W330..W330B1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT31   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W330PD31),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W33031(+0),DISP=SHR                                  
+//************ URVALSFIL                                                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W33031S,DISP=(NEW,PASS,DELETE),                            
+//************ SORTERAD IDUSER TIREGDAT TIREGTID                                
+//             SPACE=(6233,(5000,1000),RLSE)                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT41   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W330PD41),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W33041(+0),DISP=SHR                                  
+//************ RESULTATFIL                                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&&W33041S,DISP=(NEW,PASS,DELETE),                            
+//************ SORTERAD IDUSER TIREGDAT TIREGTID                                
+//             SPACE=(27963,(8000,1000),RLSE)                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33042   EXEC PGM=W33042                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DSN=&INDRTE..CONSTANT(W330PD4X),DISP=SHR                         
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W33042D1 DD  DSN=&&W33031S,DISP=(OLD,DELETE,DELETE)                           
+//*                                                                             
+//W33042D2 DD  DSN=&&W33041S,DISP=(OLD,DELETE,DELETE)                           
+//*                                                                             
+//W33042D3 DD  DSN=&INDUT..W33043(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ RESULTAT P1-URVAL                                                
+//             MGMTCLAS=DEL2,VOL=(,,,3),                                        
+//             SPACE=(23436,(1000,1500),RLSE)                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

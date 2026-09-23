@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTA AVVIKELSE REFILL INLEVERANS PER VECKA                         
+//*                                                                             
+//*  FREKVENS:     DAG       RTN W612V8                                         
+//*                                                                             
+//*  ÅTERSTART:    W6121F    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P01F PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W612..W612V8                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD1F),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W6121F,DISP=SHR                                      
+//************ LISTFIL                                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W6121F,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD W6121F                                                  
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD1E),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W6121E(0),DISP=SHR                                   
+//************ NEDLÄST WDL6                                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&&W6121E,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD W6121E                                                  
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W6121F   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W6121F,W6121F,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W6121FD1 DD  DSN=&&W6121E,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD W6121E                                                  
+//*                                                                             
+//W6121FD2 DD  DSN=&&W6121F,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD W6121F                                                  
+//*                                                                             

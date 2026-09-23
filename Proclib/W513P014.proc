@@ -1,0 +1,92 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER FIL OCH SKAPAR DAP POSTER                                            
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W513V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W51314      NORMAL                                           
+//*                LÄSER        WDB6                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W513P014 PROC STPLIB=&INDRTE..LOAD, -- TA EV BORT KOMMA                       
+//             INDIN1=&W513..W513V1,                                            
+//             INDUT1=&W513..W513V1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51314   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W51314,W51314,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR            -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//*                                                                             
+//W51314D1 DD  DSN=&INDIN1..W51315(+0),DISP=SHR                                 
+//************ INFIL                                                            
+//*                                                                             
+//W51314D2 DD  DSN=&INDUT1..W513141(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 57 DATA MA                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314D3 DD  DSN=&INDUT1..W513142(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 60 DATA CN                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314D4 DD  DSN=&INDUT1..W513143(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 57 DATA PF                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314D5 DD  DSN=&INDUT1..W513144(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 61 DATA IN                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314D6 DD  DSN=&INDUT1..W513145(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 65 DATA KR                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314D7 DD  DSN=&INDUT1..W513146(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 87 DATA AE                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314D8 DD  DSN=&INDUT1..W513147(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 86 DATA TR                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314D9 DD  DSN=&INDUT1..W513148(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 66 DATA MY                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314DA DD  DSN=&INDUT1..W513149(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 63 DATA TH                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314DB DD  DSN=&INDUT1..W51314A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 64 DATA TW                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314DC DD  DSN=&INDUT1..W51314B(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 82 DATA BR                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314DD DD  DSN=&INDUT1..W51314C(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 83 DATA MX                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51314DE DD  DSN=&INDUT1..W51314D(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ UTFIL - COMPANY CODE 85 DATA ZA                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

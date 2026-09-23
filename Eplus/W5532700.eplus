@@ -1,0 +1,303 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W55327                                                *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER FIL SOM INNEHÅLLER UPPDATERINGAR SOM GJORTS     *        
+*                PÅ WDK6 MED 5111-BILDEN OCH 5112-BILDEN.              *        
+*                LISTA SKAPAS SOM VISAR LÄGET FÖRE OCH LÄGET EFTER     *        
+*                UPPDATERING.SKICKAS TILL ON-DEMAND                    *        
+*                                                                      *        
+*  FÖRFATTARE :  KENT JEBSEN                                           *        
+*                                                                      *        
+*  INFIL      :  W553.W553V1.W55324     LOGGPOSTER                     *        
+*                                                                      *        
+*  LISTA      :  W55327-001             FÖRÄNDRADE PRISER OCH          *        
+*                                       STÄLLKOST                      *        
+                                                                                
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W55327D1                                                                   
+%W55324                                                                         
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W55327D2  PRINTER FB(121 0)                                                
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*--------------------------*                                                    
+* ARBETSAREOR              *                                                    
+*--------------------------*                                                    
+                                                                                
+W-DATUM         W              6    N                                           
+   W-AR         W-DATUM        2    N                                           
+   W-MAN        W-DATUM +2     2    N                                           
+   W-DAG        W-DATUM +4     2    N                                           
+                                                                                
+BLANKRAD        W            120    A                                           
+BLANKYTA        W             21    A                      VALUE ' '            
+W-IDLEVNR       W              5    A                                           
+W-IDARTNR       W              8    N    MASK 'ZZZZZZZ9'                        
+                                                                                
+W-DAREGDAT      W              8    N                                           
+W-TIAAMMDD      W-DAREGDAT +2  6    N                                           
+                                                                                
+W-O-TIPRLIST    W              6    N                                           
+W-O-IDLEVNR-PR  W              5    A                                           
+W-O-PRARTBES-PR W              9    N 2  MASK 'ZZZZZZ9,99'                      
+W-O-PRARTBEL-PR W             11    N 5  MASK 'ZZZZZ9,99999'                    
+W-O-KDSTATUS-PR W              1    N                                           
+W-O-SUINLEV-PR  W              3    N    MASK 'ZZ9'                             
+W-O-PRARTBES    W              9    N 2  MASK 'ZZZZZZ9,99'                      
+W-O-PRARTSJK    W              9    N 2  MASK 'ZZZZZZ9,99'                      
+W-O-RETULF      W              7    N 4  MASK 'ZZ9,9999'                        
+W-O-PRLFKST     W              5    N 2  MASK 'ZZ9,99'                          
+W-REDIRLEV      W              3    N 2  MASK '9,99'                            
+                                                                                
+W-N-TIPRLIST    W              6    N                                           
+W-N-IDLEVNR-PR  W              5    A                                           
+W-N-PRARTBES-PR W              9    N 2  MASK 'ZZZZZZ9,99'                      
+W-N-PRARTBEL-PR W             11    N 5  MASK 'ZZZZZ9,99999'                    
+W-N-KDSTATUS-PR W              1    N                                           
+W-N-SUINLEV-PR  W              3    N    MASK 'ZZ9'                             
+W-N-PRARTBES    W              9    N 2  MASK 'ZZZZZZ9,99'                      
+W-N-PRARTSJK    W              9    N 2  MASK 'ZZZZZZ9,99'                      
+W-N-RETULF      W              7    N 4  MASK 'ZZ9,9999'                        
+W-N-PRLFKST     W              5    N 2  MASK 'ZZ9,99'                          
+W-BEIDUSER      W             20    A                                           
+W-KOMMENTAR     W             21    A  VALUE 'NY PRELIMINÄR PRISRAD'            
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+PROGRAM-NAMN    W              8    A           VALUE 'W5532700'                
+DATUMKORT-ID    W              8    A           VALUE 'WDATUM  '                
+                                                                                
+*--------------------------*                                                    
+* COPYTEXT                 *                                                    
+*--------------------------*                                                    
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*-------------*                                                                 
+* JOB         *                                                                 
+*-------------*                                                                 
+                                                                                
+JOB INPUT W55327D1                                          +                   
+                                          START    A-INIT                       
+IF FLKLAR EQ 'J'                                                                
+   CASE IDUSER                                                                  
+     WHEN 'SATS    '                                                            
+        W-BEIDUSER  = 'SATSKÖRNING W55316  '                                    
+        N-KDPRURSP  = 'M'                                                       
+     WHEN 'INKOP   '                                                            
+        W-BEIDUSER  = 'PV INKÖP W55312     '                                    
+        N-KDPRURSP  = 'M'                                                       
+     WHEN 'NEDCAR  '                                                            
+        W-BEIDUSER  = 'NEDCAR INKÖP W55312 '                                    
+        N-KDPRURSP  = 'M'                                                       
+     WHEN 'LANDROV '                                                            
+        W-BEIDUSER  = 'LAND ROVER W16110   '                                    
+        N-KDPRURSP  = 'M'                                                       
+     WHEN 'RENAULT '                                                            
+        W-BEIDUSER  = 'RENAULT PRISFIL     '                                    
+        N-KDPRURSP  = 'M'                                                       
+     WHEN 'GSDB    '                                                            
+        W-BEIDUSER  = 'GSDB-KONVERTERING   '                                    
+        N-KDPRURSP  = 'M'                                                       
+     OTHERWISE                                                                  
+        W-BEIDUSER  = IDUSER                                                    
+   END-CASE                                                                     
+   W-IDLEVNR       = O-IDLEVNR-PR                                               
+   W-IDARTNR       = IDARTNR                                                    
+   W-DAREGDAT      = DAREGDAT                                                   
+   W-N-TIPRLIST    = N-TIPRLIST                                                 
+   W-N-IDLEVNR-PR  = N-IDLEVNR-PR                                               
+   W-N-PRARTBES-PR = N-PRARTBES-PR                                              
+   W-N-PRARTBEL-PR = N-PRARTBEL-PR                                              
+   W-N-KDSTATUS-PR = N-KDSTATUS-PR                                              
+   W-N-SUINLEV-PR  = N-SUINLEV-PR                                               
+   IF O-TIPRLIST NE 0                                                           
+     W-O-TIPRLIST    = O-TIPRLIST                                               
+     W-O-IDLEVNR-PR  = O-IDLEVNR-PR                                             
+     W-O-PRARTBES-PR = O-PRARTBES-PR                                            
+     W-O-PRARTBEL-PR = O-PRARTBEL-PR                                            
+     W-O-KDSTATUS-PR = O-KDSTATUS-PR                                            
+     W-O-SUINLEV-PR  = O-SUINLEV-PR                                             
+     W-O-PRARTBES    = O-PRARTBES                                               
+     W-O-PRARTSJK    = O-PRARTSJK                                               
+     W-O-RETULF      = O-RETULF                                                 
+     W-O-PRLFKST     = O-PRLFKST                                                
+     W-REDIRLEV      = REDIRLEV                                                 
+     W-N-PRARTBES    = N-PRARTBES                                               
+     W-N-PRARTSJK    = N-PRARTSJK                                               
+     W-N-RETULF      = N-RETULF                                                 
+     W-N-PRLFKST     = N-PRLFKST                                                
+     PRINT RAPPORT01                                                            
+   ELSE                                                                         
+     PRINT RAPPORT02                                                            
+   END-IF                                                                       
+END-IF                                                                          
+                                                                                
+A-INIT.  PROC                                                                   
+      MOVE SPACE TO BLANKRAD                                                    
+                                                                                
+      CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                  
+                                                                                
+      W-AR    = D-AAR                                                           
+      W-MAN   = D-MAANAD                                                        
+      W-DAG   = D-DAG                                                           
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+*-------------------*                                                           
+* REPORT W55327-001                                                             
+*-------------------*                                                           
+                                                                                
+REPORT RAPPORT01            +                                                   
+       SUMSPACE 0           +                                                   
+       PRINTER W55327D2     +                                                   
+       LINESIZE 120         +                                                   
+       SPACE      1         +                                                   
+       NOADJUST             +                                                   
+       NODATE               +                                                   
+       NOPAGE               +                                                   
+       TITLESKIP 0                                                              
+SEQUENCE   W-O-IDLEVNR-PR   W-IDARTNR   W-DAREGDAT                              
+                                                                                
+CONTROL FINAL NOPRINT  W-IDARTNR NEWPAGE NOPRINT +                              
+                       W-BEIDUSER NEWPAGE NOPRINT                               
+                                                                                
+TITLE 1   COL  1   'W55327-001'                        +                        
+          COL 20   'VCCS           '                   +                        
+          COL 40   'R25:OR'                            +                        
+          COL 52   'FÖRÄNDRADE PRISER OCH STÄLLKOST  ' +                        
+          COL 95    W-DATUM                                                     
+                                                                                
+TITLE 2   COL  1   'ARTNR: '                           +                        
+          COL 10   W-IDARTNR                           +                        
+          COL 26   'DATUM: '                           +                        
+          COL 33   W-DATUM                             +                        
+          COL 40   'FÖRÄNDRADE PRISER OCH STÄLLKOST  ' +                        
+          COL 74   'ÄNDRAD AV:'                        +                        
+          COL 85   W-BEIDUSER                                                   
+                                                                                
+HEADING   W-IDLEVNR          (' HLEV')                                          
+HEADING   W-IDARTNR          ('   ARTNR')                                       
+HEADING   W-TIAAMMDD         ('UPPDAT' ' DATUM')                                
+HEADING   O-KDPRURSP         ('P')                                              
+HEADING   W-O-TIPRLIST       ('PRLIST' ' DATUM')                                
+HEADING   W-O-IDLEVNR-PR     ('LEVNR' ' PRIS')                                  
+HEADING   W-O-PRARTBES-PR    ('        SV' '  BESTPRIS')                        
+HEADING   W-O-PRARTBEL-PR    ('         UTL' '    BESTPRIS')                    
+HEADING   W-O-KDSTATUS-PR    ('S')                                              
+HEADING   W-O-SUINLEV-PR     ('ANT' 'INL')                                      
+HEADING   O-KDVALISO         ('VAL')                                            
+HEADING   W-O-PRARTBES       ('  BESTPRIS')                                     
+HEADING   W-O-PRARTSJK       ('   SJKPRIS')                                     
+HEADING   W-O-RETULF         (' HEMTAGF')                                       
+HEADING   W-O-PRLFKST        ('  FÖRP' ' KOSTN')                                
+HEADING   W-REDIRLEV         (' DIR')                                           
+HEADING   FLPRIBES           ('F')                                              
+HEADING   FLPRIGO            ('>' '<')                                          
+HEADING   O-KDCMD            ('Ä' 'T')                                          
+                                                                                
+LINE 1    W-IDLEVNR           +                                                 
+          W-IDARTNR           +                                                 
+          W-TIAAMMDD          +                                                 
+          O-KDPRURSP          +                                                 
+          W-O-TIPRLIST        +                                                 
+          W-O-IDLEVNR-PR      +                                                 
+          W-O-PRARTBES-PR     +                                                 
+          W-O-PRARTBEL-PR     +                                                 
+          W-O-KDSTATUS-PR     +                                                 
+          W-O-SUINLEV-PR      +                                                 
+          O-KDVALISO          +                                                 
+          W-O-PRARTBES        +                                                 
+          W-O-PRARTSJK        +                                                 
+          W-O-RETULF          +                                                 
+          W-O-PRLFKST         +                                                 
+          W-REDIRLEV          +                                                 
+          FLPRIBES            +                                                 
+          FLPRIGO             +                                                 
+          O-KDCMD                                                               
+                                                                                
+                                                                                
+LINE 3    BLANKYTA            +                                                 
+          N-KDPRURSP          +                                                 
+          W-N-TIPRLIST        +                                                 
+          W-N-IDLEVNR-PR      +                                                 
+          W-N-PRARTBES-PR     +                                                 
+          W-N-PRARTBEL-PR     +                                                 
+          W-N-KDSTATUS-PR     +                                                 
+          W-N-SUINLEV-PR      +                                                 
+          N-KDVALISO          +                                                 
+          W-N-PRARTBES        +                                                 
+          W-N-PRARTSJK        +                                                 
+          W-N-RETULF          +                                                 
+          W-N-PRLFKST         +                                                 
+          W-REDIRLEV          +                                                 
+          FLPRIBES            +                                                 
+          FLPRIGO             +                                                 
+          N-KDCMD                                                               
+                                                                                
+*-------------------*                                                           
+* REPORT W55327-001                                                             
+* RAPPORT NY PRELRAD                                                            
+*-------------------*                                                           
+                                                                                
+REPORT RAPPORT02            +                                                   
+       SUMSPACE 0           +                                                   
+       PRINTER W55327D2     +                                                   
+       LINESIZE 120         +                                                   
+       SPACE      1         +                                                   
+       NOADJUST             +                                                   
+       NODATE               +                                                   
+       NOPAGE               +                                                   
+       TITLESKIP 0                                                              
+SEQUENCE   W-O-IDLEVNR-PR   W-IDARTNR   W-DAREGDAT                              
+                                                                                
+CONTROL FINAL NOPRINT  W-IDARTNR NEWPAGE NOPRINT +                              
+                       W-BEIDUSER NEWPAGE NOPRINT                               
+                                                                                
+TITLE 1   COL  1   'W55327-001'                        +                        
+          COL 20   'VCCS           '                   +                        
+          COL 40   'R25:OR'                            +                        
+          COL 52   'FÖRÄNDRADE PRISER OCH STÄLLKOST  ' +                        
+          COL 95    W-DATUM                                                     
+                                                                                
+TITLE 2   COL  1   'ARTNR: '                           +                        
+          COL 10   W-IDARTNR                           +                        
+          COL 26   'DATUM: '                           +                        
+          COL 33   W-DATUM                             +                        
+          COL 40   'FÖRÄNDRADE PRISER OCH STÄLLKOST  ' +                        
+          COL 74   'ÄNDRAD AV:'                        +                        
+          COL 85   W-BEIDUSER                                                   
+                                                                                
+HEADING   W-IDLEVNR          (' HLEV')                                          
+HEADING   W-IDARTNR          ('   ARTNR')                                       
+HEADING   W-TIAAMMDD         ('UPPDAT' ' DATUM')                                
+HEADING   N-KDPRURSP         ('P')                                              
+HEADING   W-N-TIPRLIST       ('PRLIST' ' DATUM')                                
+HEADING   W-N-IDLEVNR-PR     ('LEVNR' ' PRIS')                                  
+HEADING   W-N-PRARTBES-PR    ('        SV' '  BESTPRIS')                        
+HEADING   W-N-PRARTBEL-PR    ('         UTL' '    BESTPRIS')                    
+HEADING   W-N-KDSTATUS-PR    ('S')                                              
+HEADING   W-N-SUINLEV-PR     ('ANT' 'INL')                                      
+HEADING   N-KDVALISO         ('VAL')                                            
+HEADING   W-KOMMENTAR        ('KOMMENTAR            ')                          
+                                                                                
+LINE 1    W-IDLEVNR           +                                                 
+          W-IDARTNR           +                                                 
+          W-TIAAMMDD          +                                                 
+          N-KDPRURSP          +                                                 
+          W-N-TIPRLIST        +                                                 
+          W-N-IDLEVNR-PR      +                                                 
+          W-N-PRARTBES-PR     +                                                 
+          W-N-PRARTBEL-PR     +                                                 
+          W-N-KDSTATUS-PR     +                                                 
+          W-N-SUINLEV-PR      +                                                 
+          N-KDVALISO          +                                                 
+          W-KOMMENTAR                                                           

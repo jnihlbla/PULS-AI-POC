@@ -1,0 +1,77 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PUNKTBERÄKNING, BESTÄLLNINGSKONTROLL OCH                                   
+//*  LEVERANSPLANEKONTROLL KINA OCH USA LOKAL ANSKAFFNING                       
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W224V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W22412      NORMAL                                           
+//*                LÄSER        WDK7 WDD9 WDB6 WDD6 WDL6 WDF1                   
+//*                             WDR2(HTYP=2501 IDREFTAB)                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W224P012 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W224..W224V1,                                             
+//             INDUT=&W224..W224V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W224PD12),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W22410(+0),DISP=SHR                                  
+//************ HÄNDELSEPOSTER 2204 FRÅN W224P010 (WDG3)                         
+//*                                                                             
+//         DD  DSN=&INDIN..W2214B(+0),DISP=SHR                                  
+//************ HÄNDELSEPOSTER 2204 FRÅN W221P042                                
+//*                                                                             
+//SORTOUT  DD  DSN=&&W22410,DISP=(NEW,PASS,DELETE),                             
+//************ HÄNDELSEPOSTER SORTERADE; DC,IDARTNR, KDLPORS                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22412   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W22412,W22412,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//WDD6     INCLUDE MEMBER=WDD6                                                  
+//WDL6     INCLUDE MEMBER=WDL6                                                  
+//WDF1     INCLUDE MEMBER=WDF1                                                  
+//WDR2     INCLUDE MEMBER=WDR2                                                  
+//WDD7     INCLUDE MEMBER=WDD7                                                  
+//WDK9     INCLUDE MEMBER=WDK9                                                  
+//*                                                                             
+//W22412D1 DD  DSN=&&W22410,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERADE 2204-POSTER UTAN DUBLETTER                             
+//*                                                                             
+//W22412D2 DD  DSN=&INDIN..W22418(+0),DISP=SHR                                  
+//************ SORT OMSPECARTIKLAR FRÅN LAGERBANDET I W2241800                  
+//*                                                                             
+//W22412D3 DD  DSN=&INDUT..W22412(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ OMSPECBEGÄRAN TILL PGM W2241400                                  
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W22412D4 DD  DSN=&INDUT..W22413(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ UPPDATERINGSPOSTER TILL PGM W2241300                             
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

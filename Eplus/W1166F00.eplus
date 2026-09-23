@@ -1,0 +1,45 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W1166F00                                              *        
+*                                                                               
+*  FUNKTION   :  FIND UPDATED PART INFO TO SEND TO VSIM                         
+*                BY MATCHING THE CURRENT TOTAL FILE WITH                        
+*                THE PREVIOUS TOTAL FILE. ALL NEW AND CHANGED                   
+*                RECORDS SHOULD BE SENT TO VSIM                                 
+*                                                                               
+*  FÖRFATTARE :  CHESTER COUCH                                         *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W1166FD1                                                                   
+*                                                                               
+%W1166E  'INCURR-'                                                              
+                                                                                
+FILE W1166FD2                                                                   
+*                                                                               
+%W1166E  'INPREV-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W1166FD3 FB(168 0)                                                         
+*                                                                               
+%W1166E  'OUT-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*                                                                               
+* STEG 1. MATCH TO FIND NEW RECORDS ON CURRENT FILE TO SEND TO VSIM             
+*                                                                               
+JOB INPUT (W1166FD1 KEY(INCURR-W1166E-CTX)  +                                   
+           W1166FD2 KEY(INPREV-W1166E-CTX)  +                                   
+          )                                                                     
+                                                                                
+   IF MATCHED                                                                   
+   ELSE                                                                         
+      IF W1166FD1                                                               
+         OUT-W1166E-CTX      = INCURR-W1166E-CTX                                
+         PUT W1166FD3                                                           
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                

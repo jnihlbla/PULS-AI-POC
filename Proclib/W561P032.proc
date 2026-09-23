@@ -1,0 +1,59 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE .CSV FILE WITH LOCAL INBOUND FOR PREV DAY                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W561D6                                         
+//*                                                                             
+//*  RESTART:      W56132      NORMAL                                           
+//*                READS        WDK6 WDK7 WDD3 WDF1 WDB6                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W561P032 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W561..W561D6,                                             
+//             INDUT=&W561..W561D6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SORTIN   DD  DSN=&INDIN..W56131(+0),DISP=SHR                                  
+//************ EXTRACT OF INBOUND HISTORY                                       
+//SORTOUT  DD  DSN=&&W56131,DISP=(NEW,PASS,DELETE),                             
+//************ EXTRACT OF INBOUND HISTORY SORTED                                
+//             DATACLAS=PSEN                                                    
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W561PD32),DISP=SHR                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56132   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W56132,W56132,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//WDF1     INCLUDE MEMBER=WDF1                                                  
+//WDF1     INCLUDE MEMBER=WDB6                                                  
+//W56132D1 DD  DSN=&&W56131,DISP=(OLD,DELETE,DELETE)                            
+//************ EXTRACT OF INBOUND HISTORY SORTED                                
+//*                                                                             
+//W56132D2 DD  DSN=&INDUT..W56132(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ .CSV FILE OF LOCAL INBOUND CN                                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W56132D3 DD  DSN=&INDUT..W56133(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ .CSV FILE OF LOCAL INBOUND US                                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

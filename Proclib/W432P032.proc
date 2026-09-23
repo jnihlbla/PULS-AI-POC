@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SB, LäSER WDB2, SKAPAR FIL TILL VADIS.                                     
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W432D1                                           
+//*                                                                             
+//*  ÅTERSTART:    W43232      NORMAL                                           
+//*                LÄSER        WDB2 (SB)                                       
+//*                LÄSER        WDB1                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W432P032 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W432..W432D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W43232   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W43232,W43232,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//W43232D1 DD  DSN=&INDUT..W43232(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ UTFIL TILL VADIS                                                 
+//             SPACE=(66,(6,2),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                
+//W43232D2 DD  DSN=&&W43232X,DISP=(NEW,PASS,DELETE),                            
+//************ UTFIL WDB2X FOR DATA LAKE                                        
+//             DATACLAS=PSEN                                                    

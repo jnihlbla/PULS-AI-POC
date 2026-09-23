@@ -1,0 +1,31 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE KVAKS REPORT FROM WDK6 AND WDK7                                     
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W5128K    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P08K PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W512..W512M2,                                             
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W5128K   EXEC PGM=V16459,PARM='W5128K/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W5128KD1 DD  DSN=&INDIN..W51261(+0),DISP=SHR                                  
+//************ EXTRACT OF WDK6 AND WDK7 WITH IDFTG=57                           
+//*                                                                             
+//W5128KD2 DD  DSN=&INDUT..W5128K(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ KVAKS  SEPV REPORT FROM WDK6 AND WDK7                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

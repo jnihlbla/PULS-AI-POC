@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PROGRAM FÖR ATT HÄMTA SEGMENT FRÅN EN DATABAS                              
+//*  OCH SKAPA EN LADDFIL FÖR ATT LADDA EN ANNAN.                               
+//*                                                                             
+//*  FREKVENS:     BESTÄLLNING                                                  
+//*                                                                             
+//*  ÅTERSTART:    W01561   NORMAL                                              
+//*                         LÄSER NÅGON AV DATABASERNA                          
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W015P061 PROC STPLIB=&INDRTE..LOAD,                                           
+//             PSB=SAKNAS,                                                      
+//             DSIN=DUMMY,DSOUT=DUMMY                                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W01561   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W01561,&PSB,,00')                                    
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W01561D1 DD  DSN=&DSIN,DISP=SHR                                               
+//************ IN-NYCKLAR                                                       
+//*                                                                             
+//W01561D2 DD  DSN=&DSOUT,DISP=(NEW,CATLG,DELETE),                              
+//************ LADDTRANSAR                                                      
+//             SPACE=(TRK,(100,100),RLSE),                                      
+//             MGMTCLAS=DEL2                                                    
+//*                                                                             

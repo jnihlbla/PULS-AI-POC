@@ -1,0 +1,352 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4282200                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR W41842 MED W42821 OCH SKAPAR                  *        
+*                UPPFÖLJNINGSFIL                                       *        
+*                                                                      *        
+*  FÖRFATTARE :  MÅNS SAMUELSSON                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     031028      SUSANNE OLSSON           9233                        *        
+*     050823      SUSANNE OLSSON           9235  E-TRACKER 1572353     *        
+*     051213      SUSANNE OLSSON           9235  E-TRACKER 2913019     *        
+*     080404      SUSANNE OLSSON           9235  E-TRACKER 6616047     *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W42822D1                                                                   
+W41842-IDPTYP 1 3    A                                                          
+WDA201-DATA   4 145  A                                                          
+WDA211-DATA   4 288  A                                                          
+WDA221-DATA   4 1051 A                                                          
+*                                                                               
+FILE W42822D2                                                                   
+%W4282101 'IN-'                                                                 
+*                                                                               
+FILE TEMPFIL FB (143 0) VIRTUAL RETAIN                                          
+%W4282201 'TEMP-'                                                               
+*                                                                               
+FILE W42822D3 FB (143 0)                                                        
+%W4282201    'UT-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+************************************************                                
+*    ARBETSAREOR                               *                                
+************************************************                                
+%WDA201                                                                         
+*                                                                               
+%WDA211                                                                         
+*                                                                               
+*COPYTEXTER FÖR CALL                                                            
+*                                                                               
+%W418OKOD 'OKOD-'                                                               
+*                                                                               
+%WDATAREA                                                                       
+*                                                                               
+%WORKAREA                                                                       
+*                                                                               
+WDATKONV        W  8   A   VALUE 'WDATKONV'                                     
+WORKDAY         W  8   A   VALUE 'WORKDAY '                                     
+W418OKOD        W  8   A   VALUE 'W418OKOD'                                     
+*                                                                               
+JA              W  1   A   VALUE 'J'                                            
+NEJ             W  1   A   VALUE 'N'                                            
+FORSTA-GANG     W  1   A   VALUE 'J'                                            
+                                                                                
+W-KONV-AAAAMMDD W  8   N                                                        
+W-KONV-AAMMDD   W-KONV-AAAAMMDD +2  6  N                                        
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+* SELEKTERAR UT DATA FRÅN WDA2 OCH SKAPAR TEMPFIL                               
+*                                                                               
+JOB INPUT W42822D1                                                              
+IF W41842-IDPTYP = '201'                                                        
+   ANM-WDA201 = WDA201-DATA                                                     
+ELSE                                                                            
+   IF W41842-IDPTYP = '211'                                                     
+     LEV-WDA211 = WDA211-DATA                                                   
+     OKOD-KDANMORS = LEV-KDANMORS                                               
+     CALL W418OKOD USING OKOD-W418OKOD                                          
+     TEMP-IDDC-RET   = LEV-IDDC-RET                                             
+     TEMP-IDDISTR    = ANM-IDDISTR                                              
+     TEMP-IDFTG      = LEV-IDFTG                                                
+     TEMP-IDKUNDNR   = ANM-IDKUNDNR                                             
+     TEMP-IDRAPPNR   = ANM-IDRAPPNR                                             
+     DAT-KDDATFORM   = 'AAMMDD'                                                 
+     IF LEV-TIREMISS-IN > +0                                                    
+       DAT-I-TIDATUM = LEV-TIREMISS-IN                                          
+       CALL WDATKONV USING (DAT-KDDATFORM +                                     
+                           DAT-I-TIDATUM +                                      
+                           DAT-O-TIDATUM +                                      
+                           DAT-KDSVAR)                                          
+       IF DAT-KDSVAR = ' '                                                      
+         TEMP-TISAAPP-REMISS-TISEKEL = DAT-TISEKEL                              
+         TEMP-TISAAVV-REMISS-TISEKEL = DAT-TISEKEL                              
+         MOVE DAT-TIAAPP-GRP TO TEMP-TISAAPP-REMISS-TIAAPP                      
+         MOVE DAT-TIAAVV-GRP TO TEMP-TISAAVV-REMISS-TIAAVV                      
+       ELSE                                                                     
+         DISPLAY 'FEL FRÅN DATKONV TIREMISS = ' LEV-TIREMISS-IN                 
+         TEMP-TISAAPP-REMISS = '000000'                                         
+         TEMP-TISAAVV-REMISS = '000000'                                         
+       END-IF                                                                   
+     ELSE                                                                       
+       TEMP-TISAAPP-REMISS = '000000'                                           
+       TEMP-TISAAVV-REMISS = '000000'                                           
+     END-IF                                                                     
+     IF LEV-TIINLINL > +0                                                       
+       DAT-I-TIDATUM = LEV-TIINLINL                                             
+       CALL WDATKONV USING (DAT-KDDATFORM +                                     
+                           DAT-I-TIDATUM +                                      
+                           DAT-O-TIDATUM +                                      
+                           DAT-KDSVAR)                                          
+       IF DAT-KDSVAR = ' '                                                      
+         TEMP-TISAAPP-INLINL-TISEKEL = DAT-TISEKEL                              
+         TEMP-TISAAVV-INLINL-TISEKEL = DAT-TISEKEL                              
+         MOVE DAT-TIAAPP-GRP TO TEMP-TISAAPP-INLINL-TIAAPP                      
+         MOVE DAT-TIAAVV-GRP TO TEMP-TISAAVV-INLINL-TIAAVV                      
+       ELSE                                                                     
+         DISPLAY 'FEL FRÅN DATKONV TIINLINL = ' LEV-TIINLINL                    
+         TEMP-TISAAPP-INLINL = '000000'                                         
+         TEMP-TISAAVV-INLINL = '000000'                                         
+       END-IF                                                                   
+     ELSE                                                                       
+       TEMP-TISAAPP-INLINL = '000000'                                           
+       TEMP-TISAAVV-INLINL = '000000'                                           
+     END-IF                                                                     
+     IF LEV-TIKNOTA  > +0                                                       
+       DAT-I-TIDATUM = LEV-TIKNOTA                                              
+       CALL WDATKONV USING (DAT-KDDATFORM +                                     
+                           DAT-I-TIDATUM +                                      
+                           DAT-O-TIDATUM +                                      
+                           DAT-KDSVAR)                                          
+       IF DAT-KDSVAR = ' '                                                      
+         TEMP-TISAAPP-KNOTA-TISEKEL = DAT-TISEKEL                               
+         TEMP-TISAAVV-KNOTA-TISEKEL = DAT-TISEKEL                               
+         MOVE DAT-TIAAPP-GRP TO TEMP-TISAAPP-KNOTA-TIAAPP                       
+         MOVE DAT-TIAAVV-GRP TO TEMP-TISAAVV-KNOTA-TIAAVV                       
+       ELSE                                                                     
+         DISPLAY 'FEL FRÅN DATKONV TIKNOTA  = ' LEV-TIKNOTA                     
+         TEMP-TISAAPP-KNOTA = '000000'                                          
+         TEMP-TISAAVV-KNOTA = '000000'                                          
+       END-IF                                                                   
+     ELSE                                                                       
+       TEMP-TISAAPP-KNOTA = '000000'                                            
+       TEMP-TISAAVV-KNOTA = '000000'                                            
+     END-IF                                                                     
+     TEMP-TISAAPP-RETILL = '000000'                                             
+     TEMP-TISAAVV-RETILL = '000000'                                             
+     TEMP-TISAAPP-RETANK = '000000'                                             
+     TEMP-TISAAVV-RETANK = '000000'                                             
+     IF OKOD-FL-RETILL = JA       OR +                                          
+        OKOD-FL-INTERNUPPACKNING = JA                                           
+       IF ANM-DARETILL > +0                                                     
+         DAT-I-TIDATUM = ANM-DARETILL                                           
+         CALL WDATKONV USING (DAT-KDDATFORM +                                   
+                             DAT-I-TIDATUM +                                    
+                             DAT-O-TIDATUM +                                    
+                             DAT-KDSVAR)                                        
+         IF DAT-KDSVAR = ' '                                                    
+           TEMP-TISAAPP-RETILL-TISEKEL = DAT-TISEKEL                            
+           TEMP-TISAAVV-RETILL-TISEKEL = DAT-TISEKEL                            
+           MOVE DAT-TIAAPP-GRP TO TEMP-TISAAPP-RETILL-TIAAPP                    
+           MOVE DAT-TIAAVV-GRP TO TEMP-TISAAVV-RETILL-TIAAVV                    
+         ELSE                                                                   
+           DISPLAY 'FEL FRÅN DATKONV DARETILL = ' ANM-DARETILL                  
+         END-IF                                                                 
+       END-IF                                                                   
+       IF ANM-DARETANK > +0                                                     
+         W-KONV-AAAAMMDD = ANM-DARETANK                                         
+         DAT-I-TIDATUM = W-KONV-AAMMDD                                          
+         CALL WDATKONV USING (DAT-KDDATFORM +                                   
+                             DAT-I-TIDATUM +                                    
+                             DAT-O-TIDATUM +                                    
+                             DAT-KDSVAR)                                        
+         IF DAT-KDSVAR = ' '                                                    
+           TEMP-TISAAPP-RETANK-TISEKEL = DAT-TISEKEL                            
+           TEMP-TISAAVV-RETANK-TISEKEL = DAT-TISEKEL                            
+           MOVE DAT-TIAAPP-GRP TO TEMP-TISAAPP-RETANK-TIAAPP                    
+           MOVE DAT-TIAAVV-GRP TO TEMP-TISAAVV-RETANK-TIAAVV                    
+         ELSE                                                                   
+           DISPLAY 'FEL FRÅN DATKONV DARETANK = ' ANM-DARETANK                  
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+     TEMP-TISAAPP-SNDDAT = '000000'                                             
+     TEMP-TISAAVV-SNDDAT = '000000'                                             
+     TEMP-KDANMORS       = LEV-KDANMORS                                         
+     TEMP-KDARBTYP-RET   = ANM-KDARBTYP                                         
+     TEMP-IDPERSON-RET   = ANM-IDPERSON                                         
+     TEMP-KDARBTYP-ADM   = LEV-KDARBTYP                                         
+     TEMP-IDPERSON-ADM   = LEV-IDPERSON                                         
+     TEMP-KDARBTYP-REM   = LEV-KDARBTYP-REM                                     
+     TEMP-IDPERSON-REM   = LEV-IDPERSON-REM                                     
+     TEMP-KVDAGAR-ADM    = +0                                                   
+     IF OKOD-FL-RETILL = JA       OR +                                          
+        OKOD-FL-INTERNUPPACKNING = JA                                           
+       IF ANM-DARETILL > +0                                                     
+         WORK-KDCALL = 001                                                      
+         WORK-IDDC   = LEV-IDDC-RET                                             
+         W-KONV-AAAAMMDD  = ANM-DALEVANM                                        
+         WORK-TIAAMMDD-FOM = W-KONV-AAMMDD                                      
+         W-KONV-AAAAMMDD  = ANM-DARETILL                                        
+         WORK-TIAAMMDD-TOM = W-KONV-AAMMDD                                      
+         CALL WORKDAY  USING (WORK-KDCALL     +                                 
+                              WORK-DATE-AREA  +                                 
+                              WORK-KDSVAR)                                      
+         IF WORK-KDSVAR = ' '                                                   
+           TEMP-KVDAGAR-ADM    = WORK-KVWORKD                                   
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+     IF LEV-TIREMISS-IN > +0                                                    
+       WORK-KDCALL = 001                                                        
+       WORK-IDDC   = LEV-IDDC-RET                                               
+       WORK-TIAAMMDD-FOM = LEV-TIREMISS-UT                                      
+       WORK-TIAAMMDD-TOM = LEV-TIREMISS-IN                                      
+       CALL WORKDAY  USING (WORK-KDCALL    +                                    
+                            WORK-DATE-AREA +                                    
+                            WORK-KDSVAR)                                        
+       IF WORK-KDSVAR = ' '                                                     
+         TEMP-KVDAGAR-REM    = WORK-KVWORKD                                     
+       ELSE                                                                     
+         TEMP-KVDAGAR-REM    = +0                                               
+       END-IF                                                                   
+     ELSE                                                                       
+       TEMP-KVDAGAR-REM    = +0                                                 
+     END-IF                                                                     
+     TEMP-KVDAGAR-RET    = +0                                                   
+     IF OKOD-FL-RETILL = JA       OR +                                          
+        OKOD-FL-INTERNUPPACKNING = JA                                           
+       IF ANM-DARETANK    > +0 AND +                                            
+          LEV-TIKNOTA     > +0                                                  
+         WORK-KDCALL = 001                                                      
+         WORK-IDDC   = LEV-IDDC-RET                                             
+         W-KONV-AAAAMMDD   = ANM-DARETANK                                       
+         WORK-TIAAMMDD-FOM = W-KONV-AAMMDD                                      
+         WORK-TIAAMMDD-TOM = LEV-TIKNOTA                                        
+         CALL WORKDAY  USING (WORK-KDCALL    +                                  
+                              WORK-DATE-AREA +                                  
+                              WORK-KDSVAR)                                      
+         IF WORK-KDSVAR = ' '                                                   
+           TEMP-KVDAGAR-RET    = WORK-KVWORKD                                   
+         ELSE                                                                   
+           DISPLAY 'FEL FRÅN WORKDAY -RET ' ANM-DARETANK    ' ' +               
+                                            LEV-TIKNOTA     ' ' +               
+                                            ANM-IDDISTR     ' ' +               
+                                            ANM-IDKUNDNR    ' ' +               
+                                            ANM-IDRAPPNR    ' ' +               
+                                            LEV-IDARTNR     ' '                 
+           TEMP-KVDAGAR-RET   = +0                                              
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+     IF LEV-TIINLINL    > +0 AND +                                              
+        ANM-DARETANK    > +0                                                    
+       WORK-KDCALL = 001                                                        
+       WORK-IDDC   = LEV-IDDC-RET                                               
+       W-KONV-AAAAMMDD   = ANM-DARETANK                                         
+       WORK-TIAAMMDD-FOM = W-KONV-AAMMDD                                        
+       WORK-TIAAMMDD-TOM = LEV-TIINLINL                                         
+       CALL WORKDAY  USING (WORK-KDCALL    +                                    
+                            WORK-DATE-AREA +                                    
+                            WORK-KDSVAR)                                        
+       IF WORK-KDSVAR = ' '                                                     
+         TEMP-KVDAGAR-INL    = WORK-KVWORKD                                     
+       ELSE                                                                     
+         DISPLAY 'FEL FRÅN WORKDAY -INL ' ANM-DARETANK    ' ' +                 
+                                          LEV-TIINLINL                          
+         TEMP-KVDAGAR-INL    = +0                                               
+       END-IF                                                                   
+     ELSE                                                                       
+       TEMP-KVDAGAR-INL    = +0                                                 
+     END-IF                                                                     
+     TEMP-KVDAGAR-TERM = +0                                                     
+     TEMP-KVDAGAR-LOSSN = +0                                                    
+     TEMP-IDRT = '   '                                                          
+     PUT TEMPFIL                                                                
+   END-IF                                                                       
+ END-IF                                                                         
+*                                                                               
+SORT TEMPFIL TO TEMPFIL USING +                                                 
+                       (TEMP-IDDISTR, TEMP-IDKUNDNR, TEMP-IDRAPPNR)             
+*                                                                               
+SORT W42822D2 TO W42822D2 USING +                                               
+                       (IN-IDDISTR, IN-IDKUNDNR, IN-IDRAPPNR)                   
+*                                                                               
+JOB INPUT (W42822D2 KEY (IN-IDDISTR, IN-IDKUNDNR, IN-IDRAPPNR) +                
+          (TEMPFIL KEY (TEMP-IDDISTR, TEMP-IDKUNDNR, TEMP-IDRAPPNR)))           
+  IF MATCHED                                                                    
+    UT-W42822 = TEMP-W42822                                                     
+    UT-IDRT     = IN-IDRT                                                       
+    IF TEMP-TISAAVV-RETILL-TIAAVV > +0                                          
+      IF IN-IDRT = 'CDC'                                                        
+      ELSE                                                                      
+        IF IN-TISNDDAT > +0                                                     
+          WORK-KDCALL = 001                                                     
+          WORK-IDDC   = LEV-IDDC-RET                                            
+          WORK-TIAAMMDD-FOM = IN-TIREGDAT                                       
+          WORK-TIAAMMDD-TOM = IN-TISNDDAT                                       
+          CALL WORKDAY  USING (WORK-KDCALL    +                                 
+                               WORK-DATE-AREA +                                 
+                               WORK-KDSVAR)                                     
+          IF WORK-KDSVAR = ' '                                                  
+            UT-KVDAGAR-TERM   = WORK-KVWORKD                                    
+          ELSE                                                                  
+            DISPLAY 'FEL FRÅN WORKDAY -TERM ' IN-TIREGDAT    ' ' +              
+                                              IN-TISNDDAT                       
+            UT-KVDAGAR-TERM   = +0                                              
+          END-IF                                                                
+        ELSE                                                                    
+          UT-KVDAGAR-TERM   = +0                                                
+        END-IF                                                                  
+      END-IF                                                                    
+      IF IN-TILOSSN  > +0                                                       
+         WORK-KDCALL = 001                                                      
+         WORK-IDDC   = LEV-IDDC-RET                                             
+         WORK-TIAAMMDD-FOM = IN-TILOSSN                                         
+         WORK-TIAAMMDD-TOM = IN-TIINLMOT                                        
+         CALL WORKDAY  USING (WORK-KDCALL    +                                  
+                              WORK-DATE-AREA +                                  
+                              WORK-KDSVAR)                                      
+         IF WORK-KDSVAR = ' '                                                   
+           UT-KVDAGAR-LOSSN  = WORK-KVWORKD                                     
+         ELSE                                                                   
+           DISPLAY 'FEL FRÅN WORKDAY -LOSS ' IN-TILOSSN     ' ' +               
+                                             IN-TIINLMOT                        
+           UT-KVDAGAR-LOSSN  = +0                                               
+         END-IF                                                                 
+      ELSE                                                                      
+         UT-KVDAGAR-LOSSN = +0                                                  
+      END-IF                                                                    
+      IF IN-TISNDDAT > +0                                                       
+        DAT-I-TIDATUM = IN-TISNDDAT                                             
+        CALL WDATKONV USING (DAT-KDDATFORM +                                    
+                            DAT-I-TIDATUM +                                     
+                            DAT-O-TIDATUM +                                     
+                            DAT-KDSVAR)                                         
+        IF DAT-KDSVAR = ' '                                                     
+          UT-TISAAPP-SNDDAT-TISEKEL = DAT-TISEKEL                               
+          UT-TISAAVV-SNDDAT-TISEKEL = DAT-TISEKEL                               
+          MOVE DAT-TIAAPP-GRP TO UT-TISAAPP-SNDDAT-TIAAPP                       
+          MOVE DAT-TIAAVV-GRP TO UT-TISAAVV-SNDDAT-TIAAVV                       
+        ELSE                                                                    
+          DISPLAY 'FEL FRÅN DATKONV TISNDDAT = ' IN-TISNDDAT                    
+          UT-TISAAPP-SNDDAT = '000000'                                          
+          UT-TISAAVV-SNDDAT = '000000'                                          
+        END-IF                                                                  
+      ELSE                                                                      
+        UT-TISAAPP-SNDDAT = '000000'                                            
+        UT-TISAAVV-SNDDAT = '000000'                                            
+      END-IF                                                                    
+    END-IF                                                                      
+    PUT W42822D3                                                                
+  ELSE                                                                          
+    IF TEMPFIL                                                                  
+      UT-W42822 = TEMP-W42822                                                   
+      PUT W42822D3                                                              
+    END-IF                                                                      
+  END-IF                                                                        

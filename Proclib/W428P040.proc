@@ -1,0 +1,33 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SELEKTERAR UT PERIODENS KREDITERADE RADER                                  
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD    RTN W428R1                             
+//*                                                                             
+//*  ÅTERSTART:    W42840    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P040 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W418..W418D2,                                            
+//             INDUT=&W428..W428R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42840   EXEC PGM=V16459,PARM='W42840/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W42840D1 DD  DSN=&INDIN2..W41842(+0),DISP=SHR                                 
+//************ WDA2 PÅ FIL                                                      
+//*                                                                             
+//W42840D2 DD  DSN=&INDUT..W42840(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ PERIODENS KREDITERADE RADER                                      
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  

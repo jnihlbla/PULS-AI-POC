@@ -1,0 +1,116 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4832300                                              *        
+*                                                                      *        
+*  FUNKTION   :  TO MATCH W48321 AND W48322 ON IDDISTR AND IDKUNDNR    *        
+*                                                                      *        
+*  FÖRFATTARE :  UMESH JAIN                                            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W48323D1                                                                   
+*                                                                               
+%W4832101  'IN1-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP1 FB(248 0)                                                            
+*                                                                               
+%W4832101  'TEMP1-'                                                             
+                                                                                
+NEWPAGE                                                                         
+FILE W48323D2                                                                   
+*                                                                               
+%W4832201  'IN2-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP2 FB(10 0)                                                             
+*                                                                               
+%W4832201  'TEMP2-'                                                             
+                                                                                
+NEWPAGE                                                                         
+FILE W48323D3 FB(251 0)                                                         
+*                                                                               
+%W4832301 'UT-'                                                                 
+                                                                                
+IX        W    2   N   VALUE 1                                                  
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORT ON IDDISTR AND IDKUNDNR                                          
+*                                                                               
+SORT W48323D1 TO +                                                              
+     TEMP1 USING (IN1-IDDISTR, IN1-IDKUNDNR)                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. SORT ON IDDISTR AND IDKUNDNR                                          
+*                                                                               
+SORT W48323D2 TO +                                                              
+     TEMP2 USING (IN2-IDDISTR, IN2-IDKUNDNR)                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 3. MATCH FILES                                                           
+*                                                                               
+JOB INPUT (TEMP2 KEY(TEMP2-IDDISTR, TEMP2-IDKUNDNR)+                            
+           TEMP1 KEY(TEMP1-IDDISTR, TEMP1-IDKUNDNR))                            
+                                                                                
+    IF MATCHED                                                                  
+      PERFORM S01-MOVE-TO-UT                                                    
+    ELSE                                                                        
+      IF TEMP1                                                                  
+        PERFORM S01-MOVE-TO-UT                                                  
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+ S01-MOVE-TO-UT. PROC                                                           
+      UT-IDPRODNR       = TEMP1-IDPRODNR                                        
+      UT-IDDISTR        = TEMP1-IDDISTR                                         
+      UT-IDKUNDNR       = TEMP1-IDKUNDNR                                        
+      UT-KDORDKL        = TEMP1-KDORDKL                                         
+      UT-FLDIRLEV       = TEMP1-FLDIRLEV                                        
+      UT-IDDC           = TEMP1-IDDC                                            
+      UT-KDFAKTYP       = TEMP1-KDFAKTYP                                        
+      UT-KDFRAKT        = TEMP1-KDFRAKT                                         
+      UT-TIUTSTID       = TEMP1-TIUTSTID                                        
+      UT-TIUTSKR        = TEMP1-TIUTSKR                                         
+      UT-IDLEVNR        = TEMP1-IDLEVNR                                         
+      UT-KDVIA          = TEMP1-KDVIA                                           
+      UT-IDKOLLI        = TEMP1-IDKOLLI                                         
+      UT-IDTRPTNR       = TEMP1-IDTRPTNR                                        
+      UT-DIKOLLIL       = TEMP1-DIKOLLIL                                        
+      UT-DIKOLLIB       = TEMP1-DIKOLLIB                                        
+      UT-DIKOLLIH       = TEMP1-DIKOLLIH                                        
+      UT-IDFAKT         = TEMP1-IDFAKT                                          
+      UT-IDLBBET        = TEMP1-IDLBBET                                         
+      UT-KVFALRAD       = TEMP1-KVFALRAD                                        
+      UT-KDKOLLI        = TEMP1-KDKOLLI                                         
+      UT-KVFLAMP-KOLLI  = TEMP1-KVFLAMP-KOLLI                                   
+      UT-KVORDRAD       = TEMP1-KVORDRAD                                        
+      UT-SUORDV-KOLLI   = TEMP1-SUORDV-KOLLI                                    
+      UT-TIFAKT         = TEMP1-TIFAKT                                          
+      UT-TIFAKTID       = TEMP1-TIFAKTID                                        
+      UT-TILASTN        = TEMP1-TILASTN                                         
+      UT-TILASTID       = TEMP1-TILASTID                                        
+      UT-VKORDNTO-KOLLI = TEMP1-VKORDNTO-KOLLI                                  
+      UT-KDFARLIG-KOLLI = TEMP1-KDFARLIG-KOLLI                                  
+      UT-VKORDBTO-KOLLI = TEMP1-VKORDBTO-KOLLI                                  
+      UT-VLORDBTO-KOLLI = TEMP1-VLORDBTO-KOLLI                                  
+      UT-IDLASTN        = TEMP1-IDLASTN                                         
+      IX = 1                                                                    
+      DO WHILE IX <= 10                                                         
+        UT-IDPSN    (IX) = TEMP1-IDPSN    (IX)                                  
+        UT-VKART-FG (IX) = TEMP1-VKART-FG (IX)                                  
+        UT-VLFG     (IX) = TEMP1-VLFG     (IX)                                  
+        IX = IX + 1                                                             
+      END-DO                                                                    
+      UT-SUEQFG          = TEMP1-SUEQFG                                         
+      UT-DASUPREF        = TEMP1-DASUPREF                                       
+      UT-TISUPTID        = TEMP1-TISUPTID                                       
+      UT-IDSHIPM         = TEMP1-IDSHIPM                                        
+      UT-FLLDCKND        = TEMP2-FLLDCKND                                       
+      UT-IDLANDX2        = TEMP2-IDLANDX2                                       
+      PUT W48323D3                                                              
+ END-PROC                                                                       

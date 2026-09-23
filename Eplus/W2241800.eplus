@@ -1,0 +1,206 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2241800                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR CDC OCH NDC-LAGERBAND OCH KOMPLETTERAR        *        
+*                NDC MED LITE CDC-INFO                                 *        
+*                                                                      *        
+*  FÖRFATTARE :  KJELLSON GÖRAN                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+                                                                                
+FILE W22418D1                                                                   
+%W01184                                                                         
+                                                                                
+FILE W22418D2                                                                   
+%W01160                                                                         
+                                                                                
+                                                                                
+FILE W22418D3 FB(439 0)                                                         
+%W22418    'UT-'                                                                
+                                                                                
+                                                                                
+W-KDSORT      W  2 A                                                            
+W-KDERS       W  2 P 0                                                          
+W-KDPRODSL    W  2 P 0                                                          
+W-REDIRLEV    W  2 P 2                                                          
+W-TIFINLV     W  3 P 0                                                          
+W-KDERS-UTG   W  2 P 0                                                          
+W-KVTILLG-TOT W  4 P 0                                                          
+IX            W  2 N  VALUE 0                                                   
+                                                                                
+*                                                                               
+* STEG 1. MATCHA OCH SKAPA UTFIL                                                
+*                                                                               
+JOB INPUT (W22418D2 KEY (CLAG-IDARTNR) +                                        
+           W22418D1 KEY (SLAG-IDARTNR))                                         
+                                                                                
+  IF MATCHED                                                                    
+     IF SLAG-IDDC-REF = '  '  AND +                                             
+        (SLAG-IDLEVNR NE '9993 ' AND +                                          
+         SLAG-IDLEVNR NE '9998 ')                                               
+        IF CLAG-KDSORT NE 'SW'                                                  
+           PERFORM S01-W01184-W01160-INFO                                       
+           UT-NDCCN-KDERS          = CLAG-KDERS                                 
+           UT-NDCCN-KDPRODSL       = CLAG-KDPRODSL                              
+           UT-NDCCN-TIFINLV        = CLAG-TIFINLV                               
+           UT-NDCCN-KDERS-UTG      = CLAG-KDERS-UTG                             
+           UT-NDCCN-KVTILLG-TOT    = CLAG-KVTILLG-TOT                           
+           UT-NDCCN-REDIRLEV       = CLAG-REDIRLEV                              
+           W-KDSORT                = CLAG-KDSORT                                
+           W-KDERS                 = CLAG-KDERS                                 
+           W-KDPRODSL              = CLAG-KDPRODSL                              
+           W-TIFINLV               = CLAG-TIFINLV                               
+           W-KDERS-UTG             = CLAG-KDERS-UTG                             
+           W-KVTILLG-TOT           = CLAG-KVTILLG-TOT                           
+           W-REDIRLEV              = CLAG-REDIRLEV                              
+                                                                                
+           PUT W22418D3                                                         
+        END-IF                                                                  
+     END-IF                                                                     
+  ELSE                                                                          
+     IF W22418D1                                                                
+        IF SLAG-IDDC-REF = '  ' AND +                                           
+        (SLAG-IDLEVNR NE '9993 ' AND +                                          
+         SLAG-IDLEVNR NE '9998 ')                                               
+           IF W-KDSORT NE 'SW'                                                  
+              PERFORM S01-W01184-W01160-INFO                                    
+              UT-NDCCN-KDERS       = W-KDERS                                    
+              UT-NDCCN-KDPRODSL    = W-KDPRODSL                                 
+              UT-NDCCN-TIFINLV     = W-TIFINLV                                  
+              UT-NDCCN-KDERS-UTG   = W-KDERS-UTG                                
+              UT-NDCCN-KVTILLG-TOT = W-KVTILLG-TOT                              
+              UT-NDCCN-REDIRLEV    = W-REDIRLEV                                 
+                                                                                
+              PUT W22418D3                                                      
+           END-IF                                                               
+        END-IF                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+                                                                                
+                                                                                
+S01-W01184-W01160-INFO. PROC                                                    
+                                                                                
+  UT-NDCCN-IDARTNR        = SLAG-IDARTNR                                        
+  UT-NDCCN-IDDC           = SLAG-IDDC                                           
+  UT-NDCCN-ADART          = SLAG-ADART                                          
+  UT-NDCCN-ADLAGOMR-CD    = SLAG-ADLAGOMR-CD                                    
+  UT-NDCCN-BEFT           = SLAG-BEFT                                           
+  UT-NDCCN-DAPBPLAN       = SLAG-DAPBPLAN                                       
+  UT-NDCCN-DAPUBL         = SLAG-DAPUBL                                         
+  UT-NDCCN-DASEASON       = SLAG-DASEASON                                       
+  UT-NDCCN-DASPSEA        = SLAG-DASPSEA                                        
+  UT-NDCCN-FLCDREL        = SLAG-FLCDREL                                        
+  UT-NDCCN-FLFLYG         = SLAG-FLFLYG                                         
+  UT-NDCCN-FLJIT          = SLAG-FLJIT                                          
+  UT-NDCCN-FLORDSP        = SLAG-FLORDSP                                        
+  UT-NDCCN-FLORDSP-EJRO   = SLAG-FLORDSP-EJRO                                   
+  UT-NDCCN-FLREFBEO       = SLAG-FLREFBEO                                       
+  UT-NDCCN-FLREFLARM      = SLAG-FLREFLARM                                      
+  UT-NDCCN-FLSKROT-BEORD  = SLAG-FLSKROT-BEORD                                  
+  UT-NDCCN-FLSPBULK       = SLAG-FLSPBULK                                       
+  UT-NDCCN-FLWILSON       = SLAG-FLWILSON                                       
+  UT-NDCCN-IDANSK         = SLAG-IDANSK                                         
+  UT-NDCCN-IDARTNR-EMBQ0  = SLAG-IDARTNR-EMBQ0                                  
+  UT-NDCCN-IDARTNR-EMBQ1  = SLAG-IDARTNR-EMBQ1                                  
+  UT-NDCCN-IDARTNR-EMBQ2  = SLAG-IDARTNR-EMBQ2                                  
+  UT-NDCCN-IDDC-REF       = SLAG-IDDC-REF                                       
+  UT-NDCCN-IDINK          = SLAG-IDINK                                          
+  UT-NDCCN-IDLANDX2       = SLAG-IDLANDX2                                       
+  UT-NDCCN-IDLEVNR        = SLAG-IDLEVNR                                        
+  UT-NDCCN-IDPERSON-BUY   = SLAG-IDPERSON-BUY                                   
+  UT-NDCCN-IDPLANGR-AG    = SLAG-IDPLANGR-AG                                    
+  UT-NDCCN-IDPSN-DC       = SLAG-IDPSN-DC                                       
+  UT-NDCCN-IDREFTAB       = SLAG-IDREFTAB                                       
+  UT-NDCCN-IDUSER-SPKVAL  = SLAG-IDUSER-SPKVAL                                  
+  UT-NDCCN-KDARTURS       = SLAG-KDARTURS                                       
+  UT-NDCCN-KDAVT          = SLAG-KDAVT                                          
+  UT-NDCCN-KDLEVPLF       = SLAG-KDLEVPLF                                       
+  UT-NDCCN-KDLEVSP        = SLAG-KDLEVSP                                        
+  UT-NDCCN-KDLPSP         = SLAG-KDLPSP                                         
+  UT-NDCCN-KDOPPLAN       = SLAG-KDOPPLAN                                       
+  UT-NDCCN-KDREFSTA       = SLAG-KDREFSTA                                       
+  UT-NDCCN-KVAKS-PAV      = SLAG-KVAKS-PAV                                      
+  UT-NDCCN-KVAKS-SDC      = SLAG-KVAKS-SDC                                      
+  UT-NDCCN-KVPBREOI       = SLAG-KVPBREOI                                       
+  UT-NDCCN-KVBEART        = SLAG-KVBEART                                        
+  UT-NDCCN-KVDAGAR-CDBEH  = SLAG-KVDAGAR-CDBEH                                  
+  UT-NDCCN-KVDAGAR-FFH    = SLAG-KVDAGAR-FFH                                    
+  UT-NDCCN-KVDAGAR-INLEV  = SLAG-KVDAGAR-INLEV                                  
+  UT-NDCCN-KVDAGAR-MANLT  = SLAG-KVDAGAR-MANLT                                  
+  UT-NDCCN-KVEFRS         = SLAG-KVEFRS                                         
+  UT-NDCCN-KVEOQ          = SLAG-KVEOQ                                          
+  UT-NDCCN-KVINVS         = SLAG-KVINVS                                         
+  UT-NDCCN-KVLS           = SLAG-KVLS                                           
+  UT-NDCCN-KVOKS-BULK     = SLAG-KVOKS-BULK                                     
+  UT-NDCCN-KVOKS-DAG      = SLAG-KVOKS-DAG                                      
+  UT-NDCCN-KVPALL         = SLAG-KVPALL                                         
+  UT-NDCCN-KVPB-PLAN      = SLAG-KVPB-PLAN                                      
+  UT-NDCCN-KVPB-REF       = SLAG-KVPB-REF                                       
+  UT-NDCCN-KVPB-TREND     = SLAG-KVPB-TREND                                     
+  UT-NDCCN-KVREFBER       = SLAG-KVREFBER                                       
+  UT-NDCCN-KVREFOVL       = SLAG-KVREFOVL                                       
+  UT-NDCCN-KVREFPKT       = SLAG-KVREFPKT                                       
+  UT-NDCCN-KVRESS         = SLAG-KVRESS                                         
+  UT-NDCCN-KVRETUR-BEORD  = SLAG-KVRETUR-BEORD                                  
+  UT-NDCCN-KVROS-BULK     = SLAG-KVROS-BULK                                     
+  UT-NDCCN-KVROS-DAG      = SLAG-KVROS-DAG                                      
+  UT-NDCCN-KVSKROT        = SLAG-KVSKROT                                        
+  UT-NDCCN-KVSLAGER       = SLAG-KVSLAGER                                       
+  UT-NDCCN-KVSLUTKP       = SLAG-KVSLUTKP                                       
+  UT-NDCCN-KVSPANT        = SLAG-KVSPANT                                        
+  UT-NDCCN-KVSPARR-KVAL   = SLAG-KVSPARR-KVAL                                   
+  UT-NDCCN-KVULOAD        = SLAG-KVULOAD                                        
+  UT-NDCCN-KVUTRS         = SLAG-KVUTRS                                         
+  UT-NDCCN-KVVECKOR-FT    = SLAG-KVVECKOR-FT                                    
+  UT-NDCCN-KVVECKOR-LT    = SLAG-KVVECKOR-LT                                    
+  UT-NDCCN-KVVECKOR-TREND = SLAG-KVVECKOR-TREND                                 
+  UT-NDCCN-PRARTSJK       = SLAG-PRARTSJK                                       
+  UT-NDCCN-PRAVCOST       = SLAG-PRAVCOST                                       
+  IX = 1                                                                        
+  DO WHILE IX LT 13                                                             
+     UT-NDCCN-RESEASON(IX) = SLAG-RESEASON(IX)                                  
+     IX = IX + 1                                                                
+  END-DO                                                                        
+  IX = 1                                                                        
+  DO WHILE IX LT 13                                                             
+     UT-NDCCN-RESEASON-PLAN(IX) = SLAG-RESEASON-PLAN(IX)                        
+     IX = IX + 1                                                                
+  END-DO                                                                        
+  UT-NDCCN-RETREND        = SLAG-RETREND                                        
+  UT-NDCCN-TEKVAL         = SLAG-TEKVAL                                         
+  UT-NDCCN-TIAVCOST       = SLAG-TIAVCOST                                       
+  UT-NDCCN-TIDATUM-TREND  = SLAG-TIDATUM-TREND                                  
+  UT-NDCCN-TIINVDAT       = SLAG-TIINVDAT                                       
+  IX = 1                                                                        
+  DO WHILE IX LT 6                                                              
+     UT-NDCCN-TILEVDAG(IX) = SLAG-TILEVDAG(IX)                                  
+     IX = IX + 1                                                                
+  END-DO                                                                        
+  UT-NDCCN-TILPSP         = SLAG-TILPSP                                         
+  UT-NDCCN-TIMANSEA       = SLAG-TIMANSEA                                       
+  UT-NDCCN-TIOMSPEC       = SLAG-TIOMSPEC                                       
+  UT-NDCCN-TIORDREG       = SLAG-TIORDREG                                       
+  UT-NDCCN-TIPBREOI       = SLAG-TIPBREOI                                       
+  UT-NDCCN-TIREFMPB       = SLAG-TIREFMPB                                       
+  UT-NDCCN-TIREFPAF       = SLAG-TIREFPAF                                       
+  UT-NDCCN-TIREFPKT       = SLAG-TIREFPKT                                       
+  UT-NDCCN-TIREFSTA       = SLAG-TIREFSTA                                       
+  UT-NDCCN-TIREFSTO       = SLAG-TIREFSTO                                       
+  UT-NDCCN-TIREFSTO-LOC   = SLAG-TIREFSTO-LOC                                   
+  UT-NDCCN-TIRETUR-BEORD  = SLAG-TIRETUR-BEORD                                  
+  UT-NDCCN-TISKROT        = SLAG-TISKROT                                        
+  UT-NDCCN-TISKROT-BEORD  = SLAG-TISKROT-BEORD                                  
+  UT-NDCCN-TISLUTKP       = SLAG-TISLUTKP                                       
+  UT-NDCCN-TISPARR-KVAL   = SLAG-TISPARR-KVAL                                   
+  UT-NDCCN-VKART          = SLAG-VKART                                          
+  UT-NDCCN-VLARTNTO       = SLAG-VLARTNTO                                       
+  UT-NDCCN-IDLEVNR-SHIP   = SLAG-IDLEVNR-SHIP                                   
+  UT-NDCCN-PRMATRL        = SLAG-PRMATRL                                        
+  UT-NDCCN-TIERSDAT-VIPS  = SLAG-TIERSDAT-VIPS                                  
+  UT-NDCCN-TIMANSEC       = SLAG-TIMANSEC                                       
+  UT-NDCCN-TISTODAT-LARM  = SLAG-TISTODAT-LARM                                  
+                                                                                
+  END-PROC.                                                                     

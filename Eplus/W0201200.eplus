@@ -1,0 +1,252 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W02012  STEG 2 HTRS                                   *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER 52 GEN AV FIL FRÅN W02010 OCH SUMMERAR PER      *        
+*                VECKA, CLAGER, MARKNAD OCH ORDERKLASS                 *        
+*  FÖRFATTARE :  HGK 870206                                            *        
+*                                                                      *        
+*  INFILER    :  W02010                                                *        
+*                                                                      *        
+*  UTFILER    :  W02012                                                *        
+*                                                                      *        
+*  ÄNDRINGAR  :                                                        *        
+*                                                                      *        
+*       NAMN                AVD     KOMMENTAR                          *        
+*                                                                      *        
+*       STEFANO GIOBBI      57054   930219                             *        
+*                                   ÄNDRINGAR FÖR SPLIT -93.           *        
+*                                   SE KOMMENTAR I SECT. SKRIV2.       *        
+*                                                                      *        
+*       ------------------  -----   ---------------------------------  *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W02012D1                                                                   
+*                                                                               
+%W020101E 'IN-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W02012D2                                                                   
+W02012D2-AREA        1  80   A                                                  
+*                                                                               
+FILE TEMPFIL1 VIRTUAL FB(162 6156)                                              
+*                                                                               
+%W020120E 'TEMP1-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE TEMPFIL2 VIRTUAL FB(162 6156)                                              
+*                                                                               
+%W020120E 'TEMP2-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W02012D3 FB(162 6156)                                                      
+*                                                                               
+%W020120E 'UT-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* ARBETSAREOR                                                                   
+W1-W02012D2-AREA   W             80   A  OCCURS (150)  INDEX TAB-IX             
+W1-FOM       W1-W02012D2-AREA     4   N                                         
+W1-TOM       W1-W02012D2-AREA +5  4   N                                         
+W1-SVAR      W1-W02012D2-AREA +10 3   N                                         
+W1-IDWMARK         W              2   P 0                                       
+*                                                                               
+W2-KEY             W              8   A                                         
+W2-TIAAVV            W2-KEY       4   N                                         
+W2-KDCLAGER          W2-KEY +4    1   P 0                                       
+W2-IDWMARK           W2-KEY +5    2   P 0                                       
+W2-KDORDKL           W2-KEY +7    1   P 0                                       
+*                                                                               
+*                                                                               
+W2-KVORDER         W              4   P 0                                       
+W2-RELEDTID-PACK   W              4   P 1                                       
+W2-RELEDTID-FAKT   W              4   P 1                                       
+*                                                                               
+W2-KVORDER-PACK-AREA W           48   A                                         
+W2-KVORDER-PACK W2-KVORDER-PACK-AREA 4  P 0 OCCURS (12) INDEX PACK-IX           
+*                                                                               
+W2-KVORDER-FAKT-AREA W           48   A                                         
+W2-KVORDER-FAKT W2-KVORDER-FAKT-AREA 4  P 0 OCCURS (12) INDEX FAKT-IX           
+*                                                                               
+W2-KVORDER-TOT-AREA  W           48   A                                         
+W2-KVORDER-TOT  W2-KVORDER-TOT-AREA  4  P 0 OCCURS (12) INDEX TOT-IX            
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*=====================START STEG 1 =====================================        
+JOB INPUT NULL START LÄS-MARKNTAB NAME STEG1                                    
+*                                                                               
+ GET W02012D1                                                                   
+*                      ****** START HUVUDSLINGA ******                          
+ DO WHILE NOT EOF W02012D1                                                      
+*                                                                               
+   IF IN-KDORDKL LE 4                                                           
+     PERFORM MARKNAD                                                            
+     PERFORM SKRIV-POST                                                         
+   END-IF                                                                       
+*                                                                               
+   GET W02012D1                                                                 
+*                                                                               
+ END-DO                                                                         
+ STOP                                                                           
+*                       ****** SLUT HUVUDSLINGA ******                          
+NEWPAGE                                                                         
+LÄS-MARKNTAB.  PROC                                                             
+  TAB-IX = 0                                                                    
+  GET W02012D2                                                                  
+  DO WHILE NOT EOF W02012D2                                                     
+    W1-W02012D2-AREA = W02012D2-AREA                                            
+    TAB-IX = TAB-IX + 80                                                        
+    IF TAB-IX > 12000                                                           
+      DISPLAY NEWPAGE 'VARNING MARKNADSTABELL INNEH. FLER ÄN 150 REC'           
+      DISPLAY NEWPAGE 'VARNING MARKNADSTABELL INNEH. FLER ÄN 150 REC'           
+    END-IF                                                                      
+    GET W02012D2                                                                
+  END-DO                                                                        
+END-PROC                                                                        
+***                                                                             
+MARKNAD.  PROC                                                                  
+TAB-IX = 0                                                                      
+DO WHILE IN-IDDISTR NQ W1-FOM THRU W1-TOM                                       
+  TAB-IX = TAB-IX + 80                                                          
+END-DO                                                                          
+W1-IDWMARK = W1-SVAR                                                            
+END-PROC                                                                        
+***                                                                             
+SKRIV-POST.  PROC                                                               
+TEMP1-TIAAVV = IN-TIAAVV                                                        
+TEMP1-KDCLAGER = IN-KDCLAGER                                                    
+TEMP1-IDWMARK = W1-IDWMARK                                                      
+TEMP1-KDORDKL = IN-KDORDKL                                                      
+TEMP1-RELEDTID-PACK = IN-RELEDTID-PACK                                          
+TEMP1-RELEDTID-FAKT = IN-RELEDTID-FAKT                                          
+TEMP1-KVORDER = IN-KVORDER                                                      
+TEMP1-KVORDER-PACK-AREA = IN-KVORDER-PACK-AREA                                  
+TEMP1-KVORDER-FAKT-AREA = IN-KVORDER-FAKT-AREA                                  
+TEMP1-KVORDER-TOT-AREA = IN-KVORDER-TOT-AREA                                    
+PUT TEMPFIL1                                                                    
+END-PROC                                                                        
+*                                                                               
+***======================= STEG 2 SORT =================================        
+SORT TEMPFIL1 TO TEMPFIL2 USING (TEMP1-TIAAVV TEMP1-KDCLAGER +                  
+                                 TEMP1-IDWMARK TEMP1-KDORDKL)                   
+*                                                                               
+*===================== STEG 3 ==========================================        
+JOB INPUT NULL NAME STEG3                                                       
+*                                                                               
+ GET TEMPFIL2                                                                   
+ PERFORM NOLLA2                                                                 
+*                      ****** START HUVUDSLINGA ******                          
+ DO WHILE NOT EOF TEMPFIL2                                                      
+*                                                                               
+   PERFORM SPARA2                                                               
+*                                                                               
+   DO WHILE NOT EOF TEMPFIL2 AND TEMP2-W02012-KEY = W2-KEY                      
+     PERFORM ACKUMULERA2                                                        
+*                                                                               
+     GET TEMPFIL2                                                               
+*                                                                               
+   END-DO                                                                       
+*                                                                               
+   PERFORM SKRIV2                                                               
+   PERFORM NOLLA2                                                               
+*                                                                               
+ END-DO                                                                         
+ STOP                                                                           
+*                       ****** SLUT HUVUDSLINGA ******                          
+NEWPAGE                                                                         
+*                                                                               
+ACKUMULERA2.  PROC                                                              
+W2-KVORDER = W2-KVORDER + TEMP2-KVORDER                                         
+W2-RELEDTID-PACK = W2-RELEDTID-PACK + TEMP2-RELEDTID-PACK                       
+W2-RELEDTID-FAKT = W2-RELEDTID-FAKT + TEMP2-RELEDTID-FAKT                       
+*                                                                               
+* ACKUMULERA KVORDER-PACK                                                       
+PACK-IX = 0                                                                     
+*                                                                               
+DO WHILE PACK-IX < 48                                                           
+  W2-KVORDER-PACK = W2-KVORDER-PACK + TEMP2-KVORDER-PACK                        
+  PACK-IX = PACK-IX + 4                                                         
+END-DO                                                                          
+*                                                                               
+* ACKUMULERA KVORDER-FAKT                                                       
+FAKT-IX = 0                                                                     
+*                                                                               
+DO WHILE FAKT-IX < 48                                                           
+  W2-KVORDER-FAKT = W2-KVORDER-FAKT + TEMP2-KVORDER-FAKT                        
+  FAKT-IX = FAKT-IX + 4                                                         
+END-DO                                                                          
+*                                                                               
+* ACKUMULERA KVORDER-TOT                                                        
+TOT-IX = 0                                                                      
+*                                                                               
+DO WHILE TOT-IX < 48                                                            
+  W2-KVORDER-TOT = W2-KVORDER-TOT + TEMP2-KVORDER-TOT                           
+  TOT-IX = TOT-IX + 4                                                           
+END-DO                                                                          
+*                                                                               
+END-PROC                                                                        
+***                                                                             
+SKRIV2.  PROC                                                                   
+                                                                                
+  UT-TIAAVV            = W2-TIAAVV                                              
+  UT-KDCLAGER          = W2-KDCLAGER                                            
+  UT-IDWMARK           = W2-IDWMARK                                             
+  UT-KDORDKL           = W2-KDORDKL                                             
+  UT-RELEDTID-PACK     = W2-RELEDTID-PACK / W2-KVORDER + .05                    
+  UT-RELEDTID-FAKT     = W2-RELEDTID-FAKT / W2-KVORDER + .05                    
+  UT-KVORDER           = W2-KVORDER                                             
+  UT-KVORDER-PACK-AREA = W2-KVORDER-PACK-AREA                                   
+  UT-KVORDER-FAKT-AREA = W2-KVORDER-FAKT-AREA                                   
+  UT-KVORDER-TOT-AREA  = W2-KVORDER-TOT-AREA                                    
+                                                                                
+**** TEST TILLAGT FÖR SPLIT'EN -93.                                             
+**** INPUT W020.W020V2.W02010 SKAPAS 1 GÅNG/VECKA OCH FINNS I 52 GEN,           
+**** OCH VID TIDEN FÖR INSTALLATIONEN KOPIERADES SAMTLIGA R02010-FILER          
+**** TILL W02010. EFTERSOM INPUTEN DÅ INNEHÅLLER POSTER FRÅN FÖRE               
+**** SPLIT'EN OCH ALLTSÅ ÄR BLANDAT C1- OCH C2-POSTER MÅSTE MÅSTE               
+**** TEST PÅ CLAGER FINNAS. KAN TAS BORT ETT ÅR EFTER DET ATT PV                
+**** HELT SLÄPPT C2.                                                            
+****                                                                            
+****        STEFANO GIOBBI  930219                                              
+                                                                                
+  IF UT-KDCLAGER = 1                                                            
+    PUT W02012D3                                                                
+  END-IF                                                                        
+                                                                                
+END-PROC                                                                        
+*                                                                               
+NOLLA2.  PROC                                                                   
+MOVE ZERO TO W2-TIAAVV W2-KDCLAGER W2-IDWMARK W2-KDORDKL +                      
+             W2-KVORDER W2-RELEDTID-PACK W2-RELEDTID-FAKT                       
+PACK-IX = 0                                                                     
+DO WHILE PACK-IX < 48                                                           
+  W2-KVORDER-PACK = 0                                                           
+  PACK-IX = PACK-IX + 4                                                         
+END-DO                                                                          
+*                                                                               
+FAKT-IX = 0                                                                     
+DO WHILE FAKT-IX < 48                                                           
+  W2-KVORDER-FAKT = 0                                                           
+  FAKT-IX = FAKT-IX + 4                                                         
+END-DO                                                                          
+*                                                                               
+TOT-IX = 0                                                                      
+DO WHILE TOT-IX < 48                                                            
+  W2-KVORDER-TOT = 0                                                            
+  TOT-IX = TOT-IX + 4                                                           
+END-DO                                                                          
+END-PROC                                                                        
+*                                                                               
+SPARA2. PROC                                                                    
+W2-TIAAVV = TEMP2-TIAAVV                                                        
+W2-KDCLAGER = TEMP2-KDCLAGER                                                    
+W2-IDWMARK = TEMP2-IDWMARK                                                      
+W2-KDORDKL = TEMP2-KDORDKL                                                      
+END-PROC                                                                        
+*                                                                               

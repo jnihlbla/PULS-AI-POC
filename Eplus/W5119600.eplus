@@ -1,0 +1,439 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  LAGERVÄRDESANALYS VCCS FÖR LDC 3F ITALIEN             *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER INFIL MATCHAR OCH KOMPLETTERAR POSTERNA         *        
+*                MED ARTIKELREGISTER-INFORMATION.                      *        
+*                RESULTATET BLIR LAGERBOK(FIL) FÖR LDC 3F ÖVER         *        
+*                ALLA SALDORÖRELSER SOM SKETT GÅGNA VECKAN             *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON OKTOBER  2006                      *        
+*                                                                      *        
+*  INFILER     - W51068  GÅNGEN VECKAS BOKFÖRINGS(PEDAL)TRANSAR LDC 3F *        
+*              - W51053  VECKOLAGERBAND FRÅN FÖRRA VECKOSLUTET         *        
+*              - W5113F  DOKUMENTNUMMERREGISTER LDC 3F LÖPANDE         *        
+*                FRÅN ÅRETS BÖRJAN                                     *        
+*                                                                      *        
+*  UTFILER     - W51196 LAGERBOK LDC 3F ITALIEN.                       *        
+*              - W5113F NYTT NUMMERREGISTER.                           *        
+*----------------------------------------------------------------------*        
+* LAGERPÅVERKANDE TRANSAR LDC 3F                                                
+*--------------------------------                                               
+FILE W51196D1                                                                   
+                                                                                
+%W51068   'IN-'                                                                 
+NEWPAGE                                                                         
+*-------------------                                                            
+* SALDOFIL ALLA DC                                                              
+*-------------------                                                            
+FILE W51196D2                                                                   
+                                                                                
+%W51054   'LB-'                                                                 
+NEWPAGE                                                                         
+*-----------------------------------------                                      
+* TEMPFIL4 FÖR FÖRRA VECKANS SALDON LDC 3F                                      
+*-----------------------------------------                                      
+                                                                                
+FILE TPFIL4 FB(46 0)                                                            
+%W51054   'T4-'                                                                 
+*---------------------------------------------                                  
+* INFIL MED DOKUMENTNUMMER LÖPANDE UNDER ÅRET.                                  
+*---------------------------------------------                                  
+FILE W51196D3                                                                   
+                                                                                
+DOK-IN-POST      1  80 A                                                        
+DOKUMENT-NR-IN   1   7 N                                                        
+*                                                                               
+*-----------------------------------                                            
+* UTFIL FÖR LAGERBOK FÖR LDC ITALIEN                                            
+*-----------------------------------                                            
+*                                                                               
+FILE W51196D4 VB(84 0)                                                          
+                                                                                
+%W51194   'UT-'                                                                 
+                                                                                
+*---------------------------------------------                                  
+* UTFIL MED DOKUMENTNUMMER LÖPANDE UNDER ÅRET.                                  
+*---------------------------------------------                                  
+*                                                                               
+FILE W51196D5 FB(80 0)                                                          
+                                                                                
+DOK-UT-POST      1  80 A                                                        
+DOKUMENT-NR-UT   1   7 N                                                        
+NEWPAGE                                                                         
+*-----------------------------------------                                      
+* TEMPFIL1 FÖR TRANSAKTIONSBELOPPEN LDC 3F                                      
+*-----------------------------------------                                      
+                                                                                
+FILE TPFIL1 FB(93 0)                                                            
+T1-POST              1  93   A                                                  
+T1-IDLOPNR           1   7   N                                                  
+T1-DOKNR             8   7   N                                                  
+T1-FILLER           15   1   A                                                  
+T1-IDVERNR          16   7   N                                                  
+T1-IDARTNR          23   9   N                                                  
+T1-AAAAMMDD-DOK     32   8   N                                                  
+T1-AAAAMMDD-ARRI    40   8   N                                                  
+T1-KVDEB            48   7   N                                                  
+T1-KVKRE            55   7   N                                                  
+T1-KVTOT-ART        62   7   N                                                  
+T1-DESCR            69  25   A                                                  
+                                                                                
+*-----------------------------------------                                      
+* TEMPFIL2 FÖR TRANSAKTIONSBELOPPEN LDC 3F                                      
+*-----------------------------------------                                      
+                                                                                
+FILE TPFIL2 FB(93 0)                                                            
+T2-POST              1  93   A                                                  
+T2-IDLOPNR           1   7   N                                                  
+T2-DOKNR             8   7   N                                                  
+T2-FILLER           15   1   A                                                  
+T2-IDVERNR          16   7   N                                                  
+T2-IDARTNR          23   9   N                                                  
+T2-AAAAMMDD-DOK     32   8   N                                                  
+T2-AAAAMMDD-ARRI    40   8   N                                                  
+T2-KVDEB            48   7   N                                                  
+T2-KVKRE            55   7   N                                                  
+T2-KVTOT-ART        62   7   N                                                  
+T2-DESCR            69  25   A                                                  
+NEWPAGE                                                                         
+*-----------------------------------------------------------                    
+* TEMPFIL4 FÖR TRANSAKTIONSBELOPPEN LDC 3F KOMPL. MED  DATUM                    
+*-----------------------------------------------------------                    
+                                                                                
+FILE TPFIL3 FB(93 0)                                                            
+T3-POST              1  93   A                                                  
+T3-IDLOPNR           1   7   N                                                  
+T3-DOKNR             8   7   N  MASK('ZZZZZZZ')                                 
+T3-FILLER           15   1   A                                                  
+T3-IDVERNR          16   7   N                                                  
+T3-IDARTNR          23   9   N  MASK('ZZZZZZZZ9')                               
+T3-AAAAMMDD-DOK     32   8   N                                                  
+T3-AAAAMMDD-ARRI    40   8   N                                                  
+T3-KVDEB            48   7   N  MASK('ZZZZZZ9')                                 
+T3-KVKRE            55   7   N  MASK('ZZZZZZ9')                                 
+T3-KVTOT-ART        62   7   N  MASK('ZZZZZZ9')                                 
+T3-DESCR            69  25   A                                                  
+NEWPAGE                                                                         
+*---------------------------------                                              
+* ARBETSFÄLT                                                                    
+*---------------------------------                                              
+                                                                                
+W-IDARTNR     W 9 P 0  VALUE +0                                                 
+W-KVTOT-ART   W 7 P 0  VALUE +0                                                 
+W-IDLOPNR     W 7 P 0  VALUE +0                                                 
+NEWPAGE                                                                         
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*--------------------------*                                                    
+* DATUMKORT                *                                                    
+*--------------------------*                                                    
+                                                                                
+PROGRAM-NAMN   W    8    A        VALUE 'W5119600'                              
+DATUMKORT-ID   W    6    A        VALUE 'WDATUM'                                
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+W-IDVERGL      W             10   A                                             
+W-IDVERNR7     W-IDVERGL     7    N                                             
+W-IDVERNR6     W-IDVERGL     6    N                                             
+W-IDVERNR5     W-IDVERGL     5    N                                             
+W-IDVERNR4     W-IDVERGL     4    N                                             
+W-IDVERNR3     W-IDVERGL     3    N                                             
+W-IDVERNR2     W-IDVERGL     2    N                                             
+W-IDVERNR1     W-IDVERGL     1    N                                             
+W-IDVERNR      W             7    N                                             
+***  SENASTE HELGENS DATUM *******                                              
+AKT-AAAAMMDD   W               8 N                                              
+AKT-SEKEL      AKT-AAAAMMDD    2 N                                              
+AKT-AA         AKT-AAAAMMDD +2 2 N                                              
+AKT-MAANAD     AKT-AAAAMMDD +4 2 N                                              
+AKT-DAG        AKT-AAAAMMDD +6 2 N                                              
+                                                                                
+***  ARBETSFÄLT DATUM      *******                                              
+W1-DAAAMMDD    W              8   N                                             
+W1-TIAA        W1-DAAAMMDD +2 2   N                                             
+W1-TIMM        W1-DAAAMMDD +4 2   N                                             
+W1-TIDD        W1-DAAAMMDD +6 2   N                                             
+                                                                                
+***  VÄND PÅ DOKUMENTDATUM AREA **                                              
+WD-TIDDMMAA    W              6   N                                             
+WD-TIDD        WD-TIDDMMAA    2   N                                             
+WD-TIMM        WD-TIDDMMAA +2 2   N                                             
+WD-TIAA        WD-TIDDMMAA +4 2   N                                             
+                                                                                
+***  VÄND PÅ INLÄGGN.DATUM AREA **                                              
+WA-TIDDMMAA    W              6   N                                             
+WA-TIDD        WA-TIDDMMAA    2   N                                             
+WA-TIMM        WA-TIDDMMAA +2 2   N                                             
+WA-TIAA        WA-TIDDMMAA +4 2   N                                             
+                                                                                
+W-DOKNR                 W   7   N                                               
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*-------------------------------------------------------------------*           
+* STEG 1  PLOCKA UT ALLA LAGERPÅVERKANDE TRANSAR UR PEDALFIL FÖR                
+*         LDC 3F ITALIEN OCH LÄGG DESSA PÅ TPFIL1                               
+*-------------------------------------------------------------------*           
+                                                                                
+JOB INPUT(W51196D1) START A-INIT                                                
+                                                                                
+  IF IN-KDEKNIVA   = 'DET' AND +                                                
+     IN-IDDC       = LDC-IT-3F AND +                                            
+     IN-FLLSBOK    = 'Y' 'J'                                                    
+                                                                                
+     T1-IDLOPNR          = 0                                                    
+     T1-DOKNR            = 0                                                    
+     W-IDVERGL           = IN-IDVERGL                                           
+     IF W-IDVERNR7 NOT NUMERIC                                                  
+       IF W-IDVERNR6 NOT NUMERIC                                                
+         IF W-IDVERNR5 NOT NUMERIC                                              
+           IF W-IDVERNR4 NOT NUMERIC                                            
+             IF W-IDVERNR3 NOT NUMERIC                                          
+               IF W-IDVERNR2 NOT NUMERIC                                        
+                 IF W-IDVERNR1 NOT NUMERIC                                      
+                   T1-IDVERNR          = 0                                      
+                 ELSE                                                           
+                   T1-IDVERNR          = W-IDVERNR1                             
+                 END-IF                                                         
+               ELSE                                                             
+                 T1-IDVERNR          = W-IDVERNR2                               
+               END-IF                                                           
+             ELSE                                                               
+               T1-IDVERNR          = W-IDVERNR3                                 
+             END-IF                                                             
+           ELSE                                                                 
+             T1-IDVERNR          = W-IDVERNR4                                   
+           END-IF                                                               
+         ELSE                                                                   
+           T1-IDVERNR          = W-IDVERNR5                                     
+         END-IF                                                                 
+       ELSE                                                                     
+         T1-IDVERNR          = W-IDVERNR6                                       
+       END-IF                                                                   
+     ELSE                                                                       
+       T1-IDVERNR          = W-IDVERNR7                                         
+     END-IF                                                                     
+     T1-IDARTNR          = IN-IDARTNR                                           
+     T1-AAAAMMDD-DOK     = AKT-AAAAMMDD                                         
+     IF IN-DAVERDAT = 0                                                         
+       T1-AAAAMMDD-ARRI  = AKT-AAAAMMDD                                         
+     ELSE                                                                       
+       T1-AAAAMMDD-ARRI  = IN-DAVERDAT                                          
+     END-IF                                                                     
+     IF IN-KVANTAL GT +0                                                        
+       T1-KVDEB          = IN-KVANTAL                                           
+       T1-KVKRE          = 0                                                    
+     ELSE                                                                       
+       T1-KVKRE          = IN-KVANTAL                                           
+       T1-KVDEB          = 0                                                    
+     END-IF                                                                     
+     T1-KVTOT-ART        = 0                                                    
+     T1-DESCR            = ' '                                                  
+     IF (IN-KDEKHHT EQ '502' AND IN-KDEKSHT EQ '501')                           
+       T1-DESCR          = 'LDC-RETURN MISSING CASE  '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '502' AND IN-KDEKSHT EQ '502')                           
+       T1-DESCR          = 'LDC-RETURN OVERDELIVERY  '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '502' AND IN-KDEKSHT EQ '503')                           
+       T1-DESCR          = 'LDC-RETURN UNDERDELIVERY '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '102' AND IN-KDEKSHT EQ '102')                           
+       T1-DESCR          = 'STOCK UPDATING           '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '101' AND IN-KDEKSHT EQ '105')   +                       
+     OR (IN-KDEKHHT EQ '101' AND IN-KDEKSHT EQ '106')   +                       
+     OR (IN-KDEKHHT EQ '101' AND IN-KDEKSHT EQ '107')   +                       
+     OR (IN-KDEKHHT EQ '502' AND IN-KDEKSHT EQ '504') +                         
+     OR (IN-KDEKHHT EQ '102' AND IN-KDEKSHT EQ '103')                           
+       T1-DESCR          = 'VCP  DEVIAT. REF/RET     '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '503' AND IN-KDEKSHT EQ '501')                           
+       T1-DESCR          = 'REFILL MISSING CASE      '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '503' AND IN-KDEKSHT EQ '502')                           
+       T1-DESCR          = 'REFILL OVERDELIVERY      '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '503' AND IN-KDEKSHT EQ '503')                           
+       T1-DESCR          = 'REFILL UNDERDELIVERY     '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '503' AND IN-KDEKSHT EQ '504')                           
+       T1-DESCR          = 'LOST CASE FOUND          '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '302' AND IN-KDEKSHT EQ '302')                           
+       T1-DESCR          = 'RETURNS                  '                          
+     END-IF                                                                     
+     IF IN-KDEKHHT EQ '303'                                                     
+       T1-DESCR          = 'VIT DISC. CRE.NOTE       '                          
+     END-IF                                                                     
+     IF IN-KDEKHHT EQ '403'                                                     
+       T1-DESCR          = 'VCP  STOCK.ADJUST.       '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '201' AND IN-KDEKSHT EQ '201')   +                       
+     OR (IN-KDEKHHT EQ '201' AND IN-KDEKSHT EQ '202')   +                       
+     OR (IN-KDEKHHT EQ '201' AND IN-KDEKSHT EQ '203')   +                       
+     OR (IN-KDEKHHT EQ '501' AND IN-KDEKSHT EQ '501')   +                       
+     OR (IN-KDEKHHT EQ '501' AND IN-KDEKSHT EQ '502')                           
+       IF IN-KVANTAL LT +0                                                      
+         T1-DESCR        = 'VCP  REF-RETURN INV.     '                          
+       ELSE                                                                     
+         T1-DESCR        = 'VCP  REFILL INVOICE      '                          
+       END-IF                                                                   
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '203' AND IN-KDEKSHT EQ '201')   +                       
+     OR (IN-KDEKHHT EQ '404' AND IN-KDEKSHT EQ '401')   +                       
+     OR (IN-KDEKHHT EQ '406' AND IN-KDEKSHT EQ '401')                           
+       T1-DESCR          = 'VCP  STOCK.ADJ.          '                          
+     END-IF                                                                     
+     IF (IN-KDEKHHT EQ '204' AND IN-KDEKSHT EQ '201')   +                       
+     OR (IN-KDEKHHT EQ '204' AND IN-KDEKSHT EQ '202')                           
+       T1-DESCR          = 'VIT CUST.INVOICE         '                          
+     END-IF                                                                     
+     IF IN-KDEKHHT NQ '401' AND IN-KDEKSHT NQ '401'                             
+       PUT TPFIL1                                                               
+     END-IF                                                                     
+  END-IF                                                                        
+A-INIT. PROC                                                                    
+   CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                     
+   AKT-SEKEL         = 20                                                       
+   AKT-AA            = D-AAR                                                    
+   AKT-MAANAD        = D-MAANAD                                                 
+   AKT-DAG           = D-DAG                                                    
+END-PROC                                                                        
+                                                                                
+*-------------------------------------------------------------------*           
+* STEG 2  SORTERA VECKANS LAGERPÅVERKANDE TRANSAR PÅ IDARTNR                    
+*-------------------------------------------------------------------*           
+                                                                                
+SORT TPFIL1 TO TPFIL1 USING (T1-IDARTNR)                                        
+                                                                                
+*-------------------------------------------------------------------*           
+* STEG 3  VÄLJ UT ALLA 3F-TRANSAR OCH SORTERA DESSA                             
+*         FÖRRA VECKOSLUTETS LAGERSALDO-ARTIKELTRANSAR                          
+*-------------------------------------------------------------------*           
+                                                                                
+SORT W51196D2 TO TPFIL4 USING (LB-IDARTNR) BEFORE SORT-INIT                     
+                                                                                
+ SORT-INIT. PROC                                                                
+  IF LB-IDDC = LDC-IT-3F                                                        
+    SELECT                                                                      
+  END-IF                                                                        
+ END-PROC                                                                       
+                                                                                
+*-------------------------------------------------------------------*           
+* STEG 4  MATCHA MED EKONOMILAGERBANDET OCH KOMPLETTERA MED SALDON              
+*-------------------------------------------------------------------*           
+                                                                                
+JOB INPUT(TPFIL4 KEY (T4-IDARTNR) TPFIL1 KEY (T1-IDARTNR))                      
+                                                                                
+                                                                                
+IF MATCHED                                                                      
+  T2-POST      = T1-POST                                                        
+  T2-KVTOT-ART = T4-KVEFRS + T4-KVAKS + T4-KVAKS-PAV + T4-KVLS                  
+ PUT TPFIL2                                                                     
+ELSE                                                                            
+  IF TPFIL1                                                                     
+    T2-POST      = T1-POST                                                      
+    PUT TPFIL2                                                                  
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+*-------------------------------------------------------------------*           
+* STEG 5  SORTERA VECKANS HÄNDELSER PER ARTIKELNR DATUM O. IDFAKT               
+*-------------------------------------------------------------------*           
+                                                                                
+SORT TPFIL2 TO TPFIL2 USING (T2-IDARTNR T2-AAAAMMDD-DOK             +           
+                     T2-AAAAMMDD-ARRI T2-IDVERNR)                               
+                                                                                
+*-------------------------------------------------------------------*           
+* STEG 6  RÄKNA FRAM LÖPANDE SALDO KVTOT-ART DAG FÖR DAG PER ART.               
+*         (ALLA TRANSAR HAR MED SIG ARTIKELNS TOTALA SALDO VID                  
+*         VECKOBÖRJAN  I FÄLTET KVTOT-ART)                                      
+*-------------------------------------------------------------------*           
+                                                                                
+JOB INPUT(TPFIL2)                                                               
+                                                                                
+  IF T2-IDARTNR NQ W-IDARTNR                                                    
+    W-IDARTNR      = T2-IDARTNR                                                 
+    W-KVTOT-ART    = T2-KVTOT-ART                                               
+  END-IF                                                                        
+                                                                                
+  T3-POST          = T2-POST                                                    
+  W-IDLOPNR        = W-IDLOPNR + 1                                              
+  T3-IDLOPNR       = W-IDLOPNR                                                  
+  W-KVTOT-ART = W-KVTOT-ART + T3-KVDEB - T3-KVKRE                               
+  T3-KVTOT-ART     = W-KVTOT-ART                                                
+                                                                                
+  PUT TPFIL3                                                                    
+NEWPAGE                                                                         
+*-------------------------------------------------------------------*           
+* STEG 7  SORTERA VECKANS HÄNDELSER PÅ DATUM, IDFAKT, ARTNR, LOPNR              
+*-------------------------------------------------------------------*           
+                                                                                
+SORT TPFIL3 TO TPFIL3 USING (T3-AAAAMMDD-DOK T3-IDVERNR T3-IDARTNR +            
+                      T3-IDLOPNR)                                               
+*-------------------------------------------------------------------*           
+* STEG 8  LÄGGER UT DOKUMENTNUMMER (LÖPANDE UNDER ÅRET)                         
+*         VÄNDER PÅ DATUMFÄLTEN ÅÅMMDD -> DDMMÅÅ                                
+*-------------------------------------------------------------------*           
+                                                                                
+JOB INPUT(TPFIL3) START 12-INIT FINISH 12-FINIT                                 
+                                                                                
+  IF T3-IDVERNR EQ 0 OR T3-IDVERNR NQ W-IDVERNR                                 
+    W-IDVERNR    = T3-IDVERNR                                                   
+    W-DOKNR      = W-DOKNR + 1                                                  
+    T3-DOKNR     = W-DOKNR                                                      
+  ELSE                                                                          
+    T3-DOKNR     = 0                                                            
+  END-IF                                                                        
+                                                                                
+  UT-IDVEKIT1      = T3-IDVERNR                                                 
+                                                                                
+***  VÄND PÅ DATUM                                                              
+  W1-DAAAMMDD      = T3-AAAAMMDD-DOK                                            
+  WD-TIAA          = W1-TIAA                                                    
+  WD-TIMM          = W1-TIMM                                                    
+  WD-TIDD          = W1-TIDD                                                    
+  UT-TIDATUM-DOK   = WD-TIDDMMAA                                                
+                                                                                
+***  VÄND PÅ DATUM HÄR OCKSÅ                                                    
+  W1-DAAAMMDD      = T3-AAAAMMDD-ARRI                                           
+  WA-TIAA          = W1-TIAA                                                    
+  WA-TIMM          = W1-TIMM                                                    
+  WA-TIDD          = W1-TIDD                                                    
+  UT-TIDATUM-ARRI  = WA-TIDDMMAA                                                
+                                                                                
+  UT-IDDOKNR      = T3-DOKNR                                                    
+  UT-IDARTNR      = T3-IDARTNR                                                  
+  UT-KVANTAL-DEB  = T3-KVDEB                                                    
+  UT-KVANTAL-KRE  = T3-KVKRE                                                    
+  UT-KVANTAL-TOT  = T3-KVTOT-ART                                                
+  UT-TEANMDOK     = T3-DESCR                                                    
+  PUT W51196D4                                                                  
+                                                                                
+NEWPAGE                                                                         
+12-INIT. PROC                                                                   
+**  LÄS FÖRRA VECKANS SISTA LÖPNUMMER                                           
+   GET W51196D3                                                                 
+   IF D-VECKA = 1                                                               
+     W-DOKNR         = 0                                                        
+     DISPLAY 'ÅRETS FÖRSTA DOKUMENTNUMMER = 1'                                  
+   ELSE                                                                         
+     W-DOKNR         = DOKUMENT-NR-IN                                           
+     DISPLAY 'FÖREGÅENDE DOKUMENTNR.   : ' W-DOKNR                              
+   END-IF                                                                       
+   W-IDVERNR         = 0                                                        
+END-PROC                                                                        
+                                                                                
+12-FINIT. PROC                                                                  
+**  SKRIV VECKANS SISTA LÖPNUMMER                                               
+   DOK-UT-POST       = DOK-IN-POST                                              
+   DOKUMENT-NR-UT    = W-DOKNR                                                  
+   PUT W51196D5                                                                 
+   DISPLAY 'VECKANS SISTA DOKUMENTNR : ' W-DOKNR                                
+END-PROC                                                                        

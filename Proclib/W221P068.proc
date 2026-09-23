@@ -1,0 +1,56 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄGGER UPP BUYERKOD SAMT REFILLKÖPTABELL                                   
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W221V4                                         
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W22168    NORMAL                                             
+//*                LÄSER        WDB6                                            
+//*                             WDL7                                            
+//*                             WDL8                                            
+//*                             WDD5                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W221P068 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W271..W221V4,                                             
+//             INDUT=&W221..W221V4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W22168   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W22168,W22168,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//WDL7     INCLUDE MEMBER=WDL7                                                  
+//WDL8     INCLUDE MEMBER=WDL8                                                  
+//WDD5     INCLUDE MEMBER=WDD5                                                  
+//W22168D1 DD  DSN=&INDIN..W27177(+0),DISP=SHR                                  
+//*                                                                             
+//W22168D2 DD  DSN=&&W22168,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W221PD68),DISP=SHR                         
+//SORTIN   DD  DSN=&&W22168,DISP=(OLD,PASS,DELETE)                              
+//************ WDK601 IDARTNR AND KDANSKSEG                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W22168(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ WDK601 IDARTNR AND KDANSKSEG SORT BY IDARTNR                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             

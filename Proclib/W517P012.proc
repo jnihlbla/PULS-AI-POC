@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      VECKORAPPORT                                                 *         
+//*                                                                   *         
+//*      SKAPAR FIL TILL SUMMERINGSPROGRAM W51716,                    *         
+//*                 MED LAGERVÄRDE FÖR ALLA DC:N SAMT OKS-SALDON      *         
+//*                                                                   *         
+//*      PERIODICITET: VECKA                                          *         
+//*                                                                   *         
+//*      ÅTERSTART:    W51712   NORMAL                                *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W517P012 PROC INDIN1=&W011..LDC,                                              
+//             INDIN2=&W011..SDC,                                               
+//             INDIN3=&W011..NDC,                                               
+//             INDREG=&W011,                                                    
+//             INDREG2=&W479,                                                   
+//             INDUT=&W517..W517V1,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51712  EXEC PGM=W51712                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                     -- ABEND           
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                     -- ABEND           
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     (POSTSUM)           
+//W51712D1 DD  DSN=&INDREG..W01177(+0),DISP=SHR                                 
+//************** LAGERBANDET CDC                                    ***         
+//*                                                                             
+//W51712D2 DD  DSN=&INDIN1..W01184(+0),DISP=SHR                                 
+//************** LAGERBANDEN SDC NDC OCH LDC                        ***         
+//         DD  DSN=&INDIN2..W01184(+0),DISP=SHR                                 
+//         DD  DSN=&INDIN3..W01184(+0),DISP=SHR                                 
+//*                                                                             
+//W51712D3 DD  DSN=&INDREG2..W47984(+0),DISP=SHR                                
+//************ OKS-POSTER                                                       
+//*                                                                             
+//W51712D4 DD  DSN=&INDUT..W51712(+1),DISP=(NEW,CATLG,DELETE), -LIM(01)         
+//************** ARTIKEL-SALDO-TRANSAR FÖR SUMMERING                ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  

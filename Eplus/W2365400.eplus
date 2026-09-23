@@ -1,0 +1,142 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2365400                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR TVÅ FILER, W23651 (FÖRTIDIGA LEVRANSER) OCH   *        
+*                OCH W23653 (INLEVERANS UTAN AVROP).                   *        
+*                SKRIVER LISTA.                                        *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFAN KIHLBERG                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W23654D1                                                                   
+*                                                                               
+%W23650    'FIL1-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W23654D2                                                                   
+*                                                                               
+%W23653    'FIL2-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W23654D3 PRINTER FB (121 121)                                              
+                                                                                
+*-------------*                                                                 
+* ARBETSFÄLT  *                                                                 
+*-------------*                                                                 
+*                                                                               
+   EXD-IDANSK         W   3   N       MASK (E '999')                            
+   UT-IDANSK          W   3   N                                                 
+   UT-IDLEVNR         W   5   A                                                 
+   UT-IDARTNR         W   8   N       MASK (B 'ZZZZZZZ9')                       
+   UT-KVANT           W   7   N       MASK (C 'ZZZZZZ9')                        
+   UT-VAERDE          W   9   N   2   MASK (D 'ZZZZZZ9.99-')                    
+   UT-TIAVROP-DISP    W   4   N       MASK BWZ                                  
+   UT-TIAVROP-INL     W   4   N       MASK BWZ                                  
+   UT-RAENTE-VAERDE   W   9   N   2   MASK (G BWZ 'ZZZZZZ9.99-')                
+   UT-TIANKDAG        W   6   N       MASK (F BWZ '999999')                     
+   UT-EMIL            W   1   A                                                 
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. MATCHAR FILERNA W23651 OCH W23653                                     
+*                                                                               
+JOB INPUT (W23654D1 KEY (FIL1-IDANSK, FIL1-IDLEVNR, FIL1-IDARTNR)  +            
+           W23654D2  KEY (FIL2-IDANSK, FIL2-IDLEVNR, FIL2-IDARTNR))             
+                                                                                
+IF MATCHED                                                                      
+   PERFORM BEHANDLA-FIL1                                                        
+   PRINT LISTA1                                                                 
+   PERFORM BEHANDLA-FIL2                                                        
+   PRINT LISTA1                                                                 
+ELSE                                                                            
+   IF W23654D1                                                                  
+      PERFORM BEHANDLA-FIL1                                                     
+      PRINT LISTA1                                                              
+   END-IF                                                                       
+   IF W23654D2                                                                  
+      PERFORM BEHANDLA-FIL2                                                     
+      PRINT LISTA1                                                              
+   END-IF                                                                       
+END-IF                                                                          
+                                                                                
+BEHANDLA-FIL1. PROC                                                             
+   EXD-IDANSK       = FIL1-IDANSK                                               
+   UT-IDANSK        = FIL1-IDANSK                                               
+   UT-IDLEVNR       = FIL1-IDLEVNR                                              
+   UT-IDARTNR       = FIL1-IDARTNR                                              
+   UT-KVANT         = FIL1-KVAVROP                                              
+   UT-VAERDE        = FIL1-VAERDE                                               
+   UT-TIAVROP-DISP  = FIL1-TIAVROP-DISP                                         
+   UT-TIAVROP-INL   = FIL1-TIAVROP-INL                                          
+   UT-RAENTE-VAERDE = FIL1-RAENTE-VAERDE                                        
+   UT-TIANKDAG      = 0                                                         
+   UT-EMIL          = FIL1-KDEFFMAN                                             
+END-PROC                                                                        
+                                                                                
+BEHANDLA-FIL2. PROC                                                             
+   EXD-IDANSK       = FIL2-IDANSK                                               
+   UT-IDANSK        = FIL2-IDANSK                                               
+   UT-IDLEVNR       = FIL2-IDLEVNR                                              
+   UT-IDARTNR       = FIL2-IDARTNR                                              
+   UT-KVANT         = FIL2-KVAVIS                                               
+   UT-VAERDE        = FIL2-VAERDE                                               
+   UT-TIAVROP-DISP  = 0                                                         
+   UT-TIAVROP-INL   = 0                                                         
+   UT-RAENTE-VAERDE = 0                                                         
+   UT-TIANKDAG      = FIL2-TIANKDAG                                             
+   UT-EMIL          = FIL2-KDEFFMAN                                             
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+*-------------*                                                                 
+* REPORT01    *                                                                 
+*-------------*                                                                 
+*                                                                               
+  REPORT LISTA1 PRINTER W23654D3 LINESIZE 120 +                                 
+         NOADJUST SPACE 5 NODATE TITLESKIP 2 SKIP 1                             
+    CONTROL FINAL NOPRINT UT-IDANSK NEWPAGE NOPRINT RENUM                       
+*                                                                               
+    TITLE 1 COL 001 ' '                                                         
+*                                                                               
+    TITLE 2 COL 002 'VOLVO PARTS' COL 20 'W23654-001'             +             
+            COL 032 'INLEVERANS UTAN AVROP / FÖRTIDIG INLEVERANS' +             
+            COL 080 'ANSK'                                        +             
+            COL 086 EXD-IDANSK                                    +             
+            COL 093 'DATUM '                                      +             
+            COL 100 SYSDATE                                                     
+*                                                                               
+    TITLE 3 COL 001 ' '                                                         
+*                                                                               
+    TITLE 4 COL 001 ' '                                                         
+*                                                                               
+    TITLE 5 COL 056 'INLEV'                          +                          
+            COL 069 'FÖRTIDIG INLEVERANS'                                       
+*                                                                               
+    TITLE 6 COL 056 'UTAN AVROP'                                                
+*                                                                               
+    HEADING UT-IDLEVNR        ' LEVNR'                                          
+    HEADING UT-IDARTNR        '  ARTNR'                                         
+    HEADING UT-KVANT          '  KVANT'                                         
+    HEADING UT-VAERDE         '  VÄRDE'                                         
+    HEADING UT-TIANKDAG       ('ANKOMSTDAG' 'ÅÅVVD')                            
+    HEADING UT-TIAVROP-DISP   ('ANKOMMANDE-' 'VECKA')                           
+    HEADING UT-TIAVROP-INL    ('PLANERAD-' 'VECKA')                             
+    HEADING UT-RAENTE-VAERDE   '  RÄNTA'                                        
+    HEADING UT-EMIL            'E'                                              
+    LINE 01 UT-IDLEVNR UT-IDARTNR UT-KVANT UT-VAERDE       +                    
+            UT-TIANKDAG                                    +                    
+            UT-TIAVROP-DISP  UT-TIAVROP-INL UT-RAENTE-VAERDE +                  
+            UT-EMIL                                                             
+*                                                                               

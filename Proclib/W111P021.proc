@@ -1,0 +1,37 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  ERSÄTTNINGSBEVAKNING - UPPDATERING AV HÄNDELSEBASER                        
+//*                                                                             
+//*  FREQUENCE:    DAILY    RTN W111D1                                          
+//*                                                                             
+//*  RESTART:      W11121    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W111P021 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W111..W111D1,                                             
+//             INDUT=&W111..W111D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11121   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('BMP,W11121,W11121,,,N00,,,,,&CPU,,,&IMS')                 
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W11121D1 DD  DSN=&INDIN..W11118(+0),DISP=SHR                                  
+//************ UPPDATERINGSTRANSAR                                              
+//*                                                                             
+//W11121D2 DD  DSN=&INDUT..W11118(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//************ OBEHANDLADE UPPDATERINGSTRANSAR                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               

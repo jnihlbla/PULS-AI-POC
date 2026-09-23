@@ -1,0 +1,66 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LEVERANSPLANER TILL ODETTE                                                 
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W221D5                                            
+//*                                                                             
+//*  ÅTERSTART:    SORT      NORMAL                                             
+//*                W22160    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W221P160 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W221..W221D5,                                             
+//             INDIN2=&W221..W221D2,                                            
+//             CPU=1,                                                           
+//             INDUT=&W221..W221D5,                                             
+//             INDUT2=&W221..W221D2                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W221PD60),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W22181(+0),DISP=SHR                                  
+//************ INPUT TILL LEVERANSPLANER VIA ODETTE                             
+//*                                                                             
+//SORTOUT  DD  DSN=&&W22181,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD INPUT TILL ODETTE                                       
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22160   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W22160,W22160,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W22160D1 DD  DSN=&&W22181,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD INPUT TILL ODETTE                                       
+//*                                                                             
+//W22160D2 DD  DSN=&INDIN2..W22161(+0),DISP=SHR                                 
+//************ REGISTER IN                                                      
+//*                                                                             
+//W22160D3 DD DSN=&INDUT2..W22161(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ REGISTER UT                                                      
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//W22160D4 DD  DSN=&INDUT..W22160(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL TILL ODETTE                                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//W22160D5 DD  DSN=&INDUT..W22160B(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ FIL TILL TMS                                                     
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,527 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                               
+*  SYSTEM     :  W513   INVENTERINGEN                                           
+*                                                                               
+*  FÖRFATTARE :  KARL JOHAN                                                     
+*                                                                               
+*  INFIL      :  W513.W513D1.W51326(+0)                                         
+*                                                                               
+*  FUNKTION   :  SKAPAR LISTA W51355-021 INV.JUST DC 21                         
+*                SKAPAR LISTA W51355-024 INV.JUST DC 24                         
+*                SKAPAR LISTA W51355-025 INV.JUST DC 25                         
+*                SKAPAR LISTA W51355-026 INV.JUST DC 26                         
+*                SKAPAR LISTA W51355-061 INV.JUST DC 61                         
+*                SKAPAR LISTA W51355-062 INV.JUST DC 62                         
+*                SKAPAR FIL W51355 INV.JUST FÖR ALLA DC:N                       
+*                SKAPAR FILER TILL ONDEMAND INV.JUST ALLA DC:N                  
+*                SKAPAR FIL W51356 ADJ>5000 DAP REPORT                          
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W51355D1                                                                   
+%W5132601 'IN-'                                                                 
+                                                                                
+FILE W51355D3 PRINTER FB(121 0)                                                 
+*DC 21                                                                          
+FILE W51355D5 PRINTER FB(121 0)                                                 
+*DC 24                                                                          
+FILE W51355D6 PRINTER FB(121 0)                                                 
+*DC 25                                                                          
+FILE W51355D7 PRINTER FB(121 0)                                                 
+*DC 26                                                                          
+FILE W51355D8 PRINTER FB(121 0)                                                 
+*DC 61                                                                          
+FILE W51355D9 PRINTER FB(121 0)                                                 
+*DC 62                                                                          
+FILE W51355DA PRINTER VB(125 0)                                                 
+*DC 4X                                                                          
+                                                                                
+* WEBFIL FÖR ALLA DC (FIL FÖR DAP). LDC-LISTORNA VASKAS                         
+* SEDAN FRAM UR DENNA FIL I FÖLJANDE PGM W5135600                               
+FILE W51355DW         FB( 56 0)                                                 
+%W513561 'UT-'                                                                  
+                                                                                
+FILE W51355DD PRINTER FB(121 0)                                                 
+*DC ON DEMAND-FIL ALLA DC:N                                                     
+FILE W51355DE PRINTER FB(121 0)                                                 
+*DC 91 ET                                                                       
+                                                                                
+FILE TEMPFIL1 FB(68 0)                                                          
+                                                                                
+T1-IDDC           1  2   A                                                      
+T1-KDPRODSL       3  3   N                                                      
+T1-ADLAGOMR       6  2   N                                                      
+T1-IDARTNR        8  5   P                                                      
+T1-BEART         13  15  A                                                      
+T1-VAL-D         28  9   N 2                                                    
+T1-VAL-U         37  9   N 2                                                    
+T1-VAL-T         46  9   N 2                                                    
+T1-ADJ-QTY       55  7   N 0                                                    
+T1-ADJ-DATE      62  7   N 0                                                    
+                                                                                
+NEWPAGE                                                                         
+%WDATKORT                                                                       
+NEWPAGE                                                                         
+                                                                                
+  W-PGMNAMN    W  6   A    VALUE 'W51355'                                       
+  W-WDATUM     W  6   A    VALUE 'WDATUM'                                       
+  W-IDDC       W  2   A                                                         
+  O-IDDC       W  2   A                                                         
+                                                                                
+  W-KVJUSTKV   W  4   P 0  MASK '------9' HEADING('   ADJ.QTY ')                
+                                                                                
+  W-ADLAGOMR   W  2   P 0  HEADING('AREA')                                      
+  W-IDARTNR    W  5   P    HEADING('   PARTNO')                                 
+  W-BENAEMNING W 15   A    HEADING('DESCRIPTION    ')                           
+  W-JUST-DATUM W  4   P    HEADING(' ADJ. DATE')                                
+                                                                                
+  W-DATUM          W  6   N                                                     
+  W-AAR  W-DATUM       2  N                                                     
+  W-MM   W-DATUM   +2  2  N                                                     
+  W-DD   W-DATUM   +4  2  N                                                     
+                                                                                
+  W-AAVV       W  4   N                                                         
+  W-AA W-AAVV  2      N                                                         
+  W-VV W-AAVV  +2 2   N                                                         
+                                                                                
+  W-AAVV-NUM   W  4   N                                                         
+                                                                                
+  W-VARDE-UPP  W  9   N 2  HEADING('      UP ADJUST') MASK BWZ                  
+  W-VARDE-NED  W  9   N 2  HEADING('    DOWN ADJUST') MASK BWZ                  
+  W-VARDE      W  9   N 2  HEADING('           NET')  MASK BWZ                  
+  W-KDPRODSL   W  3   N 0  HEADING('PCODE')  MASK BWZ                           
+  W-PAGE       W  8   A    VALUE '    PAGE'                                     
+                                                                                
+  W-TIM-INV    W  6   N 0  VALUE 0                                              
+                                                                                
+  W-SEM          W  1   A    VALUE ';'                                          
+  W-PREV-IDDC    W  2   A                                                       
+  W-ADJ-QTY      W  7   N    MASK '------9'                                     
+  W-ADLAGOMR-E   W  2   N    MASK 'Z9'                                          
+  W-IDARTNR-E    W  9   N    MASK 'ZZZZZZZZ9'                                   
+  W-BEART        W 15   A                                                       
+  W-ADJ-DATE     W  7   N    MASK 'ZZZZZZ9'                                     
+  W-VAL-U        W  9   N 2  MASK '------9.99'                                  
+  W-VAL-D        W  9   N 2  MASK '------9.99'                                  
+  W-VAL-T        W  9   N 2  MASK '------9.99'                                  
+  W-KDPRODSL-E   W  3   N 0  MASK 'ZZ9'                                         
+                                                                                
+%WY2000W1                                                                       
+ W-Y2K-TIM-INV W  6   N                                                         
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+NEWPAGE                                                                         
+************************                                                        
+*  JOBBET STARTAR HÄR **                                                        
+************************                                                        
+                                                                                
+JOB INPUT W51355D1 START INIT-PROC                                              
+                                                                                
+  IF IN-IDLISTA EQ 02                                                           
+                                                                                
+    W-ADLAGOMR        = IN-ADLAGOMR                                             
+    W-VARDE           = IN-KVJUSTKV * IN-PRARTSTD                               
+    W-KVJUSTKV        = IN-KVJUSTKV                                             
+    W-IDDC            = IN-IDDC                                                 
+    W-IDARTNR         = IN-IDARTNR                                              
+    W-BENAEMNING      = IN-BEART-ENG                                            
+    W-JUST-DATUM      = IN-TIM-INV                                              
+    W-KDPRODSL        = IN-KDPRODSL                                             
+                                                                                
+    T1-ADLAGOMR       = IN-ADLAGOMR                                             
+    T1-VAL-T          = IN-KVJUSTKV * IN-PRARTSTD                               
+    T1-ADJ-QTY        = IN-KVJUSTKV                                             
+    T1-IDDC           = IN-IDDC                                                 
+    T1-IDARTNR        = IN-IDARTNR                                              
+    T1-BEART          = IN-BEART-ENG                                            
+    T1-ADJ-DATE       = IN-TIM-INV                                              
+    T1-KDPRODSL       = IN-KDPRODSL                                             
+                                                                                
+    TMP1-YYMMDD       = IN-TIM-INV                                              
+    PERFORM WY2000P1                                                            
+    W-Y2K-TIM-INV     = TMP1-YYMMDD                                             
+    IF W-VARDE GT 0                                                             
+      W-VARDE-UPP     = W-VARDE                                                 
+      W-VARDE-NED     = 0                                                       
+    ELSE                                                                        
+      W-VARDE-UPP     = 0                                                       
+      W-VARDE-NED     = W-VARDE                                                 
+    END-IF                                                                      
+                                                                                
+    IF T1-VAL-T GT 0                                                            
+      T1-VAL-U        = T1-VAL-T                                                
+      T1-VAL-D        = 0                                                       
+    ELSE                                                                        
+      T1-VAL-U        = 0                                                       
+      T1-VAL-D        = T1-VAL-T                                                
+    END-IF                                                                      
+                                                                                
+    IF W-VARDE GE 5000 OR W-VARDE LE -5000                                      
+      IF W-IDDC = SDC-NL                                                        
+         PRINT RAPPORT21                                                        
+      END-IF                                                                    
+      IF W-IDDC = SDC-ES                                                        
+          PRINT RAPPORT24                                                       
+      END-IF                                                                    
+      IF W-IDDC = SDC-IT                                                        
+          PRINT RAPPORT25                                                       
+      END-IF                                                                    
+      IF W-IDDC = SDC-AT                                                        
+          PRINT RAPPORT26                                                       
+      END-IF                                                                    
+      IF W-IDDC = NDC-JP-61                                                     
+          PRINT RAPPORT61                                                       
+      END-IF                                                                    
+      IF W-IDDC = NDC-AU                                                        
+          PRINT RAPPORT62                                                       
+      END-IF                                                                    
+      IF W-IDDC = SDC-NL-ET                                                     
+         PRINT RAPPORT91                                                        
+      END-IF                                                                    
+                                                                                
+      PERFORM S23-CHECK-W-IDDC                                                  
+      IF W-IDDC = NDC-US                                                        
+         T1-IDDC = W-IDDC                                                       
+         PUT TEMPFIL1                                                           
+      END-IF                                                                    
+                                                                                
+      PERFORM SKAPA-SKRIV-WEB-FIL                                               
+                                                                                
+      O-IDDC      = W-IDDC                                                      
+      PRINT ONDEMAND                                                            
+    END-IF                                                                      
+  END-IF                                                                        
+NEWPAGE                                                                         
+                                                                                
+*    --- S23-CHECK-W-IDDC (MACRO PROCEDURE)                                     
+%WWDC02 'W-'                                                                    
+*                                                                               
+INIT-PROC. PROC                                                                 
+    CALL DATKORT USING (W-PGMNAMN W-WDATUM DATUMKORT)                           
+    W-AAR  = D-AAR                                                              
+    W-MM   = D-MAANAD                                                           
+    W-DD   = D-DAG                                                              
+    W-AA   = D-AAR                                                              
+    W-VV   = D-VECKA                                                            
+END-PROC                                                                        
+SKAPA-SKRIV-WEB-FIL. PROC                                                       
+  UT-IDAFPRCD    = '1'                                                          
+  UT-IDDC        = W-IDDC                                                       
+  UT-TIAAVV      = W-AAVV                                                       
+  UT-IDARTNR     = W-IDARTNR                                                    
+  UT-BEART       = W-BENAEMNING                                                 
+  UT-TIINVDAT    = W-JUST-DATUM                                                 
+  UT-ADLAGOMR    = W-ADLAGOMR                                                   
+  UT-KVJUSTKV    = W-KVJUSTKV                                                   
+  UT-KDPRODSL    = W-KDPRODSL                                                   
+  PUT W51355DW                                                                  
+END-PROC                                                                        
+*                                                                               
+%WY2000P1                                                                       
+*                                                                               
+NEWPAGE                                                                         
+******************                                                              
+*  RAPPORT SDC 21                                                               
+******************                                                              
+                                                                                
+REPORT RAPPORT21 PRINTER W51355D3 +                                             
+     SKIP 1 LINESIZE 120 NODATE NOSPREAD NOADJUST                               
+                                                                                
+SEQUENCE IN-IDDC IN-IDARTNR                                                     
+CONTROL FINAL NOPRINT W-IDDC NEWPAGE NOPRINT                                    
+                                                                                
+SUM W-VARDE-UPP   W-VARDE-NED   W-VARDE                                         
+                                                                                
+TITLE 1 COL   1 'VCCS          W51355-021   WEEK REPORT'            +           
+        COL  45 'ADJUSTMENTS   > 5000 SEK  WEEK'                    +           
+        COL  76 W-AAVV                                              +           
+        COL  97 W-DATUM                                             +           
+        COL 105 W-PAGE                                                          
+                                                                                
+TITLE 3 COL 10 'DC ' IN-IDDC                                                    
+                                                                                
+LINE COL  1 W-IDARTNR                            +                              
+     COL 13 W-BENAEMNING                         +                              
+     COL 31 W-JUST-DATUM                         +                              
+     COL 44 W-ADLAGOMR                           +                              
+     COL 49 W-KVJUSTKV                           +                              
+     COL 61 W-VARDE-UPP                          +                              
+     COL 77 W-VARDE-NED                          +                              
+     COL 94 W-VARDE                              +                              
+     COL 111 W-KDPRODSL                                                         
+NEWPAGE                                                                         
+******************                                                              
+*  RAPPORT SDC 24                                                               
+******************                                                              
+                                                                                
+REPORT RAPPORT24 PRINTER W51355D5 +                                             
+     SKIP 1 LINESIZE 120 NODATE NOSPREAD NOADJUST                               
+                                                                                
+SEQUENCE IN-IDDC IN-IDARTNR                                                     
+CONTROL FINAL NOPRINT W-IDDC NEWPAGE NOPRINT                                    
+                                                                                
+SUM W-VARDE-UPP   W-VARDE-NED   W-VARDE                                         
+                                                                                
+TITLE 1 COL   1 'VCCS          W51355-024   WEEK REPORT'            +           
+        COL  45 'ADJUSTMENTS   > 5000 SEK  WEEK'                    +           
+        COL  76 W-AAVV                                              +           
+        COL  97 W-DATUM                                             +           
+        COL 105 W-PAGE                                                          
+                                                                                
+TITLE 3 COL 10 'DC ' IN-IDDC                                                    
+                                                                                
+LINE COL  1 W-IDARTNR                            +                              
+     COL 13 W-BENAEMNING                         +                              
+     COL 31 W-JUST-DATUM                         +                              
+     COL 44 W-ADLAGOMR                           +                              
+     COL 49 W-KVJUSTKV                           +                              
+     COL 61 W-VARDE-UPP                          +                              
+     COL 77 W-VARDE-NED                          +                              
+     COL 94 W-VARDE                              +                              
+     COL 111 W-KDPRODSL                                                         
+NEWPAGE                                                                         
+******************                                                              
+*  RAPPORT SDC 25                                                               
+******************                                                              
+                                                                                
+REPORT RAPPORT25 PRINTER W51355D6 +                                             
+     SKIP 1 LINESIZE 120 NODATE NOSPREAD NOADJUST                               
+                                                                                
+SEQUENCE IN-IDDC IN-IDARTNR                                                     
+CONTROL FINAL NOPRINT W-IDDC NEWPAGE NOPRINT                                    
+                                                                                
+SUM W-VARDE-UPP   W-VARDE-NED   W-VARDE                                         
+                                                                                
+TITLE 1 COL   1 'VCCS          W51355-025   WEEK REPORT'            +           
+        COL  45 'ADJUSTMENTS   > 5000 SEK  WEEK'                    +           
+        COL  76 W-AAVV                                              +           
+        COL  97 W-DATUM                                             +           
+        COL 105 W-PAGE                                                          
+                                                                                
+TITLE 3 COL 10 'DC ' IN-IDDC                                                    
+                                                                                
+LINE COL  1 W-IDARTNR                            +                              
+     COL 13 W-BENAEMNING                         +                              
+     COL 31 W-JUST-DATUM                         +                              
+     COL 44 W-ADLAGOMR                           +                              
+     COL 49 W-KVJUSTKV                           +                              
+     COL 61 W-VARDE-UPP                          +                              
+     COL 77 W-VARDE-NED                          +                              
+     COL 94 W-VARDE                              +                              
+     COL 111 W-KDPRODSL                                                         
+NEWPAGE                                                                         
+******************                                                              
+*  RAPPORT SDC 26                                                               
+******************                                                              
+                                                                                
+REPORT RAPPORT26 PRINTER W51355D7 +                                             
+     SKIP 1 LINESIZE 120 NODATE NOSPREAD NOADJUST                               
+                                                                                
+SEQUENCE IN-IDDC IN-IDARTNR                                                     
+CONTROL FINAL NOPRINT W-IDDC NEWPAGE NOPRINT                                    
+                                                                                
+SUM W-VARDE-UPP   W-VARDE-NED   W-VARDE                                         
+                                                                                
+TITLE 1 COL   1 'VCCS          W51355-026   WEEK REPORT'            +           
+        COL  45 'ADJUSTMENTS   > 5000 SEK  WEEK'                    +           
+        COL  76 W-AAVV                                              +           
+        COL  97 W-DATUM                                             +           
+        COL 105 W-PAGE                                                          
+                                                                                
+TITLE 3 COL 10 'DC ' IN-IDDC                                                    
+                                                                                
+LINE COL  1 W-IDARTNR                            +                              
+     COL 13 W-BENAEMNING                         +                              
+     COL 31 W-JUST-DATUM                         +                              
+     COL 44 W-ADLAGOMR                           +                              
+     COL 49 W-KVJUSTKV                           +                              
+     COL 61 W-VARDE-UPP                          +                              
+     COL 77 W-VARDE-NED                          +                              
+     COL 94 W-VARDE                              +                              
+     COL 111 W-KDPRODSL                                                         
+NEWPAGE                                                                         
+******************                                                              
+*  RAPPORT SDC 61                                                               
+******************                                                              
+                                                                                
+REPORT RAPPORT61 PRINTER W51355D8 +                                             
+     SKIP 1 LINESIZE 120 NODATE NOSPREAD NOADJUST                               
+                                                                                
+SEQUENCE IN-IDDC IN-IDARTNR                                                     
+CONTROL FINAL NOPRINT W-IDDC NEWPAGE NOPRINT                                    
+                                                                                
+SUM W-VARDE-UPP   W-VARDE-NED   W-VARDE                                         
+                                                                                
+TITLE 1 COL   1 'VCCS          W51355-061   WEEK REPORT'            +           
+        COL  45 'ADJUSTMENTS   > 5000 SEK  WEEK'                    +           
+        COL  76 W-AAVV                                              +           
+        COL  97 W-DATUM                                             +           
+        COL 105 W-PAGE                                                          
+                                                                                
+TITLE 3 COL 10 'DC ' IN-IDDC                                                    
+                                                                                
+LINE COL  1 W-IDARTNR                            +                              
+     COL 13 W-BENAEMNING                         +                              
+     COL 31 W-JUST-DATUM                         +                              
+     COL 44 W-ADLAGOMR                           +                              
+     COL 49 W-KVJUSTKV                           +                              
+     COL 61 W-VARDE-UPP                          +                              
+     COL 77 W-VARDE-NED                          +                              
+     COL 94 W-VARDE                              +                              
+     COL 111 W-KDPRODSL                                                         
+NEWPAGE                                                                         
+******************                                                              
+*  RAPPORT SDC 62                                                               
+******************                                                              
+                                                                                
+REPORT RAPPORT62 PRINTER W51355D9 +                                             
+     SKIP 1 LINESIZE 120 NODATE NOSPREAD NOADJUST                               
+                                                                                
+SEQUENCE IN-IDDC IN-IDARTNR                                                     
+CONTROL FINAL NOPRINT W-IDDC NEWPAGE NOPRINT                                    
+                                                                                
+SUM W-VARDE-UPP   W-VARDE-NED   W-VARDE                                         
+                                                                                
+TITLE 1 COL   1 'VCCS          W51355-062   WEEK REPORT'            +           
+        COL  45 'ADJUSTMENTS   > 5000 SEK  WEEK'                    +           
+        COL  76 W-AAVV                                              +           
+        COL  97 W-DATUM                                             +           
+        COL 105 W-PAGE                                                          
+                                                                                
+TITLE 3 COL 10 'DC ' IN-IDDC                                                    
+                                                                                
+LINE COL  1 W-IDARTNR                            +                              
+     COL 13 W-BENAEMNING                         +                              
+     COL 31 W-JUST-DATUM                         +                              
+     COL 44 W-ADLAGOMR                           +                              
+     COL 49 W-KVJUSTKV                           +                              
+     COL 61 W-VARDE-UPP                          +                              
+     COL 77 W-VARDE-NED                          +                              
+     COL 94 W-VARDE                              +                              
+     COL 111 W-KDPRODSL                                                         
+NEWPAGE                                                                         
+**************************                                                      
+*  RAPPORT TILL ONDEMAND *                                                      
+**************************                                                      
+                                                                                
+REPORT ONDEMAND  PRINTER W51355DD +                                             
+   LINESIZE 120 NODATE  NOADJUST NOPAGE PAGESIZE 999                            
+                                                                                
+SEQUENCE O-IDDC IN-IDARTNR                                                      
+CONTROL FINAL NOPRINT O-IDDC NEWPAGE                                            
+                                                                                
+SUM W-VARDE-UPP   W-VARDE-NED   W-VARDE                                         
+                                                                                
+TITLE 1 COL   1 'W51355-0'                                          +           
+        COL   9 W-IDDC                                              +           
+        COL  20 'VCCS'                                              +           
+        COL  40 'WEEK REPORT ADJUSTMENTS > 5000 SEK WEEK'           +           
+        COL  80 W-AAVV                                              +           
+        COL  90 'DC: '                                              +           
+        COL  94 O-IDDC                                              +           
+        COL 100 'DATE: '                                            +           
+        COL 106 W-DATUM                                             +           
+                                                                                
+TITLE 3 COL 10 'DC ' O-IDDC                                                     
+                                                                                
+LINE COL  1 W-IDARTNR                            +                              
+     COL 13 W-BENAEMNING                         +                              
+     COL 31 W-JUST-DATUM                         +                              
+     COL 44 W-ADLAGOMR                           +                              
+     COL 49 W-KVJUSTKV                           +                              
+     COL 61 W-VARDE-UPP                          +                              
+     COL 77 W-VARDE-NED                          +                              
+     COL 94 W-VARDE                              +                              
+     COL 111 W-KDPRODSL                                                         
+**********************                                                          
+*  RAPPORT SDC 91 ET                                                            
+**********************                                                          
+                                                                                
+REPORT RAPPORT91 PRINTER W51355DE +                                             
+     SKIP 1 LINESIZE 120 NODATE NOSPREAD NOADJUST                               
+                                                                                
+SEQUENCE IN-IDDC IN-IDARTNR                                                     
+CONTROL FINAL NOPRINT W-IDDC NEWPAGE NOPRINT                                    
+                                                                                
+SUM W-VARDE-UPP   W-VARDE-NED   W-VARDE                                         
+                                                                                
+TITLE 1 COL   1 'VCCS          W51355-091   WEEK REPORT'            +           
+        COL  45 'ADJUSTMENTS   > 5000 SEK  WEEK'                    +           
+        COL  76 W-AAVV                                              +           
+        COL  97 W-DATUM                                             +           
+        COL 105 W-PAGE                                                          
+                                                                                
+TITLE 3 COL 10 'DC ' '91'                                                       
+                                                                                
+LINE COL  1 W-IDARTNR                            +                              
+     COL 13 W-BENAEMNING                         +                              
+     COL 31 W-JUST-DATUM                         +                              
+     COL 44 W-ADLAGOMR                           +                              
+     COL 49 W-KVJUSTKV                           +                              
+     COL 61 W-VARDE-UPP                          +                              
+     COL 77 W-VARDE-NED                          +                              
+     COL 94 W-VARDE                              +                              
+     COL 111 W-KDPRODSL                                                         
+***************************************************                             
+* SORTAR UTFILEN PÅ DC                            *                             
+***************************************************                             
+SORT W51355DW TO W51355DW USING (UT-IDDC)                                       
+***************************************************                             
+NEWPAGE                                                                         
+                                                                                
+SORT TEMPFIL1 TO TEMPFIL1 USING (T1-IDDC, T1-IDARTNR)                           
+JOB INPUT TEMPFIL1                                                              
+                                                                                
+    W-IDARTNR-E   = T1-IDARTNR                                                  
+    W-BEART       = T1-BEART                                                    
+    W-ADJ-DATE    = T1-ADJ-DATE                                                 
+    W-ADLAGOMR-E  = T1-ADLAGOMR                                                 
+    W-ADJ-QTY     = T1-ADJ-QTY                                                  
+    W-VAL-U       = T1-VAL-U                                                    
+    W-VAL-D       = T1-VAL-D                                                    
+    W-VAL-T       = T1-VAL-T                                                    
+    W-KDPRODSL-E  = T1-KDPRODSL                                                 
+    PRINT RAPPORT4X                                                             
+                                                                                
+************************************************************************        
+*** LIST FOR NDC-US DC 4X - SENT TO D&P                                         
+************************************************************************        
+REPORT   RAPPORT4X            +                                                 
+         PRINTER W51355DA     +                                                 
+         LINESIZE 120         +                                                 
+         SPACE 0              +                                                 
+         NOHEADING            +                                                 
+         NOSPREAD             +                                                 
+         NOADJUST             +                                                 
+         PAGESIZE 32767       +                                                 
+         NODATE                                                                 
+LINE  1  W-IDARTNR-E          +                                                 
+         W-SEM                +                                                 
+         W-BEART              +                                                 
+         W-SEM                +                                                 
+         W-ADJ-DATE           +                                                 
+         W-SEM                +                                                 
+         W-ADLAGOMR-E         +                                                 
+         W-SEM                +                                                 
+         W-ADJ-QTY            +                                                 
+         W-SEM                +                                                 
+         W-VAL-U              +                                                 
+         W-SEM                +                                                 
+         W-VAL-D              +                                                 
+         W-SEM                +                                                 
+         W-VAL-T              +                                                 
+         W-SEM                +                                                 
+         W-KDPRODSL-E                                                           
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF T1-IDDC NE W-PREV-IDDC                                                      
+   DISPLAY '¤DAPWEEKLY-ADJ>5000'                                                
+   DISPLAY '¤DAP' T1-IDDC                                                       
+   DISPLAY 'PARTNO;DESCRIPTION;ADJ. DATE;AREA;ADJ.QTY;' +                       
+           'UP ADJUST;DOWN ADJUST;NET;PCODE;'                                   
+   W-PREV-IDDC = T1-IDDC                                                        
+ END-IF                                                                         
+END-PROC                                                                        

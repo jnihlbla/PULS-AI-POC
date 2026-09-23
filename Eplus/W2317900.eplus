@@ -1,0 +1,74 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2317900                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET MATCHAR W91042 MED W23177 (NEDLÄST WDK9)   *        
+*                SKAPAR UTFIL W23179                                   *        
+*                EN POST/ARTIKEL FÖR BERÄKNING AV LAGERSALDO           *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL                                         *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W23179D1                                                                   
+%W91042  'IN1-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W23179D2                                                                   
+%W23177EE  'IN2-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W23179D3 FB (32 0)                                                         
+%W23179EE  'UT-'                                                                
+                                                                                
+* ARBETSAREOR                                                                   
+W-KORNINGSDATUM W 4 N                                                           
+*                                                                               
+PROGRAMNAMN  W 6 A VALUE 'W23179'                                               
+DATUMKORT-ID W 6 A VALUE 'WDATUM'                                               
+%WDATKORT                                                                       
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+JOB INPUT (W23179D1 KEY IN1-IDARTNR W23179D2 KEY IN2-IDARTNR) START INIT        
+*                                                                               
+IF MATCHED                                                                      
+   IF IN1-KDERS    < 20                                                         
+      UT-IDARTNR   = IN1-IDARTNR                                                
+      UT-TIAAVV    = W-KORNINGSDATUM                                            
+      UT-KVLS-C1   = IN1-KVLS                                                   
+      UT-KVLS-C2   = 0                                                          
+      UT-KVRESS-C1 = IN1-KVRESS                                                 
+      UT-KVRESS-C2 = 0                                                          
+      UT-KVOKS-C1  = IN2-KVOKS-C1                                               
+      UT-KVOKS-C2  = 0                                                          
+      PUT W23179D3                                                              
+    END-IF                                                                      
+ELSE                                                                            
+    IF W23179D1                                                                 
+       IF IN1-KDERS    < 20                                                     
+          UT-IDARTNR   = IN1-IDARTNR                                            
+          UT-TIAAVV    = W-KORNINGSDATUM                                        
+          UT-KVLS-C1   = IN1-KVLS                                               
+          UT-KVLS-C2   = 0                                                      
+          UT-KVRESS-C1 = IN1-KVRESS                                             
+          UT-KVRESS-C2 = 0                                                      
+          MOVE ZERO TO UT-KVOKS-C1                                              
+          MOVE ZERO TO UT-KVOKS-C2                                              
+          PUT W23179D3                                                          
+       END-IF                                                                   
+    END-IF                                                                      
+ END-IF                                                                         
+INIT. PROC                                                                      
+   CALL DATKORT USING (PROGRAMNAMN DATUMKORT-ID DATUMKORT)                      
+   W-KORNINGSDATUM = (D-AAR * 100) + D-VECKA                                    
+END-PROC                                                                        

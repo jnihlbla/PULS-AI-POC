@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR FIL SOM SKICKAS VIA D&P                                             
+//*  TILL LAGERANSVARIG DÅ ERSÄTTANDE ARTIKEL                                   
+//*  REDAN ÄR RENSAD ELLER ERSATT                                               
+//*                                                                             
+//*                                                                             
+//*  FREKVENS:     DAG      RTN W271D2                                          
+//*                         RTN W271DB                                          
+//*                VECKA    RTN W271V2                                          
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P037 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W271..W271D9,                                             
+//             INDUT=&W271..W271D9                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27137   EXEC PGM=V16459,PARM='W27137/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W27137D1  DD DSN=&INDIN..W27137D2,DISP=SHR                                    
+//          DD DSN=&INDIN..W27137DB,DISP=SHR                                    
+//          DD DSN=&INDIN..W27137V2,DISP=SHR                                    
+//          DD DSN=&INDIN..W27131V6,DISP=SHR                                    
+//************ ARTIKLAR DÄR TILLKOMMANDE ARTIKEL REDAN ÄR ERSATT                
+//*                                                                             
+//W27137D2  DD DSN=&INDUT..W27137(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

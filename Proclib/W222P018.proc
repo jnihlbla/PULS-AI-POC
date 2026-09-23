@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*    UPPDATERING AV SATSBEHOV-PER-VECKA I SATSSTRUKTUR OCH ARTREG   *         
+//*                                                                   *         
+//*    PERIODICITET: DAG (SAMMA PGM GÅR VECKOVIS I ANNAN PROC)        *         
+//*                                                                   *         
+//*    ÅTERSTART:    NORMAL (BMP)                                               
+//*                  W22218 UPPDATERAR WDK6 WDD9 WDJ1 OCH WDJ3        *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W222P018 PROC INDIN=NULLFILE,INDUT=NULLFILE,                                  
+//             CPU=2,                                                           
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//SORT    EXEC PGM=SORT                                                         
+//SYSIN   DD   DSN=&INDRTE..CONSTANT(W222PD18),DISP=SHR                         
+//SORTIN  DD   DSN=&INDIN..W22201,DISP=SHR                                      
+//************** HÄNDELSE 2201, LEVPLAN UPPDATERAD FRÅN P014                    
+//*              ALLA GEN TAS IN PGA EV P014 KÖRD FLERA GÅNGER                  
+//*                                                                             
+//SORTOUT DD   DSN=&&W22201,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(6230,(6,9),RLSE)                                          
+//SYSOUT   DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W22218  EXEC PGM=DFSRRC00,                                                    
+//        PARM=('BMP,W22218,W22218,,,N00,,,,,&CPU,,,&IMS')                      
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//*                                                                             
+//W22218D1 DD  DSN=&&W22201,DISP=(OLD,DELETE)                                   
+//************** SORTERADE 2201 HÄNDELSER                                       
+//*                                                                             
+//W22218D2 DD  DSN=&INDUT..W22219(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************** HÄNDELSE 2204, SATSSTRUKTUR UPPDATERAD                         
+//             SPACE=(6226,(20,40),RLSE),                                       
+//             MGMTCLAS=&NOBACKUP                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TOMDEL  EXEC WEMPDEL,DSIN=&INDUT..W22219(+1)                                  

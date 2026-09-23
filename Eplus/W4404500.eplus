@@ -1,0 +1,75 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W44045                                                *        
+*                                                                      *        
+*  FUNKTION   :  FÖR ATT SKAPA FIL TILL LISTPROGRAM (LDC)              *        
+*                                                                      *        
+*                                                                      *        
+*  FÖRFATTARE :  JAN PETTERSSON                                        *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W44045D1                                                                   
+%W44060                                                                         
+                                                                                
+FILE W44045D2                                                                   
+%W91042    'LB-'                                                                
+                                                                                
+FILE W44045D3   FB(62 0)                                                        
+%W44046    'U1-'                                                                
+                                                                                
+FILE TFIL01   FB(327 0)   VIRTUAL RETAIN                                        
+%W44060       'T01-'                                                            
+                                                                                
+FILE TFIL02   FB(327 0)   VIRTUAL RETAIN                                        
+%W44060       'T02-'                                                            
+                                                                                
+WS-KONTROLL             W  1  A VALUE ' '                                       
+WS-TIRODAT              W  6  N                                                 
+*                                                                               
+NEWPAGE                                                                         
+*         STEG 1. LÄSER RESTORDER OCH SKAPAR TFIL01 PÅ LDC                      
+    JOB INPUT W44045D1                                                          
+                                                                                
+    IF RAD-IDSYSTEM = 'LDC'                                                     
+       IF RAD-KDSTARAD = '2'                                                    
+          PUT TFIL01 FROM W44045D1                                              
+       ELSE                                                                     
+          IF RAD-KDSTARAD = '1'                                                 
+             WS-KONTROLL    = RAD-BERADREF                                      
+             IF WS-KONTROLL = '_'                                               
+                PUT TFIL01 FROM W44045D1                                        
+             END-IF                                                             
+          END-IF                                                                
+       END-IF                                                                   
+    END-IF                                                                      
+                                                                                
+   SORT TFIL01 TO TFIL02 USING T01-RAD-IDARTNR                                  
+                                                                                
+   JOB INPUT (W44045D2 KEY LB-IDARTNR TFIL02 KEY T02-RAD-IDARTNR)               
+       IF MATCHED                                                               
+          PERFORM SKAPA-FIL                                                     
+       END-IF                                                                   
+                                                                                
+SKAPA-FIL. PROC                                                                 
+                                                                                
+      U1-IDARTNR        = LB-IDARTNR                                            
+      WS-TIRODAT        = T02-RAD-DARODAT                                       
+      U1-TIRODAT        = WS-TIRODAT                                            
+      U1-IDDISTR        = T02-RAD-IDDISTR                                       
+      U1-IDKUNDNR       = T02-RAD-IDKUNDNR                                      
+      U1-IDORDNR5       = T02-RAD-IDORDNR5                                      
+      U1-BERADREF       = T02-RAD-BERADREF                                      
+      U1-IDDC           = T02-RAD-IDDC                                          
+      U1-KVART          = T02-RAD-KVART                                         
+      U1-BEART-SVE      = LB-BEART(8)                                           
+      PUT W44045D3                                                              
+END-PROC                                                                        
+                                                                                

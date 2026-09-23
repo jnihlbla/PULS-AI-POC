@@ -1,0 +1,44 @@
+//* PROCEDUR OMARBETAD ENLIGT PARTS-STANDARD                                    
+//*                                                                             
+//*          **************************************                             
+//*          *   XICS -  VERSION 5.4  AUGUST 1989 *                             
+//*          *         INDEX PROCESSOR            *                             
+//*          **************************************                             
+//*                                                                             
+//WXINDX   PROC DSIN=NULLFILE,DSUT=NULLFILE,FLDS=FLDS0,                         
+//             LOADLIB=VPUBV1.XICS54.LOAD,                                      
+//             XICSSYS=&W..PDS.XICSSYS,                                         
+//             XICSVER=XICS54                                                   
+//*                                                                             
+//TOMFIL  EXEC PGM=V16266,                                                      
+//             PARM='DD'                                                        
+//DD1       DD DSN=&DSUT,DISP=(NEW,PASS,DELETE),                                
+//             DCB=(RECFM=VB,LRECL=84,BLKSIZE=1680),                            
+//             MGMTCLAS=&DEL2BKPC,                                              
+//             SPACE=(CYL,(9,1),RLSE)                                           
+//*                                                                             
+//*    ***********************                                                  
+//*    *   INDEX PROCESSOR   *                                                  
+//*    ***********************                                                  
+//*                                                                             
+//INDEX   EXEC PGM=INDRPR,                                                      
+//             COND=(4,LT)                                                      
+//STEPLIB   DD DSN=&LOADLIB,DISP=SHR                                            
+//SYSUDUMP  DD SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//CSSIN     DD DSN=&DSIN,DISP=(OLD,KEEP,KEEP)            INDEX INPUT            
+//CSSOUT    DD DSN=&DSUT,DISP=(OLD,PASS,DELETE),         INDEX OUTPUT           
+//             SPACE=(CYL,(10,5),RLSE),MGMTCLAS=&DEL2BKPC,                      
+//             DCB=(RECFM=VB,LRECL=84,BLKSIZE=1680)                             
+//FT04F001  DD DSN=&XICSSYS.(&FLDS),DISP=SHR             OPTION                 
+//FT05F001  DD SYSOUT=*                                  LOG                    
+//FT06F001  DD SYSOUT=*                                                         
+//VSRN06    DD DSN=VPUBV1V.&XICSVER..XICSMSG,DISP=SHR    MSG LIB                
+//*                                                                             
+//ABEND   EXEC PGM=ABEND,PARM='1234567890123456',                               
+//         COND=(12,GT,INDEX)                                                   
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//CATLG   EXEC PGM=IEFBR14                                                      
+//CB1XXX01 DD  DSN=&DSUT,DISP=(OLD,CATLG,DELETE)                                

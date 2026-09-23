@@ -1,0 +1,40 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LEVERANTÖRBEDÖMNINS-LISTA MED HJÄLP AV PARAMETRAR=URVAL             
+//*  FRÅN BILD 2323                                                             
+//*                                                                             
+//*  FREKVENS:     FLERA GGR PER DAG    RTN W235B1                              
+//*                                                                             
+//*  ÅTERSTART:    W235J003 HAR PARAMETRAR MED FRÅN SOP. SÅ                     
+//*                LÄNGE SOM MAN EJ GÖR END PÅ JOBBET I SOP                     
+//*                KAN JOBBET ÅTERSTARTAS. VID END ÄR PARAMETRARNA              
+//*                FÖRLORADE. PARAMETRARNA DISPLAYAS I SYSOUTEN.                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W235P003 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W235..W200P1,                                             
+//             INDUT=&W235..W235B1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23504   EXEC PGM=W23504                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W23504D1 DD  DUMMY                                                            
+//************ PARAMETRAR FRÅN SOP (OVERRIDE I JCL)                             
+//*                                                                             
+//W23504D2 DD  DSN=&INDIN..W23503(+0),DISP=SHR                                  
+//************ KOMPLETTERAT LEVERANTÖRBEDÖMNINGSREGISTER                        
+//*                                                                             
+//*A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                    
+//*                                                                             
+//W23504D3 DD  DSN=&INDUT..W23504(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ FIL FÖR SÄNDNING VIA MAIL                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

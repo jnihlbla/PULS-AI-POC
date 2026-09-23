@@ -1,0 +1,296 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM... :  W5515400                                              *        
+*                                                                      *        
+*  FUNKTION.. :  PROGRAMMET UPPDATERAR W55152-FILEN MED UPPGIFTER      *        
+*                FRÅN WDF1 (LEV REG) OCH WDR2 (VALUTA REG.)            *        
+*                SKRIVER EN FELLISTA                                   *        
+*                                                                      *        
+* INDATA .... : W551.W551B1.W55152(+0) D1 - PRISFIL                    *        
+*               W551.W551B1.W55144(+0) D2 - LEVERANTÖRSUPPGIFTER WDF1  *        
+*               W551.W551B1.W55145(+0) D6 - VALUTA UPPGIFTER     WDR2  *        
+*                                           SORTERAD PÅ : VALUTA (A),  *        
+*                                                         ÅR (DESCEND) *        
+*                                           STANDARDSORT I PROCEDUREN  *        
+* TEMPFILER.. : TEMP1                  D3 - W55150 + VCC               *        
+*                                                                      *        
+* UTDATA .... : W551.W551B1.W55154(+0) D7 - W55152 + WDF1 + WDR2       *        
+*                                                                      *        
+* RAPPORTER.. : W55154-001             D5 - FELLISTA FRÅN LEV.REG.     *        
+*               W55154-002             D8 - FELLISTA FRÅN VALUTA REG.  *        
+*                                                                      *        
+* FÖRFATTARE :  PER FREDRIKSSON  940822                                *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+*****************************************************************               
+*                                                               *               
+* INFIL W55152  -   PRISFIL                                     *               
+*                                                               *               
+*****************************************************************               
+FILE W55154D1                                                                   
+*                                                                               
+%W55150  'IN-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55144  -  LEVERANTÖRSREGISTER (HEMTAGNINGSFAKTORER)    *               
+*                                                               *               
+*****************************************************************               
+FILE W55154D2                                                                   
+*                                                                               
+%W55144    'LEV-'                                                               
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL TEMP1   -  W55152 KOMPLETTERAD MED HEMTAGNINGSFAKTORER  *               
+*                                                               *               
+*****************************************************************               
+FILE W55154D3 FB(273 0)                                                         
+*                                                                               
+%W55150  'T1-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* RAPPORT1      -  W55154-001 FEL FRÅN MATCH MED LEV.REG FIL    *               
+*                                                               *               
+*****************************************************************               
+FILE W55154D5  VB (172 0)                                                       
+*                                                                               
+%W55158  'FEL-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55145  -  VALUTA REGISTER FIL                          *               
+*                                                               *               
+*****************************************************************               
+FILE W55154D6                                                                   
+*                                                                               
+%W55145    'VAL-'                                                               
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UTFIL W55154  - W55152 KOMPLETTERAD MED LEV.REG OCH VALUTA    *               
+*                                                               *               
+*****************************************************************               
+FILE W55154D7 FB(273 0)                                                         
+*                                                                               
+%W55150  'UT-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* RAPPORT2      -  W55154-002 FEL FRÅN MATCH MOT VALUTA REG.    *               
+*                                                               *               
+*****************************************************************               
+FILE W55154D8  VB (172 0)                                                       
+*                                                                               
+%W55158  'FEL2-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* ARBETSAREA                                                    *               
+*                                                               *               
+*****************************************************************               
+*                                                                               
+  W-DATE              W   8 A                                                   
+  W-YY    W-DATE          2 N                                                   
+  W-MM    W-DATE     +3   2 N                                                   
+  W-DD    W-DATE     +6   2 N                                                   
+                                                                                
+  W-IDARTNR         W     8 N     MASK 'ZZZZZZZ9'                               
+  W-IDLEVNR         W     5 A                                                   
+  W-KDVALISO        W     3 A                                                   
+  W-RETULF-1        W     4 P  4  MASK 'ZZ9.9999'                               
+  W-RETULF-2        W     4 P  4  MASK 'ZZ9.9999'                               
+                                                                                
+  W-TITULF          W     7 N     MASK 'Z99.99.99'                              
+  W-TITULF-YY W-TITULF +1 2 N                                                   
+  W-TITULF-MM W-TITULF +3 2 N                                                   
+  W-TITULF-DD W-TITULF +5 2 N                                                   
+                                                                                
+  W-INDEX           W     5 P                                                   
+                                                                                
+  W-FELTYP          W    21 A                                                   
+                                                                                
+%WY2000W9                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 1. MATCHAR PRISFIL MOT LEV.REG (WDF1)                    *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT (W55154D2 KEY(LEV-IDLEVNR)                            +               
+           W55154D1 KEY( IN-IDLEVNR))                           +               
+START A-INIT                                                    +               
+NAME STEG-1-MATCHAR-LEV                                                         
+                                                                                
+IF MATCHED                                                                      
+  IF IN-PRARTBEL-PR GT +0                                                       
+                                                                                
+    IF IN-RETULF NE +1.0000                                                     
+      IN-RETULF     =  LEV-RETULF-1                                             
+    END-IF                                                                      
+                                                                                
+    IN-TITULF       =  LEV-TITULF                                               
+     W-TITULF       =  LEV-TITULF                                               
+                                                                                
+    PUT W55154D3 FROM W55154D1                                                  
+                                                                                
+    TMP1-YY = W-TITULF-YY                                                       
+    TMP2-YY = W-YY                                                              
+    PERFORM WY2000P9                                                            
+    IF TMP1-YY < (TMP2-YY - 1)                                                  
+      PERFORM B-FYLL-I-LEV-FALT                                                 
+      W-FELTYP = 'TILLÄMP.DAT GAMMALT'                                          
+      PUT W55154D5                                                              
+    END-IF                                                                      
+  ELSE                                                                          
+    PUT W55154D3 FROM W55154D1                                                  
+  END-IF                                                                        
+ELSE                                                                            
+                                                                                
+  IF W55154D1                                                                   
+    IN-RETULF = 1                                                               
+    PUT W55154D3 FROM W55154D1                                                  
+    IF IN-PRARTBEL-PR GT +0                                                     
+      PERFORM C-FYLL-I-PRIS-FALT                                                
+      W-FELTYP = 'LEVERANTÖR SAKNAS  '                                          
+      PUT W55154D5                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+END-IF                                                                          
+                                                                                
+NEWPAGE                                                                         
+A-INIT. PROC                                                                    
+  W-DATE EQ SYSDATE                                                             
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+B-FYLL-I-LEV-FALT. PROC                                                         
+*                                                                               
+    FEL-IDLEVNR       =  LEV-IDLEVNR                                            
+    FEL-IDARTNR       =  IN-IDARTNR                                             
+    FEL-KDPRBEH       =  ' '                                                    
+    FEL-KDVALISO      =  IN-KDVALISO                                            
+    FEL-PRARTBEL-PR   =  0                                                      
+    FEL-PRKURS        =  0                                                      
+    FEL-RETULF-1      =  LEV-RETULF-1                                           
+    FEL-RETULF-2      =  LEV-RETULF-2                                           
+    FEL-TITULF        =  LEV-TITULF                                             
+    FEL-TIPRLIST      =  0                                                      
+    FEL-PRINK-KOM     =  0                                                      
+    FEL-PRDIRLON-KOM  =  0                                                      
+    FEL-PRMATRL-KOM   =  0                                                      
+    FEL-PROVRPAL-KOM  =  0                                                      
+    FEL-REAENDR       =  0                                                      
+    FEL-IDPRANSV      =  ' '                                                    
+    FEL-FELTYP        =  W-FELTYP                                               
+*                                                                               
+END-PROC                                                                        
+NEWPAGE                                                                         
+*                                                                               
+C-FYLL-I-PRIS-FALT. PROC                                                        
+*                                                                               
+    FEL-IDLEVNR       =  IN-IDLEVNR                                             
+    FEL-IDARTNR       =  IN-IDARTNR                                             
+    FEL-KDPRBEH       =  ' '                                                    
+    FEL-KDVALISO      =  IN-KDVALISO                                            
+    FEL-PRARTBEL-PR   =  0                                                      
+    FEL-PRKURS        =  0                                                      
+    FEL-RETULF-1      =  0                                                      
+    FEL-RETULF-2      =  0                                                      
+    FEL-TITULF        =  0                                                      
+    FEL-TIPRLIST      =  0                                                      
+    FEL-PRINK-KOM     =  0                                                      
+    FEL-PRDIRLON-KOM  =  0                                                      
+    FEL-PRMATRL-KOM   =  0                                                      
+    FEL-PROVRPAL-KOM  =  0                                                      
+    FEL-REAENDR       =  0                                                      
+    FEL-IDPRANSV      =  ' '                                                    
+    FEL-FELTYP        =  W-FELTYP                                               
+*                                                                               
+END-PROC                                                                        
+                                                                                
+%WY2000P9                                                                       
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* JOBSTEG 4 : SORTERAR TEMP1 PÅ KDVALISO                        *               
+*                                                               *               
+*****************************************************************               
+SORT W55154D3 TO W55154D3 USING (T1-KDVALISO)                   +               
+NAME STEG-4-SORTAR-TEMP1                                                        
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 5. MATCHAR TEMP1 MOT VALUTA FILEN                        *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT (W55154D6 KEY(VAL-KDVALISO)                           +               
+           W55154D3 KEY( T1-KDVALISO))                          +               
+NAME STEG-5-MATCHAR-MOT-VALUTA                                                  
+                                                                                
+IF MATCHED                                                                      
+  T1-PRKURS ROUNDED = (VAL-PRKURS / VAL-REVALUTA)                               
+  PUT W55154D7 FROM W55154D3                                                    
+ELSE                                                                            
+  IF W55154D3                                                                   
+                                                                                
+    W-KDVALISO = T1-KDVALISO                                                    
+    W-IDARTNR  = T1-IDARTNR                                                     
+                                                                                
+    IF T1-KDVALISO = ' '                                                        
+      IF T1-PRARTBEL-PR > +0                                                    
+        PERFORM D-FYLL-I-PRIS-FALT                                              
+        W-FELTYP   = 'VALUTAKOD = BLANK    '                                    
+        PUT W55154D8                                                            
+      ELSE                                                                      
+        PUT W55154D7 FROM W55154D3                                              
+      END-IF                                                                    
+    ELSE                                                                        
+      IF T1-PRARTBEL-PR > +0                                                    
+        PERFORM D-FYLL-I-PRIS-FALT                                              
+        W-FELTYP   = 'VALUTA EJ REGISTRERAD'                                    
+        PUT W55154D8                                                            
+      ELSE                                                                      
+        PUT W55154D7 FROM W55154D3                                              
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+END-IF                                                                          
+*                                                                               
+D-FYLL-I-PRIS-FALT. PROC                                                        
+*                                                                               
+    FEL2-IDLEVNR       =  T1-IDLEVNR                                            
+    FEL2-IDARTNR       =  T1-IDARTNR                                            
+    FEL2-KDPRBEH       =  ' '                                                   
+    FEL2-KDVALISO      =  T1-KDVALISO                                           
+    FEL2-PRARTBEL-PR   =  0                                                     
+    FEL2-PRKURS        =  0                                                     
+    FEL2-RETULF-1      =  0                                                     
+    FEL2-RETULF-2      =  0                                                     
+    FEL2-TITULF        =  0                                                     
+    FEL2-TIPRLIST      =  0                                                     
+    FEL2-PRINK-KOM     =  0                                                     
+    FEL2-PRDIRLON-KOM  =  0                                                     
+    FEL2-PRMATRL-KOM   =  0                                                     
+    FEL2-PROVRPAL-KOM  =  0                                                     
+    FEL2-REAENDR       =  0                                                     
+    FEL2-IDPRANSV      =  ' '                                                   
+    FEL2-FELTYP        =  W-FELTYP                                              
+*                                                                               
+END-PROC                                                                        
+                                                                                
+*****************************************************************               

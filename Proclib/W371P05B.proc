@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR UPPFÖLJNINGSFIL AV BYTESREGISTER                                    
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W371V3                                         
+//*                                                                             
+//*  ÅTERSTART:    W3715B    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P05B PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W371,                                                     
+//             INDUT=&W371..W371V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W3715B   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W3715B,W3715B,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDR2     INCLUDE MEMBER=WDR2                                                  
+//W3715BD1 DD  DSN=&INDIN..W37148(+0),DISP=SHR                                  
+//************ BYTESREGISTER                                                    
+//*                                                                             
+//W3715BD2 DD  DSN=&INDUT..W3715B(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ UPPFÖLJNINGSFIL BYTES                                            
+//             SPACE=(66,(600,400),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&DEL2BKPC                                               

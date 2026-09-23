@@ -1,0 +1,212 @@
+                                                                                
+*                                                                               
+*  FUNKTION   :  TEMP-FIL IN FRÅN W15100, LISTA UT                              
+*                                                                               
+*  FÖRFATTARE :  GUNNEL ERIKSSON    880805                                      
+*                                                                               
+*  INFILER    :  W15102D1                                                       
+*                                                                               
+*  UTFILER    :  W15102D2                                                       
+*             :  W15102D3                                                       
+*                                                                               
+*  ÄNDRING    :  - ÄNDRAT TILL EPLUS FRÅN REPORT WRITER, 880805                 
+*  ÄNDRING    :  - TILLAGT DD-KORT FÖR BRASILIEN-PRINT,  890602                 
+*  ÄNDRING    :  - TILLAGT DD-KORT FÖR PV-REDAKTION      911023                 
+*                                                                               
+*     DATUM       NAMN                     AVD                                  
+*     890602..    C.EGHOLT............     36210.........                       
+*     911023..    C.EGHOLT............     30621.........                       
+*     ........    ....................     ..............                       
+*                                                                               
+*                                                                               
+*--------------------------INFIL------------------------------------            
+  FILE  W15102D1                                                                
+*                                                                               
+ %W15101EE 'IN-'                                                                
+*------------------------SORTFIL ------------------------------------           
+  FILE  W15102DS        FB (346 6228)                                           
+*                                                                               
+ %W15101EE 'SORT-'                                                              
+*-------------------------PRINTFILER--------------------------------            
+FILE W15102D4 PRINTER                                                           
+*                                                                               
+*-------------*                                                                 
+* ARBETSAREOR *                                                                 
+*-------------*                                                                 
+ W-55-ASTERISKER            W  55 A VALUE +                                     
+ '*******************************************************'                      
+ W-7-ASTERISKER            W  7 A VALUE '*******'                               
+ W-FOTNOT-IDFOTNR          W             5 N                                    
+ W-FOTNOT-IDFOTNR-1   W-FOTNOT-IDFOTNR   1 N                                    
+ W-KDPRTVAL                W  1 A                                               
+*                                                                               
+ SPRAK-KODER  W 30 A  VALUE +                                                   
+                      'D  +                                                     
+                       E  +                                                     
+                       F  +                                                     
+                       GB +                                                     
+                       I  +                                                     
+                       NL +                                                     
+                       P  +                                                     
+                       S  +                                                     
+                       SF +                                                     
+                       USA'                                                     
+*                                                                               
+ SPRAK-KOD SPRAK-KODER 3 A, OCCURS (10) INDEX (INDX)                            
+                                                                                
+SPRAK  W 240 A  VALUE +                                                         
+                      'TYSKA       GERMAN      +                                
+                       SPANSKA     SPANISH     +                                
+                       FRANSKA     FRENCH      +                                
+                       ENGELSKA    ENGLISH     +                                
+                       ITALIENSKA  ITALIAN     +                                
+                       HOLLÄNDSKA  DUTCH       +                                
+                       PORTUGISISKAPORTUGUESE  +                                
+                       SVENSKA     SWEDISH     +                                
+                       FINSKA      FINNISH     +                                
+                       AMERIKANSKA AMERICAN    '                                
+*                                                                               
+ SPRAK-TEXT  SPRAK 24 A, OCCURS (10) INDEX (INDX)                               
+*                                                                               
+ SPRAK-SPRAK SPRAK-TEXT 12 A, OCCURS (2) INDEX (S-IX)                           
+*                                                                               
+*--------------------COPY-TEXT--------------------------------------            
+ %WTXTAREA                                                                      
+*                                                                               
+*--------------------LIST-POST--------------------------------------            
+ LIST-FOTNOT-IDFOTNR      W  5 N MASK  'ZZZZZ'                                  
+ LIST-FOTNOT-IDFOTNR-1 LIST-FOTNOT-IDFOTNR         1 N                          
+ LIST-FOTNOT-SPRAK        W 12 A                                                
+ LIST-FOTNOT-FLOVERSATT   W  1 A                                                
+ LIST-FOTNOT-BEFOTNOT     W 55 A, OCCURS (6) INDEX (INDX)                       
+ LIST-ASTERISK            W  7 A                                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*-------------*                                                                 
+* JOB         *                                                                 
+*-------------*                                                                 
+*                                                                               
+ SORT W15102D1 TO W15102DS USING (IN-FOTNOT-IDFOTNR) +                          
+ BEFORE SORT-PROC                                                               
+*                                                                               
+  SORT-PROC                                                                     
+  PROC                                                                          
+    IF W15102D1                                                                 
+       SELECT                                                                   
+    END-IF                                                                      
+  END-PROC                                                                      
+*                                                                               
+*---------------------------------------------*                                 
+*                      JOB                    *                                 
+*---------------------------------------------*                                 
+JOB INPUT W15102DS                                                              
+*                                                                               
+ W-FOTNOT-IDFOTNR = SORT-FOTNOT-IDFOTNR                                         
+ W-KDPRTVAL = SORT-FOTNOT-KDPRTVAL                                              
+    S-IX = 1                                                                    
+ PERFORM A-KTR-SPRAK-PROC                                                       
+ PERFORM B-KTR-BEFOTNOT                                                         
+*                                                                               
+*---------------------------------------------*                                 
+*              A-KTR-SPRAK-PROC               *                                 
+*---------------------------------------------*                                 
+A-KTR-SPRAK-PROC                                                                
+PROC                                                                            
+INDX = 1                                                                        
+DO WHILE INDX < 11                                                              
+   IF SPRAK-KOD(INDX) = SORT-FOTNOT-IDSKYLT                                     
+      LIST-FOTNOT-SPRAK = SPRAK-SPRAK(INDX, S-IX)                               
+      INDX = 10                                                                 
+   END-IF                                                                       
+   INDX = INDX + 1                                                              
+END-DO                                                                          
+END-PROC                                                                        
+*                                                                               
+*---------------------------------------------*                                 
+*                B-KTR-BEFOTNOT               *                                 
+*---------------------------------------------*                                 
+B-KTR-BEFOTNOT                                                                  
+PROC                                                                            
+INDX = 1                                                                        
+DO WHILE  INDX < 7                                                              
+    LIST-FOTNOT-IDFOTNR = 0                                                     
+    LIST-FOTNOT-FLOVERSATT = ' '                                                
+    LIST-FOTNOT-BEFOTNOT(INDX) = ' '                                            
+    LIST-ASTERISK = ' '                                                         
+*                                                                               
+    IF INDX = 1                                                                 
+       IF SORT-FOTNOT-FLOVERSATT = 'N'                                          
+          LIST-FOTNOT-FLOVERSATT = SORT-FOTNOT-FLOVERSATT                       
+       END-IF                                                                   
+*                                                                               
+       LIST-FOTNOT-IDFOTNR = SORT-FOTNOT-IDFOTNR                                
+*                                                                               
+       IF SORT-FOTNOT-BEFOTNOT(1) = W-55-ASTERISKER                             
+          LIST-ASTERISK = W-7-ASTERISKER                                        
+       ELSE                                                                     
+          RTXT-TETEXTTR = SORT-FOTNOT-BEFOTNOT(1)                               
+          RTXT-KDTEXTTR = 'V'                                                   
+          CALL WTXTTR USING RTXT-WTXTAREA                                       
+          IF RTXT-KDSVAR = ' '                                                  
+             LIST-FOTNOT-BEFOTNOT(1) = RTXT-TETEXTTR                            
+          END-IF                                                                
+       END-IF                                                                   
+*                                                                               
+       IF W-KDPRTVAL = 'C'                                                      
+         PRINT RAPPORT03                                                        
+       END-IF                                                                   
+    ELSE                                                                        
+       IF SORT-FOTNOT-BEFOTNOT(INDX) NE ' '                                     
+          RTXT-TETEXTTR = SORT-FOTNOT-BEFOTNOT(INDX)                            
+          RTXT-KDTEXTTR = 'V'                                                   
+          CALL WTXTTR USING RTXT-WTXTAREA                                       
+*                                                                               
+          IF RTXT-KDSVAR = ' '                                                  
+             LIST-FOTNOT-BEFOTNOT(INDX) = RTXT-TETEXTTR                         
+             IF W-KDPRTVAL = 'C'                                                
+               PRINT RAPPORT03                                                  
+             END-IF                                                             
+          END-IF                                                                
+*                                                                               
+       END-IF                                                                   
+    END-IF                                                                      
+    INDX = INDX + 1                                                             
+END-DO                                                                          
+END-PROC                                                                        
+                                                                                
+*---------------------------------------------*                                 
+* REPORT            RAPPORT 03                *                                 
+*---------------------------------------------*                                 
+*                                                                               
+* LISTA TILL PRINTER MED KDPRTVAL = C                                           
+*                                                                               
+  REPORT RAPPORT03  PRINTER W15102D4  +                                         
+                    LINESIZE 120    +                                           
+                    NOADJUST        +                                           
+                    NOHEADING       +                                           
+                    NODATE                                                      
+                                                                                
+         CONTROL    FINAL NOPRINT  +                                            
+                    W-FOTNOT-IDFOTNR-1 NEWPAGE +                                
+                    NOPRINT                                                     
+                                                                                
+    TITLE 1 COL   4 'W15102-001 - VOLVO CAR AFTERSALES. -' +                    
+            COL  42 'LISTA ÖVER FOTNOTER, NR-ORDNING,' +                        
+            COL  75  SORT-FOTNOT-KDFORDON +                                     
+            COL  90 'DATUM:' +                                                  
+            COL  96  SYSDATE                                                    
+*                                                                               
+    TITLE 4 COL   4 'FOTNOTSNUMMER' +                                           
+            COL  23 'Ö' +                                                       
+            COL  30  LIST-FOTNOT-SPRAK +                                        
+            COL  98 'ÖVERSÄTTNING SAKNAS'                                       
+*                                                                               
+    TITLE 5         ' '                                                         
+*                                                                               
+    LINE  1 COL   6 LIST-FOTNOT-IDFOTNR +                                       
+            COL  23 LIST-FOTNOT-FLOVERSATT +                                    
+            COL  30 LIST-FOTNOT-BEFOTNOT(INDX) +                                
+            COL 103 LIST-ASTERISK                                               
+*                                                                               
+    LINE  2         ' '                                                         
+*                                                                               

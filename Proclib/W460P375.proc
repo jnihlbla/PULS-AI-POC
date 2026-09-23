@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  BMP - KONVERTERAR ORDERPOSTER OCH UPPDATERAR WDP8                          
+//*                                                                             
+//*  FREKVENS:     SEKUND               RTN W460S3                              
+//*                                                                             
+//*  ÅTERSTART:    W46075     KÖRS OM AV SYSTEMANSVARIG                         
+//*                LÄSER      WDR4                                              
+//*                UPDATERAR  WDP8 (OCH WDR4 FÖR CHKPOINT)                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W460P175 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W460..W460S3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46075   EXEC PGM=DFSRRC00,                                                   
+// PARM=('BMP,W46075,W46075,,,N00,,,,,&CPU,,,&IMS')                             
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                    -- POSTSUM           
+//W46075D1 DD  DSN=&INDIN..W46086(+0),DISP=SHR                                  
+//************ RÄTTA ORDERPOSTER                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

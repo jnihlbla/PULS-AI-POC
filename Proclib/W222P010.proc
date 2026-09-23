@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      LÄSNING AV FIL MED HÄNDELSER KOD 2208 (RP1) FRÅN W111        *         
+//*      SAMT IHOPSORTERING MED RP1-RP7 FRÅN TRATTEN                  *         
+//*                                                                   *         
+//*      PERIODICITET: DAG                                            *         
+//*                                                                   *         
+//*      ÅTERSTART:  W22210 NORMAL                                              
+//*                                                                   *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W222P010 PROC INDUT=&W222..W222D1,                                            
+//             INDIN1=&W111..W222D1,                                            
+//             INDIN2=&W092..W222D1,                                            
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22210  EXEC PGM=W22210                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SORTMSG  DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W22210D1 DD  DSN=&INDIN2..W09257,DISP=SHR                                     
+//**************   PROGNOSUPPDATERINGSTRANSAR RP1-RP7                           
+//*                                                                             
+//W22210D2 DD  DSN=&INDIN1..W11126,DISP=SHR                                     
+//**************   HÄNDELSETRANSAR 2208 (RP1)                                   
+//*                                                                             
+//W22210D3 DD  DSN=&INDUT..W22211(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//**************   PROGNOSUPPDATERINGSTRANSAR RP1-RP7               ***         
+//             SPACE=(6233,(50,150),RLSE),                                      
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             

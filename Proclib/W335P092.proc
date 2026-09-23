@@ -1,0 +1,30 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FIL MED VALUTAKURS FRÅN FIL W93001(SAP-R3)                                 
+//*                                                                             
+//*  FREKVENS:  DAG   RTN W335D6                                                
+//*                                                                             
+//*  ÅTERSTART: W33592                                                          
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W335P085 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W930,                                                    
+//             INDUT=&W335..W335D6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33592   EXEC PGM=V16459,PARM='W33592/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(500,500))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W33592D1 DD  DSN=&INDREG..W93001(+0),DISP=SHR                                 
+//************                                                                  
+//*                                                                             
+//W33592D2 DD  DSN=&INDUT..W33592(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ SENASTE VALUTKURSER                                              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

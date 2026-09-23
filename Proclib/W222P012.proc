@@ -1,0 +1,64 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      UPPDATERING AV PROGNOSER                                     *         
+//*                                                                   *         
+//*      PERIODICITET: DAG                                            *         
+//*                                                                   *         
+//*      ÅTERSTART:    W22212 NORMAL (BMP)                            *         
+//*                    W22212 UPPDATERAR WDK6 OCH WDG3                *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W222P012 PROC INDIN=&W222..W222D1,INDUT=&W222..W222D1,                        
+//             CPU=1,                                                           
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22212  EXEC PGM=DFSRRC00,                                                    
+//        PARM=('BMP,W22212,W22212,,,N00,,,,,&CPU,,,&IMS')                      
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//*                                                                             
+//W22212D1 DD  DSN=&INDIN..W22211(+0),DISP=SHR                                  
+//**************   RP1-RP7 FRÅN P010                                            
+//*                                                                             
+//W22212D2 DD  DSN=&INDUT..W22213(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   FELTRANSAR TILL TRATTEN                                      
+//             SPACE=(6233,(10,10),RLSE),                                       
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W22212D3 DD  DSN=&INDUT..W22214(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************   HTYP 2202 TILL P016                                          
+//             SPACE=(6228,(6,9),RLSE),                                         
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W22212D4 DD  DSN=&INDUT..W22216(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   DISPONIBELDATUMPOSTER TILL W218D2                            
+//             SPACE=(6210,(10,10),RLSE),                                       
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W22212D5 DD  DSN=&INDUT..W22217(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   2204 - TRANSAR  TILL VECKOKÖRNING (W221)                     
+//             SPACE=(6226,(20,40),RLSE),                                       
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W22212D6 DD  DSN=&INDUT..W22211(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//**************   PROGNOSUPPDATERINGSTRANSAR RP1-RP7 FÖR OMSTART               
+//             SPACE=(6233,(50,150),RLSE),                                      
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TOMDEL  EXEC WEMPDEL,DSIN=&INDUT..W22217(+1)                                  

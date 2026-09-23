@@ -1,0 +1,273 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W517   VECKORAPPORTEN PÅ TERMINAL FÖR CAR PARTS       *        
+*                NORMALA VECKOPROGRAMMET.                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER UTFALLS TRANSAR FRÅN VECKORAPP. W51741          *        
+*                OCH SKAPAR TVÅ FILER : FSG-UTFALL                     *        
+*                                       AK/LS/EFR/RESS-UTFALL OCH      *        
+*                                       SUMMA ORDERKÖSALDO             *        
+*                   GLÖM INTE ATT JUSTERA FÖR EVENTUELLA VECKA 53      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON                                    *        
+*                                                                      *        
+*  INFILER    :  W517.W517V1.W51741(+0)                                *        
+*                                                                      *        
+*  UTFILER    :  W51721, W51722                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W51721D1                                                                   
+*                                                                               
+%W517RW9  'RW9-'                                                                
+*                                                                               
+%W517RW1  'RW1-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE TPFIL1 FB(42 0)                                                            
+TP1-IDDC           1   2   A                                                    
+TP1-DAVVREG        3   6   N                                                    
+TP1-VV             7   2   N                                                    
+TP1-KDPRODSL       9   2   P                                                    
+TP1-KDMARK        11   2   P                                                    
+TP1-SUFSG         13  10   P  2                                                 
+TP1-SUSJK         23  10   P  2                                                 
+TP1-SUSTD         33  10   P  2                                                 
+*                                                                               
+*                                                                               
+FILE TPFIL2 FB(65 0)                                                            
+%W517220  'TP2-'                                                                
+TP2-KDPRODSL-SIFFRA1 9  1   N                                                   
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W51721D3 FB(46 0)                                                          
+%W517210  'UT1-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W51721D4 FB(65 0)                                                          
+%W517220  'UT2-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+                                                                                
+PROGRAM-NAMN    W     8    A     VALUE 'W5172100'                               
+WDATUM          W     6    A     VALUE 'WDATUM'                                 
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+* ARBETS-AREOR                                                                  
+*                                                                               
+TRANS-DAAAVV            W   6   N                                               
+TRANS-TIAA TRANS-DAAAVV +2  2   N                                               
+*                                                                               
+AKT-DAAAVV              W   6   N                                               
+AKT-AA       AKT-DAAAVV +2  2   N                                               
+AKT-VV       AKT-DAAAVV +4  2   N                                               
+                                                                                
+AKT-TIAA        W      2   N                                                    
+AKT-TIFAA       W      2   N                                                    
+*                                                                               
+W-SUFSG         W     10   P 2                                                  
+W-SUSJK         W     10   P 2                                                  
+W-SUSTD         W     10   P 2                                                  
+*                                                                               
+W-SUAK          W     10   P 2                                                  
+W-SULS          W     10   P 2                                                  
+W-SUEFR         W     10   P 2                                                  
+W-SURESS        W     10   P 2                                                  
+W-SUOKS         W     10   P 2                                                  
+NEWPAGE                                                                         
+*---------*                                                                     
+*  JOB1   *                                                                     
+*---------*                                                                     
+                                                                                
+JOB INPUT W51721D1 START INIT                                                   
+IF RW1-IDPTYP EQ 'RW1'                                                          
+  IF RW1-DAVVREG EQ 200953                                                      
+    RW1-DAVVREG       = 200952                                                  
+  END-IF                                                                        
+  IF RW1-KDWRTYP EQ 0110                                                        
+      TRANS-DAAAVV         = RW1-DAVVREG                                        
+      IF TRANS-TIAA EQ AKT-TIAA AKT-TIFAA                                       
+        IF RW1-SUARTFSG NQ 0 OR RW1-SUARTSJK NQ 0 OR RW1-SUARTSTD NQ 0          
+** DC SÄTTS TILL '11' FÖR ALLT, DÅ DETTA VÄRDE ACCEPTERAS I APL-PGMET           
+          TP1-IDDC         = '11'                                               
+          TP1-DAVVREG      = TRANS-DAAAVV                                       
+          TP1-KDPRODSL     = RW1-KDPRODSL                                       
+          TP1-KDMARK       = RW1-KDMARK                                         
+          TP1-SUFSG        = RW1-SUARTFSG                                       
+          TP1-SUSJK        = RW1-SUARTSJK                                       
+          TP1-SUSTD        = RW1-SUARTSTD                                       
+          PUT TPFIL1                                                            
+        END-IF                                                                  
+      END-IF                                                                    
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+                                                                                
+IF RW9-IDPTYP EQ 'RW9'                                                          
+** TRANSAR FÖR VECKA 200953 SKALL VARA MED VECKA 200952 MEN EJ 200953           
+** DVS ANVÄNDS ENDAST FÖR UTGÅENDE LAGERVÄRDE ÅT VECKA 200952                   
+  IF RW9-KDWRTYP EQ 0999                                                        
+   TRANS-DAAAVV           = RW9-DAVVREG                                         
+   IF TRANS-TIAA EQ AKT-TIAA AKT-TIFAA                                          
+** APL ACCEPTERAR ALLA GODKÄNDA DC'N SAMT 'ET' OCH '13                          
+     TP2-IDDC             = RW9-IDDC                                            
+     TP2-KDPRODSL         = RW9-KDPRODSL                                        
+     IF TP2-KDPRODSL-SIFFRA1 EQ 2                                               
+       TP2-KDPRODSL-SIFFRA1 = 1                                                 
+     END-IF                                                                     
+     TP2-DAVVREG          = TRANS-DAAAVV                                        
+     TP2-SUAKN11 ROUNDED  = RW9-SUAKSV                                          
+     TP2-SULSN11 ROUNDED  = RW9-SULSV                                           
+     TP2-SUEFRN11 ROUNDED = RW9-SUEFRV                                          
+     TP2-SURESS11 ROUNDED = RW9-SURESSV                                         
+     TP2-SUOKSN11 ROUNDED = RW9-SUOKSV                                          
+     PUT TPFIL2                                                                 
+   END-IF                                                                       
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+INIT. PROC                                                                      
+                                                                                
+  CALL DATKORT USING (PROGRAM-NAMN WDATUM DATUMKORT)                            
+                                                                                
+  AKT-DAAAVV   = 200000                                                         
+  AKT-AA       = D-AAR                                                          
+  AKT-VV       = D-VECKA                                                        
+  DISPLAY 'AKTUELL VECKA ' AKT-DAAAVV                                           
+                                                                                
+  AKT-TIAA     = D-AAR                                                          
+  AKT-TIFAA    = D-AAR - 1                                                      
+  DISPLAY 'AKTUELLT ÅR ' AKT-TIAA                                               
+  DISPLAY 'AKTUELLT FÖREG. ÅR ' AKT-TIFAA                                       
+                                                                                
+END-PROC                                                                        
+NEWPAGE                                                                         
+                                                                                
+SORT TPFIL1 TO TPFIL1 USING (TP1-IDDC TP1-DAVVREG +                             
+     TP1-KDPRODSL TP1-KDMARK)                                                   
+NEWPAGE                                                                         
+*----------------------------------------*                                      
+*  JOB2, SUMMERAR FSG-UTFALLSTRANSARNA                                          
+*----------------------------------------*                                      
+                                                                                
+JOB INPUT TPFIL1  FINISH 2-FINIT                                                
+                                                                                
+ IF RECORD-COUNT EQ 1                                                           
+  UT1-IDDC       = TP1-IDDC                                                     
+  UT1-DAVVREG    = TP1-DAVVREG                                                  
+  UT1-KDPRODSL   = TP1-KDPRODSL                                                 
+  UT1-KDMARK     = TP1-KDMARK                                                   
+  W-SUFSG        = 0                                                            
+  W-SUSJK        = 0                                                            
+  W-SUSTD        = 0                                                            
+ END-IF                                                                         
+                                                                                
+ IF TP1-IDDC     EQ UT1-IDDC AND      +                                         
+    TP1-DAVVREG  EQ UT1-DAVVREG AND   +                                         
+    TP1-KDPRODSL EQ UT1-KDPRODSL AND  +                                         
+    TP1-KDMARK   EQ UT1-KDMARK                                                  
+   W-SUFSG = W-SUFSG + TP1-SUFSG                                                
+   W-SUSJK = W-SUSJK + TP1-SUSJK                                                
+   W-SUSTD = W-SUSTD + TP1-SUSTD                                                
+ ELSE                                                                           
+   UT1-SUFSGN11 ROUNDED = W-SUFSG                                               
+   UT1-SUSJKN11 ROUNDED = W-SUSJK                                               
+   UT1-SUSTDN11 ROUNDED = W-SUSTD                                               
+   PUT W51721D3                                                                 
+                                                                                
+   UT1-IDDC     = TP1-IDDC                                                      
+   UT1-DAVVREG  = TP1-DAVVREG                                                   
+   UT1-KDPRODSL = TP1-KDPRODSL                                                  
+   UT1-KDMARK   = TP1-KDMARK                                                    
+   W-SUFSG      = TP1-SUFSG                                                     
+   W-SUSJK      = TP1-SUSJK                                                     
+   W-SUSTD      = TP1-SUSTD                                                     
+ END-IF                                                                         
+                                                                                
+                                                                                
+2-FINIT. PROC                                                                   
+                                                                                
+ IF UT1-SUFSGN11 NQ 0 OR UT1-SUSJKN11 NQ 0 OR UT1-SUSTDN11 NQ 0                 
+   UT1-SUFSGN11 ROUNDED = W-SUFSG                                               
+   UT1-SUSJKN11 ROUNDED = W-SUSJK                                               
+   UT1-SUSTDN11 ROUNDED = W-SUSTD                                               
+   PUT W51721D3                                                                 
+ END-IF                                                                         
+                                                                                
+END-PROC                                                                        
+NEWPAGE                                                                         
+                                                                                
+SORT TPFIL2 TO TPFIL2 USING (TP2-IDDC TP2-DAVVREG +                             
+                                 TP2-KDPRODSL)                                  
+                                                                                
+*----------------------------------------*                                      
+*  JOB3, SUMMERAR LAGERVÄRDESTRANSARNA                                          
+*----------------------------------------*                                      
+                                                                                
+JOB INPUT TPFIL2  FINISH 3-FINIT                                                
+                                                                                
+ IF RECORD-COUNT EQ 1                                                           
+  UT2-IDDC       = TP2-IDDC                                                     
+  UT2-DAVVREG    = TP2-DAVVREG                                                  
+  UT2-KDPRODSL   = TP2-KDPRODSL                                                 
+  UT2-SUAKN11    = 0                                                            
+  UT2-SULSN11    = 0                                                            
+  UT2-SUEFRN11   = 0                                                            
+  UT2-SURESS11   = 0                                                            
+  UT2-SUOKSN11   = 0                                                            
+ END-IF                                                                         
+                                                                                
+ IF TP2-IDDC     EQ UT2-IDDC AND      +                                         
+    TP2-DAVVREG  EQ UT2-DAVVREG AND   +                                         
+    TP2-KDPRODSL EQ UT2-KDPRODSL                                                
+   W-SUAK    = W-SUAK    + TP2-SUAKN11                                          
+   W-SULS    = W-SULS    + TP2-SULSN11                                          
+   W-SUEFR   = W-SUEFR   + TP2-SUEFRN11                                         
+   W-SURESS  = W-SURESS  + TP2-SURESS11                                         
+   W-SUOKS   = W-SUOKS   + TP2-SUOKSN11                                         
+ ELSE                                                                           
+   UT2-SUAKN11  ROUNDED  = W-SUAK                                               
+   UT2-SULSN11  ROUNDED  = W-SULS                                               
+   UT2-SUEFRN11 ROUNDED  = W-SUEFR                                              
+   UT2-SURESS11 ROUNDED  = W-SURESS                                             
+   UT2-SUOKSN11 ROUNDED  = W-SUOKS                                              
+   IF UT2-DAVVREG NE 200952                                                     
+     IF UT2-DAVVREG EQ 200953                                                   
+       UT2-DAVVREG =  200952                                                    
+     END-IF                                                                     
+     PUT W51721D4                                                               
+   END-IF                                                                       
+                                                                                
+   UT2-IDDC     = TP2-IDDC                                                      
+   UT2-DAVVREG  = TP2-DAVVREG                                                   
+   UT2-KDPRODSL = TP2-KDPRODSL                                                  
+   W-SUAK       = TP2-SUAKN11                                                   
+   W-SULS       = TP2-SULSN11                                                   
+   W-SUEFR      = TP2-SUEFRN11                                                  
+   W-SURESS     = TP2-SURESS11                                                  
+   W-SUOKS      = TP2-SUOKSN11                                                  
+ END-IF                                                                         
+                                                                                
+3-FINIT. PROC                                                                   
+                                                                                
+ IF UT2-SUAKN11 NQ 0 OR UT2-SULSN11 NQ 0 OR UT2-SUEFRN11 NQ 0 OR  +             
+    UT2-SURESS11 NQ 0 OR UT2-SUOKSN11 NQ 0                                      
+   UT2-SUAKN11  ROUNDED  = W-SUAK                                               
+   UT2-SULSN11  ROUNDED  = W-SULS                                               
+   UT2-SUEFRN11 ROUNDED  = W-SUEFR                                              
+   UT2-SURESS11 ROUNDED  = W-SURESS                                             
+   UT2-SUOKSN11 ROUNDED  = W-SUOKS                                              
+   IF UT2-DAVVREG NE 200952                                                     
+     IF UT2-DAVVREG EQ 200953                                                   
+       UT2-DAVVREG =  200952                                                    
+     END-IF                                                                     
+     PUT W51721D4                                                               
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+END-PROC                                                                        

@@ -1,0 +1,79 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W9104100                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET LÄSER FIL W91044(+0) OCH                   *        
+*                MATCHAR MOT W91044(-1) OCH SKRIVER                    *        
+*                FIL MED FÖRÄNDRINGAR.                                 *        
+*                                                                      *        
+*  FÖRFATTARE :  BERT ANDERSSON                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W91041D1  FB (108 0)                                                       
+*                                                                               
+%W91058  'NEW-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+FILE W91041D2  FB (108 0)                                                       
+*                                                                               
+%W91058  'OLD-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W91041D3 FB (108 0)                                                        
+%W91058  'OUT-'                                                                 
+*                                                                               
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1 A   VALUE 'J'                                 
+  NEJ                       W   1 A   VALUE 'N'                                 
+  WS-IDDC                   W   2 A                                             
+*                                                                               
+                                                                                
+  ARTIKELNUMMER             W   9 N  0                                          
+*                                                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+*******************************************                                     
+* MATCHAR W91043(+0) OCH W91043(-1)                                             
+*******************************************                                     
+***                                                                             
+                                                                                
+JOB INPUT (W91041D1 KEY(NEW-IDARTNR, NEW-IDSKYLT) +                             
+           W91041D2 KEY(OLD-IDARTNR, OLD-IDSKYLT))                              
+                                                                                
+     IF MATCHED                                                                 
+     ELSE                                                                       
+                                                                                
+       IF W91041D1                                                              
+         IF NEW-IDARTNR NUMERIC                                                 
+           IF NEW-IDARTNR > 0                                                   
+             OUT-IDARTNR = NEW-IDARTNR                                          
+             OUT-IDSKYLT = NEW-IDSKYLT                                          
+             OUT-BEART   = NEW-BEART                                            
+             PERFORM S01-SKRIV-UTFIL                                            
+           END-IF                                                               
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  S01-SKRIV-UTFIL. PROC                                                         
+                                                                                
+     PUT W91041D3                                                               
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                

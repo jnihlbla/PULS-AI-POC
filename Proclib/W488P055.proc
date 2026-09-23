@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKRIVER FIL TILL PDP'N PÅ ALLA HL-ARTIKLAR                                 
+//*                                                                             
+//*  (ALT. GAMMAL FUNKTION: SKRIVER FIL TILL PDP'N PÅ DIFFARNA )                
+//*  JMF DAGENS OCH GÅRDAGENS PLATS PÅ HL ARTIKLAR                              
+//*                                                                             
+//*  FREQUENCE:    DAILY    RTN W488D1                                          
+//*                                                                             
+//*  RESTART:      W48855    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W488P055 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W488..W488D1,                                             
+//             INDREG=&W488,                                                    
+//             INDUT2=&WUT..W488D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W48855   EXEC PGM=V16459,PARM='W48855/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W48855D1 DD  DSN=&INDIN..W48852(+0),DISP=SHR                                  
+//************ FIL FRÅN BUFFERT REGISTRET                                       
+//*                                                                             
+//W48855D2 DD  DSN=&INDREG..W48856(+0),DISP=SHR                                 
+//************ FIL MED GÅRDAGENS UPPGIFTER                                      
+//*                                                                             
+//W48855D3 DD  DSN=&INDREG..W48856(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ UTFIL MED UPPGITER TILL MORGONDAGEN                              
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//W48855D4 DD  DSN=&INDUT2..W48858(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ FIL TILL PDP'N MED DATA, ALT.(PLATS ÄNDRINGAR)                   
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                

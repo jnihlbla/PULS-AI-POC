@@ -1,0 +1,61 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR PRISFELSPOSTERNA MED MARKNADSBOLAG                            
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W414D1                                            
+//*                                                                             
+//*  ÅTERSTART:    W41405      NORMAL                                           
+//*                LÄSER  WDB3 WDB1                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W414P005 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W414..W414D1,                                             
+//             INDUT=&W414..W414D1,                                             
+//             INDUT2=&WXTR..W414D1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41405   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W41405,W41405,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//*                                                                             
+//W41405D1 DD  DSN=&INDIN..W4140J(+0),DISP=SHR                                  
+//************ PRISFELSFIL                                                      
+//*                                                                             
+//W41405D2 DD  DSN=&INDUT..W4140K(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ PRISFELSFIL KOMPLETTERAD MED MARKNADSBOLAG                       
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//COPY     EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDIN..W4140K(+1),DISP=SHR                                  
+//************ PRISFELSFILEN FRÅN TIDIGARE STEG                                 
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..WXTR3E(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ KOPIA AV W4140K                                                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

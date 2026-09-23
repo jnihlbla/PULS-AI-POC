@@ -1,0 +1,76 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM  :  W5537200                                                *        
+*                                                                      *        
+*  FUNKTION :  EN GÅNG OM ÅRET KOMMER EN TOTALFIL FRÅN INKÖP,          *        
+*              DENNA SKALL STOPPAS. STEG1 RÄKNAR POSTERNA,             *        
+*              STEG2: OM FLER ÄN 10000 POSTER I STEG1 SKAPA TOMFIL,    *        
+*              ANNARS SKRIV UT POSTERNA SOM ÄR FRÅN I ÅR OCH IFJOL.    *        
+*                                                                      *        
+*  FÖRFATTARE : ANDERS HENRIKSSON                                      *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W55372D1                                                                   
+*                                                                               
+%W55372  'IN-'                                                                  
+                                                                                
+FILE W55372D2 FB(37 0)                                                          
+*                                                                               
+%W55372  'UT-'                                                                  
+                                                                                
+FILE W55372D3 VB(37 0)                                                          
+UT-FELMEDDELANDE  1 33 A                                                        
+                                                                                
+DATUM1                  W   8   A                                               
+AA      DATUM1              2   N                                               
+                                                                                
+DATUM-MIN        W 6 N                                                          
+DATUM-MAX        W 6 N                                                          
+SUMMA-INPOSTER   W 4 P 0                                                        
+                                                                                
+POST-NR          W 4 P 0                                                        
+                                                                                
+***************                                                                 
+*  JOBBSTEG 1 *                                                                 
+***************                                                                 
+                                                                                
+* RÄKNA ALLA POSTER.                                                            
+                                                                                
+JOB INPUT  W55372D1                                                             
+                                                                                
+SUMMA-INPOSTER = SUMMA-INPOSTER + 1                                             
+                                                                                
+***************                                                                 
+*  JOBBSTEG 2 *                                                                 
+***************                                                                 
+                                                                                
+* OM FLER ÄN 10000 INPOSTER, DÅ ÄR DETTA TOTALFIL FRÅN INKÖP:                   
+* TOMFIL SKAPAS.                                                                
+* ANNARS OM TRANSAR FINNS ÄLDRE ÄN FÖRRA ÅRET, SKIPPA DESSA                     
+* SKRIV UT ÖVRIGA TRANSAR.                                                      
+                                                                                
+JOB INPUT  W55372D1 START A-INIT                                                
+                                                                                
+ POST-NR = POST-NR + 1                                                          
+                                                                                
+ IF SUMMA-INPOSTER LT 10000                                                     
+   IF IN-TIPRLIST EQ DATUM-MIN THRU DATUM-MAX                                   
+     PUT W55372D2 FROM W55372D1                                                 
+   END-IF                                                                       
+ ELSE                                                                           
+   IF POST-NR = 1                                                               
+     UT-FELMEDDELANDE = 'MORE THAN 10000 ROWS'                                  
+     PUT W55372D3                                                               
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+ A-INIT. PROC.                                                                  
+   DATUM1 = SYSDATE                                                             
+   DATUM-MIN   = (AA * 10000) - 10000                                           
+   DATUM-MAX   = (AA * 10000) + 11231                                           
+   DISPLAY 'LÄGSTA DATUMGRÄNS ' DATUM-MIN                                       
+   DISPLAY 'HÖGSTA DATUMGRÄNS ' DATUM-MAX                                       
+** GODKÄNDA GRÄNSER (OK ÄR INNEVARANDE, FÖREGÅENDE OCH NÄSTA ÅR)                
+ END-PROC                                                                       

@@ -1,0 +1,124 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W1119200                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER INFIL W91042                                    *        
+*                SKAPAR LISTA MED ARTIKLAR SOM ÄR REGISTRERADE         *        
+*                FÖR S40/V40                                           *        
+*                LISTAN KÖRS 1 GÅNG PER MÅNAD TILL HOLLAND                      
+*                                                                      *        
+*  FÖRFATTARE :  MONICA                                                *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       .....                       *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W11192D1                                                                   
+*                                                                               
+%W91042    'LB-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W11192D2  PRINTER                                                          
+                                                                                
+FILE W11192D3  PRINTER                                                          
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+WS-IDARTNR        W   8   N   MASK 'ZZZZZZZ9'                                   
+WS-IDARTNR-JFR    W   8   N   MASK 'ZZZZZZZZ'                                   
+WS-IDFKNGRP       W   4   N   MASK 'ZZZ9'                                       
+WS-IDLEVNR        W   5   A                                                     
+WS-KDPRODSL       W   3   N   MASK 'ZZ9'                                        
+WS-KDFORP-A       W   4   A                                                     
+WS-BEART-ENG      W   25  A                                                     
+WS-IDBERED        W   2   N   MASK 'Z9'                                         
+WS-TIAAVV         W   3   P                                                     
+WS-TIAAVV-START   W   3   P                                                     
+WS-ANTAL-VECKOR   W   2   P  0                                                  
+WS-TIFINLV        W   4   N                                                     
+WS-TIFINLV1       W   5   N                                                     
+WS-AARSOMS        W   9   N  1 MASK 'ZZZZZZZ9.9'                                
+NOTERING          W   40  A                                                     
+W-SUP             W   1   A                                                     
+WS-KDUART         W   1   A                                                     
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SKAPA LISTA                                                           
+*                                                                               
+JOB INPUT W11192D1                                                              
+                                                                                
+  IF LB-IDPROJ = '9501' '9502' 'E695' 'E696' 'E697'           +                 
+                 '6096' '6097' '6197' '6098' '6298' '6398'    +                 
+                 '6198' 'E698' 'E699' '4000' '4100' '4200'    +                 
+                 'X40L' '4011' '4021'                                           
+      WS-IDARTNR = LB-IDARTNR                                                   
+      WS-BEART-ENG = LB-BEART(4)                                                
+      WS-IDFKNGRP = LB-IDFKNGRP                                                 
+      WS-IDLEVNR  = LB-IDLEVNR                                                  
+      WS-KDPRODSL = LB-KDPRODSL                                                 
+      IF LB-KDFORP = '0000'                                                     
+          WS-KDFORP-A = '    '                                                  
+      ELSE                                                                      
+          WS-KDFORP-A = LB-KDFORP                                               
+      END-IF                                                                    
+      WS-IDARTNR-JFR = LB-IDARTNR-MOTSV                                         
+      WS-KDUART = LB-KDUART                                                     
+      WS-AARSOMS ROUNDED =                                      +               
+         (LB-KVPB-TPO + LB-KVPB-SATS + LB-KVPB-SEP (1) +        +               
+          LB-KVPB-SEP (2) + LB-KVPB-SEP (3) + LB-KVPB-SEP (4))  +               
+           * 8.7                                                                
+                                                                                
+      IF LB-KDERS = 0 AND LB-KDERS-UTG = 0                                      
+          PRINT RAPPORT01                                                       
+          PRINT RAPPORT02                                                       
+      END-IF                                                                    
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+REPORT RAPPORT01 PRINTER W11192D2 LINESIZE 120 DTLCTL FIRST     +               
+       NOADJUST PAGESIZE 41 TITLESKIP 3 NOSPREAD      +                         
+       SUMCTL ALL SPACE 2                                                       
+SEQUENCE  LB-IDPROJ LB-IDARTNR                                                  
+                                                                                
+TITLE 1  COL 12  'VOLVO CAR AFTERSALES   W11192-001 '           +               
+         COL 48  'LISTING S40/V40 PARTS              '                          
+                                                                                
+HEADING LB-IDPROJ      ('PROJ')                                                 
+HEADING WS-IDARTNR     ('PART NO')                                              
+HEADING WS-IDLEVNR     ('SUPPL' 'NO')                                           
+HEADING WS-BEART-ENG   ('DESCRIPTION')                                          
+HEADING LB-BEFT        ('PREP' 'TYPE')                                          
+HEADING WS-KDFORP-A    ('PREP.' 'CODE')                                         
+HEADING WS-AARSOMS     ('YEAR' 'TURN OV')                                       
+                                                                                
+LINE 01  LB-IDPROJ   WS-IDARTNR WS-IDLEVNR WS-BEART-ENG +                       
+         LB-BEFT  WS-KDFORP-A WS-AARSOMS                                        
+NEWPAGE                                                                         
+REPORT RAPPORT02 PRINTER W11192D3 LINESIZE 120 DTLCTL FIRST     +               
+       NOADJUST PAGESIZE 41 TITLESKIP 3 NOSPREAD      +                         
+       SUMCTL ALL SPACE 2                                                       
+SEQUENCE  LB-IDLEVNR LB-IDARTNR                                                 
+                                                                                
+TITLE 1  COL 12  'VOLVO CAR AFTERSALES   W11192-002 '           +               
+         COL 48  'LISTING S40/V40 PARTS  PER SUPPLIER'                          
+                                                                                
+HEADING LB-IDPROJ      ('PROJ')                                                 
+HEADING WS-IDARTNR     ('PART NO')                                              
+HEADING WS-IDLEVNR     ('SUPPL' 'NO')                                           
+HEADING WS-BEART-ENG   ('DESCRIPTION')                                          
+HEADING LB-BEFT        ('PREP' 'TYPE')                                          
+HEADING WS-KDFORP-A    ('PREP.' 'CODE')                                         
+HEADING WS-AARSOMS     ('YEAR' 'TURN OV')                                       
+                                                                                
+LINE 01  LB-IDPROJ WS-IDARTNR WS-IDLEVNR WS-BEART-ENG +                         
+         LB-BEFT  WS-KDFORP-A WS-AARSOMS                                        

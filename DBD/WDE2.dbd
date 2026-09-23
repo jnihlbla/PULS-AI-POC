@@ -1,0 +1,33 @@
+*        TRANSPORTRELEASE DDI->BILL-IT                                          
+*                                                                               
+         DBD   NAME=WDE2,RMNAME=(V12008,4,36000,100000),               *        
+               ACCESS=(HDAM,OSAM)                                               
+         DATASET DD1=WDE2V,DEVICE=3390,SIZE=8192,SCAN=0                         
+*                                                                               
+         SEGM  NAME=WDE201,PARENT=0,BYTES=31,PTR=T                              
+         FIELD NAME=(IDSHIPM,SEQ,U),BYTES=7,START=1,TYPE=X                      
+*                                                                               
+         SEGM  NAME=WDE211,PARENT=WDE201,BYTES=55,PTR=T                         
+         FIELD NAME=(WDE211KY,SEQ,U),BYTES=7,START=1,TYPE=X                     
+         FIELD NAME=(IDDISTR),BYTES=3,START=1,TYPE=P                            
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=4,TYPE=P                           
+*                                                                               
+         SEGM  NAME=WDE221,PARENT=WDE211,BYTES=48,PTR=T                         
+         FIELD NAME=(WDE221KY,SEQ,U),BYTES=7,START=1,TYPE=X                     
+         FIELD NAME=(IDPRODNR),BYTES=4,START=1,TYPE=P                           
+         FIELD NAME=(IDKOLLI),BYTES=3,START=5,TYPE=P                            
+         FIELD NAME=(KDPRSTA),BYTES=1,START=28,TYPE=X                           
+         FIELD NAME=(FLCROSS),BYTES=1,START=48,TYPE=X                           
+         LCHILD NAME=(WDE2A1,WDE2A),PTR=INDX                                    
+         XDFLD NAME=WDE2ASEQ,SEGMENT=WDE221,                           *        
+               SRCH=(IDPRODNR,IDKOLLI),                                *        
+               EXTRTN=WDE2AEXT                                                  
+* EXIT FINNS NÄR KDPRSTA = R                                                    
+*                                                                               
+         SEGM  NAME=WDE231,PARENT=WDE221,BYTES=150,PTR=T                        
+         FIELD NAME=(IDPURAD,SEQ,U),BYTES=3,START=1,TYPE=P                      
+         FIELD NAME=(PRARTNTL),BYTES=5,START=11,TYPE=P                          
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  STARTAS FRÅN BILD 5162/5163 OCH SKAPAR PERSONLIG EXTRAKT-FIL               
+//*                                                                             
+//*  FREKVENS:     FLERA GGR PER DAG    RTN W555B3                              
+//*                                                                             
+//*  ÅTERSTART:    W55506    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W555P006 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDUT=&WXTR..W555.&IDUSER                                        
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55506   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W55506,W55506,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W55506D1 DD  DSN=&&W55506,DISP=(NEW,PASS,DELETE),                             
+//************ PERSONLIG EXTRAKTFIL FÖR ANALYSER                                
+//             DATACLAS=PSEN,MGMTCLAS=&NOBACKUP                                 
+//************ HÄR NEDAN SKAPAS TOMFIL (PERSONLIG EXTRAKTFIL)                   
+//TOM      EXEC PGM=V16266,PARM='DD'                                            
+//DD1      DD  DSN=&INDUT..W55506,DISP=(MOD,KEEP,DELETE),                       
+//             DCB=(RECFM=FB,LRECL=202,BLKSIZE=27876),                          
+//             MGMTCLAS=NOBACKUP,                                               
+//             SPACE=(TRK,(1,1),RLSE)                                           
+//*                                                                             
+//************ HÄR NEDAN FYLLS TOMFILEN PÅ                                      
+//ICEGENER EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&&W55506,DISP=(OLD,PASS,DELETE)                              
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W55506,DISP=(SHR,KEEP,DELETE),                       
+//************** PERSONLIG EXTRAKTFIL FÖR ANALYSER                  ***         
+//             DATACLAS=PSEN,MGMTCLAS=&NOBACKUP                                 

@@ -1,0 +1,54 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  JÄMFÖR FIL INNEHÅLLANDE AVROP FÖR ARTIKLAR                                 
+//*  MED LV-LEVERANTÖRNR SOM FÅTT GODKÄND LEV.PLAN MED                          
+//*  ETT INTERNT REGISTER INNEHÅLLANDE FÖRRA VERSIONEN                          
+//*  AV LEVERANSPLANER OCH UPPDATERAR NYTT INTERNREGISTER                       
+//*  SAMT SKAPAR ORDERPOSTER TILL LV:S ORDERSYSTEM.                             
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W234V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W23434    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W234P034 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W234,                                                    
+//             INDIN=&W234..W234V1,                                             
+//             INDUT=&WUT..W234V1                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23434   EXEC PGM=W23434                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W23434D1 DD  DSN=&INDIN..W23430(+0),DISP=SHR                                  
+//************ FIL MED AVROP FÖR ARTIKLAR MED LV-LEVERANTÖR                     
+//************ SOM FÅTT GODK. LEVPLAN.                                          
+//*                                                                             
+//W23434D2 DD  DSN=&INDREG..W23434(+0),DISP=SHR                                 
+//***********  GAMMALT INTERNREGISTER                                           
+//***********  INTERNREGISTER LEVERANSPLANER (AVROP) FÖR                        
+//***********  ARTIKLAR MED LV-LEVERANTÖRNUMMER                                 
+//*                                                                             
+//W23434D3 DD  DSN=&INDREG..W23434(+1),                        -LIM(10)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//***********  NYTT INTERNREGISTER                                              
+//***********  INTERNREGISTER LEVERANSPLANER (AVROP) FÖR                        
+//***********  ARTIKLAR MED LV-LEVERANTÖRNUMMER                                 
+//             SPACE=(27,(1,2),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W23434D4 DD  DSN=&INDUT..W23436(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FIL TILL LV:S ORDERSYSYTEM                                       
+//             SPACE=(80,(1,2),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,28 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TAR EMOT TRANSAR FRÅN BILL-IT VIA WZ01-MODULEN                             
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W510S1                                           
+//*                                                                             
+//*  ÅTERSTART:    W5106A    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P06A PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDUT=&W510..W510S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W5106A   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W5106A,W5106A,W5106AT,,N00,,,,,&CPU,,,&IMS')                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W5106AD1 DD  DSN=&INDUT..W5106A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//             MGMTCLAS=GDG8,DATACLAS=PSEN                                      

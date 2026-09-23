@@ -1,0 +1,51 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄGGER UPP SATSER PÅ INLEV REG.                                            
+//*  FIL FRÅN FRÅN FAKTURERINGEN.                                               
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611S7                                            
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W61102    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P002 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W476..W611S7,                                            
+//             CPU=1,                                                           
+//             INDUT=&W611..W611S7                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD02),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W47692,DISP=SHR                                     
+//************ RETURER OCH SATSER                                               
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47692,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD RETUR FIL                                               
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61102   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W61102,W61102,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=NJORS2,HOLD=YES        -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W61102D1 DD  DSN=&&W47692,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD RETUR FIL                                               
+//*                                                                             
+//W61102D2 DD  DSN=&INDUT..W61102(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FELFIL                                                           
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *          

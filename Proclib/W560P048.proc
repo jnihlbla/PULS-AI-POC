@@ -1,0 +1,36 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  INVENTERINGEN.                                                             
+//*                                                                             
+//*  LISTAR ARTIKLAR MED NEGATIVA LAGERSALDON/AVGCOST PÅ LAB-LAGREN             
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W560V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W56048    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W560P048 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..W560V1,                                             
+//             INDUT=&W560..W560V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56048   EXEC PGM=V16459,PARM='W56048/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//*                                                                             
+//W56048D1 DD  DSN=&INDIN..W51052(+0),DISP=SHR                                  
+//************ VECKOLAGERBAND LAB                                               
+//*                                                                             
+//W56048D2 DD  DSN=&INDUT..W56048A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//************ D&P LIST W56048-001 FOR NDC -NA                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DE LEVERANTÖRER SOM SKALL HA LEV.PLANER PER VECKA/PERIOD.                  
+//*  UPPDATERAR WDR5/2247+J/WDGX2248 MED BERÖRDA ARTIKLAR.                      
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W224V4                                         
+//*                                                                             
+//*  ÅTERSTART:    W22462    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W224P062 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W224..W224V4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W224PD62),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W22461,DISP=SHR                                      
+//************ LEVNR FRÅN VECKA (W224V4)/PERIOD (W224P1)                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W22461,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//************ SORTERAD FIL LEVNR/DC/ARTIKEL                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22462   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W22462,W22462,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W22462D1 DD  DSN=&INDIN..W22460(+0),DISP=SHR                                  
+//************ LEVNR SOM SKALL HA LEVPLAN VECKA/PERIOD                          
+//*                                                                             
+//W22462D2 DD  DSN=&&W22461,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKLAR MED KDAVROP 2                                           
+//*                                                                             

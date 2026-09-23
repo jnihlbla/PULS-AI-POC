@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  JUSTERING DDGS BRUTTOVIKT                                                  
+//*                                                                             
+//*  FREKVENS:     FLERA GGR PER DAG     RTN W463S9                             
+//*                                                                             
+//*  ÅTERSTART:    W4635B    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W463P05B PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W463..W463S9,                                             
+//             INDUT=&W463..W463S9                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W463PD56),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W46356(+0),DISP=SHR                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//SORTOUT  DD  DSN=&&W46356,DISP=(NEW,PASS,DELETE),                             
+//************ SORTAD EDI FIL                                                   
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W4635B   EXEC PGM=V16459,PARM='W4635B/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W4635BD1 DD  DSN=&&W46356,DISP=(OLD,DELETE,DELETE)                            
+//************ DESADV                                                           
+//*                                                                             
+//W4635BD2 DD  DSN=&INDIN..W4635J(+0),DISP=SHR                                  
+//************ JUSTERAD BRUTTOVIKT                                              
+//*                                                                             
+//W4635BD3 DD  DSN=&INDUT..W4635B(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ JUSTERAD DESADV                                                  
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W4635BD4 DD  DSN=&INDUT..W4635D(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ FIL TILL D&P (UNDERLAG)                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

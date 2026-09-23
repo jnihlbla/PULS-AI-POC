@@ -1,0 +1,28 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*        DUMP-PROCEDURE FÖR TEST-DATABASER (IMAGE COPY)                       
+//*        ÅTERSTART: IMS-TEKNIK                                                
+//*                                                                             
+//*        EXEMPEL PÅ DD-KORT SOM SKALL LÄGGAS TILL                             
+//*                                                                             
+//*        //OUTDD1   DD  DSN=&W..TESTDUMP.WDX1V,DISP=(NEW,CATLG,DELETE)        
+//*        //WDX1V    DD  DSN=&W..TEST.WDX1V,DISP=SHR                           
+//*        //SYSIN    DD  *                                                     
+//*                                            ANSV. AVD. IMS-TEKNIK            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WDLIDMP PROC DBRC=Y,INDABE=&INDRTE                                            
+//*                                                                             
+//DMP     EXEC PGM=DFSRRC00,                                                    
+//             PARM='ULU,DFSUDMP0,,,,,,,,,,,,&DBRC'                             
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDABE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//DFSCTL   DD  DSN=&INDRTE..CONSTANT(SBCOND),DISP=SHR                           
+//*                                                                             
+//ABEND   EXEC PGM=ABEND,COND=(0,EQ,DMP),PARM='1234567890123456'                

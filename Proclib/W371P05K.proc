@@ -1,0 +1,67 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  REPORT W3715K-091 YESTERDAYS SCRAPORDERS IN DC91                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W371D7                                         
+//*                                                                             
+//*  RESTART:      W3715K    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P05K PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W479..W371D7,                                            
+//             INDIN2=&W413,                                                    
+//             INDUT=&W371..W371D7                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W3715K   EXEC PGM=V16459,PARM='W3715K/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W3715KD1 DD  DSN=&INDIN1..W47923B(0),DISP=SHR                                 
+//************ W47923B                                                          
+//*                                                                             
+//TPFILE1  DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FOR SORTED W47923B                                       
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//TPFILE5  DD  DSN=&&TPFIL5,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FOR SORTED W47923B                                       
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//TPFILE6  DD  DSN=&&TPFIL6,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FOR SORTED W47923B                                       
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W3715KD2 DD  DSN=&INDIN1..W47925X(0),DISP=SHR                                 
+//************ W47925X                                                          
+//*                                                                             
+//TPFILE2  DD  DSN=&&TPFIL2,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FOR SORTED W47925X                                       
+//             DATACLAS=PSEB                                                    
+//*            SPACE=(27987,(800,800),RLSE)                                     
+//*                                                                             
+//TPFILE4  DD  DSN=&&TPFIL4,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FOR SORTED W47925X                                       
+//             DATACLAS=PSEB                                                    
+//*            SPACE=(27987,(800,800),RLSE)                                     
+//*                                                                             
+//W3715KD3 DD  DSN=&INDIN2..W41302(0),DISP=SHR                                  
+//************ W41302                                                           
+//*                                                                             
+//TPFILE3  DD  DSN=&&TPFIL3,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FOR SORTED W41302                                        
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W3715KD4 DD  DSN=&INDUT..W3715K(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ REPORT W3715K-091 YESTERDAYS SCRAPORDERS IN DC9                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

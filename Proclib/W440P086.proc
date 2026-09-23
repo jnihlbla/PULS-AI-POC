@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RESTORDERRADER TOTALT ÄLDRE ÄN TVÅ VECKOR                                  
+//*                                                                             
+//*  FREQUENCE:    WEEK      RTN W440V2                                         
+//*                                                                             
+//*  RESTART:      W44086    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P086 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W440..W440V2,                                             
+//             INDIN2=&W011..&RTEGRP,                                           
+//             INDIN3=&W910,                                                    
+//             INDUT=&W440..W440V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W44086   EXEC PGM=V16459,PARM='W44086/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W44086D1 DD  DSN=&INDIN..W4408C(+0),DISP=SHR                                  
+//************ INFIL TOTALT RO SORTERAD PÅ ARTNR                                
+//*                                                                             
+//TEMPFIL1 DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W44086D2 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ LAGERBANDET                                                      
+//*                                                                             
+//TEMPFIL2 DD  DSN=&&TEMP2,DISP=(NEW,DELETE,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//************ LAGERBANDET MATCHED WITH TEMP1                                   
+//*                                                                             
+//W44086D3 DD  DSN=&INDIN3..W91042(+0),DISP=SHR                                 
+//************ ARTIKELINFO                                                      
+//*                                                                             
+//TEMPUT   DD  DSN=&&TEMPUT,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//************ ARTIKELINFO MATCHED WITH TEMP2                                   
+//*                                                                             
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W440PD84),DISP=SHR                         
+//SORTIN   DD  DSN=&&TEMPUT,DISP=(OLD,DELETE,DELETE)                            
+//************ SORT IDARTNR,IDLEVNR + SUM FIELDS KVRADER,SUORDV                 
+//SORTOUT  DD  DSN=&INDUT..W44086(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ UTFIL SORT TEMPUT - TOTALT RO TILL W44087-PGM                    
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

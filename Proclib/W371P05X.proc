@@ -1,0 +1,31 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR EXELFIL AV UPPFÖLJNINGSREGISTRET                                    
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W371V3                                         
+//*                                                                             
+//*  ÅTERSTART:    W3715D    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P05D PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W371,                                                     
+//             INDUT=&W371..W371V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W3715D   EXEC PGM=V16459,PARM='W3715D/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W3715DD1 DD  DSN=&INDIN..W3715C,DISP=SHR                                      
+//************ BYTESRIGESTER UPPFÖLJNING                                        
+//*                                                                             
+//W3715DD2 DD  DSN=&INDUT..W3715D(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ EXELFIL AV BYTESREGISTRET                                        
+//             SPACE=(101,(500,300),RLSE),AVGREC=K,                             
+//             MGMTCLAS=&BACKUPC                                                

@@ -1,0 +1,147 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WXTR0800                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  LARS THELL                                            *        
+*                                                                      *        
+*  DATUM      :  950418                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET INGÅR I VCAS UPPFÖLJNINGSMILJÖ.            *        
+*                PROGRAMMET SLÅR SKAPAR VECKOFIL MED PACKAT            *        
+*                PER IDDC OCH DISTR.                                   *        
+*                                                                      *        
+*                PROGRAMMET TAR IN FIL                                 *        
+*                  WXTR04 DAGLIG PACKAT                                *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE WXTR08D1                                                                   
+*     DAGLIG PACKFIL                                                            
+   IN-IDDC            1    2  A                                                 
+   IN-IDPRC           *    4  A                                                 
+   IN-KDORDKL         *    1  P 0                                               
+   IN-IDDISTR         *    3  P 0                                               
+   IN-PACKED-STD      *    6  P 2                                               
+   IN-PACKED-AVG      *    6  P 2                                               
+   IN-PACKED-LINES    *    3  P 0                                               
+   IN-VKARTNTO        *    4  P 3                                               
+   IN-VLARTNTO        *    5  P 1                                               
+   IN-PACKED-ORDERS   *    3  P 0                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR08D2   FB (37 0)                                                       
+*     VECKOFIL PACKAT                                                           
+   UT-IDDC            1    2  A                                                 
+   UT-IDPRC           *    4  A                                                 
+   UT-KDORDKL         *    1  P 0                                               
+   UT-IDDISTR         *    3  P 0                                               
+   UT-PACKED-STD      *    6  P 2                                               
+   UT-PACKED-AVG      *    6  P 2                                               
+   UT-PACKED-LINES    *    3  P 0                                               
+   UT-VKARTNTO        *    4  P 3                                               
+   UT-VLARTNTO        *    5  P 1                                               
+   UT-PACKED-ORDERS   *    3  P 0                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1  A   VALUE 'J'                                
+  NEJ                       W   1  A   VALUE 'N'                                
+*                                                                               
+  SPAR-IDDC                 W    2  A                                           
+  SPAR-IDPRC                W    4  A                                           
+  SPAR-KDORDKL              W    1  P                                           
+  SPAR-IDDISTR              W    3  P 0                                         
+  W-PACKED-STD              W   10  P 2                                         
+  W-PACKED-AVG              W   10  P 2                                         
+  W-PACKED-LINES            W    3  P 0                                         
+  W-VKARTNTO                W    4  P 3                                         
+  W-VLARTNTO                W    5  P 1                                         
+  W-PACKED-ORDERS           W    3  P 0                                         
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT WXTR08D1     FINISH S01-SKRIV-VECKOFIL                              
+                                                                                
+     IF RECORD-COUNT       = 1                                                  
+        SPAR-IDDC          = IN-IDDC                                            
+        SPAR-IDPRC         = IN-IDPRC                                           
+        SPAR-KDORDKL       = IN-KDORDKL                                         
+        SPAR-IDDISTR       = IN-IDDISTR                                         
+        W-PACKED-STD       = 0                                                  
+        W-PACKED-AVG       = 0                                                  
+        W-PACKED-LINES     = 0                                                  
+        W-VLARTNTO         = 0                                                  
+        W-VKARTNTO         = 0                                                  
+        W-PACKED-ORDERS    = 0                                                  
+     END-IF                                                                     
+                                                                                
+     IF  SPAR-IDDC         = IN-IDDC    AND                      +              
+         SPAR-IDPRC        = IN-IDPRC   AND                      +              
+         SPAR-KDORDKL      = IN-KDORDKL AND                      +              
+         SPAR-IDDISTR      = IN-IDDISTR                                         
+         W-PACKED-STD      = W-PACKED-STD   + IN-PACKED-STD                     
+         W-PACKED-AVG      = W-PACKED-AVG   + IN-PACKED-AVG                     
+         W-PACKED-LINES    = W-PACKED-LINES + IN-PACKED-LINES                   
+         W-VLARTNTO        = W-VLARTNTO     + IN-VLARTNTO                       
+         W-VKARTNTO        = W-VKARTNTO     + IN-VKARTNTO                       
+         W-PACKED-ORDERS   = W-PACKED-ORDERS + IN-PACKED-ORDERS                 
+                                                                                
+     ELSE                                                                       
+                                                                                
+         PERFORM S01-SKRIV-VECKOFIL                                             
+                                                                                
+         SPAR-IDDC         = IN-IDDC                                            
+         SPAR-IDPRC        = IN-IDPRC                                           
+         SPAR-KDORDKL      = IN-KDORDKL                                         
+         SPAR-IDDISTR      = IN-IDDISTR                                         
+         W-PACKED-STD      = IN-PACKED-STD                                      
+         W-PACKED-AVG      = IN-PACKED-AVG                                      
+         W-PACKED-LINES    = IN-PACKED-LINES                                    
+         W-VLARTNTO        = IN-VLARTNTO                                        
+         W-VKARTNTO        = IN-VKARTNTO                                        
+         W-PACKED-ORDERS   = IN-PACKED-ORDERS                                   
+     END-IF                                                                     
+                                                                                
+  NEWPAGE                                                                       
+                                                                                
+  S01-SKRIV-VECKOFIL. PROC                                                      
+                                                                                
+     UT-IDDC          = SPAR-IDDC                                               
+     UT-IDPRC         = SPAR-IDPRC                                              
+     UT-KDORDKL       = SPAR-KDORDKL                                            
+     UT-IDDISTR       = SPAR-IDDISTR                                            
+     UT-PACKED-STD    = W-PACKED-STD                                            
+     UT-PACKED-AVG    = W-PACKED-AVG                                            
+     UT-PACKED-LINES  = W-PACKED-LINES                                          
+     UT-VLARTNTO      = W-VLARTNTO                                              
+     UT-VKARTNTO      = W-VKARTNTO                                              
+     UT-PACKED-ORDERS = W-PACKED-ORDERS                                         
+                                                                                
+     PUT WXTR08D2                                                               
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         

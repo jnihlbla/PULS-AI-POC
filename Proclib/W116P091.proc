@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR TVÅ GENERATIONERNA AV ARTIKEL FIL OCH                              
+//*  SKRIVER UTFIL MED DE ARTIKLAR SOM HAR FÖRÄNDRATS TILL VIPS                 
+//*                                                                             
+//*  FREKVENS:     DAG   RTN W116D4                                             
+//*                                                                             
+//*  ÅTERSTART:                                                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P091 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=NULLFILE,                                                  
+//             INDUT=NULLFILE                                                   
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11691   EXEC PGM=V16459,PARM='W11691/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(500,500))                                           
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W11691D1 DD  DSN=&INDIN..W11690(+0),DISP=SHR                                  
+//************ NYASTE GENERATIONEN AV ART                                       
+//*                                                                             
+//W11691D2 DD  DSN=&INDIN..W11690(-1),DISP=SHR                                  
+//************ ÄLDSTA GENERATIONEN AV ART                                       
+//*                                                                             
+//W11691D3 DD  DSN=&INDUT..W11691(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ ARTIKELINFO TILL VIPS                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* TO REPLACE ¤MQMPROP HEADERS BY ¤DAP HEADERS                                 
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2   EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDUT..W11691(+1),DISP=SHR                                  
+//SORTOUT  DD  DSN=&&W11691,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PE82),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,99 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER WDD3 MED SB, SKRIVER SAMTLIGA BENÄMNINGAR PER                        
+//*  ARTIKEL FRÅN WDD311 PÅ FILEN W01174, SORT;IDARTNR                          
+//*                                                                             
+//*                                                                             
+//*  FREKVENS:     TIMME  RTN W011S1                                            
+//*                DAG    RTN W011D1                                            
+//*                VECKA  RTN W100V1                                            
+//*                                                                             
+//*                INDUT ANGES I JCL                                            
+//*                                                                             
+//*                                                                             
+//*  ÅTERSTART:    W01174      NORMAL                                           
+//*                LÄSER  WDD3                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W011P074 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=SAKNAS,INDREG=&W011                                        
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W01174   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W01174,W01174,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//W01174D1 DD  DSN=&&W01174,DISP=(NEW,PASS,DELETE),                             
+//************ BENÄMNINGAR PER ARTIKEL                                          
+//         SPACE=(285,(150,25),RLSE),AVGREC=K                                   
+//*                                                                             
+//W01174D2 DD  DSN=&&W01178,DISP=(NEW,PASS,DELETE),                             
+//************ TURKISK BEART PER ARTNR                                          
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W01174D3 DD  DSN=&&W01171,DISP=(NEW,PASS,DELETE),                             
+//************ BENÄMNINGAR PER ARTIKEL                                          
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W01174D4 DD  DSN=&&W01174X1,DISP=(NEW,PASS,DELETE),                           
+//************ IDBENNR+IDARTNR - AZURE DATALAKE                                 
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W01174D5 DD  DSN=&&W01174X2,DISP=(NEW,PASS,DELETE),                           
+//************ IDBENNR+IDSKYLT+BEART - AZURE DATALAKE LATIN LANG                
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W01174D6 DD  DSN=&&W01174X3,DISP=(NEW,PASS,DELETE),                           
+//************ IDBENNR+IDSKYLT+BEART - AZURE DATALAKE UTF8                      
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W011PD74),DISP=SHR                         
+//SORTIN   DD  DSN=&&W01174,DISP=(OLD,DELETE,DELETE)                            
+//************ BENÄMNINGAR PER ARTIKEL                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W01174(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ BENÄMNINGAR PER ARTIKEL, SORT IDARTNR                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=NOBACKUP                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W011PD74),DISP=SHR                         
+//SORTIN   DD  DSN=&&W01178,DISP=(OLD,DELETE,DELETE)                            
+//************ BENÄMNINGAR PER ARTIKEL                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W01178(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ BENÄMNINGAR PER ARTIKEL, SORT IDARTNR                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=NOBACKUP                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W011PD74),DISP=SHR                         
+//SORTIN   DD  DSN=&&W01171,DISP=(OLD,DELETE,DELETE)                            
+//************ BENÄMNINGAR PER ARTIKEL                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&INDREG..W01171(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//************ BENÄMNINGAR PER ARTIKEL, SORT IDARTNR                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=NOBACKUP                                                

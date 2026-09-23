@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  STD PRICE PROCESS                                                          
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W553B3                                         
+//*                                                                             
+//*  RESTART:      W55305      NORMAL                                           
+//*                READS        WDK6                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W553P005 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W553..W553B3,                                             
+//             INDUT=&W553..W553B3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W553PD05),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W55304(+0),DISP=SHR                                  
+//************ STD PRIC FILE                                                    
+//SORTOUT  DD  DSN=&&W55304,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED W55304 WITH IDARTNR                                       
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W55305   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W55305,W55305,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W55305D1 DD  DSN=&&W55304,DISP=(OLD,DELETE,DELETE)                            
+//************ STANDARD PRICE FILE AFTER VALIDATION                             
+//*                                                                             
+//W55305D2 DD  DSN=&INDUT..W55305(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)          
+//************ STD PRICE FILE                                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W55305D3 DD  DSN=&INDUT..W55305F(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)         
+//************ ERROR FILE W55305-001                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

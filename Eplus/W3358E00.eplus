@@ -1,0 +1,130 @@
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W3358E00                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR W01184- OCH W3358D-FIL(ARTINFO-FIL) TILL      *        
+*                W3358E MED HUVUDLEV OCH LOKALA LEVERATÖRERS SJÄLV-    *        
+*                KOST TILL MÅNADSKURS                                  *        
+*                                                                      *        
+*                                                                      *        
+*  FÖRFATTARE :  ANDERS HENRIKSSON                                     *        
+*                                                                      *        
+*  DATUM      :  FEB 13                                                *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W3358ED1                                                                   
+*NDC'ER                                                                         
+%W01184  'NDC-'                                                                 
+                                                                                
+FILE W3358ED2                                                                   
+%W3358D  'PRIS-'                                                                
+                                                                                
+FILE W3358ED3   FB (1714 0)                                                     
+%W33589  'UT-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  PARAMETRAR TILL WDATKONV            *                                        
+* -------------------------------------*                                        
+%WDATAREA                                                                       
+*                                                                               
+*--------------------------------------*                                        
+*  WWDC99 - NDC-ER                     *                                        
+* -------------------------------------*                                        
+%WWDC99                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  ARBETSFÄLT                          *                                        
+* -------------------------------------*                                        
+*                                                                               
+IX              W  3 N                                                          
+MAX-IX          W  3 N VALUE 100                                                
+INDX            W  2 N                                                          
+MAX-INDX        W  2 N VALUE 11                                                 
+W-IDLEVNR       W  5 A                                                          
+W-IDLEVNR-MOTSV W  5 A                                                          
+W-PRARTBES-PR   W  9 N 2                                                        
+W-LOKLEVFL      W  1 A                                                          
+W-SKRIV-SW      W  1 A   VALUE 'N'                                              
+W-SPAR-IDARTNR  W  5 P 0 VALUE 0                                                
+                                                                                
+NEWPAGE                                                                         
+*------------------------------------------------------------------*            
+*STEG 1. MATCHAR IHOP W3358ED2(ART-FIL) MED W3358ED1(W01184)       *            
+*------------------------------------------------------------------*            
+                                                                                
+JOB INPUT(W3358ED2 KEY (PRIS-IDARTNR, PRIS-IDDC)                      +         
+          W3358ED1 KEY (NDC-SLAG-IDARTNR, NDC-SLAG-IDDC)) START A-INIT +        
+                       FINISH Z-FINIT                                           
+                                                                                
+ IF MATCHED                                                                     
+   IF W-SKRIV-SW = 'J'                                                          
+      IF W-SPAR-IDARTNR = PRIS-IDARTNR                                          
+        PERFORM FYLL-I-RADER                                                    
+     ELSE                                                                       
+        PUT W3358ED3                                                            
+        W-SKRIV-SW = 'N'                                                        
+        W-SPAR-IDARTNR = 0                                                      
+        PERFORM FYLL-I-HUVUD-OCH-NOLLA-RADER-FORSTA                             
+        PERFORM FYLL-I-RADER                                                    
+     END-IF                                                                     
+   ELSE                                                                         
+      PERFORM FYLL-I-HUVUD-OCH-NOLLA-RADER-FORSTA                               
+      PERFORM FYLL-I-RADER                                                      
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+A-INIT. PROC                                                                    
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+ FYLL-I-HUVUD-OCH-NOLLA-RADER-FORSTA. PROC                                      
+  UT-IDARTNR       = PRIS-IDARTNR                                               
+  W-SPAR-IDARTNR   = PRIS-IDARTNR                                               
+  UT-IDLEVNR-HUV   = PRIS-IDLEVNR-HUV                                           
+  UT-PRHANTK       = PRIS-PRHANTK                                               
+  UT-PRARTSJK      = PRIS-PRARTSJK                                              
+  UT-PRARTBES      = PRIS-PRARTBES                                              
+  UT-PRARTSTD      = PRIS-PRARTSTD                                              
+  UT-KDPRODSL      = PRIS-KDPRODSL                                              
+                                                                                
+  IX = 1                                                                        
+  DO WHILE IX < MAX-IX                                                          
+    UT-IDDC          (IX) = '  '                                                
+    UT-IDLEVNR       (IX) = '     '                                             
+    UT-IDLEVNR-MOTSV (IX) = '     '                                             
+    UT-PRARTBES-PR   (IX) = 0                                                   
+    IX = IX + 1                                                                 
+  END-DO                                                                        
+                                                                                
+  IX = 1                                                                        
+  W-SKRIV-SW = 'J'                                                              
+                                                                                
+ END-PROC                                                                       
+                                                                                
+NEWPAGE                                                                         
+ FYLL-I-RADER. PROC                                                             
+  PERFORM S23-CHECK-NDC-SLAG-IDDC                                               
+  IF NDC-SLAG-IDDC = NDC-NA OR                           +                      
+     NDC-SLAG-IDDC = NDC-JP OR                           +                      
+     NDC-SLAG-IDDC = NDC-AU OR                           +                      
+     NDC-SLAG-IDDC = XDC-NON-VCC-OWNED                                          
+      UT-IDDC (IX)          = PRIS-IDDC                                         
+      UT-IDLEVNR     (IX)   = PRIS-IDLEVNR                                      
+      UT-IDLEVNR-MOTSV (IX) = PRIS-IDLEVNR-MOTSV                                
+      UT-PRARTBES-PR (IX)   = PRIS-PRARTBES-PR                                  
+      IX = IX + 1                                                               
+  END-IF                                                                        
+ END-PROC                                                                       
+                                                                                
+Z-FINIT. PROC                                                                   
+ IF W-SKRIV-SW = 'J'                                                            
+    PUT W3358ED3                                                                
+ END-IF                                                                         
+END-PROC                                                                        
+*                                                                               
+*  ---  S23-CHECK-NDC-SLAG-IDDC (MACRO PROCEDURE)                               
+%WWDC02 'NDC-SLAG-'                                                             
+*                                                                               

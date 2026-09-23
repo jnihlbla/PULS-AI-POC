@@ -1,0 +1,255 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  PRISSÄTTNING FÖR EMBALLAGE                            *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER SATS.STRUKTUR-  OCH ARTIKEL-FILER               *        
+*                                                                      *        
+*             :  SKAPAR EN FIL W55103 MED FAKTOR FÖR BERÄKNING AV      *        
+*                                         DIR LÖN OCH ÖVRIGA OMKOST    *        
+*                                         FÖR VARJE  SATSARTIKEL       *        
+*                PROGRAMMET ÄR KOPIA AV W4240200 DEN 23/5 1995 /KJH    *        
+*                                                                      *        
+*  FÖRFATTARE :  LASSI OLGRENER                                        *        
+*                                                                      *        
+*  DATUM      :  OKTOBER 1989                                          *        
+*                                                                      *        
+*  INFILER    :  W55146             - SATS.STRUKTURFILFRÅN SPIS        *        
+*             :  W55159             - ARTIKELFIL FRÅN SPIS             *        
+*                                                                      *        
+*  UTFILER    :  W55103             - KOSTNADSFAKTORFIL                *        
+*                                                                      *        
+*  LISTA      :  FAKTORBERÄKNING                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+*-------------*                                                                 
+* INFILER     *                                                                 
+*-------------*                                                                 
+FILE W55102D1                                                                   
+%W55146   'IN1-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE W55102D2                                                                   
+%W55159   'IN2-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*-------------*                                                                 
+* TEMPFILER   *                                                                 
+*-------------*                                                                 
+FILE TEMPFIL1 FB (7 0)                                                          
+TEMP1-IDARTNR       1   5   P   0                                               
+TEMP1-ANT-SATS-RAD  6   2   P   0                                               
+*                                                                               
+*                                                                               
+FILE TEMPFIL2 FB (11 0)                                                         
+TEMP2-IDARTNR    1   5   P   0                                                  
+TEMP2-BEFT       6   2   P   0                                                  
+TEMP2-KVPB-PER   8   4   P   1                                                  
+*                                                                               
+*                                                                               
+FILE TEMPFIL3 FB (13 0)                                                         
+TEMP3-IDARTNR        1   5   P  0                                               
+TEMP3-ANT-SATS-RAD   6   2   P  0                                               
+TEMP3-BEFT           8   2   P  0                                               
+TEMP3-KVPB-PER      10   4   P  1                                               
+*                                                                               
+*                                                                               
+FILE TEMPFIL4 FB (9 0)                                                          
+TEMP4-IDARTNR       1   5   P   0                                               
+TEMP4-BEFT          6   2   P   0                                               
+TEMP4-ANT-SATS-RAD  8   2   P   0                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE TEMPFIL5 FB (7 0)                                                          
+TEMP5-BEFT              1   2   P   0                                           
+TEMP5-MV-SATS-PER-BEFT  3   5   P   3                                           
+*                                                                               
+*                                                                               
+FILE TEMPFIL6 FB (8 0)                                                          
+%W5510201 'TEMP6-'                                                              
+NEWPAGE                                                                         
+*                                                                               
+*-------------*                                                                 
+* UTFILER     *                                                                 
+*-------------*                                                                 
+FILE W55102D3 FB (08 6224)                                                      
+%W5510201 'UT-'                                                                 
+NEWPAGE                                                                         
+*                                                                               
+*-------------*                                                                 
+* LISTOR      *                                                                 
+*-------------*                                                                 
+FILE W55102D4 PRINTER VB(125 0)                                                 
+NEWPAGE                                                                         
+*-------------*                                                                 
+* ARBETSAREOR *                                                                 
+*-------------*                                                                 
+*                                                                               
+W-DATUM                   W   8  A                                              
+W-SPAR-IDARTNR            W   5  P  0                                           
+W-ANT-SATS-RAD            W   2  P                                              
+W-FOERSTA-IDARTNR         W   1  A       VALUE 'J'                              
+W-SPAR-BEFT               W   2  P                                              
+W-FOERSTA-BEFT            W   1  A       VALUE 'J'                              
+W-KVPB-TOT-SUM            W   9  P  1                                           
+W-KVPB-TOT-MULT-ANT-SUM   W   9  P  1                                           
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*-----------------------------------------------                                
+* JOB 1 RÄKNAR ANTALET ARTIKELNUMMER PER SATS                                   
+*-----------------------------------------------                                
+*                                                                               
+JOB INPUT (W55102D1)  FINISH Z-FINIT +                                          
+    NAME AKT01                                                                  
+                                                                                
+  IF W-FOERSTA-IDARTNR = 'J'                                                    
+    W-FOERSTA-IDARTNR     = 'N'                                                 
+    W-SPAR-IDARTNR        = IN1-IDARTNR-SATS                                    
+  END-IF                                                                        
+                                                                                
+  IF IN1-IDARTNR-SATS     = W-SPAR-IDARTNR                                      
+    W-ANT-SATS-RAD        = W-ANT-SATS-RAD + 1                                  
+  ELSE                                                                          
+    TEMP1-IDARTNR         = W-SPAR-IDARTNR                                      
+    TEMP1-ANT-SATS-RAD    = W-ANT-SATS-RAD                                      
+    PUT TEMPFIL1                                                                
+                                                                                
+    W-ANT-SATS-RAD        = +1                                                  
+    W-SPAR-IDARTNR        = IN1-IDARTNR-SATS                                    
+  END-IF                                                                        
+                                                                                
+Z-FINIT. PROC                                                                   
+    TEMP1-IDARTNR         = W-SPAR-IDARTNR                                      
+    TEMP1-ANT-SATS-RAD    = W-ANT-SATS-RAD                                      
+    PUT TEMPFIL1                                                                
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+*-----------------------------------------------                                
+* JOB 2 PLOCKAR UT DLB-SATSARTIKLAR PÅ TEMPFIL2                                 
+*-----------------------------------------------                                
+*                                                                               
+JOB INPUT (W55102D2) +                                                          
+    NAME AKT02                                                                  
+                                                                                
+  IF IN2-IDLEVNR = '1002 '                                                      
+    TEMP2-IDARTNR  = IN2-IDARTNR                                                
+    TEMP2-BEFT     = IN2-BEFT                                                   
+    TEMP2-KVPB-PER = IN2-KVBEHOVAR / 12                                         
+    PUT TEMPFIL2                                                                
+  END-IF                                                                        
+*                                                                               
+*---------------------------------------------------                            
+* JOB 3 MATCHAR SATSFIL(TMP1) MED DLB-SATSART(TEMP2)                            
+*---------------------------------------------------                            
+*                                                                               
+JOB INPUT (TEMPFIL1 KEY (TEMP1-IDARTNR)   +                                     
+           TEMPFIL2 KEY (TEMP2-IDARTNR))  +                                     
+     NAME AKT03                                                                 
+                                                                                
+IF MATCHED                                                                      
+  TEMP3-IDARTNR      = TEMP1-IDARTNR                                            
+  TEMP3-ANT-SATS-RAD = TEMP1-ANT-SATS-RAD                                       
+  TEMP3-BEFT         = TEMP2-BEFT                                               
+  TEMP3-KVPB-PER     = TEMP2-KVPB-PER                                           
+  PUT TEMPFIL3                                                                  
+END-IF                                                                          
+*                                                                               
+*                                                                               
+SORT TEMPFIL3 TO TEMPFIL3  USING (TEMP3-BEFT, TEMP3-IDARTNR) NAME AKT4          
+                                                                                
+NEWPAGE                                                                         
+*---------------------------------------------------                            
+* JOB 4 ADDERAR OCH BERÄKNAR PER FÖRPACKNINGSTYP (BEFT)                         
+*---------------------------------------------------                            
+*                                                                               
+JOB INPUT (TEMPFIL3)  FINISH Z2-FINIT START A-INIT +                            
+    NAME AKT05                                                                  
+                                                                                
+  TEMP4-IDARTNR       = TEMP3-IDARTNR                                           
+  TEMP4-BEFT          = TEMP3-BEFT                                              
+  TEMP4-ANT-SATS-RAD  = TEMP3-ANT-SATS-RAD                                      
+  PUT TEMPFIL4                                                                  
+                                                                                
+  IF W-FOERSTA-BEFT = 'J'                                                       
+    W-FOERSTA-BEFT   = 'N'                                                      
+    W-SPAR-BEFT      = TEMP3-BEFT                                               
+  END-IF                                                                        
+                                                                                
+  IF TEMP3-BEFT = W-SPAR-BEFT                                                   
+    W-KVPB-TOT-SUM = W-KVPB-TOT-SUM + TEMP3-KVPB-PER                            
+    W-KVPB-TOT-MULT-ANT-SUM = (TEMP3-KVPB-PER * TEMP3-ANT-SATS-RAD) +           
+                               + W-KVPB-TOT-MULT-ANT-SUM                        
+  ELSE                                                                          
+    TEMP5-BEFT = W-SPAR-BEFT                                                    
+    IF W-KVPB-TOT-SUM = +0                                                      
+      TEMP5-MV-SATS-PER-BEFT = +0                                               
+    ELSE                                                                        
+      TEMP5-MV-SATS-PER-BEFT =                                     +            
+               W-KVPB-TOT-MULT-ANT-SUM / W-KVPB-TOT-SUM + 0.0005                
+    END-IF                                                                      
+    PRINT LISTA                                                                 
+    PUT TEMPFIL5                                                                
+                                                                                
+    W-KVPB-TOT-SUM = +0                                                         
+    W-KVPB-TOT-MULT-ANT-SUM = +0                                                
+    W-SPAR-BEFT = TEMP3-BEFT                                                    
+    W-KVPB-TOT-SUM = W-KVPB-TOT-SUM + TEMP3-KVPB-PER                            
+    W-KVPB-TOT-MULT-ANT-SUM = (TEMP3-KVPB-PER * TEMP3-ANT-SATS-RAD) +           
+                               + W-KVPB-TOT-MULT-ANT-SUM                        
+  END-IF                                                                        
+NEWPAGE                                                                         
+*                                                                               
+A-INIT. PROC                                                                    
+    W-DATUM = SYSDATE                                                           
+END-PROC                                                                        
+                                                                                
+Z2-FINIT. PROC                                                                  
+    TEMP5-BEFT = W-SPAR-BEFT                                                    
+    IF W-KVPB-TOT-SUM = +0                                                      
+      TEMP5-MV-SATS-PER-BEFT = +0                                               
+    ELSE                                                                        
+      TEMP5-MV-SATS-PER-BEFT =                                     +            
+               W-KVPB-TOT-MULT-ANT-SUM / W-KVPB-TOT-SUM + 0.0005                
+    END-IF                                                                      
+    PRINT LISTA                                                                 
+    PUT TEMPFIL5                                                                
+END-PROC                                                                        
+                                                                                
+REPORT LISTA PRINTER W55102D4 LINESIZE 120 NOADJUST NODATE +                    
+             SPACE 5                                                            
+   TITLE 01 'VOLVO CAR PARTS               W55102-001  ' +                      
+            '                               DATUM ' W-DATUM                     
+   TITLE 03 'KALKYLPÅLÄGG ' +                                                   
+            'MEDELVÄRDE PER FÖRPACKNINGSTYP FÖR SATSORDER'                      
+   HEADING  TEMP5-BEFT              ('FP-TYP')                                  
+   HEADING  W-KVPB-TOT-MULT-ANT-SUM ('PB-TOT RAD')                              
+   HEADING  W-KVPB-TOT-SUM          ('PB-TOT')                                  
+   HEADING  TEMP5-MV-SATS-PER-BEFT  ('MEDELVÄRDE')                              
+   LINE TEMP5-BEFT W-KVPB-TOT-MULT-ANT-SUM +                                    
+        W-KVPB-TOT-SUM TEMP5-MV-SATS-PER-BEFT                                   
+*                                                                               
+NEWPAGE                                                                         
+                                                                                
+JOB INPUT (TEMPFIL5 KEY (TEMP5-BEFT)   +                                        
+           TEMPFIL4 KEY (TEMP4-BEFT))  +                                        
+     NAME AKT06                                                                 
+                                                                                
+IF MATCHED                                                                      
+  TEMP6-IDARTNR = TEMP4-IDARTNR                                                 
+  IF TEMP5-MV-SATS-PER-BEFT = +0                                                
+    TEMP6-RESATSFP = +1                                                         
+  ELSE                                                                          
+    TEMP6-RESATSFP = TEMP4-ANT-SATS-RAD / TEMP5-MV-SATS-PER-BEFT +              
+                             + 0.0005                                           
+  END-IF                                                                        
+  PUT TEMPFIL6                                                                  
+END-IF                                                                          
+*                                                                               
+*                                                                               
+SORT TEMPFIL6 TO W55102D3  USING (TEMP6-IDARTNR) NAME AKT07                     
+                                                                                

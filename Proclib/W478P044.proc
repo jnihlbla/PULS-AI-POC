@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE MANAGEMENT REPORTS TO NDC/LDC                                       
+//*  DATA IS SENT VIA WZ01SEND TO D&P                                           
+//*                                                                             
+//*  FREQUENCE:    DAILY/WEEKLY/PERIOD RTN W478V2, W478V1 AND W478R1            
+//*                                                                             
+//*  RESTART:      W47844    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W478J044 PROC STPLIB=&INDRTE..LOAD,                                           
+//             DSIN=&W478..W478XX.W47843(+0),                                   
+//*        *** DSIN=W478.W478D2.W47843(+0) ***                                  
+//*        *** DSIN=W478.W478V1.W47843     ***                                  
+//*        *** DSIN=W478.W478R1.W47843C    ***                                  
+//             INDUT=&W478..W478XX                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W478PD44),DISP=SHR                         
+//SORTIN   DD  DSN=&DSIN,DISP=SHR                                               
+//************ EXTRACTED ORDERS WITHIN RFSDC PER DC                             
+//************ SEE COMMENT ABOVE AND JOB JCL FOR FILE NAMES                     
+//*                                                                             
+//SORTOUT  DD  DSN=&&W47843,DISP=(NEW,PASS,DELETE),                             
+//************ ORDERS WITHIN RFS SORTED PER DC                                  
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47844   EXEC PGM=W47844                                                      
+//*                                                                             
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W47844D1 DD  DSN=&&W47843,DISP=SHR                                            
+//************ ORDERS WITHIN RFS                                                
+//*                                                                             
+//W47844D2 DD  DDNAME=SYSIN                                                     
+//************ NAME OF REPORT TO D&P                                            
+//*                                                                             
+//W47844D3 DD  DSN=&INDUT..W47844(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ ORDERS WITHIN RFS   TO D&P BY DAP3                               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

@@ -1,0 +1,324 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W1166D00                                              *        
+*                                                                               
+*  FUNKTION   :  CREATE PART INFO TOTAL FILE FOR VSIM                           
+*                                                                               
+*  OVERVIEW   :  THE PARTS THAT ARE PROCURED AND MAY POTENTIALLY                
+*                REQUIRE PACKING INSTRUCTIONS ARE OUTPUT FROM                   
+*                THIS PROGRAM TO BE SENT TO VSIM.                               
+*                                                                               
+*                THERE ARE 2 FLOWS IN THIS PROGRAM, ONE BASED ON                
+*                WDK6 FOR CDC AND THE OTHER BASED ON WDK7 FOR NDCS.             
+*                THE WDK6-FLOW CONSISTS OF                                      
+*                  STEP 1 - THE SELECTION OF PARTS                              
+*                  STEP 2 - THE ADDITION OF SUPERSEDED PARTS                    
+*                THE WDK7-FLOW CONSISTS OF                                      
+*                  STEP 3 - THE SELECTION OF PARTS, AND                         
+*                  STEP 4 - THE ADDITION OF SUPERSEDED PARTS                    
+*                                                                               
+*  FÖRFATTARE :  CHESTER COUCH                                         *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W1166DD1                                                                   
+*                                                                               
+%W01160  'IN60-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W1166DD2                                                                   
+*                                                                               
+%W01166  'IN66-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W1166DD3                                                                   
+*                                                                               
+%W01174  'IN74-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W1166DD4                                                                   
+*                                                                               
+%W01184  'IN84-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W1166DD5                                                                   
+*                                                                               
+%WSUPERS  'SUP-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE TEMPFIL1 FB(165 0)                                                         
+*                                                                               
+%W1166D  'TMP1-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W1166DD6 FB(165 0)                                                         
+*                                                                               
+%W1166D  'OUTA-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE TEMPFIL2 FB(165 0)                                                         
+*                                                                               
+%W1166D  'TMP2-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W1166DD7 FB(165 0)                                                         
+*                                                                               
+%W1166D  'OUTB-'                                                                
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+ W-SUP-COUNT       W 7 N                                                        
+                                                                                
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  PARAMETRAR TILL WDATKONV            *                                        
+* -------------------------------------*                                        
+%WDATAREA                                                                       
+*                                                                               
+                                                                                
+ WDATKONV                   W  8 A   VALUE 'WDATKONV'                           
+                                                                                
+*W-CCYYMMDD                 W  8 N                                              
+*W-SEKEL-D W-CCYYMMDD          2 N                                              
+*W-AA-D    W-CCYYMMDD +2       2 N                                              
+*W-MM-D    W-CCYYMMDD +4       2 N                                              
+*W-DD-D    W-CCYYMMDD +6       2 N                                              
+*                                                                               
+*W-CCYYWWD                  W  7 N                                              
+*W-SEKEL-W W-CCYYWWD           2 N                                              
+*W-AA-W    W-CCYYWWD +2        2 N                                              
+*W-WW-W    W-CCYYWWD +4        2 N                                              
+*W-D-W     W-CCYYWWD +6        1 N                                              
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEP 1. MATCH AND CREATE REGISTER FILE BASED ON WDK6                          
+*                                                                               
+JOB INPUT (W1166DD1 KEY(IN60-CLAG-IDARTNR)  +                                   
+           W1166DD2 KEY(IN66-ART-IDARTNR)   +                                   
+           W1166DD3 KEY(IN74-IDARTNR)       +                                   
+          )                                                                     
+                                                                                
+   IF W1166DD1                                                                  
+      TMP1-IDARTNR       = IN60-CLAG-IDARTNR                                    
+      TMP1-IDDC          = '11'                                                 
+      TMP1-IDFKNGRP      = IN60-CLAG-IDFKNGRP                                   
+      TMP1-KDPRODSL      = IN60-CLAG-KDPRODSL                                   
+      TMP1-IDLEVNR       = IN60-CLAG-IDLEVNR                                    
+      TMP1-IDLEVNR-SHIP  = IN60-CLAG-IDLEVNR-SHIP                               
+      IF W1166DD3                                                               
+         IF IN74-BEART(4) = '                         '                         
+            TMP1-BEART         = '(DESCRIPTION MISSING)    '                    
+         ELSE                                                                   
+            TMP1-BEART         = IN74-BEART(4)                                  
+         END-IF                                                                 
+      ELSE                                                                      
+         TMP1-BEART         = '(DESCRIPTION MISSING)    '                       
+      END-IF                                                                    
+      TMP1-KDSORT        = IN60-CLAG-KDSORT                                     
+      TMP1-IDPROJUP      = IN60-CLAG-IDPROJUP                                   
+      TMP1-IDPROJ        = IN60-CLAG-IDPROJ                                     
+      TMP1-VKART         = IN60-CLAG-VKART                                      
+      TMP1-IDARTNR-ERS1  = 0                                                    
+      TMP1-IDARTNR-ERS2  = 0                                                    
+      TMP1-IDARTNR-ERS3  = 0                                                    
+      TMP1-IDARTNR-ERS4  = 0                                                    
+      TMP1-IDARTNR-ERS5  = 0                                                    
+      TMP1-KVART-ERS     = 0                                                    
+      IF W1166DD2                                                               
+         TMP1-IDARTNR-MOTSV = IN66-ART-IDARTNR-MOTSV                            
+      ELSE                                                                      
+         TMP1-IDARTNR-MOTSV = 0                                                 
+      END-IF                                                                    
+      TMP1-IDRITN        = IN60-CLAG-IDRITN                                     
+      TMP1-KDEMBKOD-2    = IN60-CLAG-KDEMBKOD-2                                 
+                                                                                
+      DAT-I-TIDATUM       = IN60-CLAG-TIREGDAT                                  
+      DAT-KDDATFORM       = 'AAMMDD'                                            
+      CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM    +                    
+                         , DAT-O-TIDATUM, DAT-KDSVAR)                           
+      IF DAT-KDSVAR = ' '                                                       
+         TMP1-TIREGDAT-SEKEL = DAT-TISEKEL                                      
+         TMP1-TIREGDAT       = IN60-CLAG-TIREGDAT                               
+      ELSE                                                                      
+         TMP1-TIREGDAT-SEKEL = 0                                                
+         TMP1-TIREGDAT       = 0                                                
+      END-IF                                                                    
+                                                                                
+      DAT-I-TIDATUM       = IN60-CLAG-TISOP                                     
+      DAT-KDDATFORM       = 'AAVVD'                                             
+      CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM    +                    
+                         , DAT-O-TIDATUM, DAT-KDSVAR)                           
+      IF DAT-KDSVAR = ' '                                                       
+         TMP1-TISOP-SEKEL    = DAT-TISEKEL                                      
+         TMP1-TISOP          = IN60-CLAG-TISOP                                  
+      ELSE                                                                      
+         TMP1-TISOP-SEKEL    = 0                                                
+         TMP1-TISOP          = 0                                                
+      END-IF                                                                    
+                                                                                
+      IF IN60-CLAG-KDERS-UTG > IN60-CLAG-KDERS                                  
+         TMP1-KDERS          = IN60-CLAG-KDERS-UTG                              
+      ELSE                                                                      
+         TMP1-KDERS          = IN60-CLAG-KDERS                                  
+      END-IF                                                                    
+                                                                                
+      PUT TEMPFIL1                                                              
+   END-IF                                                                       
+                                                                                
+*                                                                               
+* STEP 2. ADD SUPERSESSIONS TO REGISTER FILE BASED ON WDK6                      
+*                                                                               
+JOB INPUT (TEMPFIL1 KEY(TMP1-IDARTNR)        +                                  
+           W1166DD5 KEY(SUP-IDARTNR-TILLK)   +                                  
+          )                                                                     
+                                                                                
+   IF MATCHED                                                                   
+      IF FIRST-DUP W1166DD5     +                                               
+      OR NOT DUPLICATE W1166DD5                                                 
+         W-SUP-COUNT     = 1                                                    
+         OUTA-W1166D-CTX = TMP1-W1166D-CTX                                      
+      ELSE                                                                      
+         W-SUP-COUNT     = W-SUP-COUNT + 1                                      
+      END-IF                                                                    
+      IF W-SUP-COUNT = 1                                                        
+         OUTA-IDARTNR-ERS1  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      IF W-SUP-COUNT = 2                                                        
+         OUTA-IDARTNR-ERS2  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      IF W-SUP-COUNT = 3                                                        
+         OUTA-IDARTNR-ERS3  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      IF W-SUP-COUNT = 4                                                        
+         OUTA-IDARTNR-ERS4  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      IF W-SUP-COUNT = 5                                                        
+         OUTA-IDARTNR-ERS5  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      OUTA-KVART-ERS        = W-SUP-COUNT                                       
+      IF LAST-DUP W1166DD5      +                                               
+      OR NOT DUPLICATE W1166DD5                                                 
+         PUT W1166DD6                                                           
+      END-IF                                                                    
+   ELSE                                                                         
+      IF TEMPFIL1                                                               
+         OUTA-W1166D-CTX = TMP1-W1166D-CTX                                      
+         PUT W1166DD6                                                           
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+*                                                                               
+* STEP 3. MATCH AND CREATE REGISTER FILE BASED ON WDK7                          
+*                                                                               
+JOB INPUT (W1166DD1 KEY(IN60-CLAG-IDARTNR)  +                                   
+           W1166DD2 KEY(IN66-ART-IDARTNR)   +                                   
+           W1166DD3 KEY(IN74-IDARTNR)       +                                   
+           W1166DD4 KEY(IN84-SLAG-IDARTNR)  +                                   
+          )                                                                     
+                                                                                
+   IF W1166DD4 AND W1166DD1                                                     
+      IF  IN84-SLAG-IDDC-REF         = '  '     +                               
+      AND (  IN84-SLAG-IDANSK        > 0        +                               
+          OR IN84-SLAG-IDLEVNR-SHIP NE '     ' )                                
+         TMP2-IDARTNR       = IN84-SLAG-IDARTNR                                 
+         TMP2-IDDC          = IN84-SLAG-IDDC                                    
+         TMP2-IDFKNGRP      = IN60-CLAG-IDFKNGRP                                
+         TMP2-KDPRODSL      = IN60-CLAG-KDPRODSL                                
+         TMP2-IDLEVNR       = IN84-SLAG-IDLEVNR                                 
+         TMP2-IDLEVNR-SHIP  = IN84-SLAG-IDLEVNR-SHIP                            
+         IF W1166DD3                                                            
+            IF IN74-BEART(4) = '                         '                      
+               TMP2-BEART         = '(DESCRIPTION MISSING)    '                 
+            ELSE                                                                
+               TMP2-BEART         = IN74-BEART(4)                               
+            END-IF                                                              
+         ELSE                                                                   
+            TMP2-BEART         = '(DESCRIPTION MISSING)    '                    
+         END-IF                                                                 
+         TMP2-KDSORT        = IN60-CLAG-KDSORT                                  
+         TMP2-IDPROJUP      = IN60-CLAG-IDPROJUP                                
+         TMP2-IDPROJ        = IN60-CLAG-IDPROJ                                  
+         TMP2-VKART         = IN84-SLAG-VKART                                   
+         TMP2-IDARTNR-ERS1  = 0                                                 
+         TMP2-IDARTNR-ERS2  = 0                                                 
+         TMP2-IDARTNR-ERS3  = 0                                                 
+         TMP2-IDARTNR-ERS4  = 0                                                 
+         TMP2-IDARTNR-ERS5  = 0                                                 
+         TMP2-KVART-ERS     = 0                                                 
+         IF W1166DD2                                                            
+            TMP2-IDARTNR-MOTSV = IN66-ART-IDARTNR-MOTSV                         
+         ELSE                                                                   
+            TMP2-IDARTNR-MOTSV = 0                                              
+         END-IF                                                                 
+         TMP2-IDRITN        = IN60-CLAG-IDRITN                                  
+         TMP2-KDEMBKOD-2    = IN60-CLAG-KDEMBKOD-2                              
+                                                                                
+         DAT-I-TIDATUM       = IN60-CLAG-TIREGDAT                               
+         DAT-KDDATFORM       = 'AAMMDD'                                         
+         CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM    +                 
+                            , DAT-O-TIDATUM, DAT-KDSVAR)                        
+         TMP2-TIREGDAT-SEKEL = DAT-TISEKEL                                      
+         TMP2-TIREGDAT       = IN60-CLAG-TIREGDAT                               
+                                                                                
+         DAT-I-TIDATUM       = IN60-CLAG-TISOP                                  
+         DAT-KDDATFORM       = 'AAVVD'                                          
+         CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM    +                 
+                            , DAT-O-TIDATUM, DAT-KDSVAR)                        
+         TMP2-TISOP-SEKEL    = DAT-TISEKEL                                      
+         TMP2-TISOP          = IN60-CLAG-TISOP                                  
+                                                                                
+         IF IN60-CLAG-KDERS-UTG  > IN60-CLAG-KDERS                              
+            TMP2-KDERS       = IN60-CLAG-KDERS-UTG                              
+         ELSE                                                                   
+            TMP2-KDERS       = IN60-CLAG-KDERS                                  
+         END-IF                                                                 
+                                                                                
+         PUT TEMPFIL2                                                           
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+*                                                                               
+* STEP 4. ADD SUPERSESSIONS TO REGISTER FILE BASED ON WDK7                      
+*                                                                               
+JOB INPUT (TEMPFIL2 KEY(TMP2-IDARTNR)        +                                  
+           W1166DD5 KEY(SUP-IDARTNR-TILLK)   +                                  
+          )                                                                     
+                                                                                
+   IF MATCHED                                                                   
+      IF FIRST-DUP W1166DD5     +                                               
+      OR NOT DUPLICATE W1166DD5                                                 
+         W-SUP-COUNT     = 1                                                    
+         OUTB-W1166D-CTX = TMP2-W1166D-CTX                                      
+      ELSE                                                                      
+         W-SUP-COUNT     = W-SUP-COUNT + 1                                      
+      END-IF                                                                    
+      IF W-SUP-COUNT = 1                                                        
+         OUTB-IDARTNR-ERS1  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      IF W-SUP-COUNT = 2                                                        
+         OUTB-IDARTNR-ERS2  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      IF W-SUP-COUNT = 3                                                        
+         OUTB-IDARTNR-ERS3  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      IF W-SUP-COUNT = 4                                                        
+         OUTB-IDARTNR-ERS4  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      IF W-SUP-COUNT = 5                                                        
+         OUTB-IDARTNR-ERS5  = SUP-IDARTNR                                       
+      END-IF                                                                    
+      OUTB-KVART-ERS        = W-SUP-COUNT                                       
+      IF LAST-DUP W1166DD5      +                                               
+      OR NOT DUPLICATE W1166DD5                                                 
+         PUT W1166DD7                                                           
+      END-IF                                                                    
+   ELSE                                                                         
+      IF TEMPFIL2                                                               
+         OUTB-W1166D-CTX = TMP2-W1166D-CTX                                      
+         PUT W1166DD7                                                           
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                

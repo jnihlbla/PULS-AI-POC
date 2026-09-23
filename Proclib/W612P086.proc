@@ -1,0 +1,56 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UTLISTA LEDTIDER, PERIOD REFILL AK FOLLOW-UP                               
+//*                                                                             
+//*  FREKVENS:     PERIOD    RTN W612R2                                         
+//*                                                                             
+//*  ÅTERSTART:    SORT        NORMAL                                           
+//*                W61286      NORMAL                                           
+//*                                                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P086 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W612..W612R2,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD86),DISP=SHR                         
+//*                                                                             
+//SORTIN   DD  DSN=&INDIN..W6128F(+0),DISP=SHR                                  
+//************ INFIL FRÅN W612J08F                                              
+//*                                                                             
+//SORTOUT  DD  DSN=&&W6128F,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD PÅ IDDC                                                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61286   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('BMP,W61286,W61286,,,N00,,,,,&CPU,,,&IMS')                 
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     (POSTSUM)           
+//*                                                                             
+//W61286D1 DD  DSN=&&W6128F,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD PÅ IDDC                                                 
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W61286D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF)                     
+//************ W61286-001  WEEKLY AK FOLLOW-UP                                  
+//*                                                                             

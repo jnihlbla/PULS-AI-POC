@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FOLLOW UP FILE VOR, DAY                                                    
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W440V4                                         
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                W4405E    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P05F PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W440..W440V4,                                             
+//             INDUT=&W440..W440V4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W440PD5E),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W4405E(+0),DISP=SHR                                  
+//************ FIL FRÅN WDA6                                                    
+//*                                                                             
+//SORTOUT  DD  DSN=&&W4405E,DISP=(NEW,PASS,DELETE),                             
+//************ HOPSORTERING ORDER - ARTIKEL                                     
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W4405E   EXEC PGM=W4405E                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                    -- ABEND         
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//W4405ED1 DD  DSN=&&W4405E,DISP=(OLD,DELETE,DELETE)                            
+//************ HOPSORTERING ORDER - ARTIKEL                                     
+//*                                                                             
+//W4405ED2 DD  DSN=&INDUT..W4405H(+1),DISP=(NEW,CATLG,DELETE), -LIM(52)         
+//************ VOR FOLLOW UP DAY, EXCEL ORIENTED                                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

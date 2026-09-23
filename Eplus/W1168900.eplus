@@ -1,0 +1,456 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W1168900                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR ARTIKEL-FIL W11606 MED NDC-FIL W01184         *        
+*                MED DC FRÅN CONSTANT MEDLEM FÖR ATT SKAPA             *        
+*                FIL SOM LIGGER TILL GRUND FÖR UPPDATERING I VIPS.              
+*                                                                      *        
+*  FÖRFATTARE :  HÅKAN BOHLIN                                          *        
+*                                                                      *        
+*  DATUM      :  171004                                                *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W11689D1                                                                   
+%W11684   'IN-FULL-PART-RANGE-'                                                 
+*                                                                               
+FILE TEMPFIL1 FB(2 0) VIRTUAL                                                   
+%W11684   'FPRT-'                                                               
+*                                                                               
+*-------------------------------------- *                                       
+*  DC-COUNTRY CROSS-REF BASED ON W01184 *                                       
+* ------------------------------------- *                                       
+FILE W11689D2                                                                   
+%W01184 'DCTR-'                                                                 
+*                                                                               
+FILE TEMPFIL2 FB (483 0)                                                        
+%W01184 'DCTRT-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*----------------------------------------------------- *                        
+*  W01184 QUANTITY-FIELDS SUMMED ON COUNTRY-PART LEVEL *                        
+* ---------------------------------------------------- *                        
+FILE W11689D3                                                                   
+%W01184 'SUMS-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+FILE TEMPFIL3 FB (483 0)                                                        
+%W01184 'SUMST-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*----------------------------------------------------- *                        
+*  W01184 INFO PER PART AND DC                         *                        
+* ---------------------------------------------------- *                        
+FILE W11689D4                                                                   
+%W01184 'NDC-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+FILE TEMPFIL4 FB (483 0)                                                        
+%W01184 'NDCT-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*------------------------------------- *                                        
+*  W11606 ARTINFO INKL BUY-BACK KOD    *                                        
+* ------------------------------------ *                                        
+FILE W11689D5                                                                   
+%W11606A  'IN-ART-'                                                             
+*--------------------------------------*                                        
+*  UTFIL                               *                                        
+* -------------------------------------*                                        
+FILE W11689D6 FB (311 0)                                                        
+%W11610A   'OUT-ART-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  ARBETSFÄLT                          *                                        
+* -------------------------------------*                                        
+*                                                                               
+ W-ORDERING               W  5 P 0 OCCURS 8                                     
+ W-SUORDERTRAFF           W  5 P 0 VALUE 0                                      
+ W-SUORDERING             W  5 P 0 VALUE 0                                      
+ W-DISP-TOT               W  4 P   VALUE 0                                      
+ W-KVLS-TOT               W  4 P   VALUE 0                                      
+ W-KVAKS-TOT              W  4 P   VALUE 0                                      
+ W-KVOKS-TOT              W  5 P   VALUE 0                                      
+ W-KDBBCL                 W  1 N                                                
+ WS-ART-OK                W  1 A   VALUE 'N'                                    
+ JA                       W  1 A   VALUE 'J'                                    
+ NEJ                      W  1 A   VALUE 'N'                                    
+ IX1                      W  2 N   VALUE 0                                      
+ IX2                      W  1 N   VALUE 0                                      
+ DATUM1                   W  8 A                                                
+ AA1     DATUM1              2 A                                                
+ MM1     DATUM1 +3           2 A                                                
+ DD1     DATUM1 +6           2 A                                                
+ DATUM2                   W  6 A                                                
+ AA2     DATUM2              2 A                                                
+ MM2     DATUM2 +2           2 A                                                
+ DD2     DATUM2 +4           2 A                                                
+ DATUM   DATUM2              6 N                                                
+ HELP-DATE                W  5 N                                                
+ HELP-YY   HELP-DATE         2 N                                                
+ HELP-WW   HELP-DATE +2      2 N                                                
+ HELP-DAY  HELP-DATE +4      1 N                                                
+ FKNGRP-BUYBACK           W  1 A   VALUE 'N'                                    
+ PRODSLAG-BUYBACK1        W  1 A   VALUE 'N'                                    
+ PRODSLAG-BUYBACK2        W  1 A   VALUE 'N'                                    
+ PRODSLAG-BUYBACK3        W  1 A   VALUE 'N'                                    
+ WDATKONV                 W  8 A   VALUE 'WDATKONV'                             
+ W-TID-SKILLNAD           W  5 N                                                
+ W-KDSTANAUTG             W  1 A   VALUE ' '                                    
+ W-TOT-LAGER              W  5 P                                                
+ W-FORBRUKNING            W  5 P                                                
+ W-IDFKNGRP               W  4 N                                                
+ W-IDFKNGRP-SERIE W-IDFKNGRP 2 N                                                
+ WS-TIFINLV               W  5 N                                                
+ WS-YY     WS-TIFINLV        2 N                                                
+ WS-WW     WS-TIFINLV  +2    2 N                                                
+ WS-DAY    WS-TIFINLV  +4    1 N                                                
+ KOLL-TIFINLV             W  5 N                                                
+ KOLL-YY   KOLL-TIFINLV      2 N                                                
+ KOLL-WW   WS-TIFINLV  +2    2 N                                                
+ KOLL-DAY  WS-TIFINLV  +4    1 N                                                
+ DAGENS-DATUM             W  5 N                                                
+ DD-YY     DAGENS-DATUM      2 N                                                
+ DD-WW     DAGENS-DATUM +2   2 N                                                
+ DD-DAY    DAGENS-DATUM +4   1 N                                                
+ WS-VECKOR-TILL-TIFINLV   W  2 P                                                
+                                                                                
+ W-TIERSDAT                    W  8 N                                           
+ W-TIERSDAT-SEKEL  W-TIERSDAT     2 N                                           
+ W-TIERSDAT-AAVVDD W-TIERSDAT +2  5 N                                           
+                                                                                
+ DATUM-10AR                   W  8 N                                            
+ SEKEL-10        DATUM-10AR      2 N                                            
+ DATUM-10-AAVVD  DATUM-10AR +2   5 N                                            
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+%WDATAREA                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+%WY2000W2                                                                       
+*                                                                               
+%WWPRODSL  'IN-ART-' WORK ''                                                    
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+* STEP 1. SORT FULL RANGE DCS IN DC-ORDER                          *            
+* -----------------------------------------------------------------*            
+  SORT W11689D1 TO                              +                               
+       TEMPFIL1 USING IN-FULL-PART-RANGE-IDDC                                   
+*                                                                               
+*------------------------------------------------------------------*            
+* STEP 2. MATCH FULL RANGE DCS WITH DC-COUNTRY XREF                *            
+* -----------------------------------------------------------------*            
+JOB INPUT (TEMPFIL1 KEY (FPRT-IDDC              )     +                         
+           W11689D2 KEY (DCTR-SLAG-IDDC         ))                              
+IF MATCHED                                                                      
+   DCTRT-SLAG-W01184 = DCTR-SLAG-W01184                                         
+   PUT TEMPFIL2                                                                 
+END-IF                                                                          
+*                                                                               
+*------------------------------------------------------------------*            
+* STEP 3. SORT FULL RANGE DCS IN COUNTRY-ORDER                     *            
+* -----------------------------------------------------------------*            
+  SORT TEMPFIL2 TO                              +                               
+       TEMPFIL2 USING (DCTRT-SLAG-IDLANDX2      )                               
+*                                                                               
+*------------------------------------------------------------------*            
+* STEP 4. MATCH FULL RANGE DCS WITH W01184 WITH SUMS ON COUNTRY-LEVEL           
+* -----------------------------------------------------------------*            
+JOB INPUT (TEMPFIL2 KEY (DCTRT-SLAG-IDLANDX2        ) +                         
+           W11689D3 KEY (SUMS-SLAG-IDLANDX2         ))                          
+IF MATCHED                                                                      
+   SUMST-SLAG-W01184 = SUMS-SLAG-W01184                                         
+   SUMST-SLAG-IDDC   = DCTRT-SLAG-IDDC                                          
+   PUT TEMPFIL3                                                                 
+END-IF                                                                          
+*                                                                               
+*------------------------------------------------------------------*            
+* STEP 5. SORT W01184 INFO TO MATCH TO W11689D4                    *            
+* -----------------------------------------------------------------*            
+  SORT TEMPFIL3 TO                              +                               
+       TEMPFIL3 USING (SUMST-SLAG-IDDC SUMST-SLAG-IDARTNR)                      
+*                                                                               
+*------------------------------------------------------------------*            
+* STEP 6. MATCHAR IHOP W01184 SUM-FILE WITH REGULAR W01184-FILE    *            
+* -----------------------------------------------------------------*            
+JOB INPUT (TEMPFIL3 KEY (SUMST-SLAG-IDDC SUMST-SLAG-IDARTNR) +                  
+           W11689D4 KEY (NDC-SLAG-IDDC   NDC-SLAG-IDARTNR  ))                   
+IF MATCHED                                                                      
+   NDCT-SLAG-W01184       = NDC-SLAG-W01184                                     
+   NDCT-SLAG-KVAKS-PAV    = SUMST-SLAG-KVAKS-PAV                                
+   NDCT-SLAG-KVAKS-SDC    = SUMST-SLAG-KVAKS-SDC                                
+   NDCT-SLAG-KVLS         = SUMST-SLAG-KVLS                                     
+   NDCT-SLAG-KVOKS-BULK   = SUMST-SLAG-KVOKS-BULK                               
+   NDCT-SLAG-KVOKS-DAG    = SUMST-SLAG-KVOKS-DAG                                
+   NDCT-SLAG-KVRESS       = SUMST-SLAG-KVRESS                                   
+   NDCT-SLAG-KVROS-BULK   = SUMST-SLAG-KVROS-BULK                               
+   NDCT-SLAG-KVROS-DAG    = SUMST-SLAG-KVROS-DAG                                
+                                                                                
+   NDCT-SLAG-KVPB-REF     = SUMST-SLAG-KVPB-REF                                 
+                                                                                
+   PUT TEMPFIL4                                                                 
+END-IF                                                                          
+*                                                                               
+*------------------------------------------------------------------*            
+* STEP 7. SORT W01184 INFO TO MATCH TO W11689D4                    *            
+* -----------------------------------------------------------------*            
+  SORT TEMPFIL4 TO                                     +                        
+       TEMPFIL4 USING (NDCT-SLAG-IDARTNR NDCT-SLAG-IDDC)                        
+*                                                                               
+*                                                                               
+*------------------------------------------------------------------*            
+* STEP 8. MATCHAR IHOP W01184-FIL OCH ARTIKEL-FIL, SKAPAR UTFIL    *            
+* -----------------------------------------------------------------*            
+JOB INPUT (TEMPFIL4 KEY (NDCT-SLAG-IDARTNR NDCT-SLAG-IDDC ) +                   
+           W11689D5 KEY (IN-ART-IDARTNR    IN-ART-IDDC    )) +                  
+           START A-INIT                                                         
+*                                                                               
+IF MATCHED                                                                      
+   OUT-ART-IDARTNR  = IN-ART-IDARTNR                                            
+   OUT-ART-IDDC     = IN-ART-IDDC                                               
+   OUT-ART-IDFKNGRP = IN-ART-IDFKNGRP                                           
+   OUT-ART-KDSRA    = IN-ART-KDSRA                                              
+   OUT-ART-KVQPACK-0 = IN-ART-KVQPACK-0                                         
+   OUT-ART-KDPRODSL = IN-ART-KDPRODSL                                           
+   OUT-ART-VLARTNTO = IN-ART-VLARTNTO                                           
+   OUT-ART-VKART    = IN-ART-VKART                                              
+   OUT-ART-KDVSOP   = IN-ART-KDVSOP                                             
+   OUT-ART-IDSTATNR = IN-ART-IDSTATNR(3)                                        
+   OUT-ART-KDSORT   = IN-ART-KDSORT                                             
+   OUT-ART-KDERS    = IN-ART-KDERS                                              
+   OUT-ART-KDBPSR   = IN-ART-KDBPSR                                             
+   OUT-ART-KDBBCL   = IN-ART-KDBBCL                                             
+   OUT-ART-IDLEVNR  = IN-ART-IDLEVNR                                            
+   OUT-ART-KDAGE    = IN-ART-KDAGE                                              
+   OUT-ART-IDPROJ   = IN-ART-IDPROJ                                             
+   OUT-ART-PRARTSJK = IN-ART-PRARTSJK                                           
+   OUT-ART-PRARTSTD = IN-ART-PRARTSTD                                           
+   OUT-ART-BEART-L1 = IN-ART-BEART(4)                                           
+   OUT-ART-BEART-L2 = ' '                                                       
+   OUT-ART-KDPSLLOC = IN-ART-KDPSLLOC                                           
+   OUT-ART-TIFINLV  = IN-ART-TIFINLV                                            
+   OUT-ART-KDTIPPR  = IN-ART-KDTIPPR                                            
+   OUT-ART-IDKAT(1) = IN-ART-IDKAT(1)                                           
+   OUT-ART-IDKAT(2) = IN-ART-IDKAT(2)                                           
+   OUT-ART-IDKAT(3) = IN-ART-IDKAT(3)                                           
+   OUT-ART-BELEVART = IN-ART-BELEVART                                           
+   OUT-ART-FLGEMFMC = IN-ART-FLGEMFMC                                           
+   OUT-ART-IDPROJUP = IN-ART-IDPROJUP                                           
+   OUT-ART-TIURPROD = IN-ART-TIURPROD                                           
+   OUT-ART-BEARTEXT = ' '                                                       
+                                                                                
+   IF NDCT-SLAG-IDLEVNR NE '1441' 'BP2TW'                                       
+      OUT-ART-IDLEVNR-LOC = NDCT-SLAG-IDLEVNR                                   
+      IF NDCT-SLAG-KDARTURS NE '  '                                             
+        OUT-ART-KDARTURS = NDCT-SLAG-KDARTURS                                   
+      ELSE                                                                      
+        OUT-ART-KDARTURS = IN-ART-KDARTURS                                      
+      END-IF                                                                    
+   ELSE                                                                         
+      OUT-ART-IDLEVNR-LOC = '11'                                                
+      OUT-ART-KDARTURS = IN-ART-KDARTURS                                        
+   END-IF                                                                       
+                                                                                
+   W-KDSTANAUTG = ' '                                                           
+                                                                                
+******** KOLLAR SEKELSKIFTE                                                     
+   IF IN-ART-TIFINLV > 0                                                        
+      TMP1-YYWWD = HELP-DATE                                                    
+      TMP2-YYWWD = IN-ART-TIFINLV                                               
+      PERFORM WY2000P2                                                          
+      W-TID-SKILLNAD = TMP1-YYWWD - TMP2-YYWWD                                  
+   ELSE                                                                         
+      W-TID-SKILLNAD = 0                                                        
+   END-IF                                                                       
+                                                                                
+   IF IN-ART-KDPSLLOC = 51 52 71 72 73 74 AND W-TID-SKILLNAD > 2000             
+      W-KDSTANAUTG = 'A'                                                        
+   END-IF                                                                       
+                                                                                
+   IF (IN-ART-KDERS = 29 AND NDCT-SLAG-KVLS = 0) OR              +              
+       IN-ART-KDERS = 52                                                        
+      W-KDSTANAUTG = 'N'                                                        
+   END-IF                                                                       
+                                                                                
+   IF IN-ART-KDERS = 24 AND NDCT-SLAG-KVLS = 0                                  
+      W-KDSTANAUTG = 'V'                                                        
+   END-IF                                                                       
+                                                                                
+   IF IN-ART-KDERS = 21 22 23 AND NDCT-SLAG-KVLS = 0                            
+      W-KDSTANAUTG = 'R'                                                        
+   END-IF                                                                       
+                                                                                
+   W-IDFKNGRP = IN-ART-IDFKNGRP                                                 
+                                                                                
+   IF IN-ART-KDPSLLOC = 18 81 82 91 THRU 99 AND                +                
+      W-IDFKNGRP-SERIE = 16 18                                                  
+      IF ((IN-ART-KDERS > 20 OR IN-ART-KDERS-UTG > 20) AND     +                
+         (NDCT-SLAG-KVLS > 0)) OR                              +                
+         (NDCT-SLAG-KDREFSTA NE 'P' OR NDCT-SLAG-KVLS NE 0)                     
+         W-KDSTANAUTG = 'S'                                                     
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+   IF NDCT-SLAG-KDLEVSP > 0    OR NDCT-SLAG-FLORDSP = 'J'                       
+      W-KDSTANAUTG = 'U'                                                        
+   END-IF                                                                       
+                                                                                
+   OUT-ART-KDSTANAUTG = W-KDSTANAUTG                                            
+                                                                                
+   W-TOT-LAGER = NDCT-SLAG-KVAKS-PAV + NDCT-SLAG-KVAKS-SDC      +               
+               + NDCT-SLAG-KVLS - NDCT-SLAG-KVOKS-BULK          +               
+               - NDCT-SLAG-KVOKS-DAG - NDCT-SLAG-KVRESS         +               
+               - NDCT-SLAG-KVROS-BULK - NDCT-SLAG-KVROS-DAG                     
+                                                                                
+******************* 3 ÅRS FÖRBRUKNING                                           
+   W-FORBRUKNING = NDCT-SLAG-KVPB-REF * 36                                      
+                                                                                
+   IF W-FORBRUKNING < W-TOT-LAGER                                               
+      OUT-ART-FLOVRLAG = '0'                                                    
+   ELSE                                                                         
+      OUT-ART-FLOVRLAG = '1'                                                    
+   END-IF                                                                       
+                                                                                
+   OUT-ART-FLSOFTWARE = 'N'                                                     
+                                                                                
+   PUT W11689D6                                                                 
+ELSE                                                                            
+   IF TEMPFIL4                                                                  
+      DISPLAY NDCT-SLAG-IDARTNR ' ' NDCT-SLAG-IDDC                              
+   ELSE                                                                         
+      IF W11689D5                                                               
+         PERFORM B-KOLLA-WDK6-ART                                               
+         IF WS-ART-OK = JA                                                      
+            PUT W11689D6                                                        
+         END-IF                                                                 
+      END-IF                                                                    
+   END-IF                                                                       
+END-IF                                                                          
+*                                                                               
+NEWPAGE                                                                         
+ A-INIT. PROC                                                                   
+                                                                                
+ DATUM1 = SYSDATE                                                               
+ AA2 = AA1                                                                      
+ MM2 = MM1                                                                      
+ DD2 = DD1                                                                      
+ DAT-I-TIDATUM = DATUM                                                          
+ DAT-KDDATFORM = 'AAMMDD'                                                       
+ CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM, DAT-O-TIDATUM,  +           
+                      DAT-KDSVAR)                                               
+                                                                                
+*** HELP-DATE ANVÄNDS VID UTRÄKNING AV RETUR-STATUSKOD                          
+ HELP-DATE = DAT-TIAAVVD                                                        
+ HELP-DAY  = 1                                                                  
+                                                                                
+ SEKEL-10  EQ 20                                                                
+                                                                                
+ DATUM-10-AAVVD  = DAT-TIAAVVD                                                  
+ DISPLAY ' DATUM-10AR  INNAN OMRÄKNING ' DATUM-10AR                             
+ DATUM-10AR      = DATUM-10AR   - 100000                                        
+                                                                                
+ DISPLAY ' DATUM-10AR ' DATUM-10AR                                              
+ DISPLAY ' HELPDATE   ' HELP-DATE                                               
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ B-KOLLA-WDK6-ART.  PROC                                                        
+*                                                                               
+   OUT-ART-IDARTNR  = IN-ART-IDARTNR                                            
+   OUT-ART-IDDC     = IN-ART-IDDC                                               
+   OUT-ART-IDFKNGRP = IN-ART-IDFKNGRP                                           
+   OUT-ART-KDSRA    = IN-ART-KDSRA                                              
+   OUT-ART-KVQPACK-0 = IN-ART-KVQPACK-0                                         
+   OUT-ART-KDPRODSL = IN-ART-KDPRODSL                                           
+   OUT-ART-VLARTNTO = IN-ART-VLARTNTO                                           
+   OUT-ART-VKART    = IN-ART-VKART                                              
+   OUT-ART-KDVSOP   = IN-ART-KDVSOP                                             
+   OUT-ART-IDSTATNR = IN-ART-IDSTATNR(3)                                        
+   OUT-ART-KDSORT   = IN-ART-KDSORT                                             
+   OUT-ART-KDERS    = IN-ART-KDERS                                              
+   OUT-ART-KDBPSR   = IN-ART-KDBPSR                                             
+   OUT-ART-KDBBCL   = IN-ART-KDBBCL                                             
+   OUT-ART-IDLEVNR  = IN-ART-IDLEVNR                                            
+   OUT-ART-KDAGE    = IN-ART-KDAGE                                              
+   OUT-ART-IDPROJ   = IN-ART-IDPROJ                                             
+   OUT-ART-PRARTSJK = IN-ART-PRARTSJK                                           
+   OUT-ART-PRARTSTD = IN-ART-PRARTSTD                                           
+   OUT-ART-BEART-L1 = IN-ART-BEART(4)                                           
+   OUT-ART-BEART-L2 = ' '                                                       
+   OUT-ART-KDPSLLOC = IN-ART-KDPSLLOC                                           
+   OUT-ART-TIFINLV  = IN-ART-TIFINLV                                            
+   OUT-ART-KDTIPPR  = IN-ART-KDTIPPR                                            
+   OUT-ART-IDKAT(1) = IN-ART-IDKAT(1)                                           
+   OUT-ART-IDKAT(2) = IN-ART-IDKAT(2)                                           
+   OUT-ART-IDKAT(3) = IN-ART-IDKAT(3)                                           
+   OUT-ART-BELEVART = IN-ART-BELEVART                                           
+   OUT-ART-FLGEMFMC = IN-ART-FLGEMFMC                                           
+   OUT-ART-IDPROJUP = IN-ART-IDPROJUP                                           
+   OUT-ART-TIURPROD = IN-ART-TIURPROD                                           
+   OUT-ART-BEARTEXT = ' '                                                       
+                                                                                
+   HELP-DATE = DAT-TIAAVVD                                                      
+   HELP-DAY  = 1                                                                
+   WS-TIFINLV = IN-ART-TIFINLV                                                  
+                                                                                
+   TMP1-YYWWD = HELP-DATE                                                       
+   TMP2-YYWWD = WS-TIFINLV                                                      
+   PERFORM WY2000P2                                                             
+   DAGENS-DATUM = TMP1-YYWWD                                                    
+   KOLL-TIFINLV = TMP2-YYWWD                                                    
+                                                                                
+   IF KOLL-YY > DD-YY                                                           
+      WS-VECKOR-TILL-TIFINLV = WS-WW + 53 - HELP-WW                             
+   ELSE                                                                         
+     IF HELP-YY = WS-YY                                                         
+       IF WS-WW > HELP-WW                                                       
+          WS-VECKOR-TILL-TIFINLV = WS-WW - HELP-WW                              
+       ELSE                                                                     
+          WS-VECKOR-TILL-TIFINLV = 0                                            
+       END-IF                                                                   
+     ELSE                                                                       
+       WS-VECKOR-TILL-TIFINLV = 0                                               
+     END-IF                                                                     
+   END-IF                                                                       
+                                                                                
+   IF IN-ART-TIERSDAT > 0                                                       
+     IF IN-ART-TIERSDAT > 50000                                                 
+       W-TIERSDAT-SEKEL EQ 19                                                   
+     ELSE                                                                       
+       W-TIERSDAT-SEKEL EQ 20                                                   
+     END-IF                                                                     
+     W-TIERSDAT-AAVVDD = IN-ART-TIERSDAT                                        
+   ELSE                                                                         
+     W-TIERSDAT = 99999999                                                      
+   END-IF                                                                       
+                                                                                
+   PERFORM S25-CHECK-IN-ART-KDPRODSL                                            
+   IF WS-VECKOR-TILL-TIFINLV > 30        +                                      
+   OR W-TIERSDAT          < DATUM-10AR   +                                      
+   OR IN-ART-KDERS-UTG     > 0           +                                      
+   OR IN-ART-KDERS         EQ 52         +                                      
+   OR IN-ART-IDFKNGRP      = 0           +                                      
+   OR IN-ART-KDPRODSL      = 0           +                                      
+   OR IN-ART-KDPRODSL      = KDPRODSL-BIMA-LOCAL                                
+      WS-ART-OK = 'N'                                                           
+   ELSE                                                                         
+      OUT-ART-IDLEVNR-LOC = '11'                                                
+      OUT-ART-KDARTURS = IN-ART-KDARTURS                                        
+      OUT-ART-KDSTANAUTG = ' '                                                  
+      OUT-ART-FLOVRLAG = '1'                                                    
+      OUT-ART-FLSOFTWARE = 'N'                                                  
+      WS-ART-OK = 'J'                                                           
+   END-IF                                                                       
+                                                                                
+ END-PROC                                                                       
+*                                                                               
+%WY2000P2                                                                       
+*                                                                               
+%WWPRODSL 'IN-ART-' PROC ''                                                     

@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKRIVER UT RESTORDERLISTA                                                  
+//*  TOTALT PER LAND                                                            
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W271V7                                         
+//*                                                                             
+//*  ÅTERSTART:    W27167    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P067 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W271..W271V7,                                             
+//             INDUT=&W271..W271V7                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W271PD67),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W27162(+0),DISP=SHR                                  
+//************ RESTORDERPOSTER, NDC                                             
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27162,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE RESTORDERPOSTER PÅ LAND + RO-DATUM + ARTNR             
+//         SPACE=(80,(2,6),RLSE),AVGREC=K                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27167   EXEC PGM=W27167                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W27167D1 DD  DSN=&&W27162,DISP=(OLD,DELETE,DELETE)                            
+//************ RESTORDER, NDC                                                   
+//*                                                                             
+//W27167D2 DD  DSN=&INDUT..W27166(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ W27167      RESTORDERLISTA                                       
+//************             TOPP 100 I ÄLDSTAORDNING                             
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

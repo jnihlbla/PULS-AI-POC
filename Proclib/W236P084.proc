@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR FIL W23680 OCH W23682 SEDAN SRIVS                                  
+//*  UTFIL W23684 (SPFU5)                                                       
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W236D2                                         
+//*                                                                             
+//*  RESTART:      W23684    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W236P084 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W236..W236D2,                                             
+//             INDUT=&W236..W236D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23684   EXEC PGM=V16459,PARM='W23684/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W23684D1 DD  DSN=&INDIN..W23680(+0),DISP=SHR                                  
+//************ INFIL FRÅN PGM W2368000                                          
+//*                                                                             
+//W23684D2 DD  DSN=&INDIN..W23682(+0),DISP=SHR                                  
+//************ INFIL FRÅN PGM W2368200                                          
+//*                                                                             
+//W23684D3 DD  DSN=&&TEMPFIL,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W236PD84),DISP=SHR                         
+//SORTIN   DD  DSN=&&TEMPFIL,DISP=SHR                                           
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W23684(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ UTFIL FRÅN PGM W23684                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

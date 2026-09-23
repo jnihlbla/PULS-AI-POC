@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PERIODBEHOVSPOSTER                                                         
+//*                                                                             
+//*  FREKVENS:     VECKA  RTN W200V1                                            
+//*                                                                             
+//*  ÅTERSTART:    W22250   NORMAL                                              
+//*                LÄSER WDK6                                                   
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W222P050 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W221..W200V1,                                             
+//             INDUT=&W222..W200V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22250   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W22250,W22250,,00')                                  
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W22250D1 DD  DSN=&INDIN..W22149(+0),DISP=SHR                                  
+//************ PERIODBEHOVSPOSTER FRÅN W22140                                   
+//*                                                                             
+//W22250D2 DD  DSN=&INDUT..W22253(+1),DISP=(NEW,CATLG,DELETE), -LIM(01)         
+//************ STORA PB-ÄNDRINGAR                                               
+//             MGMTCLAS=&BACKUPC,SPACE=(62,(50,5),RLSE),                        
+//             AVGREC=K                                                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

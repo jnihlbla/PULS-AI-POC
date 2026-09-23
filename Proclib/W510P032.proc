@@ -1,0 +1,34 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LABTRANSAR AV KREDITERINGSTRANSAR.                                  
+//*                                                                             
+//*  FREKVENS:     DAG   RTN W510D2                                             
+//*                                                                             
+//*  ÅTERSTART:    W51032    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P032 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W418..W510D2,                                            
+//             INDUT=&W510..W510D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51032   EXEC PGM=W51032                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W51032D1 DD  DSN=&INDIN2..W41833,DISP=SHR                                     
+//************ KREDITPOSTER TYP 720,72C,72D                                     
+//*                                                                             
+//         DD  DSN=&INDIN2..W418AO,DISP=SHR                                     
+//************ KREDITPOSTER TYP 720 FRÅN W4183400                               
+//*                                                                             
+//W51032D2 DD  DSN=&INDUT..W51033(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ LAB-TRANSAR TYP A04, A05, A12 OCH L05                            
+//             DATACLAS=PSEN,MGMTCLAS=&NOBACKUP                                 

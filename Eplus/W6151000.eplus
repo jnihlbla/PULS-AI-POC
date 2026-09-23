@@ -1,0 +1,660 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6151000                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER IN ARTIKELFILEN        W91042 OCH BUFFERTFILEN  *        
+*                W48881 FÖR ATT SKAPA EN LISTA PER CDC ÖVER            *        
+*                ARTIKLAR SOM BEHÖVER FYLLAS PÅ PÅ PLOCKPLATS.         *        
+*                LISTORNA DELAS UPP I PRIO/NORMAL.                     *        
+*                                                                      *        
+*  FÖRFATTARE :  KENT JEBSEN                                           *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING    PROJEKT/ÄT     *        
+*     98 02 12    JOHAN LINDKVIST          9213         R981           *        
+*                   * DESELEKTERING AV EMBALLAGE                       *        
+*                   * FLAGGAR KVALITETSBLOCKADE ARTIKLAR               *        
+*                   * LÄGGER TILL TOMRAD MELLAN ART.                   *        
+*                   * ANVÄNDER DATKORT OCH WDAGKONV ISTÄLLET FÖR "DATE"*        
+*                   * RÄTTAR TILL FEL I DECIMALBERÄKNING               *        
+*     ......      ..................       ......       ..........     *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61510D1                                                                   
+*                                                                               
+%W48881    'W48881-'                                                            
+                                                                                
+NEWPAGE                                                                         
+FILE W61510D2                                                                   
+*                                                                               
+%W91042    'LB-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61510D3                                                                   
+*                                                                               
+%W01174    'BE-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61510D4  FB (41 0)                                                        
+*                                                                               
+%W48881    'BUF-'                                                               
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W61510D5  FB(11 0)                                                         
+BUF2-IDDC      1  2 A                                                           
+BUF2-IDARTNR   3  5 P                                                           
+BUF2-KVBUFF    8  4 P 0                                                         
+                                                                                
+*                                                                               
+FILE W61510D6  FB(38 0)                                                         
+TMP-IDDC      1  2 A                                                            
+TMP-IDARTNR   3  5 P                                                            
+TMP-ADART     8  9 N                                                            
+  TMP-ADLAGOMR  TMP-ADART    2 N                                                
+  TMP-ADGANG    TMP-ADART +2 2 N                                                
+  TMP-ADPLATS   TMP-ADART +4 5 N                                                
+TMP-KVPB     17  4 P 1                                                          
+TMP-KVPLATS  21  4 P 0                                                          
+TMP-STATUS   25  7 A                                                            
+TMP-KDFLAGGA-KVAL 32  7 A                                                       
+*                                                                               
+FILE W61510D7  FB(65 0)                                                         
+UT1-IDDC      1  2 A                                                            
+UT1-IDARTNR   3  5 P                                                            
+UT1-ADART     8 11 A                                                            
+  UT1-ADLAGOMR UT1-ADART  2 N                                                   
+  UT1-BLANK1  UT1-ADART +2 1 A                                                  
+  UT1-ADGANG  UT1-ADART +3 2 N                                                  
+  UT1-BLANK2  UT1-ADART +5 1 A                                                  
+  UT1-ADPLATS UT1-ADART +6 5 N                                                  
+UT1-KVPB 19      4 P 1                                                          
+UT1-KVPLATS  23  4 P 0                                                          
+UT1-STATUS   27  7 A                                                            
+  UT1-STATUS-NR UT1-STATUS  1 N                                                 
+  UT1-STATUS-TEXT UT1-STATUS +1 6 A                                             
+UT1-BEART    34 25 A                                                            
+UT1-KDFLAGGA-KVAL 59  7 A                                                       
+                                                                                
+FILE W61510D8  FB(42 0)                                                         
+BUF3-IDDC        1  2 A                                                         
+BUF3-IDARTNR     3  5 P                                                         
+BUF3-ADBUFFOMR   8  2 P 0                                                       
+BUF3-ADBUFFGANG 10  2 P 0                                                       
+BUF3-ADBUFFPL   12  3 P 0                                                       
+BUF3-KVBUFF     15  4 P 0                                                       
+BUF3-DABUFPAF   19  8 N                                                         
+BUF3-ADLAGOMR   27  2 N                                                         
+BUF3-STATUS-NR  34  1 N                                                         
+BUF3-KDFLAGGA-KVAL  35  7 A                                                     
+*                                                                               
+NEWPAGE                                                                         
+FILE W61510D9                                                                   
+*                                                                               
+%W01160    'IN-'                                                                
+                                                                                
+*                                                                               
+FILE W61510D0  FB(65 0)                                                         
+UT-IDDC       1  2 A                                                            
+UT-IDARTNR    3  5 P                                                            
+UT-ADART      8 11 A                                                            
+  UT-ADLAGOMR UT-ADART    2 N                                                   
+  UT-BLANK1   UT-ADART +2 1 A                                                   
+  UT-ADGANG   UT-ADART +3 2 N                                                   
+  UT-BLANK2   UT-ADART +5 1 A                                                   
+  UT-ADPLATS  UT-ADART +6 5 N                                                   
+UT-KVPB      19  4 P 1                                                          
+UT-KVPLATS   23  4 P 0                                                          
+UT-STATUS    27  7 A                                                            
+  UT-STATUS-NR UT-STATUS    1 N                                                 
+  UT-STATUS-TEXT UT-STATUS +1 6 A                                               
+UT-BEART     34 25 A                                                            
+UT-KDFLAGGA-KVAL 59  7 A                                                        
+*                                                                               
+*                                                                               
+                                                                                
+FILE W61510DA PRINTER FB(122 0)                                                 
+FILE W61510DB PRINTER FB(122 0)                                                 
+FILE W61510DC PRINTER FB(122 0)                                                 
+FILE W61510DD PRINTER FB(122 0)                                                 
+FILE W61510DE PRINTER FB(122 0)                                                 
+FILE W61510DF PRINTER FB(122 0)                                                 
+***********************************************************************         
+***** WORKING STORAGE     ********************                                  
+***********************************************************************         
+SPAR-IDDC             W   2 A                                                   
+SPAR-IDARTNR          W   9 N                                                   
+WS-KVBUFF             W   4 P 0                                                 
+WS-KVPB               W   4 P 1                                                 
+WS-URVAL1             W   5 P 3                                                 
+WS-URVAL2             W   5 P 3                                                 
+WS-KVPLATS            W   5 P 3                                                 
+COUNTER               W   3 N 0                                                 
+PAGE                  W   8 A VALUE '    PAGE'                                  
+                                                                                
+WS-ADBUFF                W  11 A                                                
+  WS-ADBUFFOMR  WS-ADBUFF    2 N                                                
+  WS-BLANK1     WS-ADBUFF +2 1 A                                                
+  WS-ADBUFFGANG WS-ADBUFF +3 2 N                                                
+  WS-BLANK2     WS-ADBUFF +5 1 A                                                
+  WS-ADBUFFPL   WS-ADBUFF +6 5 N                                                
+                                                                                
+DAGENS-DATUM          W   6  N                                                  
+  DAGENS-TIAA         DAGENS-DATUM     2  N                                     
+  DAGENS-TIMM         DAGENS-DATUM +2  2  N                                     
+  DAGENS-TIDD         DAGENS-DATUM +4  2  N                                     
+                                                                                
+DD-DATUM              W   6  N                                                  
+*                                                                               
+*    --- VALID IDDC CODES                                                       
+%WWDC99                                                                         
+*    --- VALID KDPRODSL                                                         
+%WWPRODSL  'IN-CLAG-' WORK ''                                                   
+***********************************************************************         
+***** ALLMÄNNA SUBPROGRAM ********************                                  
+***********************************************************************         
+PROGRAM-NAMN      W   6   A   VALUE 'W61510'                                    
+DATUMKORT-ID      W   6   A   VALUE 'WDATUM'                                    
+%WDATKORT 'DATKORT-'                                                            
+*                                                                               
+%WDAGAREA                                                                       
+                                                                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+***********************************************************************         
+*   JOB INPUT                                                                   
+***********************************************************************         
+*                                                                               
+***********************************************************************         
+* STEP01                                                                        
+* SORTERAR BUFFERTFILEN OCH SELEKTERAR UT CDC                                   
+***********************************************************************         
+SORT W61510D1 TO W61510D4 USING (W48881-IDDC, W48881-IDARTNR)      +            
+                                              BEFORE URVAL                      
+*                                                                               
+URVAL. PROC                                                                     
+      PERFORM S23-CHECK-W48881-IDDC                                             
+      IF W48881-IDDC = CDC                                                      
+          SELECT                                                                
+      END-IF                                                                    
+END-PROC                                                                        
+*    --- S23-CHECK-W48881-IDDC (MACRO PROCEDURE)                                
+%WWDC02 'W48881-'                                                               
+*                                                                               
+***********************************************************************         
+* STEP02                                                                        
+* SUMMERAR BUFFERT-SALDO/ ARTIKEL O LAGER                                       
+***********************************************************************         
+JOB INPUT W61510D4                                                  +           
+                                           FINISH Z-FINIT                       
+                                                                                
+IF RECORD-COUNT = 1                                                             
+   SPAR-IDDC    = BUF-IDDC                                                      
+   SPAR-IDARTNR = BUF-IDARTNR                                                   
+END-IF                                                                          
+IF SPAR-IDDC = BUF-IDDC AND SPAR-IDARTNR = BUF-IDARTNR                          
+   WS-KVBUFF = WS-KVBUFF + BUF-KVBUFF-F + BUF-KVBUFF-OF                         
+ELSE                                                                            
+   BUF2-IDDC    = SPAR-IDDC                                                     
+   BUF2-IDARTNR = SPAR-IDARTNR                                                  
+   BUF2-KVBUFF  = WS-KVBUFF                                                     
+   PUT W61510D5                                                                 
+   SPAR-IDDC    = BUF-IDDC                                                      
+   SPAR-IDARTNR = BUF-IDARTNR                                                   
+   WS-KVBUFF    = BUF-KVBUFF-F + BUF-KVBUFF-OF                                  
+END-IF                                                                          
+                                                                                
+Z-FINIT. PROC                                                                   
+      BUF2-IDDC    = SPAR-IDDC                                                  
+      BUF2-IDARTNR = SPAR-IDARTNR                                               
+      BUF2-KVBUFF  = WS-KVBUFF                                                  
+      PUT W61510D5                                                              
+END-PROC                                                                        
+***********************************************************************         
+* STEP03                                                                        
+* MATCHAR SUMMERADE BUFFILEN MED W91042-FILEN FÖR ATT FÅ FRAM                   
+* DE ARTIKLAR SOM SKA MED PÅ LISTAN, SÄTTER STATUS PÅ DESSA                     
+***********************************************************************         
+JOB INPUT (W61510D5 KEY (BUF2-IDARTNR)          +                               
+           W61510D2 KEY (LB-IDARTNR))                                           
+                                                                                
+                                                                                
+IF MATCHED                                                                      
+  WS-KVPLATS = LB-KVLS(1) - BUF2-KVBUFF                                         
+* RÄKNAR UT SALDOT PÅ PLOCKPLATS (LAGERSALDO - TOTALT BUFFERTSALDO)             
+                                                                                
+     WS-URVAL1 = 0.05                                                           
+     WS-URVAL2 = 0.10                                                           
+                                                                                
+                                                                                
+     WS-KVPB = LB-KVPB-SATS   + LB-KVPB-TPO    + LB-KVPB-SEP(1)    +            
+             + LB-KVPB-SEP(2) + LB-KVPB-SEP(3) + LB-KVPB-SEP(4)    +            
+             + LB-KVPB-SEP(5) + LB-KVPB-SEP(6)                                  
+                                                                                
+* TRÄFF NEDAN OM PLOCKPLATSSALDO ÄR MINDRE ÄN SUMMERAD ORDERKÖ ELLER            
+* MINDRE ÄN FEM PROCENT AV PERIODBEHOV (---------)                              
+  IF WS-KVPLATS <  LB-KVOKS(1)                              OR     +            
+     (WS-KVPLATS < (WS-URVAL1 * WS-KVPB) )                                      
+        TMP-IDDC  = BUF2-IDDC                                                   
+        TMP-IDARTNR = BUF2-IDARTNR                                              
+        TMP-ADLAGOMR = LB-ADLAGOMR                                              
+        TMP-ADGANG = LB-ADGANG                                                  
+        TMP-ADPLATS = LB-ADPLATS                                                
+        TMP-KVPB  = WS-KVPB                                                     
+        TMP-KVPLATS = WS-KVPLATS                                                
+        TMP-STATUS = '1PRIO  '                                                  
+                                                                                
+        TMP-KDFLAGGA-KVAL = 'STEP 06'                                           
+                                                                                
+        PUT W61510D6                                                            
+  ELSE                                                                          
+     IF W61510D2                                                                
+        WS-KVPLATS = LB-KVLS(1)                                                 
+        IF WS-KVPLATS < (WS-URVAL2 * WS-KVPB)                                   
+           TMP-IDDC  = '11'                                                     
+           TMP-IDARTNR = LB-IDARTNR                                             
+           TMP-ADLAGOMR = LB-ADLAGOMR                                           
+           TMP-ADGANG = LB-ADGANG                                               
+           TMP-ADPLATS = LB-ADPLATS                                             
+           TMP-KVPB = WS-KVPB                                                   
+           TMP-KVPLATS = WS-KVPLATS                                             
+           TMP-STATUS = '2NORMAL'                                               
+                                                                                
+           TMP-KDFLAGGA-KVAL = 'STEP 06'                                        
+                                                                                
+           PUT W61510D6                                                         
+        END-IF                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+END-IF                                                                          
+***********************************************************************         
+* STEP04                                                                        
+* SORTERAR OM FÖR ATT FÅ BENÄMNING TILL ALLA DC                                 
+***********************************************************************         
+SORT W61510D6 TO W61510D6 USING (TMP-IDARTNR , TMP-IDDC)                        
+***********************************************************************         
+* STEP05                                                                        
+* HÄMTAR ARTIKELBENÄMNING                                                       
+***********************************************************************         
+JOB INPUT (W61510D3 KEY (BE-IDARTNR)             +                              
+           W61510D6 KEY (TMP-IDARTNR))                                          
+IF MATCHED                                                                      
+   UT1-IDDC     = TMP-IDDC                                                      
+   UT1-IDARTNR  = TMP-IDARTNR                                                   
+   UT1-ADLAGOMR = TMP-ADLAGOMR                                                  
+   UT1-BLANK1   = ' '                                                           
+   UT1-ADGANG   = TMP-ADGANG                                                    
+   UT1-BLANK2   = ' '                                                           
+   UT1-ADPLATS  = TMP-ADPLATS                                                   
+   UT1-KVPB = TMP-KVPB                                                          
+   UT1-KVPLATS  = TMP-KVPLATS                                                   
+   UT1-STATUS   = TMP-STATUS                                                    
+   UT1-BEART    = BE-BEART(10)                                                  
+   UT1-KDFLAGGA-KVAL = TMP-KDFLAGGA-KVAL                                        
+   PUT W61510D7                                                                 
+ELSE                                                                            
+   IF W61510D6                                                                  
+      UT1-IDDC     = TMP-IDDC                                                   
+      UT1-IDARTNR  = TMP-IDARTNR                                                
+      UT1-ADLAGOMR = TMP-ADLAGOMR                                               
+      UT1-BLANK1   = ' '                                                        
+      UT1-ADGANG   = TMP-ADGANG                                                 
+      UT1-BLANK2   = ' '                                                        
+      UT1-ADPLATS  = TMP-ADPLATS                                                
+      UT1-KVPB = TMP-KVPB                                                       
+      UT1-KVPLATS  = TMP-KVPLATS                                                
+      UT1-STATUS   = TMP-STATUS                                                 
+      UT1-BEART    = ' '                                                        
+      UT1-KDFLAGGA-KVAL = TMP-KDFLAGGA-KVAL                                     
+      PUT W61510D7                                                              
+   END-IF                                                                       
+END-IF                                                                          
+***********************************************************************         
+* STEP06                                                                        
+* SELEKTERAR BORT EMBALLAGE MHA. KDPRODSL                                       
+***********************************************************************         
+JOB INPUT (W61510D7 KEY (UT1-IDARTNR)             +                             
+           W61510D9 KEY (IN-CLAG-IDARTNR))                                      
+IF MATCHED                                                                      
+  PERFORM S25-CHECK-IN-CLAG-KDPRODSL                                            
+  IF IN-CLAG-KDPRODSL EQ KDPRODSL-VOLVO-EMB KDPRODSL-LOCAL-EMB                  
+     CONTINUE                                                                   
+  ELSE                                                                          
+     UT-IDDC          =  UT1-IDDC                                               
+     UT-IDARTNR       =  UT1-IDARTNR                                            
+     UT-ADLAGOMR      =  UT1-ADLAGOMR                                           
+     UT-BLANK1        =  ' '                                                    
+     UT-ADGANG        =  UT1-ADGANG                                             
+     UT-BLANK2        =  ' '                                                    
+     UT-ADPLATS       =  UT1-ADPLATS                                            
+     UT-KVPB          =  UT1-KVPB                                               
+     UT-KVPLATS       =  UT1-KVPLATS                                            
+     UT-STATUS        =  UT1-STATUS                                             
+     UT-BEART         =  UT1-BEART                                              
+*    UT-KDFLAGGA-KVAL = UT1-KDFLAGGA-KVAL                                       
+                                                                                
+     IF IN-CLAG-KDLEVSP > 0                                                     
+        UT-KDFLAGGA-KVAL = ' TOTAL '                                            
+     ELSE                                                                       
+        IF IN-CLAG-KVSPARR-KVAL > 0                                             
+           UT-KDFLAGGA-KVAL = 'PARTIAL'                                         
+        ELSE                                                                    
+           UT-KDFLAGGA-KVAL = '       '                                         
+        END-IF                                                                  
+     END-IF                                                                     
+                                                                                
+     PUT W61510D0                                                               
+  END-IF                                                                        
+END-IF                                                                          
+%WWPRODSL 'IN-CLAG-' PROC ''                                                    
+***********************************************************************         
+* STEP07                                                                        
+* SORTERAR URVALSFIL PÅ DC OCH ARTNR                                            
+***********************************************************************         
+SORT W61510D0 TO W61510D0 USING (UT-IDDC , UT-IDARTNR)                          
+***********************************************************************         
+* STEP08                                                                        
+* MATCHER URVALSFIL MED DEN SUMMERADE BUFFERTFILEN                              
+* OCH KOMPLETTERAR PÅ SÅ SÄTT EN DEL UPPGIFTER                                  
+***********************************************************************         
+JOB INPUT (W61510D0 KEY (UT-IDDC                +                               
+                         UT-IDARTNR)            +                               
+           W61510D4 KEY (BUF-IDDC               +                               
+                         BUF-IDARTNR))                                          
+IF MATCHED                                                                      
+   BUF3-IDDC        = BUF-IDDC                                                  
+   BUF3-IDARTNR     = BUF-IDARTNR                                               
+   BUF3-ADBUFFOMR   = BUF-ADBUFFOMR                                             
+   BUF3-ADBUFFGANG  = BUF-ADBUFFGANG                                            
+   BUF3-ADBUFFPL    = BUF-ADBUFFPL                                              
+   BUF3-KVBUFF      = BUF-KVBUFF-F                                              
+   BUF3-DABUFPAF    = BUF-DABUFPAF                                              
+   BUF3-ADLAGOMR    = UT-ADLAGOMR                                               
+   BUF3-STATUS-NR   = UT-STATUS-NR                                              
+   BUF3-KDFLAGGA-KVAL = UT-KDFLAGGA-KVAL                                        
+   PUT W61510D8                                                                 
+END-IF                                                                          
+                                                                                
+***********************************************************************         
+* STEP09                                                                        
+* SORTERAR URVALSFILEN                                                          
+***********************************************************************         
+SORT W61510D0 TO W61510D0 USING (UT-IDDC, UT-ADLAGOMR, UT-STATUS-NR  +          
+                                                      UT-IDARTNR)               
+                                                                                
+***********************************************************************         
+* STEP10                                                                        
+* SORTERAR DEN KOMPL. URVALSFILEN                                               
+***********************************************************************         
+SORT W61510D8 TO W61510D8 USING (BUF3-IDDC, BUF3-ADLAGOMR,           +          
+                            BUF3-STATUS-NR, BUF3-IDARTNR, BUF3-DABUFPAF)        
+                                                                                
+***********************************************************************         
+* STEP11                                                                        
+* MATCHAR MED BUFFERTFIL OCH SKRIVER UTLISTOR                                   
+***********************************************************************         
+JOB INPUT (W61510D0 KEY (UT-IDDC                 +                              
+                         UT-IDARTNR)             +                              
+           W61510D8 KEY (BUF3-IDDC               +                              
+                         BUF3-IDARTNR))          +                              
+                              START A-INIT                                      
+IF MATCHED                                                                      
+   IF SPAR-IDDC = UT-IDDC AND SPAR-IDARTNR = UT-IDARTNR                         
+      COUNTER   = COUNTER + 1                                                   
+   ELSE                                                                         
+      COUNTER      = 1                                                          
+      SPAR-IDDC    = UT-IDDC                                                    
+      SPAR-IDARTNR = UT-IDARTNR                                                 
+   END-IF                                                                       
+   WS-ADBUFFOMR  = BUF3-ADBUFFOMR                                               
+   WS-BLANK1     = ' '                                                          
+   WS-ADBUFFGANG = BUF3-ADBUFFGANG                                              
+   WS-BLANK2     = ' '                                                          
+   WS-ADBUFFPL   = BUF3-ADBUFFPL                                                
+*                                                                               
+* OBS OBS OBS NYTT SKRIVER ALLA BUFFERTPLATSER                                  
+*  IF COUNTER < 4                                                               
+      IF UT-IDDC = CDC   AND   (UT-ADLAGOMR = 10  11)                           
+         PRINT W61510-001                                                       
+      END-IF                                                                    
+      IF UT-IDDC = CDC   AND   (UT-ADLAGOMR = 20  21)                           
+         PRINT W61510-002                                                       
+      END-IF                                                                    
+      IF UT-IDDC = CDC   AND    UT-ADLAGOMR = 15                                
+         PRINT W61510-003                                                       
+      END-IF                                                                    
+      IF UT-IDDC = CDC   AND   (UT-ADLAGOMR = 30 35 71)                         
+         PRINT W61510-004                                                       
+      END-IF                                                                    
+*  END-IF                                                                       
+END-IF                                                                          
+                                                                                
+A-INIT. PROC                                                                    
+*  INITIERING AV ARBETSFÄLT                                                     
+      SPAR-IDDC          = UT-IDDC                                              
+      SPAR-IDARTNR       = UT-IDARTNR                                           
+      COUNTER            = 0                                                    
+*  INHÄMTNING AV DATUM                                                          
+      CALL DATKORT USING (PROGRAM-NAMN       +                                  
+                          DATUMKORT-ID       +                                  
+                          DATKORT-DATUMKORT)                                    
+      DAGENS-TIAA        = DATKORT-D-AAR                                        
+      DAGENS-TIMM        = DATKORT-D-MAANAD                                     
+      DAGENS-TIDD        = DATKORT-D-DAG                                        
+*  FRAMRÄKNING AV DATKORTSDATUM TILL NÄSTA DAG                                  
+      DAG-TIAAMMDD-FOM   = DAGENS-DATUM                                         
+      DAG-KDCALL         = +002                                                 
+******* ------------->     +002 = NÄSTA DAG                                     
+      DAG-KVKALDAG       = +002                                                 
+      CALL WDAGKONV USING (DAG-KDCALL      +                                    
+                           DAG-DATUM-AREA  +                                    
+                           DAG-KDSVAR)                                          
+                                                                                
+      IF DAG-KDSVAR = ' '                                                       
+         DD-DATUM        = DAG-TIAAMMDD-TOM                                     
+      ELSE                                                                      
+         DISPLAY 'FEL FRÅN WDATKONV   I A-INIT SECTION I W61510'                
+                                                                                
+         STOP EXECUTE                                                           
+      END-IF                                                                    
+                                                                                
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------                     
+*                                                                               
+REPORT W61510-001 PRINTER W61510DA                                +             
+         LINESIZE       121                                       +             
+         NOSPREAD                                                 +             
+         NOADJUST                                                 +             
+         NODATE                                                   +             
+         SPACE            1                                                     
+                                                                                
+SEQUENCE UT-ADLAGOMR UT-STATUS-TEXT UT-ADART UT-IDARTNR UT-BEART                
+                                                                                
+CONTROL  FINAL           NOPRINT                                  +             
+         UT-ADLAGOMR     NEWPAGE   NOPRINT                        +             
+         UT-STATUS-TEXT  NEWPAGE   NOPRINT                        +             
+         UT-ADART        NOPRINT                                  +             
+         UT-IDARTNR      NOPRINT                                  +             
+         UT-BEART        NOPRINT                                                
+                                                                                
+TITLE 01 DD-DATUM '            W61510-001  ' UT-STATUS-TEXT       +             
+         '     LIST PARTS TO BE'                                  +             
+         'BIN FILLED IN CDC 11   AREA ' UT-ADLAGOMR               +             
+COL 106  PAGE                                                                   
+                                                                                
+HEADING  UT-IDARTNR    'PARTNUMBER'                                             
+HEADING  UT-KDFLAGGA-KVAL ('QUALITY' 'BLOCKED')                                 
+HEADING  UT-BEART      'PART DESCRIPTION'                                       
+HEADING  UT-KVPB       'FORECAST'                                               
+HEADING  UT-ADART      'PRIME LOCATION'                                         
+HEADING  UT-KVPLATS    'QUANTITY'                                               
+HEADING  WS-ADBUFF     'RESERVE LOCATION'                                       
+HEADING  BUF3-KVBUFF   'QUANTITY'                                               
+                                                                                
+LINE 01  UT-IDARTNR                                               +             
+         UT-KDFLAGGA-KVAL                                         +             
+         UT-BEART                                                 +             
+         UT-KVPB                                                  +             
+         UT-ADART                                                 +             
+         UT-KVPLATS                                               +             
+         WS-ADBUFF                                                +             
+         BUF3-KVBUFF                                                            
+*                                                                               
+AFTER-BREAK. PROC                                                               
+  IF LEVEL EQ 2                                                                 
+     DISPLAY '- - - - -'                                                        
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+********************************************************************            
+*                                                                               
+REPORT W61510-002 PRINTER W61510DB                                +             
+         LINESIZE       121                                       +             
+         NOSPREAD                                                 +             
+         NOADJUST                                                 +             
+         NODATE                                                   +             
+         SPACE            1                                                     
+SEQUENCE UT-ADLAGOMR UT-STATUS-TEXT UT-ADART UT-IDARTNR UT-BEART                
+                                                                                
+CONTROL  FINAL           NOPRINT                                  +             
+         UT-ADLAGOMR     NEWPAGE   NOPRINT                        +             
+         UT-STATUS-TEXT  NEWPAGE   NOPRINT                        +             
+         UT-ADART        NOPRINT                                  +             
+         UT-IDARTNR      NOPRINT                                  +             
+         UT-BEART        NOPRINT                                                
+                                                                                
+                                                                                
+TITLE 01 DD-DATUM '            W61510-002  ' UT-STATUS-TEXT       +             
+         '     LIST PARTS TO BE'                                  +             
+         'BIN FILLED IN CDC 11   AREA ' UT-ADLAGOMR               +             
+COL 106  PAGE                                                                   
+                                                                                
+HEADING  UT-IDARTNR    'PARTNUMBER'                                             
+HEADING  UT-KDFLAGGA-KVAL ('QUALITY' 'BLOCKED')                                 
+HEADING  UT-BEART      'PART DESCRIPTION'                                       
+HEADING  UT-KVPB       'FORECAST'                                               
+HEADING  UT-ADART      'PRIME LOCATION'                                         
+HEADING  UT-KVPLATS    'QUANTITY'                                               
+HEADING  WS-ADBUFF     'RESERVE LOCATION'                                       
+HEADING  BUF3-KVBUFF   'QUANTITY'                                               
+                                                                                
+LINE 01  UT-IDARTNR                                               +             
+         UT-KDFLAGGA-KVAL                                         +             
+         UT-BEART                                                 +             
+         UT-KVPB                                                  +             
+         UT-ADART                                                 +             
+         UT-KVPLATS                                               +             
+         WS-ADBUFF                                                +             
+         BUF3-KVBUFF                                                            
+*                                                                               
+AFTER-BREAK. PROC                                                               
+  IF LEVEL EQ 2                                                                 
+     DISPLAY '- - - - -'                                                        
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+***********************************************************************         
+*                                                                               
+REPORT W61510-003 PRINTER W61510DC                                +             
+         LINESIZE       121                                       +             
+         NOSPREAD                                                 +             
+         NOADJUST                                                 +             
+         NODATE                                                   +             
+         SPACE            1                                                     
+                                                                                
+SEQUENCE UT-ADLAGOMR UT-STATUS-TEXT UT-ADART UT-IDARTNR UT-BEART                
+                                                                                
+CONTROL  FINAL           NOPRINT                                  +             
+         UT-ADLAGOMR     NEWPAGE   NOPRINT                        +             
+         UT-STATUS-TEXT  NEWPAGE   NOPRINT                        +             
+         UT-ADART        NOPRINT                                  +             
+         UT-IDARTNR      NOPRINT                                  +             
+         UT-BEART        NOPRINT                                                
+                                                                                
+                                                                                
+TITLE 01 DD-DATUM '            W61510-003  ' UT-STATUS-TEXT       +             
+         '     LIST PARTS TO BE'                                  +             
+         'BIN FILLED IN CDC 11   AREA ' UT-ADLAGOMR               +             
+COL 106  PAGE                                                                   
+                                                                                
+HEADING  UT-IDARTNR    'PARTNUMBER'                                             
+HEADING  UT-KDFLAGGA-KVAL ('QUALITY' 'BLOCKED')                                 
+HEADING  UT-BEART      'PART DESCRIPTION'                                       
+HEADING  UT-KVPB       'FORECAST'                                               
+HEADING  UT-ADART      'PRIME LOCATION'                                         
+HEADING  UT-KVPLATS    'QUANTITY'                                               
+HEADING  WS-ADBUFF     'RESERVE LOCATION'                                       
+HEADING  BUF3-KVBUFF   'QUANTITY'                                               
+                                                                                
+LINE 01  UT-IDARTNR                                               +             
+         UT-KDFLAGGA-KVAL                                         +             
+         UT-BEART                                                 +             
+         UT-KVPB                                                  +             
+         UT-ADART                                                 +             
+         UT-KVPLATS                                               +             
+         WS-ADBUFF                                                +             
+         BUF3-KVBUFF                                                            
+*                                                                               
+AFTER-BREAK. PROC                                                               
+  IF LEVEL EQ 2                                                                 
+     DISPLAY '- - - - -'                                                        
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+*********************************************************************           
+*                                                                               
+REPORT W61510-004 PRINTER W61510DD                                +             
+         LINESIZE       121                                       +             
+         NOSPREAD                                                 +             
+         NOADJUST                                                 +             
+         NODATE                                                   +             
+         SPACE            1                                                     
+                                                                                
+SEQUENCE UT-ADLAGOMR UT-STATUS-TEXT UT-ADART UT-IDARTNR UT-BEART                
+                                                                                
+CONTROL  FINAL           NOPRINT                                  +             
+         UT-ADLAGOMR     NEWPAGE   NOPRINT                        +             
+         UT-STATUS-TEXT  NEWPAGE   NOPRINT                        +             
+         UT-ADART        NOPRINT                                  +             
+         UT-IDARTNR      NOPRINT                                  +             
+         UT-BEART        NOPRINT                                                
+                                                                                
+                                                                                
+TITLE 01 DD-DATUM '            W61510-004  ' UT-STATUS-TEXT       +             
+         '     LIST PARTS TO BE'                                  +             
+         'BIN FILLED IN CDC 11   AREA ' UT-ADLAGOMR               +             
+COL 106  PAGE                                                                   
+                                                                                
+HEADING  UT-IDARTNR    'PARTNUMBER'                                             
+HEADING  UT-KDFLAGGA-KVAL ('QUALITY' 'BLOCKED')                                 
+HEADING  UT-BEART      'PART DESCRIPTION'                                       
+HEADING  UT-KVPB       'FORECAST'                                               
+HEADING  UT-ADART      'PRIME LOCATION'                                         
+HEADING  UT-KVPLATS    'QUANTITY'                                               
+HEADING  WS-ADBUFF     'RESERVE LOCATION'                                       
+HEADING  BUF3-KVBUFF   'QUANTITY'                                               
+                                                                                
+LINE 01  UT-IDARTNR                                               +             
+         UT-KDFLAGGA-KVAL                                         +             
+         UT-BEART                                                 +             
+         UT-KVPB                                                  +             
+         UT-ADART                                                 +             
+         UT-KVPLATS                                               +             
+         WS-ADBUFF                                                +             
+         BUF3-KVBUFF                                                            
+*                                                                               
+AFTER-BREAK. PROC                                                               
+  IF LEVEL EQ 2                                                                 
+     DISPLAY '- - - - -'                                                        
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+*********************************************************************           
+*                                                                               

@@ -1,0 +1,53 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSNING AV LEVERANTÖRSREGISTRET M.A.P.                                     
+//*  KONTROLLVECKA-LEVERANSPLAN. LÄSER WDF1 MED SB                              
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W200V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W22132   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W221P021 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W221..W200V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22132   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W22132,W22132,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//W22132D1 DD  DSN=&&W22133,DISP=(NEW,PASS,DELETE),                             
+//************ LEVERANTÖRER MED KONTROLLVECKA > 0                               
+//             SPACE=(6230,(6,6),RLSE)                                          
+//WDF1     INCLUDE MEMBER=WDF1                                                  
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W221PD32),DISP=SHR                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTIN   DD  DSN=&&W22133,DISP=(OLD,DELETE,DELETE)                            
+//SORTOUT  DD  DSN=&INDUT..W22133(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//             MGMTCLAS=&DEL2BKPC,SPACE=(6230,(6,6),RLSE)                       
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,54 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR FILDATA MED DATABAS-INFO                                      
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W612D5                                       
+//*                                                                             
+//*  ÅTERSTART:    W61254      NORMAL                                           
+//*                LÄSER        WDD3 WDK6 WDK7                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P054 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W612..W612D5,                                             
+//             INDUT=&W612..W612D5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61254   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W61254,W61254,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W61254D1 DD  DSN=&INDIN..W61253(+0),DISP=SHR                                  
+//************ INFIL (R30, R32 OCH 310)                                         
+//*                                                                             
+//W61254D2 DD  DSN=&INDUT..W61254(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FLYG                                                             
+//             SPACE=(48,(1,1),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&DEL2BKPC                                               
+//W61254D3 DD  DSN=&INDUT..W61255(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FAKT                                                             
+//             SPACE=(73,(1,1),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&DEL2BKPC                                               
+//W61254D4 DD  DSN=&INDUT..W61256(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ R32 & 310                                                        
+//             SPACE=(63,(1,1),RLSE),AVGREC=K,                                  
+//             MGMTCLAS=&DEL2BKPC                                               

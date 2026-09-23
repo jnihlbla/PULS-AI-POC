@@ -1,0 +1,52 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  GENERAL PROCEDURE TO DISTRIBUTE A FILE USING THE DISTRIBUTION              
+//*  & PRINT SYSTEM                                                             
+//*  THIS PROCEDURE CALLS THE D&P PROGRAM DIRECTLY AND DOES NOT                 
+//*  SEND DATA VIA THE IMS QUEUE.                                               
+//*  SEE ALSO PROCEDURE WZ14PDAP FOR SIMILAR FUNCTIONALITY.                     
+//*                                                                             
+//*  PARAMETERS:                                                                
+//*                                                                             
+//*    CONTROL= MEMBER/FILE CONTAINING THE D&P "ADDRESS", 1-3 LINES:            
+//*            LINE1: REPORT TYPE (OUTPUT TYPE) - MUST BE SPECIFIED             
+//*            LINE2: SUB TYPE (OUTPUT RECEIVER) - OPTIONAL, DFLT=SPACE         
+//*            LINE3: LIST ID - OPTIONAL, DEFAULT IS YYMMDDHHMMSS               
+//*                                                                             
+//*    DSIN=    FILE CONTAINING THE REPORT DATA                                 
+//*                                                                             
+//*  FREQUENCE:    ?                                                            
+//*                                                                             
+//*  RESTART:      WZ1412    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ14DAP2 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,PSB=WZ1412,                                                
+//             SOPREG=&INDRTE..SOP,                                             
+//             CONTROL=MISSING,DSIN=NULLFILE                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ1412   EXEC PGM=DFSRRC00,                                                   
+//         PARM=('BMP,WZ1412,&PSB,,,N00,,,,,&CPU,,,&IMS')                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//WZ1412D1 DD  DSN=&DSIN,DISP=SHR,LRECL=3004                                    
+//************                                                                  
+//*                                                                             
+//WZ1412D2 DD  DDNAME=SYSIN                                                     
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(&CONTROL),DISP=SHR                         
+//************ CONTROL DATA                                                     
+//*                                                                             
+//WSOPDD1  DD  DSN=&SOPREG,DISP=SHR            -- SOP DATA BASE                 

@@ -1,0 +1,160 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W3309800                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER W01103(+0) OCH SKAPAR UTFIL MED ERSÄTTNINGS     *        
+*                INFO.                                                *         
+*                                                                      *        
+*  FÖRFATTARE :  BOHLIN HÅKAN                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W33098D1                                                                   
+*                                                                               
+%WSUPERS 'IN-'                                                                  
+                                                                                
+FILE W33098D2                                                                   
+*                                                                               
+%W91042 'IN2-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W33098D3 FB(29 0)                                                          
+*                                                                               
+%W33098  'OUT-'                                                                 
+                                                                                
+FILE TEMPFIL1 VIRTUAL RETAIN FB (38 0)                                          
+*                                                                               
+%WSUPERS 'TMP1-'                                                                
+                                                                                
+FILE TEMPFIL2 VIRTUAL RETAIN FB (12 0)                                          
+TMP2-IDARTNR            1   5   P                                               
+TMP2-IDARTNR-TILLK      6   5   P                                               
+TMP2-ANT-IDARTNR-TILLK 11   2   N                                               
+                                                                                
+FILE TEMPFIL3 VIRTUAL RETAIN FB (12 0)                                          
+TMP3-IDARTNR            1   5   P                                               
+TMP3-IDARTNR-TILLK      6   5   P                                               
+TMP3-ANT-IDARTNR-TILLK 11   2   N                                               
+                                                                                
+FILE EXCHSUP VIRTUAL RETAIN FB (12 0) TABLE 300000                              
+ARG 1 5 P. DESC 6 5 P                                                           
+                                                                                
+W-SPAR-IDARTNR        W  9 N   VALUE 0                                          
+DUPTEST               W  1 A   VALUE 'N'                                        
+FLSKRIV               W  1 A   VALUE 'N'                                        
+FORSTA-SW             W  1 A   VALUE 'J'                                        
+SISTA-IDARTNR-SW      W  1 A   VALUE 'N'                                        
+W-IDARTNR             W  5 P   VALUE 0                                          
+W-IDARTNR-TILLK       W  5 P   VALUE 0                                          
+W-ANT-IDARTNR-TILLK   W  2 N   VALUE 0                                          
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORTERAR W01103(+0) OCH SKAPAR TEMPFIL1                               
+*                                                                               
+SORT W33098D1 TO TEMPFIL1 USING(IN-IDARTNR IN-IDKORTNR)                         
+                                                                                
+*                                                                               
+* STEG 2. LÄSER TEMPFIL1 OCH SKAPAR TEMPFIL2 MED ERSÄTTNINGS INFO               
+*                                                                               
+JOB INPUT TEMPFIL1 FINISH Z-FINIT                                               
+                                                                                
+  IF W-SPAR-IDARTNR NE TMP1-IDARTNR AND FORSTA-SW = 'N'                         
+     IF FLSKRIV = 'J'                                                           
+        TMP2-ANT-IDARTNR-TILLK = W-ANT-IDARTNR-TILLK                            
+        PUT TEMPFIL2                                                            
+     END-IF                                                                     
+     FLSKRIV = 'N'                                                              
+     DUPTEST = 'N'                                                              
+     W-ANT-IDARTNR-TILLK = 0                                                    
+  END-IF                                                                        
+  IF TMP1-FLTEXT = 'N'                                                          
+     IF DUPTEST = 'N'                                                           
+        TMP2-IDARTNR = TMP1-IDARTNR                                             
+        TMP2-IDARTNR-TILLK = TMP1-IDARTNR-TILLK                                 
+        W-ANT-IDARTNR-TILLK = W-ANT-IDARTNR-TILLK + 1                           
+        FLSKRIV = 'J'                                                           
+        DUPTEST = 'J'                                                           
+        IF FORSTA-SW = 'J'                                                      
+           FORSTA-SW = 'N'                                                      
+        END-IF                                                                  
+     ELSE                                                                       
+        W-ANT-IDARTNR-TILLK = W-ANT-IDARTNR-TILLK + 1                           
+     END-IF                                                                     
+  END-IF                                                                        
+  W-SPAR-IDARTNR = TMP1-IDARTNR                                                 
+                                                                                
+Z-FINIT. PROC                                                                   
+  IF FLSKRIV = 'J'                                                              
+     TMP2-ANT-IDARTNR-TILLK = W-ANT-IDARTNR-TILLK                               
+     PUT TEMPFIL2                                                               
+  END-IF                                                                        
+END-PROC.                                                                       
+                                                                                
+*                                                                               
+* STEG 3. MATCHAR TEMPFIL2 MED W91042(+0) FÖR ATT SELEKTERA BORT                
+*         ARTIKLAR MED VISSA ERSÄTTNINGS KODER OCH SKAPAR TEMPFIL3.             
+*                                                                               
+                                                                                
+JOB INPUT (TEMPFIL2 KEY(TMP2-IDARTNR) +                                         
+           W33098D2 KEY(IN2-IDARTNR) +                                          
+          )                                                                     
+                                                                                
+   IF MATCHED                                                                   
+      IF IN2-KDERS = 04 14 24                        +                          
+                     05 15 25                        +                          
+                     06 16 26                        +                          
+                     08 18 28                                                   
+      ELSE                                                                      
+         IF IN2-KDERS-UTG = 04 14 24                        +                   
+                            05 15 25                        +                   
+                            06 16 26                        +                   
+                            08 18 28                                            
+         ELSE                                                                   
+            TMP3-IDARTNR EQ TMP2-IDARTNR                                        
+            TMP3-IDARTNR-TILLK EQ TMP2-IDARTNR-TILLK                            
+            TMP3-ANT-IDARTNR-TILLK EQ TMP2-ANT-IDARTNR-TILLK                    
+            PUT TEMPFIL3                                                        
+         END-IF                                                                 
+      END-IF                                                                    
+   ELSE                                                                         
+      IF TEMPFIL2                                                               
+         TMP3-IDARTNR EQ TMP2-IDARTNR                                           
+         TMP3-IDARTNR-TILLK EQ TMP2-IDARTNR-TILLK                               
+         TMP3-ANT-IDARTNR-TILLK EQ TMP2-ANT-IDARTNR-TILLK                       
+         PUT TEMPFIL3                                                           
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+                                                                                
+*                                                                               
+* STEG 4. SORTERAR TEMPFIL3 TILL TABELLEN EXCHSUP                               
+*                                                                               
+SORT TEMPFIL3 TO EXCHSUP USING TMP3-IDARTNR                                     
+                                                                                
+*                                                                               
+* STEG 5. SKAPAR UTFIL MED ERSÄTTNINGS INFO.                                    
+*         I DETTA STEG HAR VI LOGIK FÖR ATT HÄMTA SISTA ARTIKELN I              
+*         ERSÄTTNINGS KEDJAN.                                                   
+*                                                                               
+JOB INPUT TEMPFIL3                                                              
+  SISTA-IDARTNR-SW EQ 'N'                                                       
+  W-IDARTNR EQ TMP3-IDARTNR                                                     
+  SEARCH EXCHSUP WITH W-IDARTNR GIVING W-IDARTNR-TILLK                          
+  DO WHILE SISTA-IDARTNR-SW EQ 'N'                                              
+     W-IDARTNR EQ W-IDARTNR-TILLK                                               
+     SEARCH EXCHSUP WITH W-IDARTNR GIVING W-IDARTNR-TILLK                       
+     IF EXCHSUP                                                                 
+        SISTA-IDARTNR-SW EQ 'N'                                                 
+     ELSE                                                                       
+        SISTA-IDARTNR-SW EQ 'J'                                                 
+     END-IF                                                                     
+  END-DO                                                                        
+  OUT-IDARTNR EQ TMP3-IDARTNR                                                   
+  OUT-IDARTNR-TILLK EQ TMP3-IDARTNR-TILLK                                       
+  OUT-IDARTNR-TILLK-SISTA EQ W-IDARTNR                                          
+  OUT-ANT-IDARTNR-TILLK EQ TMP3-ANT-IDARTNR-TILLK                               
+  PUT W33098D3                                                                  
+                                                                                

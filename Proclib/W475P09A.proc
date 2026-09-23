@@ -1,0 +1,66 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR INTRASTATFIL TILL VOLVO TRANSPORT FÖR                               
+//*  UTFÖRSEL                                                                   
+//*                                                                             
+//*  FREKVENS:     MÅNAD    RTN W475M0                                          
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W4759A      NORMAL                                           
+//*                LÄSER  WDK6                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W475P09A PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W418..W475M0,                                            
+//             INDIN3=&W510..W475M0,                                            
+//             INDIN4=&W522..W475M0,                                            
+//             INDUT=&WUT..W475M0                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W475PD9A),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W41854,DISP=SHR                                     
+//************ FIL FRÅN KREDITERINGEN                                           
+//*                                                                             
+//         DD  DSN=&INDIN3..W51049,DISP=SHR                                     
+//************ FIL FRÅN EKONOMIS SUPERTRANS MED AVVIKELSER                      
+//*                                                                             
+//         DD  DSN=&INDIN4..W52212,DISP=SHR                                     
+//************ FIL FRÅN INTRASTAT                                               
+//*                                                                             
+//SORTOUT  DD  DSN=&&W4758N,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD INTRASTATFIL FÖR UTFÖRSEL                               
+//             SPACE=(27984,(500,50),RLSE)                                      
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W4759A   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W4759A,W4759A,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W4759AD1 DD  DSN=&&W4758N,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD FIL FRÅN FAKTURERINGEN OCH KREDITERINGEN                
+//*                                                                             
+//W4759AD2 DD  DSN=&INDUT..W4759A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ INTRASTATFIL FÖR UTFÖRSEL SKICKAS TILL VOLVO TRPT                
+//             SPACE=(185,(100,33),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&BACKUPC                                                

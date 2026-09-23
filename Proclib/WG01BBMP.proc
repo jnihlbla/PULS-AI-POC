@@ -1,0 +1,31 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*      BACKOUT-PROCEDURE FÖR RS-DATABASER SOM BMP                             
+//*      ÅTERSTART:  NORMAL                                                     
+//*      OBS.        OM PGMLOG EJ GÅR ATT LÄSA OCH/ELLER                        
+//*                  RETUR-CODE EJ ÄR LIKA MED NOLL                             
+//*                                                                             
+//*                                                                             
+//*                              RING VCAS JOURANSVARIG                         
+//*                                                                             
+//*                                            ANSV. AVD. IMS-TEKNIK            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WG01BBMP PROC PSB=SAKNAS,                                                     
+//             CPU=1,                                                           
+//             DSIN=SAKNAS                                                      
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//BACK    EXEC PGM=DFSRRC00,                                                    
+//             PARM='BMP,DFSBBO00,&PSB,,,N00,,,,,&CPU,,,&IMS'                   
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMSLOGR  DD  DSN=&DSIN,DISP=SHR,DCB=BUFNO=5                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//*                                                                             
+//ABEND   EXEC PGM=ABEND,COND=(0,EQ,BACK),PARM='1234567890123456'               

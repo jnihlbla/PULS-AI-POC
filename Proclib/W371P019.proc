@@ -1,0 +1,61 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  BYTES BANK - FÖRDELNING AV RETURER                                         
+//*                                                                             
+//*  FREKVENS:    VECKA  RTN W371V5                                             
+//*                                                                             
+//*  ÅTERSTART:   W37119 NORMAL                                                 
+//*                                                                             
+//*               LÄSER  WDGX3158 (WDR1)                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P019 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W371..W371V5,                                             
+//             INDUT=&W371..W371V5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W37119   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W37119,W37119,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//*                                                                             
+//WDR1     INCLUDE MEMBER=WDR1                                                  
+//*                                                                             
+//W37119D1 DD  DSN=&INDIN..W37113(+0),DISP=(SHR)                                
+//************ SORTERAD MELLANLAGRINGSFIL - RETURER                             
+//*                                                                             
+//W37119D2 DD  DSN=&INDUT..W37106(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//************ RETURNS-IN-TRANSIT TILL DIVERSE RAPPORTER/HISTORIK               
+//             SPACE=(159,(50,5),RLSE),AVGREC=K,                                
+//             MGMTCLAS=&BACKUPC                                                
+//W37119D3 DD  DSN=&INDUT..W37107(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//************ POÄNG-RETURER MM TILL DIVERSE RAPPORTER/HISTORIK                 
+//             SPACE=(159,(50,5),RLSE),AVGREC=K,                                
+//             MGMTCLAS=&BACKUPC                                                
+//W37119D4 DD  DSN=&INDUT..W37108(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UPPDATERINGS-TRANSAKTIONER TILL WDM6                             
+//             SPACE=(159,(50,5),RLSE),AVGREC=K,                                
+//             MGMTCLAS=&NOBACKUP                                               

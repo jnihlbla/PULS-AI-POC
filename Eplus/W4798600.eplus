@@ -1,0 +1,154 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4798600                                              *        
+*                                                                      *        
+*  FUNKTION   :  I PROCEDUREN SORTAS W47989 PÅ IDARTNR.                *        
+*                DENNA FIL MATCHAS SEDAN MOT W91042 OCH KOMPLETTERAS   *        
+*                MED ARTIKELNS STANDARDPRIS OCH SJÄLVKOSTNADSPRIS.     *        
+*                UTFIL W47986 SORTERAS SEDAN I PROCEDUDUREN PÅ DIST-   *        
+*                RIKT, KUND, ORDER OCH ARTNR.                          *        
+*                INNAN POST SKRIVS GÖRS IDKUNDRF OM FRÅN 'XXXXX     '  *        
+*                TILL '00XXXXX   ', DVS FRÅN 5 TILL 7 SIFFROR.         *        
+*                                                                      *        
+*  FÖRFATTARE :  BOO HAMMARIN, CGL                                     *        
+*                                                                      *        
+*  DATUM      :  MARS -92                                              *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     920516      STEFANO GIOBBI           30631                       *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W47986D1                                                                   
+%W91042 'I42-'                                                                  
+NEWPAGE                                                                         
+*                                                                               
+FILE W47986D2                                                                   
+%W47989 'I89-'                                                                  
+NEWPAGE                                                                         
+*                                                                               
+FILE W47986D3 FB (190 0)                                                        
+%W47986 'U86-'                                                                  
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                                   W      1 A   VALUE 'J'                   
+  NEJ                                  W      1 A   VALUE 'N'                   
+*                                                                               
+  HELP-IDKUNDRF-I89                    W     10 A   VALUE ' '                   
+  HELP-IDKUNDRF1-5-I89  HELP-IDKUNDRF-I89     5 A                               
+  HELP-IDKUNDRF6-10-I89 HELP-IDKUNDRF-I89 +5  5 A                               
+*                                                                               
+  HELP-IDKUNDRF-U86                    W     10 A   VALUE '0000000000'          
+  HELP-IDKUNDRF1-2-U86  HELP-IDKUNDRF-U86     2 A                               
+  HELP-IDKUNDRF3-7-U86  HELP-IDKUNDRF-U86 +2  5 A                               
+  HELP-IDKUNDRF8-10-U86 HELP-IDKUNDRF-U86 +7  3 A                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+*                                                                               
+JOB INPUT (W47986D1 KEY (I42-IDARTNR)      +                                    
+           W47986D2 KEY (I89-IDARTNR))                                          
+                                                                                
+  IF MATCHED                                                                    
+    PERFORM A-FYLL-UTAREA                                                       
+    PERFORM B-KONVERTERA-IDKUNDRF                                               
+    U86-PRARTSTD = I42-PRARTSTD                                                 
+    U86-PRARTSJK = I42-PRARTSJK                                                 
+    PUT W47986D3                                                                
+  ELSE                                                                          
+    IF W47986D2                                                                 
+       PERFORM A-FYLL-UTAREA                                                    
+       PERFORM B-KONVERTERA-IDKUNDRF                                            
+       U86-PRARTSTD = 0                                                         
+       U86-PRARTSJK = 0                                                         
+       PUT W47986D3                                                             
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  A-FYLL-UTAREA.  PROC                                                          
+                                                                                
+     U86-IDDISTR           = I89-IDDISTR                                        
+     U86-IDKUNDNR          = I89-IDKUNDNR                                       
+     U86-IDKUNDRF          = I89-IDKUNDRF                                       
+     U86-IDPRODNR          = I89-IDPRODNR                                       
+     U86-IDPURAD           = I89-IDPURAD                                        
+     U86-IDPLKLST          = I89-IDPLKLST                                       
+     U86-IDARTNR           = I89-IDARTNR                                        
+     U86-REKSIFFR          = I89-REKSIFFR                                       
+     U86-IDDC              = I89-IDDC                                           
+     U86-KDORDKL           = I89-KDORDKL                                        
+     U86-KDFRAKT           = I89-KDFRAKT                                        
+     U86-KDRADSTA          = I89-KDRADSTA                                       
+     U86-ADLAGOMR          = I89-ADLAGOMR                                       
+     U86-IDLEVNR           = I89-IDLEVNR                                        
+     U86-KDFAKTYP          = I89-KDFAKTYP                                       
+     U86-TIBEGPAC          = I89-TIBEGPAC                                       
+     U86-KVORDRAD          = I89-KVORDRAD                                       
+     U86-KVORDRAD-PACK     = I89-KVORDRAD-PACK                                  
+     U86-TIREF1            = I89-TIREF1                                         
+     U86-TIORDREG          = I89-TIORDREG                                       
+     U86-IDARTNR-ERS       = I89-IDARTNR-ERS                                    
+     U86-ADLEVPL           = I89-ADLEVPL                                        
+     U86-BERADREF          = I89-BERADREF                                       
+     U86-LOW-VALUE1        = I89-LOW-VALUE1                                     
+     U86-FLDIRLEV          = I89-FLDIRLEV                                       
+     U86-FLRESTN           = I89-FLRESTN                                        
+     U86-IDDIVORD          = I89-IDDIVORD                                       
+     U86-IDKUNDRF-RO       = I89-IDKUNDRF-RO                                    
+     U86-KDORDTYP          = I89-KDORDTYP                                       
+     U86-KDPRODSL          = I89-KDPRODSL                                       
+     U86-IDKONTO           = I89-IDKONTO                                        
+     U86-IDKST             = I89-IDKST                                          
+     U86-LOW-VALUE2        = I89-LOW-VALUE2                                     
+     U86-KVBEART           = I89-KVBEART                                        
+     U86-KVAVBART          = I89-KVAVBART                                       
+     U86-KVLEVART          = I89-KVLEVART                                       
+     U86-PRARTNTO          = I89-PRARTNTO                                       
+     U86-PRARTNTO-LOC      = I89-PRARTNTO-LOC                                   
+     U86-PRARTNTO-LOCPREL  = I89-PRARTNTO-LOCPREL                               
+     U86-KDVALISO          = I89-KDVALISO                                       
+     U86-TIRODAT           = I89-TIRODAT                                        
+     U86-TIUTSKR           = I89-TIUTSKR                                        
+     U86-VKARTNTO          = I89-VKARTNTO                                       
+     U86-VLARTNTO          = I89-VLARTNTO                                       
+     U86-KDKVBRYT          = I89-KDKVBRYT                                       
+     U86-KVEFRS-PACK       = I89-KVEFRS-PACK                                    
+     U86-KVEFRS-OPACK      = I89-KVEFRS-OPACK                                   
+     U86-KVEFRS-SKEPP      = I89-KVEFRS-SKEPP                                   
+     U86-TIREF1            = 0                                                  
+     U86-FLKRED            = ' '                                                
+     U86-IDDIVORD          = 0                                                  
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  B-KONVERTERA-IDKUNDRF.  PROC                                                  
+                                                                                
+    HELP-IDKUNDRF-I89     = I89-IDKUNDRF                                        
+    HELP-IDKUNDRF-U86     = '0000000000'                                        
+    HELP-IDKUNDRF3-7-U86  = HELP-IDKUNDRF1-5-I89                                
+    HELP-IDKUNDRF8-10-U86 = '   '                                               
+    U86-IDKUNDRF          = HELP-IDKUNDRF-U86                                   
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         

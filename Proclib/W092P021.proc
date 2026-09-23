@@ -1,0 +1,118 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      KONTROLL OCH FÖRDELNING AV TRANSAKTIONER.                    *         
+//*                                                                   *         
+//*      PERIODICITET: DAG                                            *         
+//*                                                                   *         
+//*      ÅTERSTART:    NORMAL                                         *         
+//*                                                                   *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W092P021 PROC INDIN=&W092..W092D2,INDUT=&W092..W092D2,                        
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W09206  EXEC PGM=W09206                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//TABELL   DD  DSN=&INDRTE..CONSTANT(W092M021),DISP=SHR                         
+//**************   FÖRDELNING AV TRANS TILL KONTROLLPROGRAM                     
+//*                                                                             
+//R05TAB   DD  DSN=&INDRTE..CONSTANT(W092M002),DISP=SHR                         
+//**************   STYRTABELL FÖR R05:OR                                        
+//*                                                                             
+//INTRANS  DD  DSN=&INDIN..W09204,DISP=SHR                                      
+//**************   EXTRA-INPUT                                                  
+//         DD  DSN=&INDIN..W09285(+0),DISP=SHR                                  
+//**************   FRÅN INKÖP PV VIA W092P078                                   
+//*                                                                             
+//FELDD    DD  DSN=&INDUT..W09227(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   FELPOSTER                                        ***         
+//             SPACE=(23476,(25,50),RLSE),                                      
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//SYSOUT   DD  DSN=&INDUT..W09226(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************      W09206-001    AVSTÄMNINGS-LISTA               ***         
+//**************      W09206-002    FEL-LISTA                       ***         
+//             SPACE=(23476,(10,100),RLSE),                                     
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W09206D5 DD  DSN=&INDUT..W09276(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   R05 (KONTOÄNDRING) TILL W540 (REDOV.PERIOD)      ***         
+//             SPACE=(23476,(3,30),RLSE),                                       
+//             RECFM=VB,LRECL=16,     -- MÅSTE STÅ KVAR                         
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W09206D7 DD  DSN=&INDUT..W09279(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   R05:OR TILL W011 (PT 042)                        ***         
+//             SPACE=(23476,(200,90),RLSE),                                     
+//             RECFM=VB,LRECL=80,            -- MÅSTE STÅ KVAR                  
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W09206D8 DD  DSN=&INDUT..W09280(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   KOPPLADE R05:OR TILL W217 (PT 043) W200D1        ***         
+//             SPACE=(23476,(120,90),RLSE),                                     
+//             RECFM=VB,LRECL=54,            -- MÅSTE STÅ KVAR                  
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W09206DC DD  DSN=&INDUT..W09210(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   INLEVERANSER,KTYP R33, R34, R40 (W611D3)         ***         
+//             SPACE=(27951,(30,30),RLSE),                                      
+//             RECFM=VB,LRECL=83,            -- MÅSTE STÅ KVAR                  
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W09206DD DD  DSN=&INDUT..W09222(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   R22 OCH R23  (W200D1)                            ***         
+//             SPACE=(23476,(500,500),RLSE),                                    
+//             RECFM=FB,LRECL=54,            -- MÅSTE STÅ KVAR                  
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W09206DE DD  DSN=&INDUT..W09251(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   R01 (W200D1)                                     ***         
+//             SPACE=(23476,(500,500),RLSE),                                    
+//             RECFM=FB,LRECL=22,            -- MÅSTE STÅ KVAR                  
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W09206DF DD  DSN=&INDUT..W09253(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   R02 OCH R17 (W200D1)                             ***         
+//             SPACE=(23476,(500,500),RLSE),                                    
+//             RECFM=VB,LRECL=36,            -- MÅSTE STÅ KVAR                  
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W09206DJ DD  DSN=&INDUT..W09257(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   RP1, RP2, RP3, RP4, RP5, RP6 OCH RP7  (W200D1)   ***         
+//             SPACE=(23476,(500,500),RLSE),                                    
+//             RECFM=VB,LRECL=38,            -- MÅSTE STÅ KVAR                  
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W09206DM DD  DSN=&INDUT..W09219(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   UPPDATERINGSTRANS FÖR FUNKTIONSGRP KTYP R38,R41  ***         
+//             SPACE=(23476,(400,40),RLSE),                (W321V1)             
+//             RECFM=FB,LRECL=116,           -- MÅSTE STÅ KVAR                  
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W09206DN DD  DUMMY,RECFM=VB,LRECL=36                                          
+//**************   TIDIGARE R56, 360 TILL W371P010  BYTES                       
+//*                                                                             
+//W09206DV DD  DSN=&INDUT..W09225(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//**************   BORTTAG SATSORDER KTYP R94 TILL W500V1                       
+//             SPACE=(23476,(10,10),RLSE),                                      
+//             RECFM=FB,LRECL=116,           -- MÅSTE STÅ KVAR                  
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TOMDEL1 EXEC WEMPDEL,DSIN=&INDUT..W09276(+1)                                  
+//TOMDEL2 EXEC WEMPDEL,DSIN=&INDUT..W09225(+1)                                  

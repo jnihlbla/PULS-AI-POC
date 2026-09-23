@@ -1,0 +1,81 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4126200                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET ÄR ETT LISTPROGRAM SOM LISTAR UT           *        
+*                DEN GSAM-FIL SOM SKAPAS I COBOL-PGM W41261            *        
+*                OCH SKALL SKRIVAS VID VECKOKÖRNINGEN.                 *        
+*                                                                      *        
+*  FÖRFATTARE :  JAN-ERIK FRANTZEN                                     *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+*-- FILE SECTION                                                                
+FILE W41262D1                                                                   
+*                                                                               
+%W41261  'IN-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W41262D2  PRINTER FB (121 121)                                             
+                                                                                
+*-- WS-STORAGE                                                                  
+                                                                                
+    WS-IDDISTR     W      4         N       MASK 'ZZZ9'                         
+    WS-IDKUNDNR    W      6         N       MASK 'ZZZZZ9'                       
+    WS-IDKUNDRF    W      10        A                                           
+    WS-IDORDNR5    WS-IDKUNDRF +2  5   N       MASK 'ZZZZ9'                     
+    WS-TIFORDAT    W      6         N       MASK 'ZZZZZ9'                       
+    WS-SUORDV      W      11        N   2   MASK 'ZZZZZZZZ9.99'                 
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+* STEG 1. INPUTFIL                                                              
+*                                                                               
+JOB INPUT(W41262D1)  NAME AKT01                                                 
+    WS-IDDISTR  = IN-IDDISTR                                                    
+    WS-IDKUNDNR = IN-IDKUNDNR                                                   
+    WS-IDKUNDRF = IN-IDKUNDRF                                                   
+    WS-TIFORDAT = IN-TIFORDAT                                                   
+    WS-SUORDV   = IN-SUORDV                                                     
+                                                                                
+    PRINT RAPPORT01                                                             
+                                                                                
+REPORT RAPPORT01 PRINTER W41262D2  +                                            
+       LINESIZE 120 +                                                           
+       SPACE 1 +                                                                
+       NOSPREAD +                                                               
+       NOADJUST +                                                               
+       NOHEADING                                                                
+  SEQUENCE IN-IDDISTR IN-IDKUNDNR IN-IDKUNDRF                                   
+TITLE 1 '          W41262-001                              SIGNALLISTA +        
+PROFORMOR'                                                                      
+TITLE 2 ' '                                                                     
+TITLE 3  COL 01 'DISTR'          +                                              
+         COL 07 'KUNDNR'         +                                              
+         COL 14 'KUNDREF'        +                                              
+         COL 54 'KÖPARE'         +                                              
+         COL 94 'FÖRF. '         +                                              
+         COL 105 'ORDER'    +                                                   
+         COL 112 'ANVÄNDARE'                                                    
+                                                                                
+TITLE 4  COL 94 'DATUM'          +                                              
+         COL 105 'VÄRDE'         +                                              
+                                                                                
+LINE 1   COL 02  WS-IDDISTR      +                                              
+         COL 07  WS-IDKUNDNR     +                                              
+         COL 16  WS-IDORDNR5     +                                              
+         COL 22  IN-BEBET        +                                              
+         COL 93  WS-TIFORDAT     +                                              
+         COL 100 WS-SUORDV       +                                              
+         COL 113 IN-IDUSER                                                      
+                                                                                
+                                                                                

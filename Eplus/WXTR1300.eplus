@@ -1,0 +1,399 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WXTR1300                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  LARS THELL                                            *        
+*                                                                      *        
+*  DATUM      :  950418                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET INGÅR I VCAS UPPFÖLJNINGSMILJÖ.            *        
+*                PROGRAMMET SKAPAR EN FIL MED FAKTURERAT,              *        
+*                INKOMMET OCH PACKAT, FIP - VECKOFIL.                  *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     970322      STEFANO GIOBBI           50654                       *        
+*                 OMSKRIVET FÖR NDC                                    *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE WXTR13D1                                                                   
+*      VECKANS FAKTURERAT                                                       
+   IN-FAKT-IDDC            1    2  A                                            
+   IN-FAKT-IDPRC           *    4  A                                            
+   IN-FAKT-KDORDKL         *    1  P 0                                          
+   IN-FAKT-IDDISTR         *    3  P 0                                          
+   IN-FAKT-LINES           *   10  P 0                                          
+   IN-FAKT-VALUE-STD       *   10  P 2                                          
+   IN-FAKT-VALUE-NET       *   10  P 2                                          
+   IN-FAKT-VALUE-AVG       *   10  P 2                                          
+   IN-FAKT-VKARTNTO        *   10  P 3                                          
+   IN-FAKT-VLARTNTO        *   10  P 1                                          
+   IN-FAKT-ORDERS          *   10  P 0                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR13D2                                                                   
+*     INKOMMET UNDER VECKAN                                                     
+   IN-INK-IDDC             *    2  A                                            
+   IN-INK-IDPRC            *    4  A                                            
+   IN-INK-KDORDKL          *    1  P                                            
+   IN-INK-IDDISTR          *    3  P 0                                          
+   IN-INK-STD              *   10  P 2                                          
+   IN-INK-AVG              *   10  P 2                                          
+   IN-INK-LINES            *   10  P 0                                          
+   IN-INK-VKARTNTO         *   10  P 3                                          
+   IN-INK-VLARTNTO         *   10  P 1                                          
+   IN-INK-ORDERS           *   10  P 0                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR13D3                                                                   
+*    VECKANS PACKFIL                                                            
+   IN-PACK-IDDC            1    2  A                                            
+   IN-PACK-IDPRC           *    4  A                                            
+   IN-PACK-KDORDKL         *    1  P 0                                          
+   IN-PACK-IDDISTR         *    3  P 0                                          
+   IN-PACK-STD             *    6  P 2                                          
+   IN-PACK-AVG             *    6  P 2                                          
+   IN-PACK-LINES           *    3  P 0                                          
+   IN-PACK-VKARTNTO        *    4  P 3                                          
+   IN-PACK-VLARTNTO        *    5  P 1                                          
+   IN-PACK-ORDERS          *    3  P 0                                          
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE WXTR13D4   FB (187 0)                                                      
+*     FIP FIL                                                                   
+   UT-TIAAVV               1    4  A                                            
+   UT-IDDC                 *    2  A                                            
+   UT-IDPRC                *    4  A                                            
+   UT-KDORDKL              *    1  P                                            
+   UT-IDDISTR              *    3  P 0                                          
+   UT-FAKT-STD             *   10  P 2                                          
+   UT-FAKT-AVG             *   10  P 2                                          
+   UT-FAKT-LINES           *   10  P 0                                          
+   UT-FAKT-VKARTNTO        *   10  P 3                                          
+   UT-FAKT-VLARTNTO        *   10  P 1                                          
+   UT-FAKT-ORDERS          *   10  P 0                                          
+   UT-INK-STD              *   10  P 2                                          
+   UT-INK-AVG              *   10  P 2                                          
+   UT-INK-LINES            *   10  P 0                                          
+   UT-INK-VKARTNTO         *   10  P 3                                          
+   UT-INK-VLARTNTO         *   10  P 1                                          
+   UT-INK-ORDERS           *   10  P 0                                          
+   UT-PACK-STD             *   10  P 2                                          
+   UT-PACK-AVG             *   10  P 2                                          
+   UT-PACK-LINES           *   10  P 0                                          
+   UT-PACK-VKARTNTO        *   10  P 3                                          
+   UT-PACK-VLARTNTO        *   10  P 1                                          
+   UT-PACK-ORDERS          *    3  P 0                                          
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1  A   VALUE 'J'                                
+  NEJ                       W   1  A   VALUE 'N'                                
+  FEL                       W   1  A   VALUE 'F'                                
+  RKOD-16                   W   4  N   VALUE 16                                 
+*                                                                               
+%WDATAREA                                                                       
+*                                                                               
+%WDATKORT                                                                       
+                                                                                
+  W-DATUM          W  6   N                                                     
+  W-AAR  W-DATUM       2  N                                                     
+  W-MM   W-DATUM   +2  2  N                                                     
+  W-DD   W-DATUM   +4  2  N                                                     
+*                                                                               
+PROGRAM-NAMN       W  6  A  VALUE 'WXTR13'                                      
+DATUMKORT-ID       W  6  A  VALUE 'WDATUM'                                      
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+                                                                                
+  JOB INPUT (WXTR13D1 KEY (IN-FAKT-IDDC                          +              
+                           IN-FAKT-IDPRC                         +              
+                           IN-FAKT-KDORDKL                       +              
+                           IN-FAKT-IDDISTR)                      +              
+             WXTR13D2 KEY ( IN-INK-IDDC                          +              
+                            IN-INK-IDPRC                         +              
+                            IN-INK-KDORDKL                       +              
+                            IN-INK-IDDISTR)                      +              
+             WXTR13D3 KEY (IN-PACK-IDDC                          +              
+                           IN-PACK-IDPRC                         +              
+                           IN-PACK-KDORDKL                       +              
+                           IN-PACK-IDDISTR))                     +              
+                          START A-INIT                                          
+                                                                                
+    IF MATCHED                                                                  
+      PERFORM A-FAKT-INK-PACK                                                   
+    ELSE-IF WXTR13D1 AND WXTR13D2                                               
+      PERFORM B-FAKT-INK                                                        
+    ELSE-IF WXTR13D1 AND WXTR13D3                                               
+      PERFORM C-FAKT-PACK                                                       
+    ELSE-IF WXTR13D2 AND WXTR13D3                                               
+      PERFORM D-INK-PACK                                                        
+    ELSE-IF WXTR13D1                                                            
+      PERFORM E-ENBART-FAKT                                                     
+    ELSE-IF WXTR13D2                                                            
+      PERFORM F-ENBART-INK                                                      
+    ELSE-IF WXTR13D3                                                            
+      PERFORM G-ENBART-PACK                                                     
+    END-IF                                                                      
+                                                                                
+    UT-TIAAVV = DAT-TIAAVV-GRP                                                  
+    PUT WXTR13D4                                                                
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  A-INIT.  PROC                                                                 
+                                                                                
+      CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                  
+      W-AAR  = D-AAR                                                            
+      W-MM   = D-MAANAD                                                         
+      W-DD   = D-DAG                                                            
+      DISPLAY 'W-DATUM=***************'  W-DATUM                                
+                                                                                
+      DAT-KDDATFORM = 'AAMMDD'                                                  
+      DAT-I-TIDATUM = W-DATUM                                                   
+      CALL WDATKONV USING (DAT-KDDATFORM                         +              
+                           DAT-I-TIDATUM                         +              
+                           DAT-O-TIDATUM                         +              
+                           DAT-KDSVAR    )                                      
+                                                                                
+      IF DAT-KDSVAR = FEL                                                       
+         RETURN-CODE = RKOD-16                                                  
+         STOP EXECUTE                                                           
+      ELSE                                                                      
+         DISPLAY '****VECKA*** '  DAT-TIAAVV-GRP                                
+      END-IF                                                                    
+                                                                                
+*----- FIX START, ANVÄNDS VID OMKÖRNING UNDER FÖLJANDE VKA.                     
+*     DAT-TIAAVV-GRP = '9724'                                                   
+*----- FIX SLUT                                                                 
+                                                                                
+                                                                                
+    END-PROC                                                                    
+                                                                                
+  A-FAKT-INK-PACK.  PROC                                                        
+                                                                                
+    UT-IDDC             = IN-FAKT-IDDC                                          
+    UT-IDPRC            = IN-FAKT-IDPRC                                         
+    UT-KDORDKL          = IN-FAKT-KDORDKL                                       
+    UT-IDDISTR          = IN-FAKT-IDDISTR                                       
+    UT-FAKT-STD         = IN-FAKT-VALUE-STD                                     
+    UT-FAKT-AVG         = IN-FAKT-VALUE-AVG                                     
+    UT-FAKT-LINES       = IN-FAKT-LINES                                         
+    UT-FAKT-VKARTNTO    = IN-FAKT-VKARTNTO                                      
+    UT-FAKT-ORDERS      = IN-FAKT-ORDERS                                        
+    UT-FAKT-VLARTNTO    = IN-FAKT-VLARTNTO                                      
+    UT-INK-STD          = IN-INK-STD                                            
+    UT-INK-AVG          = IN-INK-AVG                                            
+    UT-INK-LINES        = IN-INK-LINES                                          
+    UT-INK-VKARTNTO     = IN-INK-VKARTNTO                                       
+    UT-INK-VLARTNTO     = IN-INK-VLARTNTO                                       
+    UT-INK-ORDERS       = IN-INK-ORDERS                                         
+    UT-PACK-STD         = IN-PACK-STD                                           
+    UT-PACK-AVG         = IN-PACK-AVG                                           
+    UT-PACK-LINES       = IN-PACK-LINES                                         
+    UT-PACK-VKARTNTO    = IN-PACK-VKARTNTO                                      
+    UT-PACK-VLARTNTO    = IN-PACK-VLARTNTO                                      
+    UT-PACK-ORDERS      = IN-PACK-ORDERS                                        
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  B-FAKT-INK.  PROC                                                             
+                                                                                
+    UT-IDDC             = IN-FAKT-IDDC                                          
+    UT-IDPRC            = IN-FAKT-IDPRC                                         
+    UT-KDORDKL          = IN-FAKT-KDORDKL                                       
+    UT-IDDISTR          = IN-FAKT-IDDISTR                                       
+    UT-FAKT-STD         = IN-FAKT-VALUE-STD                                     
+    UT-FAKT-AVG         = IN-FAKT-VALUE-AVG                                     
+    UT-FAKT-LINES       = IN-FAKT-LINES                                         
+    UT-FAKT-VKARTNTO    = IN-FAKT-VKARTNTO                                      
+    UT-FAKT-VLARTNTO    = IN-FAKT-VLARTNTO                                      
+    UT-FAKT-ORDERS      = IN-FAKT-ORDERS                                        
+    UT-INK-STD          = IN-INK-STD                                            
+    UT-INK-AVG          = IN-INK-AVG                                            
+    UT-INK-LINES        = IN-INK-LINES                                          
+    UT-INK-VKARTNTO     = IN-INK-VKARTNTO                                       
+    UT-INK-VLARTNTO     = IN-INK-VLARTNTO                                       
+    UT-INK-ORDERS       = IN-INK-ORDERS                                         
+    UT-PACK-STD         = 0                                                     
+    UT-PACK-AVG         = 0                                                     
+    UT-PACK-LINES       = 0                                                     
+    UT-PACK-VKARTNTO    = 0                                                     
+    UT-PACK-VLARTNTO    = 0                                                     
+    UT-PACK-ORDERS      = 0                                                     
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  C-FAKT-PACK.  PROC                                                            
+                                                                                
+    UT-IDDC             = IN-FAKT-IDDC                                          
+    UT-IDPRC            = IN-FAKT-IDPRC                                         
+    UT-KDORDKL          = IN-FAKT-KDORDKL                                       
+    UT-IDDISTR          = IN-FAKT-IDDISTR                                       
+    UT-FAKT-STD         = IN-FAKT-VALUE-STD                                     
+    UT-FAKT-AVG         = IN-FAKT-VALUE-AVG                                     
+    UT-FAKT-LINES       = IN-FAKT-LINES                                         
+    UT-FAKT-VKARTNTO    = IN-FAKT-VKARTNTO                                      
+    UT-FAKT-VLARTNTO    = IN-FAKT-VLARTNTO                                      
+    UT-FAKT-ORDERS      = IN-FAKT-ORDERS                                        
+    UT-INK-STD          = 0                                                     
+    UT-INK-AVG          = 0                                                     
+    UT-INK-LINES        = 0                                                     
+    UT-INK-VKARTNTO     = 0                                                     
+    UT-INK-VLARTNTO     = 0                                                     
+    UT-INK-ORDERS       = 0                                                     
+    UT-PACK-STD         = IN-PACK-STD                                           
+    UT-PACK-AVG         = IN-PACK-AVG                                           
+    UT-PACK-LINES       = IN-PACK-LINES                                         
+    UT-PACK-VKARTNTO    = IN-PACK-VKARTNTO                                      
+    UT-PACK-VLARTNTO    = IN-PACK-VLARTNTO                                      
+    UT-PACK-ORDERS      = IN-PACK-ORDERS                                        
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  D-INK-PACK.  PROC                                                             
+                                                                                
+    UT-IDDC             = IN-INK-IDDC                                           
+    UT-IDPRC            = IN-INK-IDPRC                                          
+    UT-KDORDKL          = IN-INK-KDORDKL                                        
+    UT-IDDISTR          = IN-INK-IDDISTR                                        
+    UT-FAKT-STD         = 0                                                     
+    UT-FAKT-AVG         = 0                                                     
+    UT-FAKT-LINES       = 0                                                     
+    UT-FAKT-VKARTNTO    = 0                                                     
+    UT-FAKT-VLARTNTO    = 0                                                     
+    UT-FAKT-ORDERS      = 0                                                     
+    UT-INK-STD          = IN-INK-STD                                            
+    UT-INK-AVG          = IN-INK-AVG                                            
+    UT-INK-LINES        = IN-INK-LINES                                          
+    UT-INK-VKARTNTO     = IN-INK-VKARTNTO                                       
+    UT-INK-VLARTNTO     = IN-INK-VLARTNTO                                       
+    UT-INK-ORDERS       = IN-INK-ORDERS                                         
+    UT-PACK-STD         = IN-PACK-STD                                           
+    UT-PACK-AVG         = IN-PACK-AVG                                           
+    UT-PACK-LINES       = IN-PACK-LINES                                         
+    UT-PACK-VKARTNTO    = IN-PACK-VKARTNTO                                      
+    UT-PACK-VLARTNTO    = IN-PACK-VLARTNTO                                      
+    UT-PACK-ORDERS      = IN-PACK-ORDERS                                        
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  E-ENBART-FAKT.  PROC                                                          
+                                                                                
+    UT-IDDC             = IN-FAKT-IDDC                                          
+    UT-IDPRC            = IN-FAKT-IDPRC                                         
+    UT-KDORDKL          = IN-FAKT-KDORDKL                                       
+    UT-IDDISTR          = IN-FAKT-IDDISTR                                       
+    UT-FAKT-STD         = IN-FAKT-VALUE-STD                                     
+    UT-FAKT-AVG         = IN-FAKT-VALUE-AVG                                     
+    UT-FAKT-LINES       = IN-FAKT-LINES                                         
+    UT-FAKT-VKARTNTO    = IN-FAKT-VKARTNTO                                      
+    UT-FAKT-VLARTNTO    = IN-FAKT-VLARTNTO                                      
+    UT-FAKT-ORDERS      = IN-FAKT-ORDERS                                        
+    UT-INK-STD          = 0                                                     
+    UT-INK-AVG          = 0                                                     
+    UT-INK-LINES        = 0                                                     
+    UT-INK-VKARTNTO     = 0                                                     
+    UT-INK-VLARTNTO     = 0                                                     
+    UT-INK-ORDERS       = 0                                                     
+    UT-PACK-STD         = 0                                                     
+    UT-PACK-AVG         = 0                                                     
+    UT-PACK-LINES       = 0                                                     
+    UT-PACK-VKARTNTO    = 0                                                     
+    UT-PACK-VLARTNTO    = 0                                                     
+    UT-PACK-ORDERS      = 0                                                     
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  F-ENBART-INK.  PROC                                                           
+                                                                                
+    UT-IDDC             = IN-INK-IDDC                                           
+    UT-IDPRC            = IN-INK-IDPRC                                          
+    UT-KDORDKL          = IN-INK-KDORDKL                                        
+    UT-IDDISTR          = IN-INK-IDDISTR                                        
+    UT-FAKT-STD         = 0                                                     
+    UT-FAKT-AVG         = 0                                                     
+    UT-FAKT-LINES       = 0                                                     
+    UT-FAKT-VKARTNTO    = 0                                                     
+    UT-FAKT-VLARTNTO    = 0                                                     
+    UT-FAKT-ORDERS      = 0                                                     
+    UT-INK-STD          = IN-INK-STD                                            
+    UT-INK-AVG          = IN-INK-AVG                                            
+    UT-INK-LINES        = IN-INK-LINES                                          
+    UT-INK-VKARTNTO     = IN-INK-VKARTNTO                                       
+    UT-INK-VLARTNTO     = IN-INK-VLARTNTO                                       
+    UT-INK-ORDERS       = IN-INK-ORDERS                                         
+    UT-PACK-STD         = 0                                                     
+    UT-PACK-AVG         = 0                                                     
+    UT-PACK-LINES       = 0                                                     
+    UT-PACK-VKARTNTO    = 0                                                     
+    UT-PACK-VLARTNTO    = 0                                                     
+    UT-PACK-ORDERS      = 0                                                     
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  G-ENBART-PACK.  PROC                                                          
+                                                                                
+    UT-IDDC             = IN-PACK-IDDC                                          
+    UT-IDPRC            = IN-PACK-IDPRC                                         
+    UT-KDORDKL          = IN-PACK-KDORDKL                                       
+    UT-IDDISTR          = IN-PACK-IDDISTR                                       
+    UT-FAKT-STD         = 0                                                     
+    UT-FAKT-AVG         = 0                                                     
+    UT-FAKT-LINES       = 0                                                     
+    UT-FAKT-VKARTNTO    = 0                                                     
+    UT-FAKT-VLARTNTO    = 0                                                     
+    UT-FAKT-ORDERS      = 0                                                     
+    UT-INK-STD          = 0                                                     
+    UT-INK-AVG          = 0                                                     
+    UT-INK-LINES        = 0                                                     
+    UT-INK-VKARTNTO     = 0                                                     
+    UT-INK-VLARTNTO     = 0                                                     
+    UT-INK-ORDERS       = 0                                                     
+    UT-PACK-STD         = IN-PACK-STD                                           
+    UT-PACK-AVG         = IN-PACK-AVG                                           
+    UT-PACK-LINES       = IN-PACK-LINES                                         
+    UT-PACK-VKARTNTO    = IN-PACK-VKARTNTO                                      
+    UT-PACK-VLARTNTO    = IN-PACK-VLARTNTO                                      
+    UT-PACK-ORDERS      = IN-PACK-ORDERS                                        
+                                                                                
+  END-PROC                                                                      
+                                                                                
+NEWPAGE                                                                         
+                                                                                

@@ -1,0 +1,78 @@
+*        NYPON ARTIKLAR (NYA ARTIKLAR)                                          
+*                                                                               
+         DBD   NAME=WDD2,RMNAME=(V12008,6,450000),                     *        
+               ACCESS=(HDAM,OSAM)                                               
+         DATASET DD1=WDD2V,DEVICE=3390,SIZE=4096,SCAN=0                         
+*                                                                               
+         SEGM  NAME=WDD201,PARENT=0,BYTES=550,PTR=T                             
+         FIELD NAME=(IDARTNR,SEQ,U),BYTES=5,START=1,TYPE=P                      
+         FIELD NAME=(FLBERQ),BYTES=1,START=33,TYPE=X                            
+         FIELD NAME=(FLPISK),BYTES=1,START=35,TYPE=X                            
+         FIELD NAME=(IDANSK),BYTES=2,START=41,TYPE=P                            
+         FIELD NAME=(IDAO),BYTES=10,START=45,TYPE=X                             
+         FIELD NAME=(IDBERED),BYTES=2,START=63,TYPE=P                           
+         FIELD NAME=(IDPROJ),BYTES=4,START=116,TYPE=X                           
+         FIELD NAME=(IDPROJK),BYTES=4,START=120,TYPE=X                          
+         FIELD NAME=(KDANSKQ),BYTES=1,START=141,TYPE=X                          
+         FIELD NAME=(DABASL),BYTES=8,START=425,TYPE=X                           
+         FIELD NAME=(DAFINLEV),BYTES=8,START=433,TYPE=X                         
+         FIELD NAME=(TISLUBER),BYTES=4,START=493,TYPE=P                         
+         FIELD NAME=(IDINK),BYTES=4,START=522,TYPE=X                            
+         FIELD NAME=(TIMOTSI),BYTES=4,START=539,TYPE=P                          
+         LCHILD NAME=(WDD2A1,WDD2A),PTR=INDX                                    
+         XDFLD NAME=WDD2ASEQ,SEGMENT=WDD201,                           *        
+               SRCH=(IDBERED),                                         *        
+               SUBSEQ=(IDAO,IDARTNR),                                  *        
+               DDATA=(IDPROJ,IDPROJK,TISLUBER),                        *        
+               EXTRTN=WDD2AEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR FLBERQ = J                                                     
+*                                                                               
+         LCHILD NAME=(WDD2B1,WDD2B),PTR=INDX                                    
+         XDFLD NAME=WDD2BSEQ,SEGMENT=WDD201,                           *        
+               SRCH=(FLPISK),                                          *        
+               SUBSEQ=(IDANSK,DAFINLEV,IDAO,IDPROJ,IDARTNR),           *        
+               DDATA=(KDANSKQ,TIMOTSI),                                *        
+               EXTRTN=WDD2BEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR KDANSKQ => 1 OCH <= 8                                          
+*                                                                               
+         LCHILD NAME=(WDD2C1,WDD2C),PTR=INDX                                    
+         XDFLD NAME=WDD2CSEQ,SEGMENT=WDD201,                           *        
+               SRCH=(IDAO),                                            *        
+               SUBSEQ=(IDARTNR),                                       *        
+               DDATA=(IDPROJ),                                         *        
+               EXTRTN=WDD2CEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR DABASL = 1                                                     
+*                                                                               
+         LCHILD NAME=(WDD2D1,WDD2D),PTR=INDX                                    
+         XDFLD NAME=WDD2DSEQ,SEGMENT=WDD211,                           *        
+               SRCH=(IDPROJ,KDBASLM),                                  *        
+               SUBSEQ=(IDFKNGRP,/CKARTNR),                             *        
+               DDATA=(KDBPSR),                                         *        
+               EXTRTN=WDD2DEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR TIBASLM = 0                                                    
+*                                                                               
+         LCHILD NAME=(WDD2E1,WDD2E),PTR=INDX                                    
+         XDFLD NAME=WDD2ESEQ,SEGMENT=WDD201,                           *        
+               SRCH=(FLPISK),                                          *        
+               SUBSEQ=(IDANSK,DAFINLEV,IDINK,IDPROJ,IDARTNR),          *        
+               DDATA=(KDANSKQ),                                        *        
+               EXTRTN=WDD2BEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR KDANSKQ => 1 OCH <= 8                                          
+*                                                                               
+         SEGM  NAME=WDD211,PARENT=WDD201,BYTES=114,PTR=T                        
+         FIELD NAME=(KDBASLM,SEQ,U),BYTES=6,START=1,TYPE=X                      
+         FIELD NAME=(IDFKNGRP),BYTES=3,START=25,TYPE=P                          
+         FIELD NAME=(IDPROJ),BYTES=4,START=28,TYPE=X                            
+         FIELD NAME=(KDBPSR),BYTES=1,START=32,TYPE=P                            
+         FIELD NAME=(KVBASLM),BYTES=4,START=38,TYPE=P                           
+         FIELD NAME=(TIBASLM),BYTES=4,START=106,TYPE=P                          
+         FIELD NAME=(/CKARTNR),BYTES=5,START=1,TYPE=P                           
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

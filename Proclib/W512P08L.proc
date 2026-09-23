@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE 310 AND R31 REPORTS FROM WDL6                                       
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W5128L    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P08L PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W512..W512M2,                                             
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W5128L   EXEC PGM=V16459,PARM='W5128L/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W5128LD1 DD  DSN=&INDIN..W5128J(+0),DISP=SHR                                  
+//************ EXTRACT FILE OF R30, 310 AND R31 FROM WDL2                       
+//*                                                                             
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TPFIL2,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL3   DD  DSN=&&TPFIL3,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W5128LD2 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ WDK6 EXTRACT                                                     
+//*                                                                             
+//W5128LD3 DD  DSN=&INDUT..W5128LA(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ REPORT OF 310 FROM WDL2                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W5128LD4 DD  DSN=&INDUT..W5128LB(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ REPORT OF R30 - GIT from WDL2                                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

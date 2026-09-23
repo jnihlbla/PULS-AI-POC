@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR RESTORDERRAPPORT RADER SEKTION- ANSK-GRUPP-                         
+//*  ANSKAFFARE-                                                                
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W225V1                                          
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W22524    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W225P024 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W225..W225V1,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W225PD24),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W22524(+0),DISP=SHR                                  
+//************ SORTERAR PÅ IDANSK KDCL KVRORAD(D) IDARTNR                       
+//*                                                                             
+//SORTOUT  DD  DSN=&&W22524,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE RO-RADER                                               
+//             SPACE=(47,(10,30),RLSE),AVGREC=K                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22524   EXEC PGM=V16459,PARM='W22524/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W22524D1 DD  DSN=&&W22524,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERADE RO-RADER                                               
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W22524D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W22524-001  RO-RADER PER SEKTION                                 
+//             RECFM=FBA                                                        
+//*                                                                             
+//W22524D3 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W22524-002  RO-RADER PER ANSK-GRUPP                              
+//             RECFM=FBA                                                        
+//*                                                                             
+//W22524D4 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W22524-003  RO-RADER PER ANSKAFFARE                              
+//             RECFM=FBA                                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

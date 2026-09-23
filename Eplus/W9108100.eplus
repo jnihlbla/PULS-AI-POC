@@ -1,0 +1,281 @@
+                                                                                
+**********************************************************************          
+*                                                                    *          
+* PROGRAM ... :  W91081                                              *          
+*                                                                    *          
+* FUNKTION .. : DETTA PROGRAM LÄSER LAGERBANDET FÖR CDC OCH          *          
+*               RAD-PRISFIL, SAMT SKAPAR                             *          
+*               2 FILER FÖR REGRESS-SYSTEMET I AS400                 *          
+*               PERIODICITET  PLANERINGSPERIODER                     *          
+*                                                                    *          
+* INDATA .... : WXTR.PARTINFO.WCDCWEEK(+0)   (CDC-LAGERBAND)         *          
+*               W011.QASE.W01161(+0)         (RAD-PRISER)            *          
+*                                                                    *          
+* UTDATA .... : ARTIKELDATA                                          *          
+*               LEVNR                                                *          
+* FÖRFATTARE  : JAN PETTERSSON                                       *          
+*                                                                    *          
+**********************************************************************          
+*                                                                    *          
+FILE W91081D1                                                                   
+%WCDCPART                                                                       
+                                                                     *          
+FILE W91081D2                                                                   
+%W01161                                                                         
+                                                                                
+FILE W91081D3  FB (73 0)                                                        
+U1-IDPTYP          1   3   A                                                    
+U1-IDARTNR         4   9   N                                                    
+U1-BEART-ENG      13  25   A                                                    
+U1-IDLEVNR        38   5   A                                                    
+U1-KDVALISO       43   3   A                                                    
+U1-PRARTBEL-PR    46   9   N   2                                                
+U1-PRARTBES-PR    55   7   N   2                                                
+U1-KVPB-TOT       62   6   N   1                                                
+U1-TIAAMMDD-T1    68   6   N                                                    
+                                                                                
+FILE W91081D4  FB (15 0)                                                        
+U2-IDPTYP          1   3   A                                                    
+U2-IDLEVNR         4   5   A                                                    
+U2-TIAAMMDD        9   6   N                                                    
+                                                                                
+FILE W91081D5 PRINTER                                                           
+                                                                                
+FILE  TPFIL1 FB(64 0)                                                           
+T1-PTYP            1   3   A                                                    
+T1-IDARTNR         4   9   N                                                    
+T1-ART-ENG        13  25   A                                                    
+T1-IDLEVNR        38   5   A                                                    
+T1-VALISO         43   3   A                                                    
+T1-PRARTBES       46   7   N   2                                                
+T1-PB-TOT         53   6   N   1                                                
+T1-AAMMDD         59   6   N                                                    
+                                                                                
+FILE  TPFIL2   FB(15 0)                                                         
+T2-PTYP            1   3   A                                                    
+T2-IDLEVNR         4   5   A                                                    
+T2-AAMMDD          9   6   N                                                    
+                                                                                
+FILE TPFIL3    FB(36 0)                                                         
+T3-IDARTNR          1   9   N                                                   
+T3-DAPRLIST-9KOMPL 10   8   N                                                   
+T3-KDVALISO        18   3   A                                                   
+T3-PRARTBEL-PR     21   9   N   2                                               
+T3-PRARTBES-PR     30   7   N   2                                               
+****************************                                                    
+* AREOR FÖR SUBPROGRAM     *                                                    
+****************************                                                    
+W009VADD          W   8   A   VALUE 'W009VADD'                                  
+                                                                                
+DATUM-AAVV        W   3   P                                                     
+ANTAL-VECKOADD    W   2   P 0                                                   
+                                                                                
+****************************                                                    
+* PARAMETERAR TILL DATKONV *                                                    
+****************************                                                    
+%WDATAREA                                                                       
+                                                                                
+*********************************************                                   
+****         HJÄLPAREOR                  ****                                   
+*********************************************                                   
+ARSOMS         W   7 P  2                                                       
+PERIODBEHOV    W   7 P  2                                                       
+W-IDLEVNR      W   5 A  VALUE '     '                                           
+W-DATUM        W   6 N  VALUE 000000                                            
+SW-01          W   1 P                                                          
+GODK-TRANS     W   1 A                                                          
+                                                                                
+DAGENS-DATUM   W   6 N                                                          
+                                                                                
+W-TIAAVVD-5V           W   5 N                                                  
+                                                                                
+W-TIAAVVD              W   5 N                                                  
+W-TIAAVV     W-TIAAVVD     4 N                                                  
+W-TIAAVVD-D  W-TIAAVVD +4  1 N                                                  
+                                                                                
+%WY2000W2                                                                       
+*                                                                               
+%WWPRODSL  '' WORK ''                                                           
+*                                                                               
+*****************************************************************               
+*   STEG1:  SÖK EFTER VALIDA ARTIKLAR                                           
+*****************************************************************               
+                                                                                
+JOB INPUT  W91081D1 START A-SOEK-DATUM                                          
+                                                                                
+     PERFORM SELEKTERA                                                          
+     IF GODK-TRANS = 'J'                                                        
+       PERFORM RÄKNA                                                            
+       IF TIFINLV EQ 00012 THRU 51011                                           
+         PERFORM SKRIV-TEMPFIL1                                                 
+         PERFORM SKRIV-TEMPFIL2                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+                                                                                
+A-SOEK-DATUM.   PROC                                                            
+                                                                                
+  DAT-KDDATFORM  = 'IDAG  '                                                     
+  CALL WDATKONV USING (DAT-KDDATFORM DAT-I-TIDATUM +                            
+                       DAT-O-TIDATUM DAT-KDSVAR)                                
+  DAGENS-DATUM   = DAT-TIAAMMDD                                                 
+  DISPLAY ' DAGENS-DATUM ' DAGENS-DATUM                                         
+                                                                                
+  W-TIAAVVD      = DAT-TIAAVVD                                                  
+  DATUM-AAVV     = W-TIAAVV                                                     
+  ANTAL-VECKOADD = +5                                                           
+  CALL W009VADD USING (DATUM-AAVV ANTAL-VECKOADD)                               
+                                                                                
+  W-TIAAVV       = DATUM-AAVV                                                   
+  W-TIAAVVD-D    = 1                                                            
+  W-TIAAVVD-5V   = W-TIAAVVD                                                    
+  DISPLAY ' DAGENS DAT + 5 VECKOR ' W-TIAAVVD-5V                                
+END-PROC                                                                        
+                                                                                
+SELEKTERA.   PROC                                                               
+    GODK-TRANS = 'J'                                                            
+    TMP1-YYWWD = TIFINLV                                                        
+    TMP2-YYWWD = W-TIAAVVD-5V                                                   
+    PERFORM WY2000P2                                                            
+    IF TMP1-YYWWD > TMP2-YYWWD                                                  
+       GODK-TRANS = 'N'                                                         
+    END-IF                                                                      
+    IF KDERS = 52                                                               
+       GODK-TRANS = 'N'                                                         
+    END-IF                                                                      
+    IF KDUART = 'M'                                                             
+       GODK-TRANS = 'N'                                                         
+    END-IF                                                                      
+    IF KDUART = 'U'                                                             
+       GODK-TRANS = 'N'                                                         
+    END-IF                                                                      
+    IF PRARTSTD = 0                                                             
+       GODK-TRANS = 'N'                                                         
+    END-IF                                                                      
+    PERFORM S25-CHECK-KDPRODSL                                                  
+    IF KDPRODSL = KDPRODSL-BIMA                                                 
+       GODK-TRANS = 'N'                                                         
+    END-IF                                                                      
+END-PROC                                                                        
+                                                                                
+RÄKNA. PROC                                                                     
+*               BERÄKNA PERIODBEHOVET ÅRSOMSÄTTNING                             
+ PERIODBEHOV = ((KVPB-SEP + KVPB-SATS + KVPB-TPO + KVPB-SDC-TOT +  +            
+                 KVPB-NDC-TOT) * 12)                                            
+ ARSOMS      = (PERIODBEHOV * PRARTSTD)                                         
+END-PROC                                                                        
+                                                                                
+SKRIV-TEMPFIL1. PROC                                                            
+   T1-PTYP          = 'QS4'                                                     
+   T1-IDARTNR       = IDARTNR                                                   
+   T1-ART-ENG       = BEART-ENG                                                 
+   T1-IDLEVNR       = IDLEVNR                                                   
+   T1-VALISO        = '000'                                                     
+   T1-PRARTBES      = PRARTBES                                                  
+   T1-PB-TOT        = PERIODBEHOV                                               
+   T1-AAMMDD        = DAGENS-DATUM                                              
+   PUT TPFIL1                                                                   
+END-PROC                                                                        
+                                                                                
+SKRIV-TEMPFIL2. PROC                                                            
+   T2-PTYP       = 'QS3'                                                        
+   T2-IDLEVNR    = IDLEVNR                                                      
+   T2-AAMMDD     = DAGENS-DATUM                                                 
+   PUT TPFIL2                                                                   
+END-PROC                                                                        
+                                                                                
+%WY2000P2                                                                       
+                                                                                
+%WWPRODSL '' PROC ''                                                            
+*****************************************************************               
+*   STEG2:  SORTERA TPFIL2                                                      
+*****************************************************************               
+                                                                                
+SORT TPFIL2 TO TPFIL2 USING T2-IDLEVNR SIZE 90000                               
+                                                                                
+*****************************************************************               
+*   STEG3:  TAG BORT DUBLETTER PÅ LEVERANTÖRSNR                                 
+*****************************************************************               
+                                                                                
+JOB INPUT TPFIL2 START B-INIT FINISH C-SISTA-POST                               
+  IF SW-01     = 0                                                              
+     W-IDLEVNR = T2-IDLEVNR                                                     
+     W-DATUM = T2-AAMMDD                                                        
+     SW-01   = 1                                                                
+  END-IF                                                                        
+                                                                                
+  IF T2-IDLEVNR NE W-IDLEVNR                                                    
+     U2-IDPTYP      = 'QS3'                                                     
+     U2-IDLEVNR     = W-IDLEVNR                                                 
+     U2-TIAAMMDD    = W-DATUM                                                   
+     PUT W91081D4                                                               
+     W-IDLEVNR      = T2-IDLEVNR                                                
+     W-DATUM        = T2-AAMMDD                                                 
+  END-IF                                                                        
+                                                                                
+  B-INIT.  PROC                                                                 
+    SW-01 = 0                                                                   
+  END-PROC                                                                      
+                                                                                
+  C-SISTA-POST. PROC                                                            
+    U2-IDPTYP      = 'QS3'                                                      
+    U2-IDLEVNR     = W-IDLEVNR                                                  
+    U2-TIAAMMDD    = W-DATUM                                                    
+    PUT W91081D4                                                                
+  END-PROC                                                                      
+                                                                                
+************************************************************                    
+*   STEG4:  MATCHA ARTIKLAR MOT PRISER                                          
+************************************************************                    
+                                                                                
+JOB INPUT (TPFIL1 KEY ( T1-IDARTNR  T1-IDLEVNR)           +                     
+         W91081D2 KEY (PRL-IDARTNR PRL-IDLEVNR))                                
+   IF MATCHED                                                                   
+     IF PRL-KDSTATUS-PR = 1                                                     
+       T3-DAPRLIST-9KOMPL = PRL-DAPRLIST-9KOMPL + -999999999                    
+       T3-IDARTNR         = PRL-IDARTNR                                         
+       T3-KDVALISO        = PRL-KDVALISO                                        
+       T3-PRARTBEL-PR     = PRL-PRARTBEL-PR                                     
+       T3-PRARTBES-PR     = PRL-PRARTBES-PR                                     
+       PUT TPFIL3                                                               
+     END-IF                                                                     
+   END-IF                                                                       
+                                                                                
+*****************************************************************               
+*   STEG5:  SORTERA SÅ ATT PRIS-DATUM KOMMER MED NYASTE FÖRST                   
+*****************************************************************               
+                                                                                
+SORT TPFIL3 TO TPFIL3 USING (T3-IDARTNR T3-DAPRLIST-9KOMPL D)                   
+                                                                                
+*****************************************************************               
+*   STEG6:  MATCHA ARTIKLAR MOT PRISER, SKRIV POSTER                            
+*****************************************************************               
+                                                                                
+JOB INPUT (TPFIL1 KEY T1-IDARTNR TPFIL3 KEY T3-IDARTNR)                         
+                                                                                
+   IF MATCHED                                                                   
+     IF NOT DUPLICATE TPFIL3 OR FIRST-DUP TPFIL3                                
+       U1-IDPTYP          = T1-PTYP                                             
+       U1-IDARTNR         = T1-IDARTNR                                          
+       U1-BEART-ENG       = T1-ART-ENG                                          
+       U1-IDLEVNR         = T1-IDLEVNR                                          
+       U1-KDVALISO        = T3-KDVALISO                                         
+       U1-PRARTBEL-PR     = T3-PRARTBEL-PR                                      
+       U1-PRARTBES-PR     = T3-PRARTBES-PR                                      
+       U1-KVPB-TOT        = T1-PB-TOT                                           
+       U1-TIAAMMDD-T1     = T1-AAMMDD                                           
+       PUT W91081D3                                                             
+     END-IF                                                                     
+   ELSE                                                                         
+     IF TPFIL1                                                                  
+       U1-IDPTYP          = T1-PTYP                                             
+       U1-IDARTNR         = T1-IDARTNR                                          
+       U1-BEART-ENG       = T1-ART-ENG                                          
+       U1-IDLEVNR         = T1-IDLEVNR                                          
+       U1-KDVALISO        = 'SEK'                                               
+       U1-PRARTBEL-PR     = T1-PRARTBES                                         
+       U1-PRARTBES-PR     = T1-PRARTBES                                         
+       U1-KVPB-TOT        = T1-PB-TOT                                           
+       U1-TIAAMMDD-T1     = T1-AAMMDD                                           
+       PUT W91081D3                                                             
+     END-IF                                                                     
+   END-IF                                                                       

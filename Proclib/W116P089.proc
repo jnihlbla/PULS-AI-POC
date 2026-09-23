@@ -1,0 +1,97 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR FULLRANGE DCS (W116DC01), W011.NDC.W01184 PÅ LANDS-NIVÅ            
+//*  MED W11606-FILEN FÖR ATT SKAPA UTFIL W11689.                               
+//*                                                                             
+//*  FREKVENS:     DAG  RTN W116D4                                              
+//*                                                                             
+//*  ÅTERSTART:                                                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P089 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W011..NDC,                                               
+//             INDIN=&W116..W116D4,                                             
+//             INDUT=&W116..W116D4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDREG..W01184(+0),DISP=SHR                                 
+//SORTOUT  DD  DSN=&INDUT..W01184DC(+1),                        -LIM(1)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ DC-COUNTRY XREF                                                  
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PD89),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT02  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDREG..W01184(+0),DISP=SHR                                 
+//SORTOUT  DD  DSN=&INDUT..W01184SU(+1),                        -LIM(1)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ SORT SUM ON COUNTRY-PART LEVEL WITH SUMS IN FIELDS:              
+//*               SLAG-KVAKS-PAV                                                
+//*               SLAG-KVAKS-SDC                                                
+//*               SLAG-KVLS                                                     
+//*               SLAG-KVOKS-BULK                                               
+//*               SLAG-KVOKS-DAG                                                
+//*               SLAG-KVPB-REF                                                 
+//*               SLAG-KVRESS                                                   
+//*               SLAG-KVROS-BULK                                               
+//*               SLAG-KVROS-DAG                                                
+//*                                                                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PE89),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11689   EXEC PGM=V16459,PARM='W11689/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W11689D1 DD  DSN=&INDRTE..CONSTANT(W116DC01),DISP=SHR                         
+//************ CONSTANT WITH DCS WITH FULL PART RANGE                           
+//*                                                                             
+//W11689D2 DD  DSN=&INDUT..W01184DC(+1),DISP=OLD                                
+//************ DC-COUNTRY XREF BASED ON W01184                                  
+//*                                                                             
+//TEMPFIL2 DD  DSN=&&TEMPFIL2,DISP=(NEW,PASS,DELETE),                           
+//************ DC-COUNTRY XREF BASED ON W01184                                  
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W11689D3 DD  DSN=&INDUT..W01184SU(+1),DISP=OLD                                
+//************ SORT SUM ON COUNTRY-PART LEVEL WITH SUMS IN FIELDS:              
+//*               SLAG-KVAKS-PAV                                                
+//*               SLAG-KVAKS-SDC                                                
+//*               SLAG-KVLS                                                     
+//*               SLAG-KVOKS-BULK                                               
+//*               SLAG-KVOKS-DAG                                                
+//*               SLAG-KVPB-REF                                                 
+//*               SLAG-KVRESS                                                   
+//*               SLAG-KVROS-BULK                                               
+//*               SLAG-KVROS-DAG                                                
+//*                                                                             
+//TEMPFIL3 DD  DSN=&&TEMPFIL3,DISP=(NEW,PASS,DELETE),                           
+//************ W01184 ON COUNTRY-PART LEVEL WITH SUMS                           
+//************ FOR FULL PART-RANGE DCS                                          
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W11689D4 DD  DSN=&INDREG..W01184(+0),DISP=SHR                                 
+//************ W01184 TO GET INFO FOR DC AND PART                               
+//*                                                                             
+//TEMPFIL4 DD  DSN=&&TEMPFIL4,DISP=(NEW,PASS,DELETE),                           
+//************ W01184 TO GET INFO FOR DC AND PART                               
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W11689D5 DD  DSN=&INDIN..W11684(+0),DISP=SHR                                  
+//************ ARTIKELINFO                                                      
+//*                                                                             
+//W11689D6 DD  DSN=&INDUT..W11689(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ ARTIKELINFO TILL VIPS (BUYBACK-KOD MM)                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

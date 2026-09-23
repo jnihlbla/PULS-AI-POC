@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LISTAR EN SOPDATABAS                                                       
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W980B1                                      
+//*                                                                             
+//*  ÅTERSTART:    W98050    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W980P050 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W980..W980B1,                                             
+//             SOPREG=&INDRTE..SOP                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//BI       EXEC PGM=WGDGDEF,PARM=('&INDUT.',W98050,3)                           
+//STEPLIB  DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//WGDGDED1 DD                                                                   
+//WGDGDED2 DD                                                                   
+//*                                                                             
+//W98050   EXEC PGM=W9805000                                                    
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W98050D1 DD  DSN=&SOPREG,DISP=SHR                                             
+//************ SOPDATABAS                                                       
+//*                                                                             
+//W98050D2 DD  DSN=&INDUT..W98050(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ LISTAD SOPDATABAS                                                
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

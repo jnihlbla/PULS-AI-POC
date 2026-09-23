@@ -1,0 +1,112 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W8101200                                              *        
+*                                                                      *        
+*  FUNKTION   :  SECURE LISTS TO PURCHASE PLANNING, RO SUMMERING       *        
+*                                                                      *        
+*  FÖRFATTARE :  RAGUR SATHEESH                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W81012D1                                                                   
+*                                                                               
+%W44060    'IN1-'                                                               
+*                                                                               
+                                                                                
+FILE SORTFIL    FB  (327 0) VIRTUAL                                             
+%W44060    'SRT-'                                                               
+*                                                                               
+NEWPAGE                                                                         
+FILE W81012D2                                                                   
+*                                                                               
+%WCDCPART  'IN2-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W81012D3  PRINTER VB (53 0)                                                
+*                                                                               
+UT-IDANSK        W   3  A                                                       
+UT-BOVALUE       W  10  N 0 MASK  'ZZZZZZZZZ9'                                  
+*                                                                               
+*------------------------------------------------*                              
+* WORKING STORAGE                                                               
+*------------------------------------------------*                              
+NEWPAGE                                                                         
+*                                                                               
+W-BOVALUE       W  10  N 0 MASK  'ZZZZZZZZZ9'                                   
+W-ANSK          W   2  N   VALUE 0                                              
+W-ANSK1         W   3  N   VALUE 0                                              
+W-SEM1          W   1  A   VALUE ';'                                            
+W-SEM2          W   1  A   VALUE ';'                                            
+JA              W   1  A   VALUE 'J'                                            
+NEJ             W   1  A   VALUE 'N'                                            
+SW-FIRST        S   1  A   VALUE 'J'                                            
+*------------------------------------------------*                              
+*                                                                               
+****************************************                                        
+* SORT BACK ORDER LINES  ON PART NUMBER*                                        
+****************************************                                        
+SORT W81012D1 TO SORTFIL USING IN1-RAD-IDARTNR BEFORE A-INIT                    
+A-INIT.  PROC                                                                   
+ IF IN1-RAD-KDSTARAD = '2'                                                      
+  SELECT                                                                        
+ END-IF                                                                         
+END-PROC                                                                        
+                                                                                
+******************************                                                  
+* SUMMARY NUMBER OF BO LINES *                                                  
+******************************                                                  
+JOB INPUT (W81012D2 KEY(IN2-IDARTNR) SORTFIL KEY(SRT-RAD-IDARTNR))              
+*                                                                               
+IF MATCHED AND IN2-KDPRODSL NQ 30 THRU 39 60 THRU 69 90 THRU 99                 
+  W-ANSK           = IN2-IDANSK   / 10                                          
+  W-ANSK1          = W-ANSK       * 10                                          
+  W-BOVALUE        = SRT-RAD-KVRO * IN2-PRARTSTD                                
+  IF SRT-RAD-IDDC  = '11'                                                       
+     PERFORM A-WRITE-W81012                                                     
+     PRINT RAPPORT1                                                             
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+NEWPAGE                                                                         
+***                                                                             
+A-WRITE-W81012. PROC                                                            
+  UT-IDANSK        = W-ANSK1                                                    
+  UT-BOVALUE       = W-BOVALUE                                                  
+END-PROC                                                                        
+***                                                                             
+REPORT RAPPORT1 PRINTER   W81012D3  +                                           
+                LINESIZE  48        +                                           
+                NODATE              +                                           
+                PAGESIZE  32767     +                                           
+                NOPAGE              +                                           
+                NOADJUST            +                                           
+                NOHEADING           +                                           
+                SPACE     0         +                                           
+                SKIP      0         +                                           
+                TITLESKIP 0         +                                           
+                NOSPREAD            +                                           
+                SUMMARY             +                                           
+                SUMCTL ALL                                                      
+                                                                                
+SEQUENCE UT-IDANSK                                                              
+CONTROL FINAL UT-IDANSK NOPRINT NOPRINT NOPRINT W-SEM1                          
+                                                                                
+*------------------------------------*                                          
+LINE 01                            +                                            
+         UT-IDANSK     W-SEM1      +                                            
+         TALLY         W-SEM1      +                                            
+         UT-BOVALUE    W-SEM1                                                   
+                                                                                
+BEFORE-BREAK. PROC                                                              
+ IF SW-FIRST = JA                                                               
+     DISPLAY '¤DAPW81012-001'                                                   
+     DISPLAY '¤DAPW81012'                                                       
+     DISPLAY 'PURCHASE PLANNER;BO LINES;BO VALUE;'                              
+    SW-FIRST = NEJ                                                              
+ END-IF                                                                         
+ IF LEVEL = 2                                                                   
+    UT-IDANSK = ' '                                                             
+ END-IF                                                                         
+END-PROC                                                                        
+*                                                                               

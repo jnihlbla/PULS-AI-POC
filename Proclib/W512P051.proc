@@ -1,0 +1,58 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CONVERT CNY,USD TO SEK                                                     
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M1                                       
+//*                                                                             
+//*  RESTART:      W51251      NORMAL                                           
+//*                READS        WDG2                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P051 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W512..W512M1,                                             
+//             INDIN1=&W011..&RTEGRP.,                                          
+//             INDUT=&W512..W512M1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W011PD60),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W51250(+0),DISP=SHR                                  
+//************ R30 FROM WDL6                                                    
+//*                                                                             
+//SORTOUT  DD  DSN=&&W51250,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED FILE ON IDARTNR                                           
+//         DATACLAS=PSEN                                                        
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51251   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W51251,W51251,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDG2     INCLUDE MEMBER=WDG2                                                  
+//W51251D1 DD  DSN=&&W51250,DISP=(OLD,DELETE,DELETE)                            
+//************ R30 FROM WDL6 -SORTED ON IDARTNR                                 
+//*                                                                             
+//W51251D2 DD  DSN=&INDIN1..W01160(+0),DISP=SHR                                 
+//************ PRICE FROM WDK6                                                  
+//*                                                                             
+//W51251D3 DD  DSN=&INDUT..W51251(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ CNY,USD CONVERTED TO SEK                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51251D4 DD  DSN=&INDUT..W51253(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ CNY CONVERTED TO SEK                                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

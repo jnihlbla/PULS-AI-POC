@@ -1,0 +1,56 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SORT STEP READS THE WDD9 EXTRACT DONE USING DL1PR                          
+//*                                                                             
+//*  SPLIT THE INPUT FILE AS PER SEGMENT HEADERS                                
+//*  EACH SEGMENT CONTAINS THE BELOW TYPES OF INFORMATION                       
+//*                                                                             
+//*  WDD902  DELIVERY PLAN                                                      
+//*  WDD904  RESCHEDULE                                                         
+//*  WDD905  CALLOFFS                                                           
+//*  WDD906  CALLOFF RECEIVED                                                   
+//*  WDD907  CALLOFF KIT                                                        
+//*  WDD924  DELIVERY INFO                                                      
+//*  WDD925  DELIVERY INFO DESCRIPTION                                          
+//*                                                                             
+//*                                                                             
+//*  RESTART:      W236J012  NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W236P012 PROC INDIN=&W236..W236D5,                                            
+//             INDUT=&W236..W236D5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*TO SPLIT THE WDD9 EXTRACT FILE                                               
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SORTIN   DD  DSN=&INDIN..WDD9UNLD(+0),DISP=SHR                                
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W236PD12),DISP=SHR                         
+//************ DELIVERY PLAN REGISTER                                           
+//*                                                                             
+//SORTOF01 DD  DSN=&INDUT..WDD902(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ DELIVERY PLAN INFORMATION                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//SORTOF02 DD  DSN=&INDUT..WDD904(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ RESCHEDULE INFORMATION                                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//SORTOF03 DD  DSN=&INDUT..WDD905(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ CALLOFFS                                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//SORTOF04 DD  DSN=&INDUT..WDD906(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ CALLOFF RECEIVED                                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//SORTOF05 DD  DSN=&INDUT..WDD907(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ CALLOFF KIT                                                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//SORTOF06 DD  DSN=&INDUT..WDD924(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ DELIVERY INFO                                                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//SORTOF07 DD  DSN=&INDUT..WDD925(+1),DISP=(NEW,CATLG,DELETE),                  
+//************ DELIVERY INFO DESCRIPTION                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  

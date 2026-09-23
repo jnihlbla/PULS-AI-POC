@@ -1,0 +1,56 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  JUSTERAR PRISER PÅ KORREKTA POSTER                                         
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W561D2                                           
+//*                                                                             
+//*  ÅTERSTART:    W5616E      NORMAL                                           
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W561P06E PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W561..W561D2,                                             
+//             INDUT=&W561..W561D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W561S3  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN..W5616V(+0),DISP=SHR                                  
+//************ OSORTERADE EKONOMISKA HÄNDELSEPOSTER                             
+//SORTOUT  DD  DSN=&&W5616V,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE EKONOMISKA HÄNDELSEPOSTER                              
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W561PD6E),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W5616E   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W5616E,W5616E,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDG2     INCLUDE MEMBER=WDG2                                                  
+//W5616ED1 DD  DSN=&&W5616V,DISP=(OLD,PASS,DELETE)                              
+//************ SORTERADE EKONOMISKA HÄNDELSEPOSTER                              
+//W5616ED2 DD  DSN=&INDUT..W56164(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ UTFIL KORREKTA POSTER                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

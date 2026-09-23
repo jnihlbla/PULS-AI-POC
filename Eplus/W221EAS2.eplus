@@ -1,0 +1,45 @@
+                                                                                
+ FILE INFIL01                            . * INFIL                              
+*                                                                               
+  IN1-DID      30    8  A                                                       
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+ FILE SRTFIL01 FB(124 6200) VIRTUAL      . * SORT FIL                           
+*                                                                               
+  SR1-DID    30    8  A                                                         
+*                                                                               
+ FILE UTFIL01 FB(124 6200)               . * UTFIL                              
+*                                                                               
+  DISTR      82    8  A                                                         
+  W1-DID      W    8  A                                                         
+*                                                                               
+*-------------*                                                                 
+* SORT        *                                                                 
+*-------------*                                                                 
+*                                                                               
+ SORT INFIL01 TO  SRTFIL01 USING (IN1-DID) +                                    
+      NAME AKT01                                                                
+*                                                                               
+*-------------*                                                                 
+* JOB         *                         BORTTAG AV DUBBLETTER (DISTID)          
+*-------------*                                                                 
+ JOB INPUT(NULL) START(ASSINIT)                                                 
+ GET SRTFIL01                           . * READ RECORDS                        
+*                                                                               
+ IF EOF SRTFIL01                                                                
+    STOP                                                                        
+ END-IF                                                                         
+*                                                                               
+ IF SR1-DID EQ W1-DID                                                           
+      GO TO JOB                                                                 
+   ELSE                                                                         
+      W1-DID = SR1-DID                                                          
+      PUT UTFIL01 FROM SRTFIL01                                                 
+ END-IF                                                                         
+*                                                                               
+ ASSINIT. PROC                                                                  
+ GET SRTFIL01                           . * READ RECORDS                        
+    W1-DID = SR1-DID                                                            
+    PUT UTFIL01 FROM SRTFIL01                                                   
+ END-PROC                                                                       

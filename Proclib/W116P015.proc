@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR W11614(ART-INFO) MED W01187 (NEDLÄST WDF1)                         
+//*  MATCHAR ÄVEN W11615 MED W33589 BYTER SJÄLVKOST MOT MÅNADS-                 
+//*          SJÄLVKOST.                                                         
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W116D3                                         
+//*                                                                             
+//*  RESTART:      W11615    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P015 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W116..W116D3,                                             
+//             INDREG=&W335,                                                    
+//             INDUT=&W116..W116D3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11615   EXEC PGM=V16459,PARM='W11615/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//EZTVFM   DD  SPACE=(CYL,(200,200))                                            
+//SORTMSG  DD  SYSOUT=*                                                         
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W11615D1 DD  DSN=&INDIN..W11614(+0),DISP=(OLD,DELETE,DELETE)                  
+//************ ARTINFO                                                          
+//*                                                                             
+//*                                                                             
+//W11615D3 DD  DSN=&INDREG..W33588(+0),DISP=SHR                                 
+//************ ARTINFO MED MÅNADSSJÄLVKOST HUVUD- OCH LOKALA ART                
+//*                                                                             
+//*                                                                             
+//W11615D4 DD  DSN=&INDUT..W11615(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ ARTINFO TILL VIPS KOMPLETTERAD MED LEVNR SORT IDARTNR            
+//************ NY SJÄLVKOST MED MÅNADSKURS                                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             

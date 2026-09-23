@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKICKAR LISTPOSTER TILL DISTR OCH PRINT. UPPFÖLJNING                       
+//*  AV DISCREPANCY DEVIATIONS. VECKOLISTA VIA WZ01-MODULEN.                    
+//*                                                                             
+//*  FREKVENS:     VECKA   RTN W428V1                                           
+//*                                                                             
+//*  ÅTERSTART:    W42823    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P023 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W428..W428V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W428PD23),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W42823(+0),DISP=SHR                                  
+//************ LEDTIDSFIL RETURER FRÅN W428V1 - W42823                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W42823,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//************ SORTERAD FIL                                                     
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42823   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W42823,W42823,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W42823D1 DD  DSN=&&W42823,DISP=(OLD,DELETE,DELETE)                            
+//************ INFIL PERIOD FOLLOW DISCREPANCY DEVIATIONS                       
+//*                                                                             

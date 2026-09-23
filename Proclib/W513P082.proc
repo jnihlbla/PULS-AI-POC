@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER IN ALLA LDC W01184 FILER SKAPAR LISTOR                               
+//*  TILL D&P                                                                   
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W513V1                                         
+//*                                                                             
+//*  ÅTERSTART:    W51382    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W513P082 PROC STPLIB=&INDRTE..LOAD,                                           
+//*                                                                             
+//             INDIN2=&W011                                                     
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51381  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN2..LDC.W01184(+0),DISP=SHR                             
+//************** LAGERBAND MED WDK7 INFO FÖR LDC                     ***        
+//         DD  DSN=&INDIN2..NDC.W01184(+0),DISP=SHR                             
+//         DD  DSN=&INDIN2..SDC.W01184(+0),DISP=SHR                             
+//*                                                                             
+//SORTOUT  DD  DSN=&&W51382,DISP=(NEW,PASS,DELETE),                             
+//**************  SORTERAD W01184 FIL                               ***         
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTDCAR),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51382   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W51382,W51382,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W51382D1 DD  DSN=&&W51382,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD FIL                                                     
+//*                                                                             

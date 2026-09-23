@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE A TAB-SEPARATED EXTRACT OF FILE W01189                              
+//*  TO SEND TO THE DATALAKE                                                    
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W011D6                                         
+//*                                                                             
+//*  RESTART:      W01189    NORMAL                                             
+//*                          NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W011P08C PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W011..W011D6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W0118C   EXEC PGM=V16459,PARM='W0118C/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//INFIL01  DD  DSN=&INDIN..W01189(+0),DISP=SHR                                  
+//************ DELTA WDQ1 FILE FROM W011J089                                    
+//*                                                                             
+//UTFIL01  DD  DSN=&&W01189EX,DISP=(NEW,PASS,DELETE),                           
+//************ TAB-SEPARATED EXTRACT FILE WITHOUT COLUMN-HEADERS                
+//             DATACLAS=PSEB                                                    
+//*                                                                             

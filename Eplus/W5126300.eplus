@@ -1,0 +1,232 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5126300                                              *        
+*                                                                      *        
+*  FUNCTION   :  CREATE STOCK REPORT                                   *        
+*                                                                      *        
+*  FÖRFATTARE :  DADHICH PRERNA                                        *        
+*                                                                      *        
+*  INFILE     :  W51261                                                *        
+*                                                                      *        
+*  UTDATA     :  EXCELFIL W51263                                       *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+FILE W51263D1                                                                   
+*                                                                               
+%W51261  'IN1-'                                                                 
+*                                                                               
+FILE TPFIL0  FB(53 0)                                                           
+*                                                                               
+%W51261  'TP0-'                                                                 
+*                                                                               
+*---------------------------------------------*                                 
+* TEMPFIL WITH MISCELLANEOUS LIST             *                                 
+*---------------------------------------------*                                 
+FILE TPFIL1 FB(78 0)                                                            
+T1-AREA            1 54 A                                                       
+T1-DC-GRP          1 5  A                                                       
+T1-IDDC            1 2  A                                                       
+T1-DC-TEXT         3 3  A                                                       
+T1-KDPRODSL        8 2  P                                                       
+T1-KVLS-VAL       11 15 N 2                                                     
+T1-KVAKS-VAL      26 15 N 2                                                     
+T1-KVEFRS-VAL     41 15 N 2                                                     
+T1-SUSTD          71 7  P 2                                                     
+*                                                                               
+****** OUTPUT FILE*****************                                             
+FILE W51263D2 PRINTER VB(145 0)                                                 
+*                                                                               
+UT-DC-GRP     W  5  A                                                           
+UT-KDPRODSL   W  2  A                                                           
+UT-KVLS-VAL   W  15 N  2  MASK  'ZZZZZZZZZZZ99.99-'                             
+UT-KVAKS-VAL  W  15 N  2  MASK  'ZZZZZZZZZZZ99.99-'                             
+UT-KVEFRS-VAL W  15 N  2  MASK  'ZZZZZZZZZZZ99.99-'                             
+UT-SUMMA      W  15 N  2  MASK  'ZZZZZZZZZZZ99.99-'                             
+UT-SEMICOLON  W  1  A  VALUE ';'                                                
+*                                                                               
+*-----------------*                                                             
+* WORKING STORAGE *                                                             
+*-----------------*                                                             
+W-DC-GRP                       W   5  A                                         
+W-IDDC           W-DC-GRP          2  A                                         
+W-DC-TEXT        W-DC-GRP    +2    3  A                                         
+*                                                                               
+W-KDPRODSL       W   2   N                                                      
+W-SUSTD          W  15   N   2                                                  
+W-KVANTAL        W   9   P   0                                                  
+W-KVLS-VAL       W  15   N   2                                                  
+W-KVAKS-VAL      W  15   N   2                                                  
+W-KVEFRS-VAL     W  15   N   2                                                  
+FIRST-LINE       S   1   A   VALUE 'J'                                          
+FIRST-LINE2      S   1   A   VALUE 'J'                                          
+W-COUNT          W   1   N   VALUE 0                                            
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*---------------------------------------------------------------*               
+* STEP 1.SORT W51261 FILE WITH IDARTNR AND DC                   *               
+*---------------------------------------------------------------*               
+SORT W51263D1 TO TPFIL0   USING(IN1-IDARTNR IN1-IDDC ) SIZE 2500000             
+*                                                                               
+*---------------------------------------------------------------*               
+* STEP 2. READS TPFIL0 FILE AND CREATES A TEMPFILE              *               
+*---------------------------------------------------------------*               
+                                                                                
+JOB INPUT  TPFIL0                                                               
+  T1-DC-GRP      = TP0-IDDC                                                     
+  T1-KDPRODSL    = TP0-KDPRODSL                                                 
+  IF TP0-KVAKS   < 0                                                            
+     TP0-KVAKS   = 0                                                            
+  END-IF                                                                        
+  IF TP0-KVLS    < 0                                                            
+     TP0-KVLS    = 0                                                            
+  END-IF                                                                        
+  IF TP0-KVEFRS  < 0                                                            
+     TP0-KVEFRS  = 0                                                            
+  END-IF                                                                        
+  T1-KVAKS-VAL   = TP0-KVAKS  * TP0-PRARTSTD                                    
+  T1-KVLS-VAL    = TP0-KVLS   * TP0-PRARTSTD                                    
+  T1-KVEFRS-VAL  = TP0-KVEFRS * TP0-PRARTSTD                                    
+  W-KVANTAL  = TP0-KVAKS + TP0-KVLS + TP0-KVEFRS                                
+  IF W-KVANTAL   > 0                                                            
+     T1-SUSTD    = W-KVANTAL  * TP0-PRARTSTD                                    
+  ELSE                                                                          
+     T1-SUSTD    = 0                                                            
+  END-IF                                                                        
+  IF T1-SUSTD NE 0                                                              
+    PUT TPFIL1                                                                  
+    T1-DC-GRP    = 'TOTAL'                                                      
+    PUT TPFIL1                                                                  
+  END-IF                                                                        
+*--------------------------------------------------------*                      
+* STEP 3. SORT TPFIL1 TO TPFIL1 PER DC AND KDPRODSL       *                     
+*         AND WRITE EXCELFILE                             *                     
+*--------------------------------------------------------*                      
+                                                                                
+SORT TPFIL1 TO TPFIL1 USING (T1-DC-GRP T1-KDPRODSL) SIZE 2000000                
+                                                                                
+JOB INPUT NULL                                                                  
+                                                                                
+  GET TPFIL1                                                                    
+  IF NOT EOF TPFIL1                                                             
+    W-COUNT            = W-COUNT + 1                                            
+    W-DC-GRP           = T1-DC-GRP                                              
+    W-KDPRODSL         = T1-KDPRODSL                                            
+    W-SUSTD            = 0                                                      
+    W-KVAKS-VAL        = 0                                                      
+    W-KVLS-VAL         = 0                                                      
+    W-KVEFRS-VAL       = 0                                                      
+    DO WHILE NOT EOF TPFIL1                                                     
+      IF T1-DC-GRP   = W-DC-GRP AND T1-KDPRODSL = W-KDPRODSL                    
+        W-SUSTD      = W-SUSTD  + T1-SUSTD                                      
+        W-KVAKS-VAL  = W-KVAKS-VAL  + T1-KVAKS-VAL                              
+        W-KVLS-VAL   = W-KVLS-VAL   + T1-KVLS-VAL                               
+        W-KVEFRS-VAL = W-KVEFRS-VAL + T1-KVEFRS-VAL                             
+      ELSE                                                                      
+        PERFORM SKRIV-EXCELPOST                                                 
+        W-DC-GRP           = T1-DC-GRP                                          
+        W-KDPRODSL         = T1-KDPRODSL                                        
+        W-SUSTD            = T1-SUSTD                                           
+        W-KVAKS-VAL        = T1-KVAKS-VAL                                       
+        W-KVLS-VAL         = T1-KVLS-VAL                                        
+        W-KVEFRS-VAL       = T1-KVEFRS-VAL                                      
+      END-IF                                                                    
+      GET TPFIL1                                                                
+    END-DO                                                                      
+  END-IF                                                                        
+  IF W-COUNT >= 1                                                               
+    PERFORM SKRIV-EXCELPOST                                                     
+  END-IF                                                                        
+                                                                                
+  STOP                                                                          
+                                                                                
+SKRIV-EXCELPOST. PROC                                                           
+ IF W-DC-GRP      = 'TOTAL'                                                     
+    UT-DC-GRP     = W-DC-GRP                                                    
+    UT-KDPRODSL   = W-KDPRODSL                                                  
+    UT-KVLS-VAL   = W-KVLS-VAL                                                  
+    UT-KVAKS-VAL  = W-KVAKS-VAL                                                 
+    UT-KVEFRS-VAL = W-KVEFRS-VAL                                                
+    UT-SUMMA      = W-SUSTD                                                     
+  PRINT REPORT01                                                                
+ ELSE                                                                           
+    UT-DC-GRP     = W-IDDC                                                      
+    UT-KDPRODSL   = W-KDPRODSL                                                  
+    UT-KVLS-VAL   = W-KVLS-VAL                                                  
+    UT-KVAKS-VAL  = W-KVAKS-VAL                                                 
+    UT-KVEFRS-VAL = W-KVEFRS-VAL                                                
+    UT-SUMMA      = W-SUSTD                                                     
+  PRINT REPORT02                                                                
+ END-IF                                                                         
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+   REPORT   REPORT01             +                                              
+            PRINTER W51263D2     +                                              
+            PAGESIZE 32000       +                                              
+            LINESIZE 137         +                                              
+            SPACE 0              +                                              
+            NOHEADING            +                                              
+            NOSPREAD             +                                              
+            NOADJUST             +                                              
+            NOPAGE               +                                              
+            NODATE                                                              
+   LINE 1   UT-DC-GRP            +                                              
+            UT-SEMICOLON         +                                              
+            UT-KDPRODSL          +                                              
+            UT-SEMICOLON         +                                              
+            UT-KVLS-VAL          +                                              
+            UT-SEMICOLON         +                                              
+            UT-KVAKS-VAL         +                                              
+            UT-SEMICOLON         +                                              
+            UT-KVEFRS-VAL        +                                              
+            UT-SEMICOLON         +                                              
+            UT-SUMMA             +                                              
+            UT-SEMICOLON                                                        
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE2 = 'J'                                                          
+    DISPLAY '¤DAPW51263-001'                                                    
+    DISPLAY '¤DAPW51263'                                                        
+    DISPLAY 'COMPANY;PRODUCT GROUP;STOCK VALUE ;ADVISED VALUE;'     +           
+            'NOT INVOICED VALUE;TOTAL VALUE'                                    
+    FIRST-LINE2  = 'N'                                                          
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+   REPORT   REPORT02             +                                              
+            PRINTER W51263D2     +                                              
+            PAGESIZE 32000       +                                              
+            LINESIZE 137         +                                              
+            SPACE 0              +                                              
+            NOHEADING            +                                              
+            NOSPREAD             +                                              
+            NOADJUST             +                                              
+            NOPAGE               +                                              
+            NODATE                                                              
+   LINE 1   UT-DC-GRP            +                                              
+            UT-SEMICOLON         +                                              
+            UT-KDPRODSL          +                                              
+            UT-SEMICOLON         +                                              
+            UT-KVLS-VAL          +                                              
+            UT-SEMICOLON         +                                              
+            UT-KVAKS-VAL         +                                              
+            UT-SEMICOLON         +                                              
+            UT-KVEFRS-VAL        +                                              
+            UT-SEMICOLON         +                                              
+            UT-SUMMA             +                                              
+            UT-SEMICOLON                                                        
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE = 'J'                                                           
+    DISPLAY '¤DAPW51263-002'                                                    
+    DISPLAY '¤DAPW51263'                                                        
+    DISPLAY 'DC;PRODUCT GROUP;STOCK VALUE ;ADVISED VALUE;'     +                
+            'NOT INVOICED VALUE;TOTAL VALUE'                                    
+    FIRST-LINE  = 'N'                                                           
+  END-IF                                                                        
+END-PROC                                                                        

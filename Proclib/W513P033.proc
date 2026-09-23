@@ -1,0 +1,65 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTA JUSTERINGSRAPPORT ÅT INVENTERINGEN FÖR SDC EUROPA             
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W513D1                                           
+//*                                                                             
+//*  ÅTERSTART:    W51333    NORMAL                                             
+//*                READS        WDB6                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W513P033 PROC STPLIB=&INDRTE..LOAD,                                           
+//             DEST1=&R3130144,DEST2=&QGB15007,DEST3=&CPRINT,                   
+//             DEST4=&QIT10024,DEST5=&RSE77069,DEST9=&R3130060,                 
+//             INDIN=&W513..W513D1,                                             
+//             INDUT=&W513..W513D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51333   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W51333,W51333,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//*                                                                             
+//W51333D1 DD  DSN=&INDIN..W51333,DISP=SHR                                      
+//**************  LISTPOSTER                                        ***         
+//*                                                                             
+//W51333D2 DD  SYSOUT=(A,,F001),DEST=&DEST1,                                    
+//**************      LISTA W51333-921 FYSISK AVVIKELSE DC 21       ***         
+//             DCB=(RECFM=FBA,LRECL=111,BLKSIZE=111)                            
+//W51333D3 DD  SYSOUT=(A,,STD),DEST=&DEST2,                                     
+//**************      LISTA W51333-923 FYSISK AVVIKELSE DC 23       ***         
+//             DCB=(RECFM=FBA,LRECL=111,BLKSIZE=111)                            
+//W51333D4 DD  SYSOUT=(A,,STD),DEST=&DEST3,                                     
+//**************      LISTA W51333-924 FYSISK AVVIKELSE DC 24       ***         
+//             DCB=(RECFM=FBA,LRECL=111,BLKSIZE=111)                            
+//W51333D5 DD  SYSOUT=(A,,STD),DEST=&DEST4,                                     
+//**************      LISTA W51333-925 FYSISK AVVIKELSE DC 25       ***         
+//             DCB=(RECFM=FBA,LRECL=111,BLKSIZE=111)                            
+//W51333D6 DD  SYSOUT=(A,,STD),DEST=&DEST5,                                     
+//**************      LISTA W51333-926 FYSISK AVVIKELSE DC 26       ***         
+//             DCB=(RECFM=FBA,LRECL=111,BLKSIZE=111)                            
+//W51333DA DD  DSN=&INDUT..W513O3(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//**************      LISTA W51333-9XX FYSISK AVVIKELSE ONDEMAND    ***         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51333DB DD  SYSOUT=(A,,F001),DEST=&DEST9,                                    
+//**************      LISTA W51333-991 FYSISK AVVIKELSE DC 91-ET    ***         
+//             DCB=(RECFM=FBA,LRECL=111,BLKSIZE=111)                            

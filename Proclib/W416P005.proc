@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  URVAL UR WDJ2 FÖR SATSORDER ÄLDRE ÄN 90 DAGAR                              
+//*                SKRIVER LARMLISTA GAMLA SATSORDER                            
+//*                                                                             
+//*  FREKVENS:     PLANERINGSPERIOD    RTN W416M1                               
+//*                                                                             
+//*  ÅTERSTART:    W41605    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W416P005 PROC STPLIB=&INDRTE..LOAD,DEST1=&CPRINT,                             
+//             INDIN=&W416..W416M1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41605   EXEC PGM=V16459,PARM='W41605/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W41605D1 DD  DSN=&INDIN..W41604(+0),DISP=SHR                                  
+//************ URVAL UR WDJ2 FÖR SATSORDER ÄLDRE ÄN 90 DAGAR                    
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W41605D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W41605-001  LARMLISTA MER ÄN 90 DAGAR GAMLA SATSORDER            
+//************                       (LARM G:A SATS ANS)                        
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,80 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5704G00                                              *        
+*                                                                      *        
+*  FUNKTION   :  THIS PROGRAM SELECTS UNIQUE PARTS FROM W01185 FILE    *        
+*                                                                      *        
+*  FÖRFATTARE :  ARCHANA BHAT                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W5704GD1                                                                   
+*                                                                               
+%W5705C  'IN1-'                                                                 
+IN1-LSTOT   37  5 P                                                             
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE TPFIL1 FB(45 0)                                                            
+%W5705C  'T1-'                                                                  
+T1-LSTOT   37  5 P                                                              
+                                                                                
+FILE TPFIL2 FB(51 0)                                                            
+%W01185  'T2-'                                                                  
+NEWPAGE                                                                         
+FILE W5704GD2                                                                   
+*                                                                               
+%W01185  'IN2-'                                                                 
+                                                                                
+FILE W5704GD3 FB (45 0)                                                         
+%W5705C 'UT-'                                                                   
+                                                                                
+NEWPAGE                                                                         
+* VALID DC                                                                      
+%WWDC99                                                                         
+*                                                                               
+W-KVL          W   3  N                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORT ON IDARTNR AND DC                                                
+*                                                                               
+SORT W5704GD1 TO TPFIL1 USING (IN1-IDARTNR IN1-IDDC IN1-LSTOT) +                
+                                    BEFORE SORT-INIT-1                          
+                                                                                
+ SORT-INIT-1. PROC                                                              
+  W-KVL = IN1-KVLS + IN1-KVEFRS                                                 
+  IF W-KVL NE 0 AND IN1-IDDC = XDC-NON-VCC-OWNED LDC-CN                         
+    SELECT                                                                      
+  END-IF                                                                        
+ END-PROC                                                                       
+                                                                                
+* STEG 2. SORT ON IDARTNR AND DC. SELECT ONLY CHINA PARTS                       
+*                                                                               
+SORT W5704GD2 TO +                                                              
+     TPFIL2   USING (IN2-SPRL-IDARTNR, IN2-SPRL-IDDC)       +                   
+                              BEFORE SORT-INIT-2                                
+ SORT-INIT-2. PROC                                                              
+  PERFORM S23-CHECK-IN2-SPRL-IDDC                                               
+  IF IN2-SPRL-IDDC = XDC-NON-VCC-OWNED LDC-CN                                   
+     SELECT                                                                     
+  END-IF                                                                        
+ END-PROC                                                                       
+*                                                                               
+*    --- S23-CHECK-IN2-SPRL-IDDC (MACRO PROCEDURE)                              
+%WWDC02 'IN2-SPRL-'                                                             
+*                                                                               
+                                                                                
+                                                                                
+* STEG 3. MATCH FILES AND WRITE UNIQUE PARTS FROM W01185 FILE                   
+*                                                                               
+                                                                                
+JOB INPUT (TPFIL1 KEY (T1-IDARTNR, T1-IDDC)   +                                 
+           TPFIL2 KEY (T2-SPRL-IDARTNR, T2-SPRL-IDDC))                          
+                                                                                
+ IF MATCHED                                                                     
+    IF LAST-DUP TPFIL2 OR NOT DUPLICATE TPFIL2                                  
+       PUT W5704GD3 FROM TPFIL1                                                 
+    END-IF                                                                      
+ END-IF                                                                         

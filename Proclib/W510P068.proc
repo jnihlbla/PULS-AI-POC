@@ -1,0 +1,97 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  EKONOMISKT REGELVERK - SKAPAR SAMTLIGA TRANSAKTIONER TILL R3               
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W510D4                                            
+//*                                                                             
+//*  ÅTERSTART:    W51068 NORMAL                                                
+//*                                                                             
+//*                LÄSER  WDH5, WDB1, WDB3                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P068 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..W510D4,                                             
+//             INDUT=&W510..W510D4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510S1  EXEC PGM=SORT                                                         
+//* SEKVENS= DAVERDAT/IDVERGL/KDEKHHT/KDEKSHT/KDNIVA/KDPRODSL                   
+//SORTIN   DD  DSN=&INDIN..W51066(+0),DISP=SHR                                  
+//************ EKONOMISKA HÄNDELSETRANSAKTIONER                                 
+//         DD  DSN=&INDIN..W5106A,DISP=SHR                                      
+//************ EKONOMISKA HÄNDELSETRANSAKTIONER                                 
+//         DD  DSN=&INDIN..W5106N(+0),DISP=SHR                                  
+//************ EKONOMISKA HÄNDELSETRANSAKTIONER FRÅN FÖRRA KÖRNINGEN            
+//*                                                                             
+//SORTOUT  DD  DSN=&&W51066,DISP=(NEW,PASS,DELETE),                             
+//************ MELLANLAGRINGSFIL                                    ***         
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W510PD68),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51068   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W51068,W51068,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//*                                                                             
+//WDH5     INCLUDE MEMBER=WDH5                                                  
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//WDR1     INCLUDE MEMBER=WDR1                                                  
+//WDG2     INCLUDE MEMBER=WDG2                                                  
+//*                                                                             
+//W51068D1 DD  DSN=&&W51066,DISP=(OLD,DELETE,DELETE)                            
+//************ MELLANLAGRINGSFIL                                                
+//*                                                                             
+//W51068D2 DD  DSN=&INDUT..W51071A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//************ TRANSAKTIONER TILL SAP/R3 (GL + AR)                              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51068D3 DD  DSN=&INDUT..W51072A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//************ FAKTURARADER TILL SAP/R3 (GL + AR), SKALL AGGREGERAS             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51068D4 DD  DSN=&INDUT..W51073A(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)        
+//************ ÖVRIGA FAKTURAPOSTER TILL SAP/R3 (GL + AR)                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51068D5 DD  DSN=&INDUT..W51075(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LOGGA TILL ON-DEMAND OCH VECKOVIS LAGERAVSTÄMNING                
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51068D6 DD  DSN=&INDUT..W51068(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL TILL ARTIKEL-AVSTÄMNINGEN                                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51068D7 DD  DSN=&INDUT..W51714(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL TILL VECKORAPPORTEN                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51068D8 DD  DSN=&INDUT..W51713(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL TILL MÅNADS-AVSTÄMNINGEN                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51068D9 DD  DSN=&INDUT..W5106N(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SPARADE IN-POSTER TILL NÄSTA KÖRNING                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51068DA DD  DSN=&INDUT..W51310(+1),DISP=(NEW,CATLG,DELETE),  -LIM(99)        
+//************ POSTER TILL INVVENTERINGS LISTOR                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

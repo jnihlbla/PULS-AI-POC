@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  ALLMÄN PROCEDUR SOM ANVÄNDS VID FIX/ENGÅNGS UPPDATERING                    
+//*  I BATCH AV EN DATABAS MED DATA FRÅN FIL                                    
+//*                                                                             
+//*  FREKVENS: VID BEHOV                                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W015PDBB PROC STPLIB=&INDRTE..LOAD,                                           
+//             DBB=DLI,MBR=SAKNAS,                                              
+//             PSB=SAKNAS,DBRC=Y                                                
+//*            DSIN=DUMMY                                                       
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W015DBB  EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,&MBR,&PSB,,00,,,,,,,,,&DBRC')                        
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDRTE.DYN.LOAD,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DSN=&W..PGMLOG.W015PDBB(+1),                                     
+//             DISP=(NEW,CATLG,CATLG),                                          
+//             DCB=(RECFM=VB,LRECL=6229,BLKSIZE=27998,BUFNO=5),                 
+//             SPACE=(CYL,(20,20),RLSE),                                        
+//             MGMTCLAS=DEL2                                                    
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(BUFFUPPD),DISP=SHR                         
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*015DBD1 DD  DSN=&DSIN,DISP=SHR                                               
+//************ LADDPOSTER                                                       
+//*                                                                             

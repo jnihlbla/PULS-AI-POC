@@ -1,0 +1,86 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SW TEXT IN FILES                                                           
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W515D3                                         
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                          NORMAL                                             
+//*                W51569    NORMAL                                             
+//*                          NORMAL                                             
+//*                          NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W515P069 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W515..W515D3,                                             
+//             INDUT=&W515..W515D3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W515PD01),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W51571A(+0),DISP=SHR                                 
+//************ INFILE W51571A                                                   
+//*                                                                             
+//SORTOUT  DD  DSN=&&W51571A,DISP=(NEW,PASS,DELETE),                            
+//************ SORTERAD INFIL W51571A                                           
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W515PD01),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W51573A(+0),DISP=SHR                                 
+//************ INFIL W51573A                                                    
+//*                                                                             
+//SORTOUT  DD  DSN=&&W51573A,DISP=(NEW,PASS,DELETE),                            
+//************ SORTERAD UTFIL W51573A                                           
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51569   EXEC PGM=V16459,PARM='W51569/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W51569D1 DD  DSN=&&W51571A,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTED INFILE W51571                                             
+//*                                                                             
+//W51569D2 DD  DSN=&&W51573A,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTED INFILE W51573                                             
+//*                                                                             
+//W51569D3 DD  DSN=&&W51571B,DISP=(NEW,PASS,DELETE),                            
+//************ OUTFILE W5157B                                                   
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51569D4 DD  DSN=&&W51573B,DISP=(NEW,PASS,DELETE),                            
+//************ OUTFILE W51573B                                                  
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT3    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W515PD03),DISP=SHR                         
+//SORTIN   DD  DSN=&&W51571B,DISP=(OLD,DELETE,DELETE)                           
+//************ OUTFILE W51571B                                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W51571B(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ OUTFILE W51571B                                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT4    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W515PD03),DISP=SHR                         
+//SORTIN   DD  DSN=&&W51573B,DISP=(OLD,DELETE,DELETE)                           
+//************ OUTFILE W51573B                                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W51573B(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ OUTFILE W51573B                                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

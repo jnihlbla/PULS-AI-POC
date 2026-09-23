@@ -1,0 +1,70 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  EXTRACT ALARMS ON SCREENS 2171/2172                                        
+//*                                                                             
+//*  FREQUENCE:    WEEKLY    RTN WXTRV2                                         
+//*                                                                             
+//*  RESTART:      WXTR21      NORMAL                                           
+//*                READS        WDR5 WDD4 WDR3 WDK6                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTRP021 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W221..WXTRV2,                                             
+//             INDUT=&WXTR..WXTRV2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WXTRPD21),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W22104A,DISP=SHR                                     
+//************ DELETED ALARMS FOR WDR5                                          
+//         DD  DSN=&INDIN..W22105A,DISP=SHR                                     
+//************ DELETED ALARMS FOR WDD4                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&WXTR21,DISP=(NEW,PASS,DELETE),                             
+//************ FILE SORTED ON IDSYSTEM                                          
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTR21   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,WXTR21,WXTR21,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDR5     INCLUDE MEMBER=WDR5                                                  
+//WDD4     INCLUDE MEMBER=WDD4                                                  
+//WDR3     INCLUDE MEMBER=WDR3                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WXTR21D1 DD  DSN=&&WXTR21,DISP=(OLD,DELETE,DELETE)                            
+//************ INPUT FILE WITH DELETED ALARMS                                   
+//*                                                                             
+//WXTR21D2 DD  DSN=&INDUT..WXTR21A(+1),DISP=(NEW,CATLG,DELETE), -LIM(8)         
+//************ EXTRACT FILE FOR ALARMS ON 2171                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//WXTR21D3 DD  DSN=&INDUT..WXTR21B(+1),DISP=(NEW,CATLG,DELETE), -LIM(8)         
+//************ EXTRACT FILE FOR ALARMS 2172                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//WXTR21D4 DD  DSN=&INDUT..WXTR22(+1),DISP=(NEW,CATLG,DELETE), -LIM(8)          
+//************ LOG FILE TO DELETE EXTRACTED ALARMS WDR3                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

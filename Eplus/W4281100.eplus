@@ -1,0 +1,254 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4281100                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR W41820 MED W42822 OCH SKAPAR                  *        
+*                UPPFÖLJNINGSFIL LEVERANSANMÄRKNINGAR LDC'R            *        
+*                OCH WEBB-SDC'R.                                       *        
+*                KINA SKALL ÄVEN VARA MED HÄR.                         *        
+*                                                                      *        
+*  FÖRFATTARE :  SUSANNE OLSSON                                        *        
+*                                                                      *        
+*  E'TRACKER  :  6785206 DATUM 2008-05  WEB LDC                        *        
+*             :  10143271 CHINA WAREHOUSE PROJECT-1                    *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W42811D1                                                                   
+%W4282001 'IN-'                                                                 
+*                                                                               
+FILE W42811D2                                                                   
+%W4282201 'IN2-'                                                                
+*                                                                               
+FILE TEMPFIL FB (309 0)                                                         
+%W4282001 'TMP1-'                                                               
+*                                                                               
+FILE TEMPFIL2 FB (143 0)                                                        
+%W4282201 'TMP2-'                                                               
+*                                                                               
+FILE TEMPFIL3 FB (22 0)                                                         
+%W428S22  'TMP3-'                                                               
+*                                                                               
+FILE W42811D3 FB (64 0)                                                         
+%W42811      'UT-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+************************************************                                
+*    ARBETSAREOR                               *                                
+************************************************                                
+*                                                                               
+*COPYTEXTER FÖR CALL                                                            
+*                                                                               
+%WDATAREA                                                                       
+*                                                                               
+WDATKONV        W  8   A   VALUE 'WDATKONV'                                     
+*                                                                               
+*---------------- LÄNKAREA FÖR DATUMKORT                                        
+%WDATKORT     'DAT-'                                                            
+*                                                                               
+    PROGRAM-NAMN          W          6         A  VALUE 'W42811'                
+    DATUMKORT-ID          W          6         A  VALUE 'WDATUM'                
+    WS-TIAAVV             W          4         N                                
+    WS-DATUM              W          6         N                                
+    WS-AAR                WS-DATUM   2         N                                
+    WS-MAANAD             WS-DATUM  +2  2      N                                
+    WS-DAG                WS-DATUM  +4  2      N                                
+                                                                                
+*                                                                               
+JA                         W  1   A   VALUE 'J'                                 
+NEJ                        W  1   A   VALUE 'N'                                 
+HELP-IDDC                  W  2   A                                             
+WS-IDDC-RET                W  2   A                                             
+WS-IDDISTR                 W  4   N   0                                         
+WS-IDKUNDNR                W  6   N   0                                         
+WS-IDRAPPNR                W  7   N   0                                         
+WS-TOT-KVDAGAR             W  4   N   0                                         
+WS-TIAAVV-ALFA             W  4   A                                             
+WS-TIAAVV-NUM WS-TIAAVV-ALFA  4   N                                             
+                                                                                
+NEWPAGE                                                                         
+*  CHECK IDDC VALUES                                                            
+%WWDC99                                                                         
+                                                                                
+*  CHECK IDFTG VALUES                                                           
+%WWIDFTG      WORK ''                                                           
+                                                                                
+*---------------------------------------------------------------*               
+* STEG 1 SELEKTERAR UT DATA FRÅN W42820 OCH SKAPAR TEMPFIL                      
+*---------------------------------------------------------------*               
+*                                                                               
+JOB INPUT W42811D1 START A-INIT                                                 
+*                                                                               
+ IF IN-IDFTG = WC-IDFTG-PV, WC-IDFTG-CN, WC-IDFTG-IN, WC-IDFTG-KR, +            
+               WC-IDFTG-TR, WC-IDFTG-ZA, WC-IDFTG-BR, WC-IDFTG-MX, +            
+               WC-IDFTG-MY, WC-IDFTG-TH, WC-IDFTG-TW                            
+   HELP-IDDC      = IN-IDDC-RET                                                 
+   PERFORM S23-CHECK-HELP-IDDC                                                  
+   IF HELP-IDDC   = LDC, SDC-NL, SDC-AT, SDC-IT, SDC-ES, +                      
+                    NDC-CN, NDC-IN, NDC-KR,              +                      
+                    NDC-MY, NDC-TH, NDC-TW,              +                      
+                    NDC-TR, NDC-BR, NDC-MX, NDC-ZA AND   +                      
+      IN-KDANMORS = '72' AND                             +                      
+      IN-TISAAVV-INLINL-TIAAVV = WS-TIAAVV                                      
+                                                                                
+      TMP1-W42820 = IN-W42820                                                   
+     PUT TEMPFIL                                                                
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*--------------------------------------------------------*                      
+* A-INIT  HÄMTAR DAGENS DATUM, INNEVARANDE VECKA VV      *                      
+*--------------------------------------------------------*                      
+*                                                                               
+ A-INIT.  PROC                                                                  
+*                                                                               
+ CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DAT-DATUMKORT)                   
+*                                                                               
+ WS-AAR    = DAT-D-AAR                                                          
+ WS-MAANAD = DAT-D-MAANAD                                                       
+ WS-DAG    = DAT-D-DAG                                                          
+ DISPLAY ' DAGENS DATUM : ' WS-DATUM                                            
+*                                                                               
+ DAT-I-TIDATUM = WS-DATUM                                                       
+ DAT-KDDATFORM = 'AAMMDD'                                                       
+ CALL WDATKONV USING (DAT-KDDATFORM DAT-I-TIDATUM DAT-O-TIDATUM +               
+                      DAT-KDSVAR)                                               
+*                                                                               
+ IF DAT-KDSVAR NE ' '                                                           
+    DISPLAY ' *************************** '                                     
+    DISPLAY ' FEL VID ANROP TILL WDATKONV '                                     
+    DISPLAY ' *************************** '                                     
+    STOP EXECUTE                                                                
+ END-IF                                                                         
+ WS-TIAAVV-ALFA      = DAT-TIAAVV-GRP                                           
+ WS-TIAAVV           = WS-TIAAVV-NUM                                            
+ DISPLAY ' INNEVARANDE VECKA ' WS-TIAAVV                                        
+ END-PROC                                                                       
+                                                                                
+*    --- S23-CHECK-HELP-IDDC (MACRO PROCEDUR)                                   
+%WWDC02 'HELP-'                                                                 
+                                                                                
+*---------------------------------------------------------------*               
+* STEG 2 SELEKTERAR UT DATA FRÅN W42822 OCH SKAPAR TEMPFIL2                     
+*---------------------------------------------------------------*               
+*                                                                               
+JOB INPUT W42811D2                                                              
+*                                                                               
+ IF IN2-IDFTG = WC-IDFTG-PV, WC-IDFTG-CN, WC-IDFTG-IN, WC-IDFTG-KR, +           
+               WC-IDFTG-TR, WC-IDFTG-ZA, WC-IDFTG-BR, WC-IDFTG-MX,  +           
+               WC-IDFTG-MY, WC-IDFTG-TH, WC-IDFTG-TW                            
+   HELP-IDDC      = IN2-IDDC-RET                                                
+   PERFORM S23-CHECK-HELP-IDDC                                                  
+*GEIF HELP-IDDC   = LDC, SDC-NL, SDC-AT, SDC-IT, SDC-ES +                       
+*GE                 LDC-CN, NDC-CN, NDC-IN, NDC-KR,     +                       
+   IF HELP-IDDC   = LDC, SDC-NL, SDC-AT, SDC-IT, SDC-ES, +                      
+                    NDC-CN, NDC-IN, NDC-KR,              +                      
+                    NDC-MY, NDC-TH, NDC-TW,              +                      
+                    NDC-TR, NDC-BR, NDC-MX, NDC-ZA AND   +                      
+      IN2-KDANMORS = '72' AND                            +                      
+      IN2-TISAAVV-INLINL-TIAAVV = WS-TIAAVV                                     
+                                                                                
+      TMP2-W42822 = IN2-W42822                                                  
+     PUT TEMPFIL2                                                               
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+*    --- S23-CHECK-HELP-IDDC (MACRO PROCEDUR)                                   
+%WWDC02 'HELP-'                                                                 
+*                                                                               
+SORT TEMPFIL2 TO TEMPFIL2 USING +                                               
+          (TMP2-IDDC-RET, TMP2-IDDISTR, TMP2-IDKUNDNR, TMP2-IDRAPPNR)           
+                                                                                
+*---------------------------------------------------------------*               
+* STEG 3 SUMMERAR KVDAGAR-RET PER LEVERANSANMÄRKNING.                           
+*---------------------------------------------------------------*               
+JOB INPUT NULL                                                                  
+                                                                                
+  GET TEMPFIL2                                                                  
+  WS-IDDC-RET    = '  '                                                         
+  WS-IDDISTR     = 0                                                            
+  WS-IDKUNDNR    = 0                                                            
+  WS-IDRAPPNR    = 0                                                            
+  WS-TOT-KVDAGAR = +0                                                           
+  DO WHILE NOT EOF TEMPFIL2                                                     
+     WS-IDDC-RET    = TMP2-IDDC-RET                                             
+     WS-IDDISTR     = TMP2-IDDISTR                                              
+     WS-IDKUNDNR    = TMP2-IDKUNDNR                                             
+     WS-IDRAPPNR    = TMP2-IDRAPPNR                                             
+                                                                                
+     DO WHILE NOT EOF TEMPFIL2     AND +                                        
+       WS-IDDC-RET    = TMP2-IDDC-RET  AND +                                    
+       WS-IDDISTR     = TMP2-IDDISTR   AND +                                    
+       WS-IDKUNDNR    = TMP2-IDKUNDNR  AND +                                    
+       WS-IDRAPPNR    = TMP2-IDRAPPNR                                           
+       IF TMP2-KVDAGAR-RET > 0                                                  
+         WS-TOT-KVDAGAR = WS-TOT-KVDAGAR + TMP2-KVDAGAR-INL                     
+       END-IF                                                                   
+       GET TEMPFIL2                                                             
+     END-DO                                                                     
+     TMP3-IDDC-RET  = WS-IDDC-RET                                               
+     TMP3-IDDISTR   = WS-IDDISTR                                                
+     TMP3-IDKUNDNR  = WS-IDKUNDNR                                               
+     TMP3-IDRAPPNR  = WS-IDRAPPNR                                               
+     TMP3-KVDAGAR-RET  = WS-TOT-KVDAGAR                                         
+     PUT TEMPFIL3                                                               
+     WS-TOT-KVDAGAR    = 0                                                      
+  END-DO                                                                        
+STOP                                                                            
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+*---------------------------------------------------------------*               
+* STEG 4 MATCHAR TEMPFIL MED TEMPFIL2 OCH SKAPAR UT-FIL                         
+*---------------------------------------------------------------*               
+*                                                                               
+SORT TEMPFIL TO TEMPFIL USING +                                                 
+          (TMP1-IDDC-RET, TMP1-IDDISTR, TMP1-IDKUNDNR, TMP1-IDRAPPNR)           
+*                                                                               
+JOB INPUT (TEMPFIL3 KEY (TMP3-IDDC-RET, TMP3-IDDISTR, TMP3-IDKUNDNR +           
+                         TMP3-IDRAPPNR)                             +           
+           TEMPFIL  KEY (TMP1-IDDC-RET, TMP1-IDDISTR, TMP1-IDKUNDNR +           
+                         TMP1-IDRAPPNR))                                        
+                                                                                
+  IF MATCHED                                                                    
+    UT-IDFTG           = TMP1-IDFTG                                             
+    UT-IDDC-RET        = TMP1-IDDC-RET                                          
+    UT-IDDISTR         = TMP1-IDDISTR                                           
+    UT-IDKUNDNR        = TMP1-IDKUNDNR                                          
+    UT-IDRAPPNR        = TMP1-IDRAPPNR                                          
+    UT-KDANMORS        = TMP1-KDANMORS                                          
+    UT-TISAAPP-INLINL  = TMP1-TISAAPP-INLINL                                    
+    UT-TISAAVV-INLINL  = TMP1-TISAAVV-INLINL                                    
+    UT-KVDAGAR-RET     = TMP3-KVDAGAR-RET                                       
+    UT-KVRETINL        = TMP1-KVRETINL                                          
+    UT-KVRETINL-SKR    = TMP1-KVRETINL-SKR                                      
+    UT-KVAVV-KVANT     = TMP1-KVAVV-KVANT                                       
+    UT-KVAVV-KVAL      = TMP1-KVAVV-KVAL                                        
+                                                                                
+    PUT W42811D3                                                                
+  ELSE                                                                          
+    IF TEMPFIL                                                                  
+      UT-IDFTG           = TMP1-IDFTG                                           
+      UT-IDDC-RET        = TMP1-IDDC-RET                                        
+      UT-IDDISTR         = TMP1-IDDISTR                                         
+      UT-IDKUNDNR        = TMP1-IDKUNDNR                                        
+      UT-IDRAPPNR        = TMP1-IDRAPPNR                                        
+      UT-KDANMORS        = TMP1-KDANMORS                                        
+      UT-TISAAPP-INLINL  = TMP1-TISAAPP-INLINL                                  
+      UT-TISAAVV-INLINL  = TMP1-TISAAVV-INLINL                                  
+      UT-KVDAGAR-RET     = 0                                                    
+      UT-KVRETINL        = TMP1-KVRETINL                                        
+      UT-KVRETINL-SKR    = TMP1-KVRETINL-SKR                                    
+      UT-KVAVV-KVANT     = TMP1-KVAVV-KVANT                                     
+      UT-KVAVV-KVAL      = TMP1-KVAVV-KVAL                                      
+                                                                                
+      PUT W42811D3                                                              
+    END-IF                                                                      
+  END-IF                                                                        

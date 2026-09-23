@@ -1,0 +1,71 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER S3-URVAL OCH S3A-URVAL.                                              
+//*  SKILLNADEN ÄR STORSÄLJARE PÅ SUMMA RESP. STYCK                             
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W330B1                                      
+//*                                                                             
+//*  ÅTERSTART:    SORT1     NORMAL                                             
+//*                .                                                            
+//*                W33062   NORMAL                                              
+//*                .                                                            
+//*                DFUP   NORMAL                                                
+//*                .                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P062 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W330..W330B1,                                            
+//             INDIN2=&W330..W330B1,                                            
+//             INDIN3=&W330..W330B1,                                            
+//             INDUT=&W330..W330B1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W330PD61),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W33061(+0),DISP=SHR                                 
+//************ W33061-FILEN  MATCHADE S3:OR SORTERAS PÅ SUMMA                   
+//*                                                                             
+//SORTOUT  DD  DSN=&&W33061S,DISP=(NEW,PASS,DELETE),                            
+//************ SORTERADE S3:OR                                                  
+//             SPACE=(23460,(5000,1000),RLSE)                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W330PD62),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W33062(+0),DISP=SHR                                 
+//************ W33062-FILEN MATCHADE S3A:OR SORTERAS PÅ ANTAL                   
+//*                                                                             
+//SORTOUT  DD  DSN=&&W33062S,DISP=(NEW,PASS,DELETE),                            
+//************ SORTERADE S3A.OR                                                 
+//             SPACE=(23460,(5000,1000),RLSE)                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33062   EXEC PGM=W33062                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W33062D1 DD  DSN=&INDIN3..W33031(+0),DISP=SHR                                 
+//************ URVALSFIL AF-OMFATTNINGAR                                        
+//*                                                                             
+//W33062D2 DD  DSN=&&W33061S,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTERADE S3:OR                                                  
+//*                                                                             
+//W33062D3 DD  DSN=&&W33062S,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTERADE S3A:OR                                                 
+//*                                                                             
+//W33062D4 DD  DSN=&INDUT..W33063(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SUMMERADE S3:OR OCH S3A:OR                                       
+//             MGMTCLAS=DEL2,VOL=(,,,2),                                        
+//             SPACE=(23381,(400,800),RLSE)                                     
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

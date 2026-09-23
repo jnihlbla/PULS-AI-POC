@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE OUTPUT FILE TO UPDATE WDK7 AND WDG3(2213/2214)                      
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN W224S2                           
+//*                                                                             
+//*  RESTART:      W22474    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W224P074 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W011..NDC,                                               
+//             INDUT=&W224..W224S2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W224PD58),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W01184(+0),DISP=SHR                                 
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//************ NDC:ERS  LAGERBAND SORTERAT ARTIKELNR, DC (7X CN,4X US )         
+//             DATACLAS=PSEN                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22474   EXEC PGM=W22474                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W22474D1 DD  DUMMY                                                            
+//************ PARAMETER FIL FRÅN 2111 OCH 2115                                 
+//*                                                                             
+//W22474D2 DD  DSN=&INDIN2..W01184,DISP=SHR                                     
+//************ UTDRAG UR WDK711,K712 OCH K722 (ARTIKELORDNING)                  
+//*                                                                             
+//W22474D3 DD  DSN=&INDUT..W22474(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ OUTPUT FILE TO UPDATE WDK7 AND WDG3(2213/2214)                   
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

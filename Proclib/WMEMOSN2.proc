@@ -1,0 +1,27 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  MEMO API - EXTERNAL FILE LEVEL                                   *         
+//*             SEND MEMO.                                            *         
+//*             VARIANT PÅ WMEMOSND SOM ANVÄNDER DEFAULT-ID           *         
+//*                                                                   *         
+//*  ÅTERSTART: NORMAL                                                *         
+//*                                                                   *         
+//*  UNDERHÅLLS AV AVD 9231                                           *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WMEMOSN2 PROC CONDS='(0,GT)',PARMS=,                                          
+//             REQS=SAKNAS,                                                     
+//             DSIN=NULLFILE                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//M       EXEC PGM=MEMOAPIX,COND=&CONDS,                                        
+//             PARM='&PARMS'                                                    
+//APIPARM  DD  DSN=F1ST&VX..MEMOAPI.PARMLIB,DISP=SHR                            
+//APIFILE  DD  DDNAME=SYSIN                                                     
+//APIOKLOG DD  DUMMY,DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160)                       
+//APIERLOG DD  DUMMY,DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160)                       
+//SEND     DD  DSN=&DSIN.,DISP=SHR                                              
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(&REQS.),DISP=SHR                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND   EXEC PGM=ABEND,PARM='1234567890123456',                               
+//          COND=((3,GE,M),&CONDS)                                              

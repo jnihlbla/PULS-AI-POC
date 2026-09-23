@@ -1,0 +1,88 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5704100                                              *        
+*                                                                      *        
+*  FUNKTION    - SKAPAR BACKNINGSFIL ÅT JOBB W570J044 FÖR ATT FÅ       *        
+*                KORREKTA SALDON PÅ FIL W57044 VID MÅNADSSKIFTET.      *        
+*              - ALLA VERIFIKAT SOM EJ SKALL BOKAS PÅ GAMMAL MÅNAD     *        
+*                FINNS PÅ FIL W5706N.                                  *        
+*              - ALLA SALDOÄNDRINGAR SOM SKETT FRÅN MIDNATT TILL DENNA *        
+*                MÅNADSRUTIN KÖRS FINNS PÅ FIL W57040.                 *        
+*              - MATCHANDE ID'N PÅ DESSA FILER BLIR INNEHÅLLET PÅ      *        
+*                BACKNINGSFILEN.                                       *        
+*                                                                      *        
+*  FÖRFATTARE :  ANDERS HENRIKSSON , 20120111                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+***  FIL MED ALLA SALDOÄNDRINGAR EFTER MIDNATT                                  
+FILE W57041D1                                                                   
+%W5705C    'I1-'                                                                
+I1-LSTOT   37  5 P                                                              
+                                                                                
+***  PEDAL, SAP-BOKNINGSPOSTER SOM SPARAS TILL NÄSTA NATT                       
+FILE W57041D2                                                                   
+I2-FLLSBOK   38 1 A                                                             
+I2-IDARTNR   51 5 P                                                             
+I2-IDDC      56 2 A                                                             
+I2-KVANTAL  119 4 P                                                             
+                                                                                
+***  FIL SORTERAD, MED ALLA SALDOÄNDRINGAR EFTER MIDNATT                        
+FILE TPFIL1 FB(45 0)                                                            
+%W5705C    'T1-'                                                                
+T1-LSTOT   37  5 P                                                              
+                                                                                
+***  PEDAL, SORTERADE SAP-BOKNINGSPOSTER                                        
+FILE TPFIL2 FB(295 0)                                                           
+T2-IDARTNR   51 5 P                                                             
+T2-IDDC      56 2 A                                                             
+T2-KVANTAL  119 4 P                                                             
+                                                                                
+***  UTFIL FÖR JOBB W570J044                                                    
+FILE W57041D3 FB (45 0)                                                         
+%W5705C 'UT-'                                                                   
+                                                                                
+***WORKING STORAGE                                                              
+%WWDC99                                                                         
+******************************************************************              
+* STEG 1. VASKA FRAM ALLA SALDOÄNDRINGSPOSTER SAMT SORTERA                      
+******************************************************************              
+                                                                                
+SORT W57041D1 TO TPFIL1 USING (I1-IDARTNR I1-IDDC I1-LSTOT) +                   
+                                    BEFORE SORT-INIT-1                          
+                                                                                
+ SORT-INIT-1. PROC                                                              
+  I1-LSTOT = I1-KVAKS + I1-KVAKS-PAV + I1-KVLS + I1-KVEFRS                      
+  IF I1-LSTOT NE 0 AND I1-IDDC = XDC-NON-VCC-OWNED LDC-CN                       
+    SELECT                                                                      
+  END-IF                                                                        
+ END-PROC                                                                       
+                                                                                
+******************************************************************              
+* STEG 2. VASKA FRAM ALLA SALDOBOKANDE POSTER SAMT SORTERA                      
+******************************************************************              
+                                                                                
+SORT W57041D2 TO TPFIL2 USING (I2-IDARTNR I2-IDDC I2-KVANTAL) +                 
+                                  BEFORE SORT-INIT-2                            
+                                                                                
+ SORT-INIT-2. PROC                                                              
+  IF I2-FLLSBOK EQ 'Y' 'J' AND I2-IDDC = XDC-NON-VCC-OWNED LDC-CN               
+    SELECT                                                                      
+  END-IF                                                                        
+ END-PROC                                                                       
+                                                                                
+******************************************************************              
+* STEG 3. MATCHA SORTERADE FILER.                                               
+*         AV MATCHANDE POSTER BLIR BACKNINGSPOSTER FÖR W570J044                 
+******************************************************************              
+                                                                                
+JOB INPUT (TPFIL1 KEY (T1-IDARTNR T1-IDDC T1-LSTOT)     +                       
+           TPFIL2 KEY (T2-IDARTNR T2-IDDC T2-KVANTAL))                          
+                                                                                
+ IF MATCHED                                                                     
+   IF DUPLICATE TPFIL2 OR NOT DUPLICATE TPFIL2                                  
+     T1-LSTOT = 0                                                               
+     PUT W57041D3 FROM TPFIL1                                                   
+    END-IF                                                                      
+ END-IF                                                                         

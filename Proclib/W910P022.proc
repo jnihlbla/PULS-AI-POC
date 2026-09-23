@@ -1,0 +1,34 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FASTSTÄLLER EN TOTALFIL MED ERSÄTTNINGAR FÖR PPMS.                         
+//*                                                                             
+//*  FREKVENS:     PERIOD    RTN W910D1                                         
+//*                                                                             
+//*  ÅTERSTART:    W91022    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W910P022 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W011..&RTEGRP,                                            
+//             INDUT=&WUT..W910D1                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W91022   EXEC PGM=V16459,PARM='W91022/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W91022D1 DD  DSN=&INDIN..W01160(+0),DISP=SHR                                  
+//************ ARTIKELFIL BASERAD PÅ WDK6                                       
+//*                                                                             
+//W91022D2 DD  DSN=&INDIN..W01103(+0),DISP=SHR                                  
+//************ ERSÄTTNINGAR FRÅN WDD7                                           
+//*                                                                             
+//W91022D3 DD  DSN=&INDUT..W91022(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ TOTALFIL MED ERSÄTTNINGAR TILL PPMS                              
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=NOBACKUP                                                

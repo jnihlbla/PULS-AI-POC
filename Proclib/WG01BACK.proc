@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*      BACKOUT-PROCEDURE FÖR PROD-DATABASER                                   
+//*      ÅTERSTART:  IMS-TEKNIK                                                 
+//*      OBS.        OM PGMLOG EJ GÅR ATT LÄSA OCH/ELLER                        
+//*                  RETUR-CODE EJ ÄR LIKA MED NOLL                             
+//*                                                                             
+//*                             RING VCAS JOURANSVARIG                          
+//*                                                                             
+//*                                            ANSV. AVD. IMS-TEKNIK            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WG01BACK PROC PSB=SAKNAS,DBRC=Y,                                              
+//             DSIN=SAKNAS                                                      
+//*                                                                             
+//MAXRGN  EXEC PGM=DFSRRC00,REGION=8500K,                                       
+//             PARM='&DBB,DFSBBO00,&PSB,,,,,,,,,,,&DBRC'                        
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDGRND.DYN.LOAD,DISP=SHR                                   
+//IMS      DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(BUFFLAES),DISP=SHR                         
+//IMSLOGR  DD  DSN=&DSIN,DISP=SHR,DCB=BUFNO=5                                   
+//IEFRDER  DD  DSN=&INDPLOG..BACKOUT(+1),DISP=(NEW,CATLG,CATLG),                
+//             SPACE=(CYL,(500,100),RLSE),DATACLAS=MVOL,                        
+//             DCB=(RECFM=VB,LRECL=6229,BLKSIZE=27998,BUFNO=5),                 
+//             MGMTCLAS=&EMID70                                                 
+//SYSPRINT DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SYSIN    DD  DUMMY                                                            
+//*                                                                             
+//ABEND   EXEC PGM=ABEND,COND=(0,EQ,MAXRGN),PARM='1234567890123456'             

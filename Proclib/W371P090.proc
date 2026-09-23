@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  REMANUFACTOR ORDER IN NES.                                                 
+//*  CREATES MAIL FILE IN CSV FORMAT WHICH SHOULD BE SENT BY MAIL               
+//*  TO SITTARD.                                                                
+//*                                                                             
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN W371S1                           
+//*                                                                             
+//*  RESTART:      W37190      NORMAL                                           
+//*                READS        WDR2                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P090 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W371..W371S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W37190   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W37190,W37190,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDR4     INCLUDE MEMBER=WDR2                                                  
+//W37190D1 DD  DDNAME=SYSIN                                                     
+//************ USER/DISTRICT PARAMETERS FROM                                    
+//************ NES REMAN ORDER SCREEN (WEB)                                     
+//*                                                                             
+//W37190D2 DD  DSN=&INDUT..W37191(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ OUTPUT FILE (MAIL FILE IN CSV FORMAT)                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

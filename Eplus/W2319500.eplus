@@ -1,0 +1,176 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2319500                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR GRUNDFIL REFILL UPPFÖLJNING NDC                *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL                                         *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W23195D1                                                                   
+*                                                                               
+%W23192       'ART-'                                                            
+                                                                                
+NEWPAGE                                                                         
+FILE W23195D2                                                                   
+*                                                                               
+%W23194       'SRS-'                                                            
+                                                                                
+NEWPAGE                                                                         
+FILE W23195D3  FB(792 0)                                                        
+*                                                                               
+%W23195       'UT-'                                                             
+                                                                                
+NEWPAGE                                                                         
+INDX        W    2   N   VALUE 0                                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+* STEG 1. MATCHAR W23193 (ART-INFO)/ W23194 (SRS-INFO)                          
+JOB INPUT(W23195D1 KEY (ART-IDARTNR ART-IDDC)  +                                
+          W23195D2 KEY (SRS-IDARTNR SRS-IDDC))                                  
+                                                                                
+ IF MATCHED                                                                     
+    UT-IDARTNR               = ART-IDARTNR                                      
+    UT-IDDC                  = ART-IDDC                                         
+    UT-IDLEVNR               = ART-IDLEVNR                                      
+    UT-KDPRODSL              = ART-KDPRODSL                                     
+    UT-KDPSLLOC              = ART-KDPSLLOC                                     
+    UT-KDFREKKL              = ART-KDFREKKL                                     
+    UT-KDPRISKL              = ART-KDPRISKL                                     
+    UT-PRARTSTD              = ART-PRARTSTD                                     
+    UT-PRMATRL               = ART-PRMATRL                                      
+    UT-IDPERSON-BUY          = ART-IDPERSON-BUY                                 
+    UT-KDREFSTA              = ART-KDREFSTA                                     
+    UT-KVAKS-SDC             = ART-KVAKS-SDC                                    
+    UT-KVAKS-PAV             = ART-KVAKS-PAV                                    
+    UT-KVLS                  = ART-KVLS                                         
+    UT-KVOKS                 = ART-KVOKS                                        
+    UT-KVRESS                = ART-KVRESS                                       
+    UT-KVPB-REF              = ART-KVPB-REF                                     
+    UT-IDREFTAB              = ART-IDREFTAB                                     
+    UT-KVREFBER              = ART-KVREFBER                                     
+    UT-KVREFOVL              = ART-KVREFOVL                                     
+    UT-KVREFPKT              = ART-KVREFPKT                                     
+    UT-SUINKORD              = SRS-SUINKORD                                     
+    UT-SUFYSAVP              = SRS-SUFYSAVP                                     
+    UT-SUAVBRP               = SRS-SUAVBRP                                      
+    UT-SULAGERB              = SRS-SULAGERB                                     
+    UT-SUSORTB               = SRS-SUSORTB                                      
+    PERFORM SKAPA-UTFIL                                                         
+    PUT W23195D3                                                                
+ ELSE                                                                           
+* OM ARTIKEL SAKNAS PÅ SRS-FIL                                                  
+    IF W23195D1                                                                 
+       UT-IDARTNR               = ART-IDARTNR                                   
+       UT-IDDC                  = ART-IDDC                                      
+       UT-IDLEVNR               = ART-IDLEVNR                                   
+       UT-KDPRODSL              = ART-KDPRODSL                                  
+       UT-KDPSLLOC              = ART-KDPSLLOC                                  
+       UT-IDPERSON-BUY          = ART-IDPERSON-BUY                              
+       UT-KDFREKKL              = ART-KDFREKKL                                  
+       UT-KDPRISKL              = ART-KDPRISKL                                  
+       UT-PRARTSTD              = ART-PRARTSTD                                  
+       UT-PRMATRL               = ART-PRMATRL                                   
+       UT-IDREFTAB              = ART-IDREFTAB                                  
+       UT-KDREFSTA              = ART-KDREFSTA                                  
+       UT-KVAKS-SDC             = ART-KVAKS-SDC                                 
+       UT-KVAKS-PAV             = ART-KVAKS-PAV                                 
+       UT-KVLS                  = ART-KVLS                                      
+       UT-KVOKS                 = ART-KVOKS                                     
+       UT-KVRESS                = ART-KVRESS                                    
+       UT-KVPB-REF              = ART-KVPB-REF                                  
+       UT-KVREFBER              = ART-KVREFBER                                  
+       UT-KVREFOVL              = ART-KVREFOVL                                  
+       UT-KVREFPKT              = ART-KVREFPKT                                  
+       UT-SUINKORD              = 0                                             
+       UT-SUFYSAVP              = 0                                             
+       UT-SUAVBRP               = 0                                             
+       UT-SULAGERB              = 0                                             
+       UT-SUSORTB               = 0                                             
+       PERFORM SKAPA-UTFIL                                                      
+       PUT W23195D3                                                             
+    ELSE                                                                        
+* OM ARTIKEL SAKNAS PÅ ART-FIL                                                  
+       IF W23195D2                                                              
+          UT-IDARTNR               = SRS-IDARTNR                                
+          UT-IDDC                  = SRS-IDDC                                   
+          UT-IDLEVNR               = '     '                                    
+          UT-KDPRODSL              = 0                                          
+          UT-KDPSLLOC              = 0                                          
+          UT-KDFREKKL              = ' '                                        
+          UT-KDPRISKL              = ' '                                        
+          UT-PRARTSTD              = 0                                          
+          UT-PRMATRL               = 0                                          
+          UT-IDPERSON-BUY          = 0                                          
+          UT-IDREFTAB              = ' '                                        
+          UT-KDREFSTA              = ' '                                        
+          UT-KVAKS-SDC             = 0                                          
+          UT-KVAKS-PAV             = 0                                          
+          UT-KVLS                  = 0                                          
+          UT-KVOKS                 = 0                                          
+          UT-KVRESS                = 0                                          
+          UT-KVPB-REF              = 0                                          
+          UT-KVREFBER              = 0                                          
+          UT-KVREFOVL              = 0                                          
+          UT-KVREFPKT              = 0                                          
+          UT-SUINKORD              = SRS-SUINKORD                               
+          UT-SUFYSAVP              = SRS-SUFYSAVP                               
+          UT-SUAVBRP               = SRS-SUAVBRP                                
+          UT-SULAGERB              = SRS-SULAGERB                               
+          UT-SUSORTB               = SRS-SUSORTB                                
+          PERFORM NOLLSTALL-SKAPA-UTFIL                                         
+          PUT W23195D3                                                          
+       END-IF                                                                   
+    END-IF                                                                      
+ END-IF                                                                         
+                                                                                
+                                                                                
+SKAPA-UTFIL. PROC                                                               
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 54                                                
+    UT-KVOI-RULL(INDX)      = ART-KVOI-RULL(INDX)                               
+    UT-KVOT-RULL(INDX)      = ART-KVOT-RULL(INDX)                               
+    UT-KVOT-CDC-RULL(INDX)  = ART-KVOT-CDC-RULL(INDX)                           
+    INDX                    = INDX + 1                                          
+ END-DO                                                                         
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 6                                                 
+    UT-TIVV(INDX)           = ART-TIVV          (INDX)                          
+    UT-KVOT-INNEV(INDX)     = ART-KVOT-INNEV    (INDX)                          
+    UT-KVOT-CDC-INNEV(INDX) = ART-KVOT-CDC-INNEV(INDX)                          
+    INDX                    = INDX + 1                                          
+ END-DO                                                                         
+                                                                                
+END-PROC                                                                        
+                                                                                
+NOLLSTALL-SKAPA-UTFIL. PROC                                                     
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 54                                                
+    UT-KVOI-RULL(INDX)     = 0                                                  
+    UT-KVOT-RULL(INDX)     = 0                                                  
+    UT-KVOT-CDC-RULL(INDX) = 0                                                  
+    INDX                   = INDX + 1                                           
+ END-DO                                                                         
+                                                                                
+ INDX                       = 1                                                 
+ DO WHILE INDX             LT 6                                                 
+    UT-TIVV(INDX)           = 0                                                 
+    UT-KVOT-INNEV(INDX)     = 0                                                 
+    UT-KVOT-CDC-INNEV(INDX) = 0                                                 
+    INDX                    = INDX + 1                                          
+ END-DO                                                                         
+                                                                                
+END-PROC                                                                        

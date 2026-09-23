@@ -1,0 +1,144 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4885500                                              *        
+*                                                                      *        
+*  FUNKTION   :  KOLLAR VILKA ARTIKLAR SOM HAR ÄNDRAT PLATS UNDER      *        
+*                DAGEN OCH SKRIVER FIL TILL PDP MED INFO OM DESSA      *        
+*                                                                      *        
+*  FÖRFATTARE :  MÅNS SAMUELSSON                                       *        
+*                                                                      *        
+*  ÄNDRING    :  SKICKAR ALLA ARTIKLAR, EJ ENBART FÖRÄNDRINGAR         *        
+*                                         BESTÄLLARE: ROGER SAHLSTEN   *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*   20030206      CONNY EGHOLT......       9232..                      *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*   20151026      RAHUL REDDY              ADD BEART.ETRACKER 10263392 *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W48855D1                                                                   
+%W4885601  'IN52-'                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W48855D2                                                                   
+%W4885601  'IN56-'                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W48855D3 FB(54 0)                                                          
+%W4885601  'UT56-'                                                              
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W48855D4 FB(80 0)                                                          
+%W4885801  'UT58-'                                                              
+%W4885802  'UT58-'                                                              
+                                                                                
+NEWPAGE                                                                         
+DAGENS-DATUM    W  6  A                                                         
+AA DAGENS-DATUM    2  N                                                         
+MM DAGENS-DATUM +2 2  N                                                         
+DD DAGENS-DATUM +4 2  N                                                         
+                                                                                
+DATUM           W  8  A                                                         
+DATUM-AA DATUM     2  N                                                         
+FIX1     DATUM +2  1  A                                                         
+DATUM-MM DATUM +3  2  N                                                         
+FIX2     DATUM +5  1  A                                                         
+DATUM-DD DATUM +6  2  N                                                         
+                                                                                
+STARTPOST       W 80  A                                                         
+TEXT1           STARTPOST   10    A VALUE '*ARTPLATS*'                          
+STARTPOST-DATUM STARTPOST  +10 6  A                                             
+TEXT2           STARTPOST  +16 64 A VALUE '*          '                         
+                                                                                
+SLUTPOST        W 80  A VALUE '*END*       '                                    
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+* STEG 1. MATCHAR DAGENS OCH GÅRDAGENS UPPGIFTER                                
+*                                                                               
+JOB INPUT ( W48855D1 KEY (IN52-IDARTNR)  +                                      
+            W48855D2 KEY (IN56-IDARTNR) )  +                                    
+          START A-INIT FINISH Z-FINIT                                           
+                                                                                
+   IF MATCHED                                                                   
+     IF IN52-ADLAGOMR = IN56-ADLAGOMR AND +                                     
+        IN52-ADGANG   = IN56-ADGANG   AND +                                     
+        IN52-ADPLATS  = IN56-ADPLATS                                            
+*       -- FRÅN 2003-02-06 SKALL ALLA ARTIKLARS INFO SKICKAS                    
+*       -- HÄR TILLKOMMER ALLTSÅ KOD FÖR "MATCHFALLET" DÅ ADRESS ==             
+*       -- OM MAN SKA ÅTERGÅ TILL FÖRRA FUNK.,TAS NEDAN 2 RADER BORT            
+         PERFORM S11-FLYTTA-UT58-FAELT                                          
+         PUT W48855D4                                                           
+     ELSE                                                                       
+       PERFORM S11-FLYTTA-UT58-FAELT                                            
+       PUT W48855D4                                                             
+     END-IF                                                                     
+   ELSE                                                                         
+     IF W48855D1                                                                
+       PERFORM S11-FLYTTA-UT58-FAELT                                            
+       PUT W48855D4                                                             
+     END-IF                                                                     
+   END-IF                                                                       
+*  -- SKRIV UT NYTT REGISTER                                                    
+   IF W48855D1                                                                  
+      UT56-IDARTNR  = IN52-IDARTNR                                              
+      UT56-ADLAGOMR = IN52-ADLAGOMR                                             
+      UT56-ADGANG   = IN52-ADGANG                                               
+      UT56-ADPLATS  = IN52-ADPLATS                                              
+      UT56-KVPB-TOT = IN52-KVPB-TOT                                             
+      UT56-KVLS-CDC = IN52-KVLS-CDC                                             
+      UT56-VLARTNTO = IN52-VLARTNTO                                             
+      UT56-ADINLOMR-BOA = IN52-ADINLOMR-BOA                                     
+      UT56-BEART    = IN52-BEART                                                
+                                                                                
+      PUT W48855D3                                                              
+   END-IF                                                                       
+                                                                                
+A-INIT. PROC                                                                    
+  DATUM = SYSDATE                                                               
+  AA    = DATUM-AA                                                              
+  MM    = DATUM-MM                                                              
+  DD    = DATUM-DD                                                              
+  STARTPOST-DATUM = DAGENS-DATUM                                                
+  UT58-W4885801 = STARTPOST                                                     
+  PUT W48855D4                                                                  
+END-PROC                                                                        
+                                                                                
+S11-FLYTTA-UT58-FAELT.  PROC                                                    
+       UT58-ASTERISK1 = '*'                                                     
+       UT58-IDARTNR  = IN52-IDARTNR                                             
+       UT58-ASTERISK2 = '*'                                                     
+       UT58-ADLAGOMR = IN52-ADLAGOMR                                            
+       UT58-ASTERISK3 = '*'                                                     
+       UT58-ADGANG   = IN52-ADGANG                                              
+       UT58-ASTERISK4 = '*'                                                     
+       UT58-ADPLATS  = IN52-ADPLATS                                             
+       UT58-ASTERISK5 = '*'                                                     
+       UT58-KVLS-CDC = IN52-KVLS-CDC                                            
+       UT58-ASTERISK6 = '*'                                                     
+       UT58-KVPB-TOT = IN52-KVPB-TOT                                            
+       UT58-ASTERISK7 = '*'                                                     
+       UT58-VLARTNTO = IN52-VLARTNTO                                            
+       UT58-ASTERISK8 = '*'                                                     
+       IF IN52-ADINLOMR-BOA EQ '    '   +                                       
+       OR IN52-ADINLOMR-BOA EQ 'HL  '                                           
+          MOVE 'N'     TO UT58-FL-ALT-BUFF                                      
+       ELSE                                                                     
+          MOVE 'J'     TO UT58-FL-ALT-BUFF                                      
+       END-IF                                                                   
+       UT58-ASTERISK9 = '*'                                                     
+       UT58-BEART    = IN52-BEART                                               
+       UT58-ASTERISK10 = '*'                                                    
+       UT58-FILLERX3  = '   '                                                   
+END-PROC                                                                        
+                                                                                
+Z-FINIT. PROC                                                                   
+  UT58-W4885801 = SLUTPOST                                                      
+  PUT W48855D4                                                                  
+END-PROC                                                                        

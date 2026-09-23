@@ -1,0 +1,215 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4638100                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  BO SVENSSON                                           *        
+*                                                                      *        
+*  DATUM      :  970826                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET PRINTAR LISTA "DELAYED DELIVERIES          *        
+*                FROM GNB".                                            *        
+*                                                                      *        
+*                PROGRAMMET TAR IN FIL                                 *        
+*                  W46380 VECKO                                        *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*                                                                      *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W46381D1                                                                   
+*                                                                               
+%W46380   'IN-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W46381D2 FB (121 0)  PRINTER                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1  A  VALUE 'J'                                 
+  NEJ                       W   1  A  VALUE 'N'                                 
+  FEL                       W   1  A  VALUE 'F'                                 
+  RKOD-16                   W   4  N  VALUE 16                                  
+*                                                                               
+  PR-IDDC                   W   2  A                                            
+  PR-IDDISTR                W   3  P    MASK('ZZZZ9')                           
+  PR-IDKUNDNR               W   4  P    MASK('ZZZZZZ9')                         
+  PR-IDORDNR                W   5  N    MASK('ZZZZ9')                           
+  PR-IDPRODNR               W   4  P    MASK('ZZZZZZ9')                         
+  PR-IDARTNR                W   5  P    MASK('ZZZZZZZZ9')                       
+  PR-KVBEART                W   4  P    MASK('ZZZZZZ9')                         
+  PR-KVLEVART               W   4  P    MASK('ZZZZZZ9')                         
+  PR-TIUTSKR                W   4  P    MASK('ZZZZZZ9')                         
+  PR-AST                    W   1  A                                            
+  PR-TISEKEL                W   2  A                                            
+*                                                                               
+%WDATAREA                                                                       
+*                                                                               
+%WDATKORT                                                                       
+*                                                                               
+  W-DATUM          W  6   N                                                     
+  W-AAR  W-DATUM       2  N                                                     
+  W-MM   W-DATUM   +2  2  N                                                     
+  W-DD   W-DATUM   +4  2  N                                                     
+*                                                                               
+PROGRAM-NAMN       W  6  A  VALUE 'W46381'                                      
+DATUMKORT-ID       W  6  A  VALUE '000001'                                      
+*                                                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT  W46381D1                                            +              
+                                                 START  A-INIT   +              
+                                                 NAME   STEG01                  
+                                                                                
+     IF  IN-TIUTSKR  > 500000                                                   
+         PR-TISEKEL = '19'                                                      
+     ELSE                                                                       
+         PR-TISEKEL = '20'                                                      
+     END-IF                                                                     
+                                                                                
+     IF  IN-FLJANEJ = 'J'                                                       
+         PR-AST     = '*'                                                       
+     ELSE                                                                       
+         PR-AST     = ' '                                                       
+     END-IF                                                                     
+                                                                                
+     PR-IDDC     = IN-IDDC                                                      
+     PR-IDDISTR  = IN-IDDISTR                                                   
+     PR-IDKUNDNR = IN-IDKUNDNR                                                  
+     PR-IDORDNR  = IN-IDORDNR7                                                  
+     PR-IDPRODNR = IN-IDPRODNR                                                  
+     PR-IDARTNR  = IN-IDARTNR                                                   
+     PR-KVBEART  = IN-KVBEART                                                   
+     PR-KVLEVART = IN-KVLEVART                                                  
+     PR-TIUTSKR  = IN-TIUTSKR                                                   
+                                                                                
+     PRINT RAPPORT01                                                            
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  A-INIT.  PROC                                                                 
+                                                                                
+      DAT-KDDATFORM = 'IDAG  '                                                  
+                                                                                
+      CALL WDATKONV USING (DAT-KDDATFORM                         +              
+                           DAT-I-TIDATUM                         +              
+                           DAT-O-TIDATUM                         +              
+                           DAT-KDSVAR    )                                      
+                                                                                
+      IF DAT-KDSVAR = FEL                                                       
+         DISPLAY '        '                                                     
+         DISPLAY '        '                                                     
+         DISPLAY '        '                                                     
+         DISPLAY ' FEL FRÅN DATKONV!!!!'                                        
+         DISPLAY '        '                                                     
+         DISPLAY '        '                                                     
+         DISPLAY '        '                                                     
+         RETURN-CODE = RKOD-16                                                  
+         STOP EXECUTE                                                           
+      END-IF                                                                    
+                                                                                
+      CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                  
+      W-AAR  = D-AAR                                                            
+      W-MM   = D-MAANAD                                                         
+      W-DD   = D-DAG                                                            
+                                                                                
+      DISPLAY 'W-DATUM=***************'  W-DATUM                                
+                                                                                
+    END-PROC                                                                    
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    REPORT SECTION                              *              
+*----------------------------------------------------------------*              
+*                                                                               
+    REPORT RAPPORT01 PRINTER W46381D2                            +              
+                     LINESIZE     120                            +              
+                     PAGESIZE      41                            +              
+                     NODATE                                      +              
+                     NOADJUST                                    +              
+                     NOSPREAD                                    +              
+                     SUMSPACE       1                            +              
+                     SPACE          1                            +              
+                     DTLCTL    FIRST                                            
+*                                                                               
+    SEQUENCE                                                     +              
+              PR-IDDC                                            +              
+              PR-IDDISTR                                         +              
+              PR-IDKUNDNR                                        +              
+              PR-TISEKEL                                         +              
+              PR-TIUTSKR                                         +              
+              PR-AST                                             +              
+              PR-IDORDNR                                         +              
+              PR-IDPRODNR                                        +              
+              PR-IDARTNR                                                        
+*                                                                               
+    CONTROL                                                      +              
+              FINAL        NOPRINT                               +              
+              PR-IDDC      NOPRINT  NEWPAGE  RENUM               +              
+              PR-IDDISTR   NOPRINT                               +              
+              PR-IDKUNDNR  NOPRINT                               +              
+              PR-TISEKEL   NOPRINT                               +              
+              PR-TIUTSKR   NOPRINT                               +              
+              PR-AST       NOPRINT                               +              
+              PR-IDORDNR   NOPRINT                               +              
+              PR-IDPRODNR  NOPRINT                                              
+*                                                                               
+    TITLE 01                                                     +              
+    COL   02 'VOLVO CAR PARTS               W46381-001 '         +              
+    COL   93  SYSDATE                                                           
+*                                                                               
+    TITLE 02                                                     +              
+    COL   10 'DELAYED GNB DELIVERIES.'                                          
+*                                                                               
+    TITLE 03                                                     +              
+    COL   10 'TARGET:  DC' PR-IDDC                                              
+*                                                                               
+    HEADING   PR-IDDC            'DC'                                           
+    HEADING   PR-IDDISTR         'DISTR'                                        
+    HEADING   PR-IDKUNDNR        'RETAILER'                                     
+    HEADING   PR-TIUTSKR         'REGDATE'                                      
+    HEADING   PR-AST             'OLD'                                          
+    HEADING   PR-IDORDNR         'ORDERNO'                                      
+    HEADING   PR-IDPRODNR        'PRODNO'                                       
+    HEADING   PR-IDARTNR         'PARTNO'                                       
+    HEADING   PR-KVBEART         'ORDERED'                                      
+    HEADING   PR-KVLEVART        'DELIVERED'                                    
+*                                                                               
+    LINE 01                                                       +             
+              PR-IDDC                                             +             
+              PR-IDDISTR                                          +             
+              PR-IDKUNDNR                                         +             
+              PR-TIUTSKR                                          +             
+              PR-AST                                              +             
+              PR-IDORDNR                                          +             
+              PR-IDPRODNR                                         +             
+              PR-IDARTNR                                          +             
+              PR-KVBEART                                          +             
+              PR-KVLEVART                                                       
+                                                                                
+NEWPAGE                                                                         

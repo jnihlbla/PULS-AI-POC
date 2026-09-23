@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DELETES INTRASTAT/VAT/CUSTOMS DATA FROM DB2-TABLE T01IVW.                  
+//*                                                                             
+//*  FREQUENCE:    ONCE EACH MONTH         RTN W522M2                           
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W52231   PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W522..W522M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//TSO    EXEC  PGM=IKJEFT01,DYNAMNBR=20,PARM=' '                                
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=SYS1.F1D200.DSNLOAD,DISP=SHR                                 
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSTSPRT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSTSIN  DD  DUMMY                                                            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//W52231D1 DD  DSN=&INDUT..W52231(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ INTRASTAT FILE                                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W52231D2 DD  DSN=&INDUT..W52232(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ VAT FILE                                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W52231D3 DD  DSN=&INDUT..W52233(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ CUSTOMS FILE                                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND    EXEC PGM=ABEND,PARM='1234567890123456',                              
+//             COND=(4,GE,TSO)                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

@@ -1,0 +1,36 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  WDK722,WDK723 EXTRACT TO AZURE DATALAKE IN DISPLAY FORMAT                  
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W011D2                                         
+//*                                                                             
+//*  RESTART:      W01182    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W011P082 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W011..NDC                                                 
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W01182   EXEC PGM=W01182                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W01182D1 DD  DSN=&INDIN..W01182(+0),DISP=SHR                                  
+//************ INPUT FILE FROM W01184 -WDK722                                   
+//*                                                                             
+//W01182D2 DD  DSN=&INDIN..W01183(+0),DISP=SHR                                  
+//************ INPUT FILE FROM W01184 -WDK723                                   
+//*                                                                             
+//W01182D3 DD  DSN=&&W01182X,DISP=(NEW,PASS,DELETE),                            
+//************ WDK722 INFO TO AZURE DATALAKE                                    
+//             DATACLAS=PSEB                                                    
+//W01182D4 DD  DSN=&&W01183X,DISP=(NEW,PASS,DELETE),                            
+//************ WDK723 INFO TO AZURE DATALAKE                                    
+//             DATACLAS=PSEB                                                    
+//*                                                                             

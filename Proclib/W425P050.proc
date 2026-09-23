@@ -1,0 +1,44 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOPPLING MELLAN VCAS OCH VR-SYSTEMET                                       
+//*                                                                             
+//*  FREQUENCE:    DAILY    RTN W425D1                                          
+//*                                                                             
+//*  RESTART:      W42550      NORMAL                                           
+//*                READS  WDK6                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W425P050 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W425..W425D1,                                             
+//             INDUT=&WUT..W425D1                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42550   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W42550,W42550,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W42550D1 DD  DSN=&INDIN..W42599(+0),DISP=SHR                                  
+//************ FIL MED SU-TRANSAR                                               
+//*                                                                             
+//W42550D2 DD  DSN=&INDUT..W42521(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ FIL MED SU-TRANSAR SOM LÄSES DIREKT AV VR                        
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                

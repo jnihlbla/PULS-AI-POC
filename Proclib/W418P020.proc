@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UPPDATERAR DISPACHEN MED GODKÄNDA LEVERANSANMÄRKNINGAR                     
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W418D1                                            
+//*                                                                             
+//*  ÅTERSTART:    W41820    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W418P020 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W418..W418D1,                                             
+//             INDUT=&W418..W418D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41820   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W41820,W41820,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W41820D1 DD  DSN=&INDIN..W41810(+0),DISP=SHR                                  
+//************ INFIL LEVERANSANMÄRKNING                                         
+//W41820D2 DD  DSN=&INDIN..W41813(+0),DISP=SHR                                  
+//************ INFIL BAYBACK                                                    
+//*                                                                             
+//W41820D3 DD  DSN=&INDUT..W01521(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ NAMN PÅ TRANSGRUPP (BUNT)                                        
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

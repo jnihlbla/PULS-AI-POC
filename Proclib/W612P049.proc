@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTA AVVIKELSE REFILL INLEVERANS                                   
+//*                                                                             
+//*  FREKVENS:     DAG       RTN W612D6                                         
+//*                                                                             
+//*  ÅTERSTART:    W61249    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P049 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W612..W612D6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD47),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W6124A(0),DISP=SHR                                   
+//************ LISTFIL                                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W6124A,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD W6124A                                                  
+//         SPACE=(63,(1,3),RLSE),AVGREC=K                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61249   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W61249,W61249,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W61249D1 DD  DSN=&&W6124A,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD W6124A                                                  
+//*                                                                             

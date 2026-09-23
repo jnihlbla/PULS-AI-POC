@@ -1,0 +1,66 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LEVERANSPLANEÖVERFÖRING VIA ODETTE/EDI - LOCAL SOURCING KINA               
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W221D3                                            
+//*                                                                             
+//*  ÅTERSTART:    SORT   NORMAL                                                
+//*                                                                             
+//*                W2216D   NORMAL                                              
+//*                                                                             
+//*                         LÄSER WDK6 WDL6 WDB6 WDF5 WDD9 WDK7                 
+//*                                                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W221P06D PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W221..W221D3,                                             
+//             INDUT=&W221..W221D3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W221PD6D),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W2216C(+0),DISP=SHR                                  
+//************ FIL MED ARTIKLAR                                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&&W2216C,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD FIL                                                     
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W2216D   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W2216D,W2216D,,00')                                  
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(0),DISP=SHR               -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDF5     INCLUDE MEMBER=WDF5                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//WDL6     INCLUDE MEMBER=WDL6                                                  
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//*                                                                             
+//W2216DD1 DD  DSN=&&W2216C,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W2216DD2 DD  DSN=&INDUT..W2216D(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ UTFIL TILL EDI (LPO) LOCAL SOURCING CHINA                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

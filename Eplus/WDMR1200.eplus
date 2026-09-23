@@ -1,0 +1,142 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WDMR1200                                              *        
+*                                                                      *        
+*  FUNKTION   :  X                                                     *        
+*                                                                      *        
+*  FÖRFATTARE :  ODD OLSEN                                             *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR12D1                                                                   
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+  NEW-JOB             1 80 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR12D2                                                                   
+*                                                                               
+  OLD-JOB             1 80 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE SORTFIL  FB(81 23409)                                                      
+*                                                                               
+  TMP-STYR            1  1 A                                                    
+  TMP-JOB             2 80 A                                                    
+  TMP-SORT            2  8 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE STYRFIL  FB(81 23409)                                                      
+*                                                                               
+  ST-STYR             1  1 A                                                    
+  ST-JOB              2 80 A                                                    
+  ST-JOB-NAME         2 17 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR12D5 FB(81 23409)                                                      
+*                                                                               
+  UT-STYR             1  1 A                                                    
+  UT-JOB              2 80 A                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* ARBETSAREOR                                                                   
+*                                                                               
+  CANCEL              W  1 A   VALUE 'A'                                        
+  NEW                 W  1 A   VALUE 'B'                                        
+  OLD                 W  1 A   VALUE 'Z'                                        
+  NU-TYP              W  1 A   VALUE ' '                                        
+  SPAR-JOB-NAME       W 17 A                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* MATCHNING AV PROCEDUR FILER                                                   
+*                                                                               
+JOB INPUT (WDMR12D1 KEY(NEW-JOB) +                                              
+           WDMR12D2 KEY(OLD-JOB))                                               
+  IF MATCHED                                                                    
+                                                                                
+    TMP-STYR = OLD                                                              
+    TMP-JOB = NEW-JOB                                                           
+    PUT SORTFIL                                                                 
+    GOTO JOB                                                                    
+  END-IF                                                                        
+                                                                                
+  IF WDMR12D1                                                                   
+                                                                                
+    TMP-STYR = NEW                                                              
+    TMP-JOB = NEW-JOB                                                           
+    PUT SORTFIL                                                                 
+    GOTO JOB                                                                    
+  END-IF                                                                        
+                                                                                
+  IF WDMR12D2                                                                   
+                                                                                
+    TMP-STYR = CANCEL                                                           
+    TMP-JOB = OLD-JOB                                                           
+    PUT SORTFIL                                                                 
+    GOTO JOB                                                                    
+  END-IF                                                                        
+                                                                                
+  GOTO JOB                                                                      
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* SORTERING AV PROCEDURFILER                                                    
+*                                                                               
+SORT SORTFIL  TO +                                                              
+     STYRFIL  USING (TMP-SORT, TMP-STYR)                                        
+NEWPAGE                                                                         
+*                                                                               
+* PLOCKA UT POSTER FÖR UPPDATERING                                              
+*                                                                               
+JOB INPUT (STYRFIL)                                                             
+                                                                                
+  IF ST-JOB-NAME ^= SPAR-JOB-NAME                                               
+                                                                                
+    IF NU-TYP = CANCEL                                                          
+      UT-STYR = 'D'                                                             
+      UT-JOB = SPAR-JOB-NAME                                                    
+      PUT WDMR12D5                                                              
+      UT-STYR = ' '                                                             
+    END-IF                                                                      
+                                                                                
+    SPAR-JOB-NAME = ST-JOB-NAME                                                 
+                                                                                
+    IF ST-STYR = CANCEL                                                         
+      NU-TYP = CANCEL                                                           
+    END-IF                                                                      
+                                                                                
+    IF ST-STYR = OLD                                                            
+      NU-TYP = OLD                                                              
+    END-IF                                                                      
+                                                                                
+    IF ST-STYR = NEW                                                            
+      NU-TYP = NEW                                                              
+      UT-JOB = ST-JOB                                                           
+      PUT WDMR12D5                                                              
+    END-IF                                                                      
+                                                                                
+  ELSE                                                                          
+    IF NU-TYP = CANCEL                                                          
+      IF ST-STYR ^= CANCEL                                                      
+        NU-TYP = NEW                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+    IF NU-TYP = NEW                                                             
+      UT-JOB = ST-JOB                                                           
+      PUT WDMR12D5                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+  GOTO JOB                                                                      

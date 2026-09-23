@@ -1,0 +1,75 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4792800                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCH TWO FILES - ONE FROM W47911 AND OTHER FROM      *        
+*                W47954 TO GET THE IDDEPT BASED ON IDDISTR, IDKUNDNR   *        
+*                AND IDORDNR-5                                         *        
+*                                                                      *        
+*  FÖRFATTARE :  UMESH JAIN                                            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W47928D1                                                                   
+*                                                                               
+%W47901A  'IN1-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP1 FB (16 0)                                                            
+*                                                                               
+%W47901A  'TEMP1-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W47928D2                                                                   
+*                                                                               
+%W479055  'IN2-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP2 FB (177 0)                                                           
+*                                                                               
+%W479055  'TEMP2-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W47928D3 FB(179 0)                                                         
+*                                                                               
+%W479028  'UT-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SORT ON IDDISTR, IDKUNDR, ORDERNR AND DEPT                            
+*                                                                               
+ SORT W47928D1 TO TEMP1 USING +                                                 
+    (IN1-IDDISTR, IN1-IDKUNDNR, IN1-IDORDNR7, IN1-IDDEPT)                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 2. SORT ON IDDISTR, IDKUNDR, ORDERNR                                     
+*                                                                               
+ SORT W47928D2 TO TEMP2 USING +                                                 
+    (IN2-IDDISTR, IN2-IDKUNDNR, IN2-IDORDNR5)                                   
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 3. MATCH FILES                                                           
+*                                                                               
+                                                                                
+JOB INPUT (TEMP1 KEY(TEMP1-IDDISTR, TEMP1-IDKUNDNR, TEMP1-IDORDNR7)+            
+           TEMP2 KEY(TEMP2-IDDISTR, TEMP2-IDKUNDNR, TEMP2-IDORDNR5))            
+                                                                                
+    IF MATCHED                                                                  
+      UT-W479028  = TEMP2-W479055                                               
+      IF TEMP1-IDDEPT NOT NUMERIC                                               
+        UT-IDDEPT = 0                                                           
+      ELSE                                                                      
+        UT-IDDEPT   = TEMP1-IDDEPT                                              
+      END-IF                                                                    
+      PUT W47928D3                                                              
+    ELSE                                                                        
+      IF TEMP2                                                                  
+        UT-W479028  = TEMP2-W479055                                             
+        UT-IDDEPT = 0                                                           
+        PUT W47928D3                                                            
+      END-IF                                                                    
+    END-IF                                                                      

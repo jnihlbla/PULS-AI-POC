@@ -1,0 +1,42 @@
+# This is a shell script which configures                                       
+# any environment variables for the Java JVM.                                   
+# Variables must be exported to be seen by the launcher.                        
+#. /etc/profile                                                                 
+export JAVA_HOME=/usr/lpp/java/J8.0_64                                          
+export PATH=/bin:"${JAVA_HOME}"/bin                                             
+LIBPATH=/lib:/usr/lib:"${JAVA_HOME}"/bin                                        
+LIBPATH="$LIBPATH":"${JAVA_HOME}"/lib/s390                                      
+LIBPATH="$LIBPATH":"${JAVA_HOME}"/lib/s390/j9vm                                 
+LIBPATH="$LIBPATH":"${JAVA_HOME}"/bin/classic                                   
+export LIBPATH="$LIBPATH":                                                      
+# Customize your CLASSPATH here                                                 
+APP_HOME=/vmp/vccs/prod/puls_sa                                                 
+CLASSPATH=$APP_HOME:"${JAVA_HOME}"/lib:"${JAVA_HOME}"/lib/ext                   
+# Add Application required jars to end of CLASSPATH                             
+for i in "${APP_HOME}"/*.jar; do                                                
+    CLASSPATH="$CLASSPATH":"$i"                                                 
+    done                                                                        
+export CLASSPATH="$CLASSPATH":                                                  
+# Set JZOS specific options                                                     
+# Use this variable to specify encoding for DD STDOUT and STDERR                
+export JZOS_OUTPUT_ENCODING=Cp278                                               
+# Use this variable to prevent JZOS from handling MVS operator commands         
+#export JZOS_ENABLE_MVS_COMMANDS=false                                          
+# Use this variable to supply additional arguments to main                      
+#export JZOS_MAIN_ARGS=""                                                       
+# Configure JVM options                                                         
+IJO="-Xms256m -Xmx512m -Xquickstart"                                            
+# Configure so that system.out and system.error are routed to SYSOUT            
+IJO="$IJO -Djzos.merge.sysout=true"                                             
+# Configure the property for config file path                                   
+IJO="$IJO -Dconfig.file.path=${APP_HOME}"                                       
+# Configure the trust store                                                     
+IJO="$IJO -Djavax.net.ssl.trustStore=${APP_HOME}/pulscustomks.jks"              
+IJO="$IJO -Djavax.net.ssl.trustStorePassword=********"                          
+# Uncomment to add debug ssl                                                    
+#IJO="$IJO -Djavax.net.debug=all"                                               
+# Uncomment the following to aid in debugging "Class Not Found" problems        
+#IJO="$IJO -verbose:class"                                                      
+# Uncomment the following if you want to run with Ascii file encoding..         
+#IJO="$IJO -Dfile.encoding=IBM-278"                                             
+export IBM_JAVA_OPTIONS="$IJO "                                                 

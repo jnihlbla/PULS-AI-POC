@@ -1,0 +1,61 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR SKROTFIL TILL FOLLOW UP                                             
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W612VA                                         
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W6127S      NORMAL                                           
+//*                LÄSER        WDD3 WDB6                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P17S PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W414..W612VA,                                            
+//             INDIN3=&W612..W612VA,                                            
+//             INDUT=&W612..W612VA                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD7S),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W4140S,DISP=SHR                                     
+//************ SKROT-ORDERRADER                                                 
+//*                                                                             
+//         DD  DSN=&INDIN3..W6124S,DISP=SHR                                     
+//************ SKROT-AVVIKELSER                                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&&W4140S,DISP=(NEW,PASS,DELETE),                             
+//************ SKROT-SORTERADE ORDERRADER, SORT: IDDC + IDARTNR                 
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W6127S   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W6127S,W6127S,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W6127SD1 DD  DSN=&&W4140S,DISP=(OLD,DELETE,DELETE)                            
+//************ SKROT-SORTERADE ORDERRADER                                       
+//*                                                                             
+//W6127SD2 DD  DSN=&INDUT..W6127S(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ SKROTFIL TILL FOLLOW UP                                          
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

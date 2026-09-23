@@ -1,0 +1,96 @@
+                                                                                
+**********************************************************************          
+*                                                                    *          
+* BESTÄLLT AV ........ : GÖTE B                                      *          
+*                                                                    *          
+* DATUM .............. : 900809                                      *          
+*                                                                    *          
+* ENGÅNGSJOBB (JA/NEJ) : NEJ                                         *          
+*                                                                    *          
+* UPPGIFT ... : LÄSER WDH4 OCH SKRIVER SEDAN EN LISTA                *          
+*               MED ALLA FÄLT                                        *          
+*                                                                    *          
+* ÄNDRING:....: 2002-01-11 VARKEN JCL ELLER PROC FINNS.              *          
+*               IDLEVNR KLART, MEN FLER DATAELEMENT ÄR FEL           *          
+**********************************************************************          
+*                                                                               
+FILE W01500D1                                                                   
+*                                                                               
+*                                                                               
+*                                                                               
+ W-SEGNAMN            1    6  A                                                 
+ W-NYCKEL             9   38  A                                                 
+*                                                                               
+*WDH401                                                                         
+ H401-IDARTNR        47   5  P                                                  
+*             LENGTH=51                                                         
+*                                                                               
+*WDH411                                                                         
+ H411-IDDISTR-FOM    47   3  P                                                  
+ H411-IDDISTR-TOM    50   3  P                                                  
+ H411-IDKUNDNR-FOM   53   4  P                                                  
+ H411-IDKUNDNR-TOM   57   4  P                                                  
+ H411-IDLEVNR        61   5  A                                                  
+ H411-KDCLAGER       66   1  P  . *  HÄR KRÄVS YTTERLIGARE ÄNDRING              
+ H411-KVBEART-GRP    67   4  A  OCCURS 5                                        
+                                                                                
+ H411-KVBEART-MIN    H411-KVBEART-GRP  4  P                                     
+*             LENGTH=84                                                         
+*                                                                               
+*                                                                               
+ IX                W   1  N  VALUE 1                                            
+ WS-IDARTNR        W   5  P                                                     
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+  NEWPAGE                                                                       
+*                                                                               
+JOB INPUT W01500D1                                                              
+                                                                                
+                                                                                
+                                                                                
+*                                                                               
+  IF W-SEGNAMN = 'WDH401'                                                       
+     WS-IDARTNR = H401-IDARTNR                                                  
+     PERFORM DISP-WDH401                                                        
+  ELSE                                                                          
+     IF W-SEGNAMN = 'WDH411'                                                    
+        PERFORM DISP-WDH411A                                                    
+        IX = 0                                                                  
+        DO WHILE IX < 5                                                         
+           PERFORM DISP-WDH411B                                                 
+           IX = IX + 1                                                          
+        END-DO                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+*                                                                               
+*                                                                               
+DISP-WDH401. PROC                                                               
+ DISPLAY NEWPAGE                                                                
+ DISPLAY COL 50 'DIREKTLEVERANTÖRSREGISTER WDH4;WDH401'                         
+ DISPLAY COL 50 'KONKAT. NYCKEL ' H401-IDARTNR                                  
+ DISPLAY    '   '                                                               
+ DISPLAY    'IDARTNR    -> ' H401-IDARTNR                                       
+ DISPLAY    '   '                                                               
+ END-PROC                                                                       
+*                                                                               
+DISP-WDH411A. PROC                                                              
+ DISPLAY COL 50 'DIREKTLEVERANTÖRSREG. LEV.SEGMENT WDH4;WDH411'                 
+ DISPLAY COL 50 'KONKAT. NYCKEL ' WS-IDARTNR H411-IDDISTR-FOM +                 
+                           H411-IDDISTR-TOM H411-IDKUNDNR-FOM +                 
+                           H411-IDKUNDNR-TOM                                    
+ DISPLAY    '   '                                                               
+ DISPLAY    'IDDISTR-FOM -> ' H411-IDDISTR-FOM  +                               
+    COL 30  'IDDISTR-TOM -> ' H411-IDDISTR-TOM  +                               
+    COL 60  'IDKUNDNR-FOM-> ' H411-IDKUNDNR-FOM +                               
+    COL 90  'IDKUNDNR-TOM-> ' H411-IDKUNDNR-TOM                                 
+ DISPLAY    'IDLEVNR     -> ' H411-IDLEVNR      +                               
+    COL 30  'KDCLAGER    -> ' H411-KDCLAGER                                     
+ END-PROC                                                                       
+*                                                                               
+DISP-WDH411B. PROC                                                              
+ DISPLAY                                        +                               
+    COL 60  'KVBEART-MIN ORDERKLASS ' IX '->+                                   
+             ' H411-KVBEART-MIN                                                 
+ END-PROC                                                                       
+*                                                                               

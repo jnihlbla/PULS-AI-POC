@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR PRISFILEN MED KALKYLPÅLÄGG FRÅN RTN W551B7                    
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W551B1                                      
+//*                                                                             
+//*  ÅTERSTART:    W55155    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W551P055 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W551..W551B1,                                            
+//             INDUT=&W551..W551B1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W551PD55),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W55105(+0),DISP=SHR                                 
+//         DD  DSN=&INDIN1..W55114(+0),DISP=SHR                                 
+//************ KALKYLPÅLÄGG                                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&&KALK,DISP=(NEW,PASS,DELETE),                               
+//************ KALKYLPÅLÄGG SORTERAD PÅ ARTIKELNUMMER                           
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55155   EXEC PGM=V16459,PARM='W55155/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(2000,2000))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W55155D1 DD  DSN=&INDIN1..W55154(+0),DISP=SHR                                 
+//************ PRISFIL FRÅN W551P054                                            
+//*                                                                             
+//W55155D2 DD  DSN=&&KALK,DISP=(OLD,DELETE,DELETE)                              
+//************ KALKYLPÅLÄGG SORTERADE PÅ ARTIKELNUMMER                          
+//*                                                                             
+//W55155D3 DD  DSN=&INDUT..W55155(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ PRISFILEN KOMPLETTERAD MED KALKYLPÅLÄGG                          
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//W55155D4 DD  DSN=&INDUT..W55155F(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ W55155-001  FELLISTA FRÅN MATCH MED KALKYLPÅLÄGG                 
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  

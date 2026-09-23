@@ -1,0 +1,64 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SOP - INTERFACE MOT V444                                                   
+//*  INPLANERING AV JOBB MED COM-OUTPUT PÅ VOLVODATA                            
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W980D2                                            
+//*                                                                             
+//*  ÅTERSTART:    W98022   NORMAL                                              
+//*                SORT1    NORMAL                                              
+//*                W98040   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W980P040 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W980..W980D2,                                             
+//             SOPREG=&INDRTE..SOP                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *             
+//W98022  EXEC PGM=W98022,PARM='SYSIN/'                                         
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W98022D1 DD  DSN=&INDRTE..CONSTANT(W980PLAN),DISP=SHR                         
+//W98022D2 DD  DSN=&W98022,DISP=(NEW,PASS,DELETE),                              
+//*                                                                             
+//             DATACLAS=PSEN                                                    
+//SOPDD1   DD  DSN=&SOPREG,DISP=SHR            -- SOP DATA BASE                 
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W980PD40),DISP=SHR                         
+//SORTIN   DD  DSN=&&W98022,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//SORTOUT  DD  DSN=&&W98023,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE POSTER FRÅN PLAN-KOMMANDOT                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W98040   EXEC PGM=W98040                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//W98040D1 DD  DSN=&&W98023,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W98040D2 DD  DUMMY,DCB=BLKSIZE=239                                            
+//*98040D2 DD  DSN=&INDIN..W98040(+0),DISP=SHR                                  
+//************ GAMLA POSTER TILL V444                                           
+//*                                                                             
+//W98040D3 DD  DSN=&INDUT..W98040(+1),DISP=(NEW,CATLG,DELETE),  -LIM(5)         
+//************ NYA POSTER TILL V444                                             
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

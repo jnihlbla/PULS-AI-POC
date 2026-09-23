@@ -1,0 +1,127 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  VECKORAPPORT - VCCS                                   *        
+*                                                                      *        
+*  FUNKTION   : -SKAPAR LAGERVÄRDESTRANSAR TYP RW9                     *        
+*                AV LAGERBANDEN FÖR CDC, SDC, NDC OCH LDC              *        
+*               -SKAPAR LAGERVÄRDESTRANSAR FÖR ORDERKÖSALDOT           *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON SEPT 2000                          *        
+*                                                                      *        
+*  INFILER    :  W011.W01177 VECKOLAGERBAND FÖR CDC                    *        
+*                W011.DCXX.W01184, DÄR XX= DC SDC, NDC, OCH LDC        *        
+*                W47984 ORDERKÖSALDO REGISTER                          *        
+*                                                                      *        
+*  UTFIL      :  W51712                                                *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W51712D1                                                                   
+* LAGERBAND CDC                                                                 
+%W011100 'CLB-'                                                                 
+                                                                                
+                                                                                
+FILE W51712D2                                                                   
+* LAGERBAND SDC, NDC, LDC                                                       
+%W01184  'SLB-'                                                                 
+                                                                                
+                                                                                
+FILE W51712D3                                                                   
+* ORDERKÖSALDOFIL                                                               
+%W47984   'OKS-'                                                                
+                                                                                
+                                                                                
+FILE W51712D4 FB(27 0)                                                          
+* LAGERSALDOFILER FÖR OVANSTÅENDE INFILER                                       
+%W51716   'UT-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+%WWDC99                                                                         
+                                                                                
+*-----------------------------------------------------------*                   
+* STEG1  SKAPA LAGERVÄRDESTRANSAR ÅT CDC OCH                                    
+*        SUPPLY-TERMINAL-TRANSAR ÅT SDC-DC91                                    
+*  >>>>> IDDC 12, SUPPLY TERMINAL LÄGGS PÅ DC 91 <<<<<<                         
+*-----------------------------------------------------------*                   
+                                                                                
+JOB INPUT NULL                                                                  
+                                                                                
+  GET W51712D1                                                                  
+  DO WHILE NOT EOF W51712D1                                                     
+***   SKAPA DC11 OCH DC12 POSTER, MAX TVÅ POSTER PER ARTNR                      
+    UT-IDARTNR        = CLB-IDARTNR                                             
+    UT-IDDC           = CDC-SE                                                  
+    UT-KVAKS          = +0                                                      
+    UT-KVLS           = CLB-KVLS                                                
+    UT-KVEFRS         = CLB-KVEFRS                                              
+    UT-KVRESS         = CLB-KVRESS                                              
+    UT-KVOKS          = +0                                                      
+    IF UT-KVLS NQ 0 OR UT-KVEFRS NQ 0 OR UT-KVRESS NQ 0                         
+      PUT W51712D4                                                              
+    END-IF                                                                      
+                                                                                
+***   DC 12-POSTEN, SUPPLY TERMINAL, LÄGGS PÅ DC 91 (SDC-NL-ET)                 
+    IF CLB-KVAKS-T NQ 0                                                         
+      UT-IDDC         = SDC-NL-ET                                               
+      UT-KVAKS        = CLB-KVAKS-T                                             
+      UT-KVLS         = +0                                                      
+      UT-KVEFRS       = +0                                                      
+      UT-KVRESS       = +0                                                      
+      UT-KVOKS        = +0                                                      
+      PUT W51712D4                                                              
+    END-IF                                                                      
+    GET W51712D1                                                                
+  END-DO                                                                        
+                                                                                
+*-----------------------------------------------------------*                   
+* STEG2  SKAPA TRANSAR ÅT SDC, NDC, OCH LDC, MAX EN TRANS                       
+*        PER INPOST                                                             
+*-----------------------------------------------------------*                   
+                                                                                
+  GET W51712D2                                                                  
+  DO WHILE NOT EOF W51712D2                                                     
+**** SKAPA SDC, NDC, LDC-LAGERVÄRD.TRANSAR DÄR SALDO FINNS                      
+    UT-IDARTNR        = SLB-SLAG-IDARTNR                                        
+    UT-IDDC           = SLB-SLAG-IDDC                                           
+    PERFORM S23-CHECK-UT-IDDC                                                   
+    IF UT-IDDC = SDC, LDC                                                       
+      UT-KVAKS        = SLB-SLAG-KVAKS-PAV + SLB-SLAG-KVAKS-SDC                 
+    ELSE                                                                        
+      UT-KVAKS        = +0                                                      
+    END-IF                                                                      
+    UT-KVLS           = SLB-SLAG-KVLS                                           
+    UT-KVEFRS         = SLB-SLAG-KVEFRS                                         
+    UT-KVRESS         = SLB-SLAG-KVRESS                                         
+    UT-KVOKS          = SLB-SLAG-KVOKS-BULK + SLB-SLAG-KVOKS-DAG                
+    IF UT-KVAKS  NQ +0 OR UT-KVLS  NQ +0 OR UT-KVEFRS NQ +0 OR +                
+       UT-KVRESS NQ +0 OR UT-KVOKS NQ +0                                        
+      PUT W51712D4                                                              
+    END-IF                                                                      
+    GET W51712D2                                                                
+  END-DO                                                                        
+                                                                                
+*-----------------------------------------------------------*                   
+* STEG3  SKAPA OKS LAGERVÄRDESSALDOPOSTER                                       
+*-----------------------------------------------------------*                   
+                                                                                
+  GET W51712D3                                                                  
+  DO WHILE NOT EOF W51712D3                                                     
+**** SKAPA OKS SALDOTRANSAR DÄR SALDO FINNS                                     
+    UT-IDARTNR        = OKS-IDARTNR                                             
+    UT-IDDC           = CDC-SE                                                  
+    UT-KVLS           = +0                                                      
+    UT-KVAKS          = +0                                                      
+    UT-KVRESS         = +0                                                      
+    UT-KVEFRS         = +0                                                      
+    UT-KVOKS          = OKS-KVOKS-BULK + OKS-KVOKS-DAG + OKS-KVOKS-VOR          
+    IF UT-KVOKS NE +0                                                           
+      PUT W51712D4                                                              
+    END-IF                                                                      
+    GET W51712D3                                                                
+  END-DO                                                                        
+                                                                                
+  STOP                                                                          
+*    --- S23-CHECK-UT-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'UT-'                                                                   
+*                                                                               

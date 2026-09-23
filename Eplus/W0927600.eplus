@@ -1,0 +1,90 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W0927600                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAM SOM LÄSER FIL FRÅN KDP OCH W01160             *        
+*                FÖR ATT HITTA DE ARTIKLAR SOM MATCHAR RESTEN KASTAS   *        
+*                                                                      *        
+*  NOTIS      :  OM DU ÄNDRA OCH KOMPILERAR I DETTA PGM SÅ             *        
+*                MÅSTE DU LÄGGA TILL FÖLJAND I KOMP-JCL:               *        
+*                //          MACLIB2='F1PUV2.PROD.EPLUSCPY',           *        
+*                FÖR ATT FÅ MED EPLUSCPY : PC6854F1                    *        
+*                                                                      *        
+*  FÖRFATTARE :  JOHAN NIHLBLAD AVD 9232                               *        
+*                                                                      *        
+*  DATUM      :  031010                                                *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W09276D1                                                                   
+*                                                                               
+%W01160   'IN1-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W09276D2                                                                   
+*                                                                               
+%PC6854F1 'IN2-'                                                                
+                                                                                
+AOINFTID6             W                     6   N                               
+WS-AA1                IN2-AOINFTID6-U       2   N                               
+WS-AA2                IN2-AOINFTID6-U    +2 2   N                               
+WS-VV1                IN2-AOINFTID6-U    +4 2   N                               
+                                                                                
+WS-AAVV               W                     4   N                               
+WS-AA                 WS-AAVV               2   N                               
+WS-VV                 WS-AAVV            +2 2   N                               
+                                                                                
+WS-AAVV-ALFA          W                     4   A                               
+                                                                                
+*NEWPAGE                                                                        
+FILE CRSORT  FB (47 0) VIRTUAL RETAIN                                           
+%PC6854F1 'SO-'                                                                 
+                                                                                
+                                                                                
+*                                                                               
+FILE W09276D3  VB (80 0)                                                        
+*                                                                               
+%W011042 'UT-'                                                                  
+                                                                                
+                                                                                
+*****************                                                               
+*   SORT        *                                                               
+*****************                                                               
+                                                                                
+SORT W09276D2 TO CRSORT USING (IN2-ARTNR)                                       
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  JOB INPUT (W09276D1 KEY (IN1-CLAG-IDARTNR)                       +            
+             W09276D2 KEY (IN2-ARTNR)                      )                    
+   IF MATCHED                                                                   
+      AOINFTID6 = IN2-AOINFTID6-U                                               
+      IF IN2-AOINFTID6-U NE 999952                                              
+        WS-AA = WS-AA2                                                          
+        WS-VV = WS-VV1                                                          
+      ELSE                                                                      
+        IN2-ACTION = 'B'                                                        
+        WS-AAVV    = 0                                                          
+      END-IF                                                                    
+      IF IN1-CLAG-TIURPROD NE WS-AAVV                                           
+        IF IN2-ACTION = 'T' 'Ä' 'N' 'B'                                         
+          UT-IDPTYP     = 'R05'                                                 
+          UT-IDARTNR = IN2-ARTNR                                                
+          WS-AAVV-ALFA = WS-AAVV                                                
+          UT-IDFVARDE-NYTT = WS-AAVV-ALFA                                       
+          UT-IDELMT     = 'TIURPROD'                                            
+          PUT W09276D3                                                          
+        END-IF                                                                  
+      END-IF                                                                    
+   END-IF                                                                       
+NEWPAGE                                                                         
+                                                                                

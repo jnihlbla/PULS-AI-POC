@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CHECKS THAT STOCK BALANCE ON USE-UP SUPERSESSIONS                          
+//*  HAS BEEN CONSUMED BEFORE SENDING TO VR                                     
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W111D1                                       
+//*                                                                             
+//*  ÅTERSTART:    W1117D00  NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P07D PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W111..W111D1,                                             
+//             INDREG=&W116,                                                    
+//             INDUT=&W111..W111D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN..W11170(+0),DISP=SHR                                  
+//************ FILE FROM W11170                                                 
+//SORTOUT  DD  DSN=&&W11170,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W111PD7D),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT02  EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN..W1117D(+0),DISP=SHR                                  
+//************ PENDING W11170 RECORDS FROM PREVIOUS RUNS SORTED                 
+//SORTOUT  DD  DSN=&&W1117D,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W111PD7D),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W1117D   EXEC PGM=V16459,PARM='W1117D/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W1117DD1 DD  DSN=&&W11170,DISP=(OLD,DELETE,DELETE)                            
+//************ FILE FROM W11170 SORTED                                          
+//*                                                                             
+//W1117DD2 DD  DSN=&&W1117D,DISP=(OLD,DELETE,DELETE)                            
+//************ PENDING W11170 RECORDS FROM PREVIOUS RUNS SORTED                 
+//*                                                                             
+//W1117DD3 DD  DSN=&INDREG..W11645(+0),DISP=SHR                                 
+//************ SUPERSESSION REGISTER FILE FROM W116D3                           
+//************ WITH FLERSATT BASED ON STOCK BALANCE                             
+//*                                                                             
+//W1117DD4 DD  DSN=&INDUT..W1117D(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ W11170 RECORDS PENDING UNTIL STOCK BALANCE IS USED UP            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W1117DD5 DD  DSN=&INDUT..W1117E(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ W11170 RECORDS TO SEND TO VR                                     
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

@@ -1,0 +1,265 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4285000                                              *        
+*                                                                      *        
+*  FUNCTION   :  PROGRAM TO READ WDA2 FILE AND CREATE TWO OUTPUT FILES *        
+*                WHICH WILL BE USED IN THE W4285100 PROGRAM TO GENERAT *        
+*                THE 'DEALER RETURN WEEKLY FOLLOW UP' REPORT           *        
+*                                                                      *        
+*     DATE        NAME                     INSTALLATION E'TRACKER      *        
+*     111108      SHILPA MADHURI           E-TRACKER 10143271          *        
+*                                                                      *        
+*     120410      SUSANNE OLSSON           E-TR. 10143271  RÄTTA FEL   *        
+*     121101      SUSANNE OLSSON           E-TR. 10181786  WEB AU(7838)*        
+*                                                          FOLLOW-UP   *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W42850D1                                                                   
+W42850-IDPTYP 1 3    A                                                          
+WDA201-DATA   4 145  A                                                          
+WDA211-DATA   4 288  A                                                          
+WDA221-DATA   4 1051 A                                                          
+*                                                                               
+*                                                                               
+FILE W42850D2 FB (115 0)                                                        
+%W42850   'W42850-'                                                             
+*                                                                               
+FILE W42850D3 FB (37 0)                                                         
+%W42851   'W42851-'                                                             
+*                                                                               
+************************************************                                
+*    WORKING STORAGE DECLARATIONS              *                                
+************************************************                                
+*                                                                               
+%WDA201                                                                         
+*                                                                               
+%WDA211                                                                         
+*                                                                               
+*  CHECK IDDC VALUES                                                            
+%WWDC99                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*    --- TO CHECK IF "WEB DC"                                                   
+%WL10WBDC                                                                       
+*                                                                               
+                                                                                
+*                                                                               
+%WDATAREA                                                                       
+*                                                                               
+%W418OKOD  'OKOD-'                                                              
+*                                                                               
+*WWDC02                                                                         
+*                                                                               
+%WORKAREA                                                                       
+*                                                                               
+*---------------- LÄNKAREA FÖR DATUMKORT                                        
+%WDATKORT     'DAT-'                                                            
+*                                                                               
+WDATKONV        W  8   A   VALUE 'WDATKONV'                                     
+WORKDAY         W  8   A   VALUE 'WORKDAY '                                     
+W418OKOD        W  8   A   VALUE 'W418OKOD'                                     
+PROGRAM-NAMN    W  6   A   VALUE 'W42850'                                       
+DATUMKORT-ID    W  6   A   VALUE 'WDATUM'                                       
+*                                                                               
+JA              W  1   A   VALUE 'J'                                            
+NEJ             W  1   A   VALUE 'N'                                            
+YES             W  1   A   VALUE 'Y'                                            
+FORSTA-GANG     W  1   A   VALUE 'J'                                            
+HELP-IDDC       W  2   A                                                        
+WS-IDDC-RET     W  2   A                                                        
+WS-IDDISTR      W  4   N   0                                                    
+WS-IDKUNDNR     W  6   N   0                                                    
+WS-IDRAPPNR     W  7   N   0                                                    
+WS-TOT-KVDAGAR  W  4   N   0                                                    
+W-TIAAVV-ALFA   W  4   A                                                        
+W-TIAAVV-NUM W-TIAAVV-ALFA  4   N                                               
+WEEK-TIAAVV-ALFA   W  4   A                                                     
+WEEK-TIAAVV-NUM WEEK-TIAAVV-ALFA  4   N                                         
+THIS-WEEK       W  4   N                                                        
+WS-LEV-BINDATE  W  6   N                                                        
+WS-DATEDIFF     W  6   N                                                        
+*S-TICC         W  2   A                                                        
+*S-TIYYMMDD     W  6   A                                                        
+WS-DATUM        W  6   N                                                        
+WS-AAR          WS-DATUM   2         N                                          
+WS-MAANAD       WS-DATUM  +2  2      N                                          
+WS-DAG          WS-DATUM  +4  2      N                                          
+TEMP-IDDC       W  2   A        VALUE  '  '                                     
+TEMP-IDFTG      W  2   N   0                                                    
+TEMP-SURADER    W  9   N   0                                                    
+TEMP-KDANMTYP   W  1   N   0                                                    
+WS-SURADER      W  9   N   0                                                    
+                                                                                
+                                                                                
+W-KONV-AAAAMMDD W  8   N                                                        
+W-KONV-AAMMDD   W-KONV-AAAAMMDD +2  6  N                                        
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEP 1A:READ FILE AND SELECT THE RECORDS WITH COMPANY CODE 57 AND 60          
+*      1B:SELECT ONLY LDC AND CHINA DC RECORDS WITH DISCREPENCY REASON          
+*         CODE VALUES OF RETURN PERMIT ONLY                                     
+*      1C:CHECK IF RETURN DATE IS GREATER THAN ZERO                             
+*------------------------------------------------------------                   
+*                                                                               
+JOB INPUT W42850D1 START A-INIT                                                 
+*                                                                               
+IF W42850-IDPTYP = '201'                                                        
+   ANM-WDA201 = WDA201-DATA                                                     
+ELSE                                                                            
+  IF W42850-IDPTYP = '211'                                                      
+     LEV-WDA211 = WDA211-DATA                                                   
+     HELP-IDDC      = LEV-IDDC-RET                                              
+     PERFORM S23-CHECK-HELP-IDDC                                                
+     PERFORM X-CHECK-IF-WEB-REPORT                                              
+     IF WBDC-FLWEBDC = 'J'                                                      
+        OKOD-KDANMORS  = LEV-KDANMORS                                           
+        CALL W418OKOD USING OKOD-W418OKOD                                       
+        IF OKOD-FL-RETILL = JA OR OKOD-FL-INTERNUPPACKNING = JA                 
+          DAT-KDDATFORM                            = 'AAMMDD'                   
+          IF ANM-DARETANK > +0                                                  
+           W42850-DARETANK                       = ANM-DARETANK                 
+*STEP2: CHECK BINNING DATE FOR TODAYS DATE                                      
+           IF LEV-TIINLINL > +0                                                 
+             DAT-I-TIDATUM                          = LEV-TIINLINL              
+             CALL WDATKONV USING (DAT-KDDATFORM     +                           
+                                  DAT-I-TIDATUM     +                           
+                                  DAT-O-TIDATUM     +                           
+                                  DAT-KDSVAR)                                   
+             IF DAT-KDSVAR = ' '                                                
+               W42850-TISAAPP-INLINL-TISEKEL        = DAT-TISEKEL               
+               W42850-TISAAVV-INLINL-TISEKEL        = DAT-TISEKEL               
+               W42850-TISAAPP-INLINL-TIAAPP         = DAT-TIAAPP                
+               W-TIAAVV-ALFA                        = DAT-TIAAVV-GRP            
+               W42850-TISAAVV-INLINL-TIAAVV         = W-TIAAVV-NUM              
+               WS-LEV-BINDATE                       = DAT-TIAAMMDD              
+             ELSE                                                               
+               DISPLAY 'FEL FRÅN DATKONV TIINLINL = ' LEV-TIINLINL              
+               STOP EXECUTE                                                     
+             END-IF                                                             
+             IF W-TIAAVV-NUM        =  THIS-WEEK                                
+                W42850-TIINLINL     = LEV-TIINLINL                              
+                W42850-DARETANK     = ANM-DARETANK                              
+                W42850-KDMFUP       = WBDC-KDMFUP                               
+                W42850-IDDC-RET     = LEV-IDDC-RET                              
+                W42850-IDDISTR      = ANM-IDDISTR                               
+                W42850-IDKUNDNR     = ANM-IDKUNDNR                              
+                W42850-IDRAPPNR     = ANM-IDRAPPNR                              
+                W42850-KDANMORS     = LEV-KDANMORS                              
+                W42850-KVRETINL     = LEV-KVRETINL                              
+                W42850-KVAVV-KVANT  = LEV-KVAVV-KVANT                           
+                W42850-KVRETINL-SKR = LEV-KVRETINL-SKR                          
+                W42850-KVAVV-KVAL   = LEV-KVAVV-KVAL                            
+                W42850-IDARTNR      = LEV-IDARTNR                               
+                W42850-SUARTSTD     = 0                                         
+                W42850-ADCITY       = '                    '                    
+                IF LEV-TIINLINL > +0 AND +                                      
+                 ANM-DARETANK > +0                                              
+                 WORK-KDCALL         = 001                                      
+                 WORK-IDDC           = LEV-IDDC-RET                             
+                 W-KONV-AAAAMMDD     = ANM-DARETANK                             
+                 WORK-TIAAMMDD-FOM   = W-KONV-AAMMDD                            
+                 WORK-TIAAMMDD-TOM   = WS-LEV-BINDATE                           
+                 CALL WORKDAY  USING (WORK-KDCALL     +                         
+                                      WORK-DATE-AREA  +                         
+                                      WORK-KDSVAR)                              
+                 IF WORK-KDSVAR = ' '                                           
+                   W42850-KVDAGAR-INL = WORK-KVWORKD                            
+                   PUT W42850D2                                                 
+                 END-IF                                                         
+                END-IF                                                          
+*---         ELSE                                                               
+*---           DISPLAY 'DIFF IN DATE' W-TIAAVV-NUM THIS-WEEK                    
+             END-IF                                                             
+           END-IF                                                               
+*STEP2: CALCULATE THE TIME TAKEN FROM RETURNING TO BINNING                      
+                                                                                
+                                                                                
+*STEP3: CHECK FOR NOT BINNED LINES. IF THE LINES ARE NOT TREATED THEN           
+*       THE BINNING DATE IS ZERO.                                               
+              IF LEV-TIINLINL = 0                                               
+                IF LEV-KDKREBEH      = 'Y' OR  +                                
+                   LEV-KDKREBEH      = 'J' OR  +                                
+                   LEV-KDKREBEH      = 'C'                                      
+                     W42851-KDMFUP   = WBDC-KDMFUP                              
+                     W42851-IDDC-RET = LEV-IDDC-RET                             
+                     W42851-IDARTNR  = LEV-IDARTNR                              
+                     W42851-KVLEVANM-BEKR = LEV-KVLEVANM-BEKR                   
+                     W42851-SUARTSTD = 0                                        
+                     W42851-SURADER  = 0                                        
+                     PUT W42850D3                                               
+                END-IF                                                          
+              END-IF                                                            
+*---      ELSE                                                                  
+*---         DISPLAY 'DARETANK NT > 0' ANM-DARETANK                             
+          END-IF                                                                
+        END-IF                                                                  
+     END-IF                                                                     
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*--------------------------------------------------------*                      
+* A-INIT  HÄMTAR DAGENS DATUM, INNEVARANDE VECKA VV      *                      
+*--------------------------------------------------------*                      
+*                                                                               
+ A-INIT.  PROC                                                                  
+*                                                                               
+ CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DAT-DATUMKORT)                   
+*                                                                               
+ WS-AAR    = DAT-D-AAR                                                          
+ WS-MAANAD = DAT-D-MAANAD                                                       
+ WS-DAG    = DAT-D-DAG                                                          
+ DISPLAY ' DAGENS DATUM : ' WS-DATUM                                            
+*                                                                               
+           DAT-KDDATFORM                      = 'AAMMDD'                        
+      IF WS-DATUM     > +0                                                      
+       DAT-I-TIDATUM                          = WS-DATUM                        
+       CALL WDATKONV USING (DAT-KDDATFORM     +                                 
+                           DAT-I-TIDATUM      +                                 
+                           DAT-O-TIDATUM      +                                 
+                           DAT-KDSVAR)                                          
+       IF DAT-KDSVAR = ' '                                                      
+         WEEK-TIAAVV-ALFA                     = DAT-TIAAVV-GRP                  
+         THIS-WEEK                            = WEEK-TIAAVV-NUM                 
+       ELSE                                                                     
+         DISPLAY ' *************************** '                                
+         DISPLAY ' FEL VID ANROP TILL WDATKONV '                                
+         DISPLAY ' *************************** '                                
+                                                                                
+         STOP EXECUTE                                                           
+       END-IF                                                                   
+      ELSE                                                                      
+         THIS-WEEK                            =  0000                           
+      END-IF                                                                    
+                                                                                
+ DISPLAY ' INNEVARANDE VECKA ' THIS-WEEK                                        
+ END-PROC                                                                       
+                                                                                
+                                                                                
+*    --- S23-CHECK-HELP-IDDC (MACRO PROCEDUR)                                   
+%WWDC02 'HELP-'                                                                 
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+X-CHECK-IF-WEB-REPORT. PROC                                                     
+   WBDC-IDDC = HELP-IDDC                                                        
+   CALL WL10WBDC USING WBDC-AREA                                                
+END-PROC                                                                        
+                                                                                
+*                                                                               
+*STEP4 :SORT THE FILE ON COMPANY CODE, RETURN DC, DIST ID, CUST ID,             
+*       DISC REPORT NO, DISC REPORT CODE                                        
+                                                                                
+SORT W42850D2 TO W42850D2 USING +                                               
+        (W42850-KDMFUP, W42850-IDDC-RET, W42850-KDANMORS)                       
+                                                                                
+*STEP5 :SORT THE FILE ON COMPANY CODE ,RETURN DC AND DISC CODE                  
+                                                                                
+SORT W42850D3 TO W42850D3 USING +                                               
+        (W42851-KDMFUP, W42851-IDDC-RET, W42851-IDARTNR)                        
+                                                                                

@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LIST ALL EXCHANGE PARTS AND THE CORRESPONDING PROD                         
+//*  NUMBERS AND SEND TO SITTARD WEEKLY.                                        
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W371V3                                         
+//*                                                                             
+//*  RESTART:      W3715E    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P05E PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W803,                                                     
+//             INDUT=&W371..W371V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W3715E   EXEC PGM=V16459,PARM='W3715E/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W3715ED1 DD  DSN=&INDIN..W3718A(0),DISP=SHR                                   
+//************ EXCHANGE INFO FROM BYART, BYPRO AND BYLEV                        
+//*                                                                             
+//W3715ED2 DD  DSN=&INDUT..W3715E(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ EXCHANGE PARTS WITH CORRESPONDING PROD NR TO SITTARD             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

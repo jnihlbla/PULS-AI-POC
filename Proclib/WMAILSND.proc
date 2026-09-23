@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  FUNCTION: Send mail using the specified mail api type.           *         
+//*            Maintained by dept 923x                                *         
+//*                                                                   *         
+//*    APITYPE = SMTP - Use Simple Mail Transm. Protocol (SMTPAPIX)   *         
+//*                     This is the default.                          *         
+//*              IMAP - Use MS mail api via Exchange server (MAILXC)  *         
+//*                                                                   *         
+//*    CONDS= '(0,GT)'- Run this procedure regardless of return code  *         
+//*                     from previous steps (default)                 *         
+//*         = '(?,LE)'- Skip mail sending if the RC from prevous      *         
+//*                     steps is ? or higher.                         *         
+//*                                                                   *         
+//*    REQS = mbr-name - Name of member in CONSTANT library containing*         
+//*                     requests for sending mail. Alternatively      *         
+//*                     requests may be specified via //SYSIN DD *    *         
+//*                     in the JCL of the job.                        *         
+//*                     For request syntax details, see separate      *         
+//*                     documentation on the intranet.                *         
+//*                                                                   *         
+//*    DSIN = ds-name - Name of a file with the mail content.         *         
+//*                     Alternatively the mail content may be         *         
+//*                     provided in-line after the "MAIL" command     *         
+//*                     in the request.                               *         
+//*                                                                   *         
+//*    FROM = usage is depenent on APITYPE.                           *         
+//*    1) SMTP:                                                       *         
+//*         = 'FROM=mail.id@volvo.com'                                *         
+//*                   - The mail-id to be used as "sender" of the     *         
+//*                     mail. If ommitted, mail-id of user running the*         
+//*                     job is used, or else "noreply@volvo.com" if   *         
+//*                     no id is found. If specified, this id will    *         
+//*                     receive confirmation or error messages from   *         
+//*                     the mail/fax server.                          *         
+//*                     NOTE: the syntax is "FROM='FROM=...' "        *         
+//*                                                                   *         
+//*    2) IMAP:                                                       *         
+//*         = mbr-name - Name of member in CONSTANT library containing*         
+//*                     log-on details for an Outlook mail-box to be  *         
+//*                     used as sender of the mail. Format:           *         
+//*                       line 1: Outlook account of mail box         *         
+//*                       line 2: Outlook password                    *         
+//*                       line 3: IMAP server (webmaila.it.volvo.net) *         
+//*                     Alternatively this information may be speci-  *         
+//*                     fied via //APIUSER DD *  in the JCL of the    *         
+//*                     job.  Confirmation or error messages from the *         
+//*                     mail/fax server will be sent to this mail-box.*         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WMAILSND PROC APITYPE=SMTP,                                                   
+//             CONDS='(0,GT)',                                                  
+//             REQS=MISSING,                                                    
+//             DSIN=NULLFILE,                                                   
+//             FROM=&FROMDFLT                                                   
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//     INCLUDE MEMBER=WMAI&APITYPE                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//MABEND  EXEC PGM=ABEND,PARM='1234567890123456',                               
+//             COND=((3,GE,M),&CONDS)                                           
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            

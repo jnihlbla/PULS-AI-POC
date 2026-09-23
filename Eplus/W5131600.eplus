@@ -1,0 +1,419 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W513   SUMMERAD POSTER FÖR INV LISTOR                 *        
+*                FREKVENS, VECKOSLUT.                                  *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER POSTER FRÅN W51316 OCH W51072                   *        
+*                OCH SKAPAR LISTA MED HIGH FREKVENT MM                 *        
+*                                                                      *        
+*  FÖRFATTARE :  MARKUS ASPFJÄLL                                       *        
+*                                                                      *        
+*  INFILER    :  W513.W513D2.W51316                                    *        
+*  INFILER    :  W513.W51372                                           *        
+*  INFILER    :  W011.W01172                                           *        
+*                                                                      *        
+*  UTDATA     :  FIL W51316                                            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W51316D1                                                                   
+%W51371   'IN1-'                                                                
+* ARTIKEL POSTER SOM ÄR KVAR ATT INVENTERAS                                     
+* W513.W51372(+0)                                                               
+*                                                                               
+                                                                                
+FILE W51316D2                                                                   
+%W51371   'IN2-'                                                                
+* ARTKEL POSTER FÖR ALLA SOM SKALL INVENTERAS I ÅR                              
+* W51316                                                                        
+*                                                                               
+                                                                                
+FILE W51316D3                                                                   
+%W011100  'LB1-'                                                                
+                                                                                
+FILE TPFIL1   FB(50 0)                                                          
+TP1-IDURVAL-INV 1  1  A                                                         
+TP1-IDDC        2  2  A                                                         
+TP1-ADLAGOMR    4  2  N                                                         
+TP1-IDARTNR     6  9  N                                                         
+TP1-PRARTSTD   16  5  P 2                                                       
+TP1-SUARTSTD   22  5  P 2                                                       
+TP1-KVLS       28  9  N                                                         
+TP1-TEXT       40  3  A                                                         
+                                                                                
+FILE TPFIL2   FB(50 0)                                                          
+TP2-IDURVAL-INV 1  1  A                                                         
+TP2-IDDC        2  2  A                                                         
+TP2-ADLAGOMR    4  2  N                                                         
+TP2-IDARTNR     6  9  N                                                         
+TP2-PRARTSTD   16  5  P 2                                                       
+TP2-SUARTSTD   22  5  P 2                                                       
+TP2-KVLS       28  9  N                                                         
+TP2-TEXT       40  3  A                                                         
+                                                                                
+FILE W51316D4 PRINTER  VB(149 0)                                                
+*---------------------------------------------------------*                     
+* ARBETS-AREOR                                            *                     
+*---------------------------------------------------------*                     
+PROGRAM-NAMN           W   8   A        VALUE 'W5131300'                        
+DATUMKORT-ID           W   6   A        VALUE 'WDATUM'                          
+%WDATKORT                                                                       
+                                                                                
+W-DATUM              W   6  N                                                   
+W-AA     W-DATUM         2  N                                                   
+W-MANAD  W-DATUM     +2  2  N                                                   
+W-DAG    W-DATUM     +4  2  N                                                   
+                                                                                
+* ÅRETS DATUM                                                                   
+W-AKT-AAAAVV           W   6  N                                                 
+AKT-AA  W-AKT-AAAAVV       2  N                                                 
+AKT-AAR W-AKT-AAAAVV  +2   2  N                                                 
+AKT-VV  W-AKT-AAAAVV  +4   2  N                                                 
+AKT-AAAA W-AKT-AAAAVV      4  N                                                 
+                                                                                
+W-RUBRIK1                 W 144   A                                             
+W-RUB1-LINE01 W-RUBRIK1           8   A VALUE 'W51316-0'                        
+W-RUB1-IDDC   W-RUBRIK1    +8     2   A                                         
+W-RUB1-LINE02 W-RUBRIK1    +19    8   A VALUE 'VCCS'                            
+W-RUB1-LINE03 W-RUBRIK1    +39   36   A                          +              
+  VALUE 'LIST OF SELECTION REGISTER PER GROUP'                                  
+W-RUB1-LINE04 W-RUBRIK1    +90    3   A VALUE 'DC:'                             
+W-RUB1-IDDC1  W-RUBRIK1    +93    2   A                                         
+W-RUB1-LINE05 W-RUBRIK1    +100   5   A VALUE 'DATE:'                           
+W-RUB1-DATE   W-RUBRIK1    +105   6   N                                         
+W-RUB1-LINE06 W-RUBRIK1    +112   5   A VALUE 'WEEK:'                           
+W-RUB1-WEEK   W-RUBRIK1    +118   2   N                                         
+                                                                                
+W-RUBRIK2                 W 144   A                                             
+W-RUB2-LINE01 W-RUBRIK2           7   A VALUE 'REMAINS'                         
+W-RUB2-LINE02 W-RUBRIK2    +75    7   A VALUE 'TOTAL  '                         
+                                                                                
+W-RUBRIK3                 W 144   A                                             
+W-RUB3-LINE01 W-RUBRIK3     +6   19   A                  +                      
+  VALUE 'HIGH FREQUENT PARTS'                                                   
+W-RUB3-LINE02 W-RUBRIK3    +29   19   A                  +                      
+  VALUE 'LOW FREQUENT PARTS '                                                   
+W-RUB3-LINE03 W-RUBRIK3    +52   19   A                  +                      
+  VALUE 'OTHER              '                                                   
+W-RUB3-LINE04 W-RUBRIK3     +75  19   A                  +                      
+  VALUE 'HIGH FREQUENT PARTS'                                                   
+W-RUB3-LINE05 W-RUBRIK3    +98   19   A                  +                      
+  VALUE 'LOW FREQUENT PARTS '                                                   
+W-RUB3-LINE06 W-RUBRIK3    +121  19   A                  +                      
+  VALUE 'OTHER              '                                                   
+                                                                                
+W-RUBRIK4                 W 144   A                                             
+W-RUB4-LINE00 W-RUBRIK4          4    A VALUE 'AREA'                            
+W-RUB4-LINE01 W-RUBRIK4    +6    18   A VALUE 'QTY        SUM STD'              
+W-RUB4-LINE02 W-RUBRIK4    +29   18   A VALUE 'QTY        SUM STD'              
+W-RUB4-LINE03 W-RUBRIK4    +52   18   A VALUE 'QTY        SUM STD'              
+W-RUB4-LINE04 W-RUBRIK4    +75   18   A VALUE 'QTY        SUM STD'              
+W-RUB4-LINE05 W-RUBRIK4    +98   18   A VALUE 'QTY        SUM STD'              
+W-RUB4-LINE06 W-RUBRIK4    +121  18   A VALUE 'QTY        SUM STD'              
+                                                                                
+W-RUBRIK5                 W 144   A                                             
+W-RUB5-LINE00 W-RUBRIK5          9    A VALUE 'PILFERAGE'                       
+W-RUB5-LINE01 W-RUBRIK5     +70  9    A VALUE 'PILFERAGE'                       
+                                                                                
+W-RUBRIK6                 W 144   A                                             
+W-RUB6-LINE00 W-RUBRIK6          4    A VALUE '    '                            
+W-RUB6-LINE01 W-RUBRIK6    +6    18   A VALUE 'QTY        SUM STD'              
+W-RUB6-LINE04 W-RUBRIK6    +75   18   A VALUE 'QTY        SUM STD'              
+                                                                                
+PR-NIVA                W   4   A                                                
+PR-TEXT                W   3   A                                                
+PR-ADLAGOMR            W   2   N                                                
+PR-KVLS-1-REM          W   3  P 0 VALUE 0 MASK 'ZZ ZZ9-'                        
+PR-KVLS-2-REM          W   3  P 0 VALUE 0 MASK 'ZZ ZZ9-'                        
+PR-KVLS-3-REM          W   3  P 0 VALUE 0 MASK 'ZZ ZZ9-'                        
+PR-KVLS-4-REM          W   3  P 0 VALUE 0 MASK 'ZZ ZZ9-'                        
+PR-SUARTSTD-1-REM      W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+PR-SUARTSTD-2-REM      W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+PR-SUARTSTD-3-REM      W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+PR-SUARTSTD-4-REM      W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+PR-KVLS-1-TOT          W   3  P 0 VALUE 0 MASK 'ZZ ZZ9-'                        
+PR-KVLS-2-TOT          W   3  P 0 VALUE 0 MASK 'ZZ ZZ9-'                        
+PR-KVLS-3-TOT          W   3  P 0 VALUE 0 MASK 'ZZ ZZ9-'                        
+PR-KVLS-4-TOT          W   3  P 0 VALUE 0 MASK 'ZZ ZZ9-'                        
+PR-SUARTSTD-1-TOT      W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+PR-SUARTSTD-2-TOT      W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+PR-SUARTSTD-3-TOT      W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+PR-SUARTSTD-4-TOT      W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+                                                                                
+W-ANTAL-91-REM         W   5  N   VALUE 0                                       
+W-SUARTSTD-91-REM      W   6  P 2 VALUE 0 MASK 'ZZZ ZZZ ZZZ,Z9-'                
+W-ANTAL-91-TOT         W   5  N   VALUE 0                                       
+W-SUARTSTD-91-TOT      W   6  P 2 VALUE 0 MASK 'ZZZ ZZZ ZZZ,Z9-'                
+                                                                                
+W-ANTAL-TOT-REM        W   3  P 0 VALUE 0                                       
+W-SUMMA-TOT-REM        W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+W-ANTAL-TOT            W   3  P 0 VALUE 0                                       
+W-SUMMA-TOT            W  11  N 0 VALUE 0 MASK 'ZZ.ZZZ.ZZZ.ZZ9'                 
+W-TEXT                 W   3  A                                                 
+W-IDURVAL              W   1  A                                                 
+                                                                                
+W-FORSTA-POST  W 1 A                                                            
+                                                                                
+*----------------------------------------------------*                          
+*  JOB1 PLOCKA FRAM CDC POSTER OCH SORTERA PÅ ARTIKEL*                          
+*----------------------------------------------------*                          
+JOB INPUT (W51316D1 KEY (IN1-IDARTNR) W51316D2 KEY (IN2-IDARTNR))               
+ IF W51316D1 AND IN1-IDDC EQ '11'                                               
+* ARTIKLAR SOM FINNS KVAR FÖR INVENTERING                                       
+  TP1-IDURVAL-INV = IN1-IDURVAL-INV                                             
+  TP1-IDDC        = IN1-IDDC                                                    
+  TP1-ADLAGOMR    = IN1-ADLAGOMR                                                
+  TP1-IDARTNR     = IN1-IDARTNR                                                 
+  TP1-PRARTSTD    = 0                                                           
+  TP1-SUARTSTD    = 0                                                           
+  TP1-KVLS        = 0                                                           
+  TP1-TEXT        = 'REM'                                                       
+  PUT TPFIL1                                                                    
+ END-IF                                                                         
+                                                                                
+ IF W51316D2 AND IN2-IDDC EQ '11'                                               
+* ARTIKLAR SOM SKA INVENTERAS I ÅR                                              
+  TP1-IDURVAL-INV = IN2-IDURVAL-INV                                             
+  TP1-IDDC        = IN2-IDDC                                                    
+  TP1-ADLAGOMR    = IN2-ADLAGOMR                                                
+  TP1-IDARTNR     = IN2-IDARTNR                                                 
+  TP1-PRARTSTD    = 0                                                           
+  TP1-SUARTSTD    = 0                                                           
+  TP1-KVLS        = 0                                                           
+  TP1-TEXT        = 'TOT'                                                       
+  PUT TPFIL1                                                                    
+ END-IF                                                                         
+                                                                                
+*-------------------------------------------------------------*                 
+* JOB 2 SORT                                                                    
+*-------------------------------------------------------------*                 
+                                                                                
+SORT TPFIL1 TO TPFIL1 USING (TP1-IDARTNR)                                       
+                                                                                
+*-------------------------------------------------------------*                 
+*  JOB3 MATCHA TPFIL MED LAGERBANDET OCH SKAPA EN TEMPFIL     *                 
+*  MED IDDC LAGEROMR OCH ARTIKEL PRIS OCH IDURVAL-INV OCH KVLS*                 
+*-------------------------------------------------------------*                 
+                                                                                
+JOB INPUT (W51316D3 KEY (LB1-IDARTNR) TPFIL1 KEY (TP1-IDARTNR))                 
+ IF MATCHED                                                                     
+   TP2-IDURVAL-INV = TP1-IDURVAL-INV                                            
+   TP2-IDDC        = TP1-IDDC                                                   
+   TP2-ADLAGOMR    = TP1-ADLAGOMR                                               
+   TP2-IDARTNR     = TP1-IDARTNR                                                
+   TP2-KVLS        = LB1-KVLS +                                  +              
+    LB1-KVAKS-CDC + LB1-KVAKS-PAV + LB1-KVAKS-T + LB1-KVEFRS                    
+   TP2-SUARTSTD    = LB1-PRARTSTD * TP2-KVLS                                    
+   TP2-PRARTSTD    = LB1-PRARTSTD                                               
+   TP2-TEXT        = TP1-TEXT                                                   
+   PUT TPFIL2                                                                   
+ ELSE                                                                           
+   IF TPFIL1                                                                    
+*    DISPLAY 'ART SAKNAS ' TP1-IDARTNR                                          
+     CONTINUE                                                                   
+   END-IF                                                                       
+ END-IF                                                                         
+*--------------------------------------------------------------------*          
+*  PRINTA UT POSTERNA                                                           
+*  JOB 4                                                                        
+*--------------------------------------------------------------------*          
+*                                                                               
+ JOB INPUT TPFIL2 START A-INIT                                                  
+                                                                                
+  W-RUB1-IDDC   EQ   TP2-IDDC                                                   
+  W-RUB1-IDDC1  EQ   TP2-IDDC                                                   
+  PR-ADLAGOMR   EQ   TP2-ADLAGOMR                                               
+  PR-TEXT       EQ   'SUM'                                                      
+  PR-KVLS-1-REM        = 0                                                      
+  PR-SUARTSTD-1-REM    = 0                                                      
+  PR-KVLS-2-REM        = 0                                                      
+  PR-SUARTSTD-2-REM    = 0                                                      
+  PR-KVLS-3-REM        = 0                                                      
+  PR-SUARTSTD-3-REM    = 0                                                      
+  PR-KVLS-4-REM        = 0                                                      
+  PR-SUARTSTD-4-REM    = 0                                                      
+  PR-KVLS-1-TOT        = 0                                                      
+  PR-SUARTSTD-1-TOT    = 0                                                      
+  PR-KVLS-2-TOT        = 0                                                      
+  PR-SUARTSTD-2-TOT    = 0                                                      
+  PR-KVLS-3-TOT        = 0                                                      
+  PR-SUARTSTD-3-TOT    = 0                                                      
+  PR-KVLS-4-TOT        = 0                                                      
+  PR-SUARTSTD-4-TOT    = 0                                                      
+  W-TEXT EQ 'SUM'                                                               
+  W-IDURVAL = TP2-IDURVAL-INV                                                   
+                                                                                
+*                                                                               
+  IF TP2-TEXT EQ 'REM'                                                          
+*    W-ANTAL-TOT-REM = W-ANTAL-TOT-REM + 1                                      
+     W-ANTAL-TOT-REM =  1                                                       
+*    W-SUMMA-TOT-REM = W-SUMMA-TOT-REM + TP2-SUARTSTD                           
+     W-SUMMA-TOT-REM = TP2-SUARTSTD * 100                                       
+                                                                                
+    IF TP2-IDURVAL-INV EQ '1'                                                   
+     PR-KVLS-1-REM        = 1                                                   
+     PR-SUARTSTD-1-REM    = TP2-SUARTSTD * 100                                  
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV EQ '2'                                                   
+     PR-KVLS-2-REM        = 1                                                   
+     PR-SUARTSTD-2-REM    = TP2-SUARTSTD * 100                                  
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV EQ '3'                                                   
+     PR-KVLS-3-REM        = 1                                                   
+     PR-SUARTSTD-3-REM    = TP2-SUARTSTD * 100                                  
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV EQ '4'                                                   
+     PR-KVLS-4-REM        = 1                                                   
+     PR-SUARTSTD-4-REM    = TP2-SUARTSTD * 100                                  
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV EQ '5'                                                   
+     PR-KVLS-2-REM        = 1                                                   
+     PR-SUARTSTD-2-REM    = TP2-SUARTSTD * 100                                  
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV NE '1' '2' '3' '4' '5'                                   
+      DISPLAY '*** FEL URVAL '  TP2-IDURVAL-INV                                 
+    END-IF                                                                      
+  END-IF                                                                        
+  IF TP2-TEXT EQ 'TOT'                                                          
+*   W-ANTAL-TOT = W-ANTAL-TOT + 1                                               
+*   W-SUMMA-TOT = W-SUMMA-TOT + TP2-SUARTSTD                                    
+    W-ANTAL-TOT =  1                                                            
+    W-SUMMA-TOT =  TP2-SUARTSTD * 100                                           
+    IF TP2-IDURVAL-INV EQ '1'                                                   
+     PR-KVLS-1-TOT        = 1                                                   
+     PR-SUARTSTD-1-TOT    = TP2-SUARTSTD  * 100                                 
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV EQ '2'                                                   
+     PR-KVLS-2-TOT        = 1                                                   
+     PR-SUARTSTD-2-TOT    = TP2-SUARTSTD  * 100                                 
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV EQ '3'                                                   
+     PR-KVLS-3-TOT        = 1                                                   
+     PR-SUARTSTD-3-TOT    = TP2-SUARTSTD  * 100                                 
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV EQ '4'                                                   
+     PR-KVLS-4-TOT        = 1                                                   
+     PR-SUARTSTD-4-TOT    = TP2-SUARTSTD  * 100                                 
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV EQ '5'                                                   
+     PR-KVLS-2-TOT        = 1                                                   
+     PR-SUARTSTD-2-TOT    = TP2-SUARTSTD  * 100                                 
+    END-IF                                                                      
+    IF TP2-IDURVAL-INV NE '1' '2' '3' '4' '5'                                   
+      DISPLAY '*** FEL URVAL '  TP2-IDURVAL-INV                                 
+    END-IF                                                                      
+  END-IF                                                                        
+  IF TP2-IDURVAL-INV NE '1'                                                     
+    PRINT RAPPORT01                                                             
+  END-IF                                                                        
+   IF TP2-IDURVAL-INV NE '1'                                                    
+     PR-ADLAGOMR EQ 91                                                          
+     PR-KVLS-1-REM       = 0                                                    
+     PR-SUARTSTD-1-REM   = 0                                                    
+     PR-KVLS-1-TOT       = 0                                                    
+     PR-SUARTSTD-1-TOT   = 0                                                    
+   END-IF                                                                       
+   PRINT RAPPORT02                                                              
+   W-ANTAL-TOT     = 0                                                          
+   W-SUMMA-TOT     = 0                                                          
+   W-ANTAL-TOT-REM = 0                                                          
+   W-SUMMA-TOT-REM = 0                                                          
+ A-INIT. PROC                                                                   
+  CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                      
+  AKT-AA       =   20                                                           
+  AKT-AAR      =   D-AAR                                                        
+  AKT-VV       =   D-VECKA                                                      
+                                                                                
+  W-RUB1-WEEK  =   AKT-VV                                                       
+  W-AA         =   D-AAR                                                        
+  W-MANAD      =   D-MAANAD                                                     
+  W-DAG        =   D-DAG                                                        
+  W-RUB1-DATE  =   W-DATUM                                                      
+  W-ANTAL-TOT     = 0                                                           
+  W-SUMMA-TOT     = 0                                                           
+  W-ANTAL-TOT-REM = 0                                                           
+  W-SUMMA-TOT-REM = 0                                                           
+ END-PROC                                                                       
+                                                                                
+*--------------------------------------------------------------------*          
+*  JOB4 PRINTA UT                                                               
+*                                                                               
+*--------------------------------------------------------------------*          
+*                                                                               
+  REPORT RAPPORT01         +                                                    
+         SUMSPACE 0        +                                                    
+         PRINTER W51316D4  +                                                    
+         LINESIZE 144      +                                                    
+         NOHEADING         +                                                    
+         NOADJUST          +                                                    
+         PAGESIZE 999      +                                                    
+         SUMMARY           +                                                    
+         NOPAGE            +                                                    
+         NODATE                                                                 
+  SEQUENCE PR-ADLAGOMR                                                          
+  CONTROL PR-ADLAGOMR                                                           
+  TITLE 1 COL 1 W-RUBRIK1                                                       
+  TITLE 2 COL 1 W-RUBRIK2                                                       
+  TITLE 3 COL 1 W-RUBRIK3                                                       
+  TITLE 4 COL 1 W-RUBRIK4                                                       
+                                                                                
+  LINE COL 1   PR-ADLAGOMR               +                                      
+       COL 4   PR-KVLS-3-REM             +                                      
+       COL 11  PR-SUARTSTD-3-REM         +                                      
+       COL 27  PR-KVLS-2-REM             +                                      
+       COL 34  PR-SUARTSTD-2-REM         +                                      
+       COL 50  PR-KVLS-4-REM             +                                      
+       COL 57  PR-SUARTSTD-4-REM         +                                      
+       COL 73  PR-KVLS-3-TOT             +                                      
+       COL 80  PR-SUARTSTD-3-TOT         +                                      
+       COL 96  PR-KVLS-2-TOT             +                                      
+       COL 103 PR-SUARTSTD-2-TOT         +                                      
+       COL 119 PR-KVLS-4-TOT             +                                      
+       COL 126 PR-SUARTSTD-4-TOT                                                
+                                                                                
+ BEFORE-BREAK. PROC                                                             
+** IF LEVEL = 1                                                                 
+    PR-SUARTSTD-2-REM EQ PR-SUARTSTD-2-REM / 100                                
+    PR-SUARTSTD-3-REM EQ PR-SUARTSTD-3-REM / 100                                
+    PR-SUARTSTD-4-REM EQ PR-SUARTSTD-4-REM / 100                                
+    PR-SUARTSTD-2-TOT EQ PR-SUARTSTD-2-TOT / 100                                
+    PR-SUARTSTD-3-TOT EQ PR-SUARTSTD-3-TOT / 100                                
+    PR-SUARTSTD-4-TOT EQ PR-SUARTSTD-4-TOT / 100                                
+** END-IF                                                                       
+ END-PROC                                                                       
+***********************************************                                 
+* LISTA 2                                     *                                 
+***********************************************                                 
+  REPORT RAPPORT02         +                                                    
+         SUMSPACE 0        +                                                    
+         PRINTER W51316D4  +                                                    
+         LINESIZE 144      +                                                    
+         NOHEADING         +                                                    
+         NOADJUST          +                                                    
+         PAGESIZE 999      +                                                    
+         SUMMARY           +                                                    
+         NOPAGE            +                                                    
+         NODATE                                                                 
+  SEQUENCE PR-ADLAGOMR                                                          
+  CONTROL FINAL NOPRINT PR-ADLAGOMR                                             
+  TITLE 1 COL 1 W-RUBRIK1                                                       
+  TITLE 2 COL 1 W-RUBRIK5                                                       
+  TITLE 3 COL 1 W-RUBRIK6                                                       
+                                                                                
+  LINE 01 COL 1   PR-ADLAGOMR               +                                   
+          COL 4   PR-KVLS-1-REM             +                                   
+          COL 11  PR-SUARTSTD-1-REM         +                                   
+          COL 73  PR-KVLS-1-TOT             +                                   
+          COL 80  PR-SUARTSTD-1-TOT                                             
+  LINE 02 COL 1 ' '                                                             
+  LINE 03 COL 1   PR-TEXT                   +                                   
+          COL 4   W-ANTAL-TOT-REM           +                                   
+          COL 11  W-SUMMA-TOT-REM           +                                   
+          COL 73  W-ANTAL-TOT               +                                   
+          COL 80  W-SUMMA-TOT                                                   
+*                                                                               
+ BEFORE-BREAK. PROC                                                             
+    PR-SUARTSTD-1-REM EQ PR-SUARTSTD-1-REM / 100                                
+    PR-SUARTSTD-1-TOT EQ PR-SUARTSTD-1-TOT / 100                                
+    W-SUMMA-TOT-REM   EQ W-SUMMA-TOT-REM / 100                                  
+    W-SUMMA-TOT       EQ W-SUMMA-TOT / 100                                      
+ END-PROC                                                                       

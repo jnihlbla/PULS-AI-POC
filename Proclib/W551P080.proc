@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCH SUPPLIERS WITH DIRECT SUPPLIERS DATA                                 
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W551B8                                         
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                          NORMAL                                             
+//*                W55180    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W551P080 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W551..W551B8,                                             
+//             INDUT=&W551..W551B8                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W551PD80),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W55178(+0),DISP=SHR                                  
+//************ WDL222 DATA                                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&&W55178,DISP=(NEW,PASS,DELETE),                             
+//************ SORTED FILE                                                      
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55180   EXEC PGM=W55180                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//W55180D1 DD  DSN=&&W55178,DISP=(OLD,DELETE,DELETE)                            
+//W55180D3 DD  DSN=&INDUT..W55180(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ MATCHED DATA                                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

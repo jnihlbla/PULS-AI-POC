@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR W33588 OCH W33537 OCH BYTER TILL MÅNADSSJÄLVKOST                   
+//*                                                                             
+//*  FREKVENS:     VECKA       RTN W335D7                                       
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W33547    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W335P047 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W335,                                                     
+//             INDIN1=&W335..W335D7,                                            
+//             INDUT=&W335..W335D7                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33547   EXEC PGM=V16459,PARM='W33547/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(500,500))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W33547D1 DD  DSN=&INDIN..W33588(+0),DISP=SHR                                  
+//************ PRISFIL TOTAL GÅRDAGENS                                          
+//*                                                                             
+//W33547D2 DD  DSN=&INDIN1..W33537(+0),DISP=SHR                                 
+//************ ARTINFO                                                          
+//*                                                                             
+//W33547D3 DD  DSN=&INDUT..W33547(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ ARTINFO MED MÅNADSSJÄLVKOST                                      
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               

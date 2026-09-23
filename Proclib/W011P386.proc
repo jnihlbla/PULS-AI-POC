@@ -1,0 +1,80 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER WDL7 MED SB, OCH WDL4 TILL:                                          
+//*                                                                             
+//*  LDC FILE  = W011.LDCTIME.W01186                                            
+//*  SDC FILE  = W011.SDCTIME.W01186                                            
+//*                                                                             
+//*  FILERNA ANVÄNDS FÖR EXTRAKTLAGERBANDPRODUKTION                             
+//*  VID OLIKA TIDPUNKTER UNDER DAGEN FÖR SDC                                   
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W011S3                                            
+//*                                                                             
+//*  ÅTERSTART:    W01186      NORMAL                                           
+//*                LÄSER  WDL7                                                  
+//*                       WDL4                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W011P386 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT1=&W011..LDCTIME,                                           
+//             INDUT2=&W011..SDCTIME                                            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W01186   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W01186,W01186,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDL7     INCLUDE MEMBER=WDL7                                                  
+//WDL4     INCLUDE MEMBER=WDL4                                                  
+//W01186D1 DD  DSN=&&OILDC,DISP=(NEW,PASS,DELETE),                              
+//             DATACLAS=PSEB                                                    
+//************ SAMTLIGA DATAELEMENT FRÅN WDL711+L411, IDDC = LDC                
+//*                                                                             
+//W01186D2 DD  DSN=&&OISDC,DISP=(NEW,PASS,DELETE),                              
+//             DATACLAS=PSEB                                                    
+//************ SAMTLIGA DATAELEMENT FRÅN WDL711+L411, IDDC = SDC                
+//*                                                                             
+//W01186D3 DD  DUMMY                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//* LDC                                                                         
+//*                                                                             
+//SORT01   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTDCAR),DISP=SHR                         
+//SORTIN   DD  DSN=&&OILDC,DISP=(OLD,DELETE,DELETE)                             
+//************ SAMTLIGA DATAELEMENT FRÅN WDL711+L411, IDDC = LDC                
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT1..W01186(+1),                        -LIM(3)          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//************ SORT DC/ART                                                      
+//*                                                                             
+//* SDC                                                                         
+//*                                                                             
+//SORT02   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTDCAR),DISP=SHR                         
+//SORTIN   DD  DSN=&&OISDC,DISP=(OLD,DELETE,DELETE)                             
+//************ SAMTLIGA DATAELEMENT FRÅN WDL711+L411, IDDC = SDC                
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT2..W01186(+1),                        -LIM(3)          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//************ SORT DC/ART                                                      

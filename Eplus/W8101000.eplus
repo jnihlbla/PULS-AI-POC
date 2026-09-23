@@ -1,0 +1,195 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W8101000                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHNING BETWEEN WEEKLY INVENTORY BANDS AND THE      *        
+*                KEMI FILE CREATES AN EMAIL OF PARTS TO BE REVISED     *        
+*                                                                      *        
+*  FÖRFATTARE :  BARSHARANI BISHOYE                                    *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W81010D1                                                                   
+*                                                                               
+%WXTR2D 'KEMI-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W81010D2                                                                   
+*                                                                               
+%WCDCPART                                                                       
+                                                                                
+NEWPAGE                                                                         
+FILE W81010D3 PRINTER VB(80 0)                                                  
+*                                                                               
+UT-IDARTNR                      W  9  N                                         
+UT-BEART-SVE                    W  25 A                                         
+UT-KVLS                         W  8  N                                         
+UT-ADLAGOMR                     W  4  N                                         
+UT-ADGANG                       W  5  N                                         
+UT-ADPLATS                      W  5  N                                         
+UT-KEMI-KDFGPRIO                W  5  N                                         
+UT-SEMICOLON                    W  1  A  VALUE ';'                              
+                                                                                
+NEWPAGE                                                                         
+*********************************************                                   
+** WORKING STORAGE                         **                                   
+*********************************************                                   
+*                                                                               
+ W-FIFO                         W  3  N                                         
+ W-KEMI-KDFGPRIO                W  3  N                                         
+ W-DATUM-FOM                    W  6  N                                         
+                                                                                
+ W-AAVVD-FOM                    W  5  N                                         
+ W-AAVV-FOM W-AAVVD-FOM            4  N                                         
+ W-AAVVDAG  W-AAVVD-FOM         +4 1  N                                         
+                                                                                
+ W-INLEV-AAVVD                   W 5  N                                         
+ W-INLEV-AAVV W-INLEV-AAVVD        4  N                                         
+ W-INLEV-AAVVDAG W-INLEV-AAVVD  +4 1  N                                         
+                                                                                
+ W-DAGENS-DATUM                  W 6  N                                         
+ W-DAGENS-AA     W-DAGENS-DATUM    2  N                                         
+ W-DAGENS-AAMM   W-DAGENS-DATUM +2 2  N                                         
+ W-DAGENS-AAMMDD W-DAGENS-DATUM +4 2  N                                         
+                                                                                
+ DAGENS-AAVV                     W 4  N                                         
+ DAGENS-AAR   DAGENS-AAVV          2  N                                         
+ DAGENS-VECKA DAGENS-AAVV       +2 2  N                                         
+                                                                                
+ FIRST-LINE                      S 1  A  VALUE 'J'                              
+                                                                                
+*                                                                               
+*--------------------------*                                                    
+* SUBPROGRAM AREAS         *                                                    
+*--------------------------*                                                    
+* ----------------                                                              
+* ----------------                                                              
+PROGRAM-NAMN                     W 8 A   VALUE 'W8101000'                       
+DATUMKORT-ID                     W 6 A   VALUE 'WDATUM'                         
+DATKORT                          W 8 A   VALUE 'DATKORT '                       
+WDATKONV                         W 8 A   VALUE 'WDATKONV'                       
+WORKDAY                          W 8 A   VALUE 'WORKDAY '                       
+%WDATKORT                                      'DATKORT-'                       
+%WDATAREA                                                                       
+%WORKAREA                                                                       
+*                                                                               
+*----------------------------------------------------*                          
+*MATCHING PART NO WITH BOTH OF THE FILE              *                          
+*----------------------------------------------------*                          
+*                                                                               
+JOB INPUT (W81010D1 KEY(KEMI-IDARTNR) W81010D2 KEY(IDARTNR)) +                  
+   START A-INIT                                                                 
+*                                                                               
+   IF MATCHED                                                                   
+     IF KEMI-KDFGPRIO > 0 AND KVLS > 0                                          
+        IF KDERS < 20 AND KDERS-UTG = 0                                         
+***  MAKE ABOUT WORKING DAYS INSTEAD OF WEEKS                                   
+***  DO NOT BE MORE THAN 999 DAYS, THE SUBMODUL TAKES MOST 999 DAYS             
+                                                                                
+           IF KEMI-KDFGPRIO > 199                                               
+              W-KEMI-KDFGPRIO EQ 999                                            
+           ELSE                                                                 
+              W-KEMI-KDFGPRIO EQ KEMI-KDFGPRIO * 5                              
+           END-IF                                                               
+                                                                                
+           IF W-KEMI-KDFGPRIO GT 400                                            
+              W-FIFO  =  W-KEMI-KDFGPRIO * 0.90                                 
+           ELSE                                                                 
+             IF W-KEMI-KDFGPRIO LT 400                                          
+              W-FIFO  =  W-KEMI-KDFGPRIO * 0.50                                 
+             END-IF                                                             
+           END-IF                                                               
+                                                                                
+           PERFORM B-DATUM                                                      
+                                                                                
+           IF W-AAVV-FOM > W-INLEV-AAVV                                         
+              UT-IDARTNR        EQ IDARTNR                                      
+              UT-BEART-SVE      EQ BEART-SVE                                    
+              UT-KVLS           EQ KVLS                                         
+              UT-ADLAGOMR       EQ ADLAGOMR                                     
+              UT-ADGANG         EQ ADGANG                                       
+              UT-ADPLATS        EQ ADPLATS                                      
+              UT-KEMI-KDFGPRIO  EQ KEMI-KDFGPRIO                                
+              PRINT REPORT1                                                     
+              END-IF                                                            
+        END-IF                                                                  
+     END-IF                                                                     
+   END-IF                                                                       
+A-INIT. PROC                                                                    
+                                                                                
+  CALL DATKORT  USING (PROGRAM-NAMN +                                           
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+                                                                                
+  DAGENS-AAR        =  DATKORT-D-AAR                                            
+  W-DAGENS-AA       =  DATKORT-D-AAR                                            
+  W-DAGENS-AAMM     =  DATKORT-D-MAANAD                                         
+  W-DAGENS-AAMMDD   =  DATKORT-D-DAG                                            
+  DAGENS-VECKA      =  DATKORT-D-VECKA                                          
+END-PROC                                                                        
+                                                                                
+B-DATUM. PROC                                                                   
+  WORK-KDCALL = 003                                                             
+  WORK-IDDC   = '11'                                                            
+  WORK-TIAAMMDD-TOM =  W-DAGENS-DATUM                                           
+  WORK-KVWORKD      =  W-FIFO                                                   
+  CALL WORKDAY  USING  (WORK-KDCALL        +                                    
+                       WORK-DATE-AREA     +                                     
+                       WORK-KDSVAR)                                             
+  IF WORK-KDSVAR    =  ' '                                                      
+    W-DATUM-FOM  EQ WORK-TIAAMMDD-FOM                                           
+  END-IF                                                                        
+*** FETCHING AAVV FOR TIAAMMDD-FOM                                              
+  DAT-I-TIDATUM     = W-DATUM-FOM                                               
+  DAT-KDDATFORM     = 'AAMMDD'                                                  
+  CALL WDATKONV USING (DAT-KDDATFORM, +                                         
+                       DAT-I-TIDATUM, +                                         
+                       DAT-O-TIDATUM, +                                         
+                       DAT-KDSVAR)                                              
+  W-AAVVD-FOM       =  DAT-TIAAVVD                                              
+                                                                                
+*** RETRIEVING AAVV FOR THE DATE OF THE INHABITATION                            
+  DAT-I-TIDATUM     =  TIAVIDAT-SEN                                             
+  DAT-KDDATFORM     = 'AAMMDD'                                                  
+  CALL WDATKONV USING (DAT-KDDATFORM, +                                         
+                       DAT-I-TIDATUM, +                                         
+                       DAT-O-TIDATUM, +                                         
+                       DAT-KDSVAR)                                              
+  W-INLEV-AAVVD     =  DAT-TIAAVVD                                              
+END-PROC                                                                        
+*                                                                               
+NEWPAGE                                                                         
+  REPORT   REPORT1              +                                               
+           PRINTER W81010D3     +                                               
+           PAGESIZE 32000       +                                               
+           LINESIZE 75          +                                               
+           SPACE 0              +                                               
+           NOHEADING            +                                               
+           NOSPREAD             +                                               
+           NOADJUST             +                                               
+           NOPAGE               +                                               
+           NODATE                                                               
+  LINE     UT-IDARTNR           +                                               
+           UT-SEMICOLON         +                                               
+           UT-BEART-SVE         +                                               
+           UT-SEMICOLON         +                                               
+           UT-KVLS              +                                               
+           UT-SEMICOLON         +                                               
+           UT-ADLAGOMR          +                                               
+           UT-SEMICOLON         +                                               
+           UT-ADGANG            +                                               
+           UT-SEMICOLON         +                                               
+           UT-ADPLATS           +                                               
+           UT-SEMICOLON         +                                               
+           UT-KEMI-KDFGPRIO     +                                               
+           UT-SEMICOLON                                                         
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE = 'J'                                                           
+    DISPLAY '¤DAPW81010-001'                                                    
+    DISPLAY '¤DAPW81010'                                                        
+    DISPLAY 'ARTIKEL;BENÄMNING;LS;LO;GÅNG;PLATS;HÅLLBARHET I VECKOR;'           
+    FIRST-LINE  = 'N'                                                           
+  END-IF                                                                        
+END-PROC                                                                        

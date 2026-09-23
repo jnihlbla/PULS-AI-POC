@@ -1,0 +1,132 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*             PROCEDUR OMARBETAD ENLIGT PARTS-STANDARD                        
+//*                                                                             
+//*             ********************************                                
+//*             *   XICS -  V 5.4  AUGS 1989   *                                
+//*             *                              *                                
+//*             *    COMPOSITION PROCEDURE     *                                
+//*             ********************************                                
+//* PROV MED NY MGMTCLAS PÅ INDEXFIL 1                                          
+//* OCH KÖRNING AV COMPUSET VIA ICEGENER FÖR ATT ÅSTADKOMMA EN                  
+//* DUMP VID RC=12 I COMPOSERN                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXCOMP  PROC DSIN=NULLFILE,DSIN2=NULLFILE,                                    
+//             DSMETA=NULLFILE,                                                 
+//             DSGALL=NULLFILE,                                                 
+//             DSIX1=NULLFILE,DSIX2=NULLFILE,                                   
+//             DSIX3=NULLFILE,DSIX4=NULLFILE,                                   
+//             DSIX5=NULLFILE,DSIX6=NULLFILE,                                   
+//             DSIX7=NULLFILE,DSIX8=NULLFILE,                                   
+//             DSIX9=NULLFILE,DSIXA=NULLFILE,                                   
+//             DSIXB=NULLFILE,DSIXC=NULLFILE,                                   
+//             DSERRUT=NULLFILE,                                                
+//             XICSSYS=&INDGRND..XICSSYS,                                       
+//             INCL1=&INDGRND..XICSLIB,                                         
+//             INCL2=NULLFILE,                                                  
+//             INCL3=NULLFILE,                                                  
+//             WIDTHS=X46WID,          WIDTHS LVL 3 (X97WID OR X46WID)          
+//             XICSVER=XICS54,         XICS VERSION                             
+//             CNF=CNFSTD,             CONFIG MEMBER NAME IN SYSTEM LIB         
+//             P=                                                               
+//*                                                                             
+//COMPOSE EXEC PGM=V16459,PARM='COMPUSET/8/&P'                                  
+//*   COMPOSE EXEC PGM=COMPUSET,                                                
+//*                PARM='&P',                                                   
+//*                COND=(4,LT)                                                  
+//STEPLIB   DD DSN=VPUBV1.&XICSVER..LOAD,DISP=SHR                               
+//SYSUDUMP  DD SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//*                                                                             
+//*                                                                             
+//CSSIN     DD DSN=&DSIN,DISP=SHR                        INPT FILE 1            
+//*                                                                             
+//CSS06     DD DSN=&DSGALL,SPACE=(2724,(100,100)),       NYA GALLEY             
+//             DCB=(RECFM=VB,LRECL=136,BLKSIZE=2724),                           
+//             DISP=(NEW,DELETE),MGMTCLAS=DEL2                                  
+//*                                                                             
+//CSS04     DD DSN=&DSIN2,DISP=SHR                       INPT FILE 2            
+//*                                                                             
+//CSSOUT    DD DSN=&DSMETA,DISP=(NEW,PASS,DELETE),       META OUTPUT            
+//             MGMTCLAS=DEL2,                                                   
+//             DCB=(RECFM=VB,LRECL=2200,BLKSIZE=23476),                         
+//             SPACE=(23476,(3000,500),RLSE)                                    
+//*                                                                             
+//VSRN01    DD DSN=VPUBV1V.&XICSVER..&WIDTHS,DISP=SHR    WIDTHS FILE            
+//VSRN02    DD DSN=VPUBV1V.&XICSVER..NEWHDC,DISP=SHR     HYPHEN DICT            
+//VSRN06    DD DSN=VPUBV1V.&XICSVER..XICSMSG,DISP=SHR    MSG DB                 
+//LISTA     DD SYSOUT=*                                  ERROR/LOG              
+//FT03F001  DD DSN=&XICSSYS.(&CNF),DISP=SHR              CONFIG FILE            
+//*                                                                             
+//FT06F001  DD DSN=&DSERRUT(+1),DISP=(NEW,CATLG,CATLG), ERROR/LOG               
+//             DCB=(RECFM=FBA,LRECL=134),                                       
+//             MGMTCLAS=DEL2BKPC,                                               
+//             SPACE=(23450,(200,50),RLSE)                                      
+//*                                                                             
+//CSS07     DD DSN=&DSIX1,MGMTCLAS=NPARTRNB,             INDEX 1                
+//             DISP=(NEW,PASS,CATLG),                                           
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(6600,600),,CONTIG)                                  
+//CSS08     DD DSN=&DSIX2,MGMTCLAS=DEL2,DISP=(NEW,PASS), INDEX 2                
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(900,600))                                           
+//CSS09     DD DSN=&DSIX3,MGMTCLAS=DEL2,DISP=(NEW,PASS), INDEX 3                
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(300,600))                                           
+//CSS10     DD DSN=&DSIX4,MGMTCLAS=DEL2,DISP=(NEW,PASS), INDEX 4                
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(300,600))                                           
+//* - * - * - * - * - * - * - * - * - * - * - * - * - * - * - *                 
+//CSS11     DD DSN=&DSIX5,MGMTCLAS=DEL2BKPC,DISP=(NEW,PASS), INDEX 5            
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(2,2))                                               
+//CSS12     DD DSN=&DSIX6,MGMTCLAS=DEL2BKPC,DISP=(NEW,PASS), INDEX 6            
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(2,2))                                               
+//CSS13     DD DSN=&DSIX7,MGMTCLAS=DEL2BKPC,DISP=(NEW,PASS), INDEX 7            
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(2,2))                                               
+//CSS14     DD DSN=&DSIX8,MGMTCLAS=DEL2BKPC,DISP=(NEW,PASS), INDEX 8            
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(2,2))                                               
+//CSS15     DD DSN=&DSIX9,MGMTCLAS=DEL2BKPC,DISP=(NEW,PASS), INDEX 9            
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(2,2))                                               
+//CSS16     DD DSN=&DSIXA,MGMTCLAS=DEL2BKPC,DISP=(NEW,PASS), INDEX 10           
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(2,2))                                               
+//CSS17     DD DSN=&DSIXB,MGMTCLAS=DEL2BKPC,DISP=(NEW,PASS), INDEX 11           
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(2,2))                                               
+//CSS18     DD DSN=&DSIXC,MGMTCLAS=DEL2BKPC,DISP=(NEW,PASS), INDEX 12           
+//             DCB=(RECFM=VB,LRECL=1028,BLKSIZE=3224),                          
+//             SPACE=(3224,(2,2))                                               
+//*                                                                             
+//CSS05     DD DCB=(RECFM=F,BLKSIZE=6144),               TEMP 1                 
+//             SPACE=(CYL,(55,8))                                               
+//CSS19     DD DCB=(RECFM=F,BLKSIZE=6144),               TEMP 2                 
+//             SPACE=(CYL,(5,5))                                                
+//CSS20     DD DCB=(RECFM=F,BLKSIZE=6144),               TEMP 3                 
+//             SPACE=(CYL,(5,5))                                                
+//*                                                                             
+//CSS23     DD DSN=&INCL1,DISP=SHR                       INCLUDE FILE 1         
+//CSS24     DD DSN=&INCL2,DISP=SHR                       INCLUDE FILE 2         
+//CSS25     DD DSN=&INCL3,DISP=SHR                       INCLUDE FILE 3         
+//*                                                                             
+//ABEND   EXEC PGM=ABEND,PARM='1234567890123456',                               
+//         COND=(12,GT,COMPOSE)                                                 
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//CATLG   EXEC PGM=IEFBR14                                                      
+//CB1XXX01 DD  DSN=&DSMETA,DISP=(OLD,CATLG,DELETE)                              
+//CB1XXX02 DD  DSN=&DSIX1,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX03 DD  DSN=&DSIX2,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX04 DD  DSN=&DSIX3,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX05 DD  DSN=&DSIX4,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX06 DD  DSN=&DSIX5,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX07 DD  DSN=&DSIX6,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX08 DD  DSN=&DSIX7,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX09 DD  DSN=&DSIX8,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX10 DD  DSN=&DSIX9,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX11 DD  DSN=&DSIXA,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX12 DD  DSN=&DSIXB,DISP=(OLD,CATLG,DELETE)                               
+//CB1XXX13 DD  DSN=&DSIXC,DISP=(OLD,CATLG,DELETE)                               
+//*CB25XX14 DD  DSN=&DSERRUT(+1),DISP=(OLD,CATLG,DELETE)                        

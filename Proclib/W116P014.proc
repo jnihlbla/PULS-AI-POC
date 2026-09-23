@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR W91042 / W11604                                                    
+//*  SKAPAR UTFIL W11614                                                        
+//*  SOM LIGGER TILL GRUND FÖR ÄNDRINGSKONTROLLEN I PGM: W11624                 
+//*                                                                             
+//*  FREKVENS:     DAG                                                          
+//*                                                                             
+//*  ÅTERSTART:                                                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P014 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W116,                                                     
+//             INDREG=&W910,                                                    
+//             INDUT=NULLFILE,                                                  
+//             INDIN1=&W116..W116V1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11614   EXEC PGM=V16459,PARM='W11614/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(5000,5000))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//W11614D1 DD  DSN=&INDIN..W11604(+0),DISP=SHR                                  
+//************ BUY-BACK FIL FRÅN W116J004 W116V1                                
+//*                                                                             
+//W11614D2 DD  DSN=&INDREG..W91042(+0),DISP=SHR                                 
+//************ ARTIKELINFO FRÅN WDK6 OCH WDK7                                   
+//*                                                                             
+//W11614D3 DD  DSN=&INDUT..W11614(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ ARTIKELINFO TILL VIPS (BUYBACK-KOD MM)                           
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//*                                                                             
+//TPFIL1   DD  DSN=&&W11605,DISP=(NEW,PASS,DELETE),                             
+//************ ARTIKELUPPGIFTER MELLANFIL                                       
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W11614D5 DD  DSN=&INDIN1..W11686(+0),DISP=SHR                                 
+//************ NEDLÄST WDF5 FRÅN W116V1                                         
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

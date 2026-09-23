@@ -1,0 +1,64 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPA LARMLISTA OCH SKALNINGSFIL                                           
+//*                                                                             
+//*  FREKVENS:     BESTÄLL   RTN W122D1                                         
+//*                                                                             
+//*  ÅTERSTART:    W12209    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W122P009 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W122..W122B1,                                             
+//             INDIN2=&W418..W418D2,                                            
+//             INDUT=&W122..W122B1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W12207  EXEC PGM=SORT                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W122PD02),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W12202(+0),DISP=SHR                                  
+//************** LEVERANSANMÄRKNINGAR                                ***        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W12202,DISP=(NEW,PASS,DELETE),                             
+//**************  SORTERAD LEVERANSANMÄRKNINGAR                     ***         
+//             DATACLAS=PSEN                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//*SORTERA LEV-POSTER PÅ ARTIKELNUMMER                                          
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W12208  EXEC PGM=SORT                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W122PD09),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W41842(+0),DISP=SHR                                 
+//************** LEVERANSANMÄRKNINGAR                                ***        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W41842,DISP=(NEW,PASS,DELETE),                             
+//**************  SORTERAD LEVERANSANMÄRKNINGAR                     ***         
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//*SORTERA LEV-POSTER PÅ IDPTYP OCH ARTIKELNUMMER                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W12209   EXEC PGM=W12209                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W12209D1 DD  DSN=&INDIN..W12201(+0),DISP=SHR                                  
+//************ ARTIKELREG.EXTRAKT                                               
+//*                                                                             
+//W12209D2 DD  DSN=&&W12202,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKELREG.EXTRAKT                                               
+//*                                                                             
+//W12209D3 DD  DSN=&&W41842,DISP=(OLD,DELETE,DELETE)                            
+//************ LEV POSTER                                                       
+//*                                                                             
+//W12209D4 DD  DSN=&INDUT..W12205(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)          
+//************ LARMLISTA                                                        
+//             DATACLAS=PSEN,MGMTCLAS=&NOBACKUP                                 
+//*                                                                             
+//W12209D5 DD  DSN=&INDUT..W12207(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)          
+//************ SKALNINGSFIL                                                     
+//             DATACLAS=PSEN,MGMTCLAS=&NOBACKUP                                 

@@ -1,0 +1,31 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*    FUNKTION:     GENERELL PROCEDUR FÖR DUMP (IMAGE COPY)          *         
+//*                  AV DB2 TABLESPACE                                *         
+//*                                                                   *         
+//*    ÅTERSTART:    RESTART AV UTILITY ELLER                         *         
+//*                  TERMINATE UTILITY OCH NORMAL ÅTERSTART           *         
+//*                                                                   *         
+//*    ANSVARIG:     30650                                            *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WG02DUMP PROC SYSTEM=&DB2SYS,                                                 
+//             INDABE=&INDRTE,                                                  
+//             UID=,UTPROC=,                                                    
+//             DSOUT=NULLFILE,MGMTCLAS=&EMID70,                                 
+//             TSDMP=SAKNAS                                                     
+//*                                                                             
+//DUMP    EXEC PGM=DSNUTILB,                                                    
+//             PARM=(&SYSTEM,&UID,&UTPROC)                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//UTPRINT  DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=*                                                         
+//IDIHIST  DD  DSN=&INDABE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SYSCOPY  DD  DSN=&DSOUT,DISP=(NEW,CATLG,CATLG),                               
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&MGMTCLAS                                               
+//SYSIN    DD  DSN=&INDGRND..DDL(&TSDMP),DISP=SHR                               
+//*                                                                             
+//ABEND   EXEC PGM=ABEND,COND=(0,EQ,DUMP),PARM='1234567890123456'               

@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  COMBINE SPLIT 80-BYTE PIECES TO ORIGINAL RECORDS                           
+//*  USED IN DISTRIBUTION-AND-PRINT JOBS                                        
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN WZ11S9                           
+//*                                                                             
+//*  RESTART:      WZ1405    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ14P005 PROC STPLIB=&INDRTE..LOAD,                                           
+//             DSOUT=&&&&DATA,DISPOUT=PASS                                      
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WZ1405   EXEC PGM=WZ1405                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//*                                                                             
+//SYSUT1   DD  DDNAME=SYSIN                                                     
+//************  DATA/PRINT RECORDS SPLIT INTO 80-BYTE PIECES                    
+//*             PROVIDED VIA JCL AND DD *                                       
+//*                                                                             
+//SYSUT2   DD  DSN=&DSOUT,DISP=(NEW,&DISPOUT,DELETE),                           
+//************  ORIGINAL DATA/PRINT RECORDS (PIECES JOINED TOGETHER)            
+//             DATACLAS=PSEN                                                    
+//*                                                                             

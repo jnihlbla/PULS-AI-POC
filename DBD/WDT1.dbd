@@ -1,0 +1,82 @@
+*        ARTIKLAR FÖR PÅFYLLNING AV POCKPLATS                                   
+*                                                                               
+         DBD   NAME=WDT1,                                              *        
+               ACCESS=(HISAM,VSAM)                                              
+         DATASET DD1=WDT1K,DEVICE=3390,SIZE=4096                                
+*                                                                               
+         SEGM  NAME=WDT101,PARENT=0,BYTES=85,PTR=T                              
+         FIELD NAME=(WDT101KY,SEQ,U),BYTES=19,START=1,TYPE=X                    
+         FIELD NAME=(IDDC),BYTES=2,START=1,TYPE=X                               
+         FIELD NAME=(IDARTNR),BYTES=5,START=3,TYPE=P                            
+         FIELD NAME=(TIORDTIM),BYTES=12,START=8,TYPE=X                          
+         FIELD NAME=(KDPRIOPF),BYTES=1,START=20,TYPE=P                          
+         FIELD NAME=(KDSTAPF),BYTES=1,START=21,TYPE=X                           
+         FIELD NAME=(ADLAGFOM),BYTES=2,START=22,TYPE=P                          
+         FIELD NAME=(ADGANFOM),BYTES=2,START=24,TYPE=P                          
+         FIELD NAME=(ADPLAFOM),BYTES=3,START=26,TYPE=P                          
+         FIELD NAME=(ADLAGTOM),BYTES=2,START=29,TYPE=P                          
+         FIELD NAME=(ADGANTOM),BYTES=2,START=31,TYPE=P                          
+         FIELD NAME=(ADPLATOM),BYTES=3,START=33,TYPE=P                          
+         FIELD NAME=(IDUSER),BYTES=8,START=68,TYPE=X                            
+*                                                                               
+         LCHILD NAME=(WDT1A1,WDT1A),PTR=SYMB                                    
+         XDFLD NAME=WDT1ASEQ,SEGMENT=WDT101,                           *        
+               SRCH=(IDDC,ADLAGFOM,KDSTAPF),                           *        
+               SUBSEQ=(KDPRIOPF,TIORDTIM),                             *        
+               EXTRTN=WDT1AEXT                                                  
+*                                                                               
+* EXIT FINNS NÄR KDSTAPF <> A (SAMMA EXIT TILL ALLA INDEX)                      
+*                                                                               
+         LCHILD NAME=(WDT1B1,WDT1B),PTR=SYMB                                    
+         XDFLD NAME=WDT1BSEQ,SEGMENT=WDT101,                           *        
+               SRCH=(IDDC,ADLAGTOM,KDSTAPF),                           *        
+               SUBSEQ=(KDPRIOPF,TIORDTIM),                             *        
+               EXTRTN=WDT1AEXT                                                  
+*                                                                               
+         LCHILD NAME=(WDT1C1,WDT1C),PTR=SYMB                                    
+         XDFLD NAME=WDT1CSEQ,SEGMENT=WDT101,                           *        
+               SRCH=(IDDC,ADLAGFOM,ADGANFOM),                          *        
+               SUBSEQ=(ADPLAFOM,TIORDTIM),                             *        
+               DDATA=(KDSTAPF),                                        *        
+               EXTRTN=WDT1AEXT                                                  
+*                                                                               
+         LCHILD NAME=(WDT1D1,WDT1D),PTR=SYMB                                    
+         XDFLD NAME=WDT1DSEQ,SEGMENT=WDT101,                           *        
+               SRCH=(IDDC,ADLAGTOM,ADGANTOM),                          *        
+               SUBSEQ=(ADPLATOM,TIORDTIM),                             *        
+               DDATA=(KDSTAPF),                                        *        
+               EXTRTN=WDT1AEXT                                                  
+*                                                                               
+         LCHILD NAME=(WDT1E1,WDT1E),PTR=SYMB                                    
+         XDFLD NAME=WDT1ESEQ,SEGMENT=WDT101,                           *        
+               SRCH=(IDDC,IDUSER,ADLAGFOM),                            *        
+               SUBSEQ=(ADGANFOM,ADPLAFOM,KDSTAPF,TIORDTIM),            *        
+               EXTRTN=WDT1AEXT                                                  
+*                                                                               
+         LCHILD NAME=(WDT1F1,WDT1F),PTR=SYMB                                    
+         XDFLD NAME=WDT1FSEQ,SEGMENT=WDT101,                           *        
+               SRCH=(IDDC,IDUSER,ADLAGTOM),                            *        
+               SUBSEQ=(ADGANTOM,ADPLATOM,KDSTAPF,TIORDTIM),            *        
+               EXTRTN=WDT1AEXT                                                  
+*                                                                               
+         LCHILD NAME=(WDT1G1,WDT1G),PTR=SYMB                                    
+         XDFLD NAME=WDT1GSEQ,SEGMENT=WDT101,                           *        
+               SRCH=(IDDC,KDPRIOPF,ADLAGFOM),                          *        
+               SUBSEQ=(ADGANFOM,ADPLAFOM,KDSTAPF,TIORDTIM),            *        
+               EXTRTN=WDT1AEXT                                                  
+*                                                                               
+         LCHILD NAME=(WDT1H1,WDT1H),PTR=SYMB                                    
+         XDFLD NAME=WDT1HSEQ,SEGMENT=WDT101,                           *        
+               SRCH=(IDDC,KDPRIOPF,ADLAGTOM),                          *        
+               SUBSEQ=(ADGANTOM,ADPLATOM,KDSTAPF,TIORDTIM),            *        
+               EXTRTN=WDT1AEXT                                                  
+*                                                                               
+         LCHILD NAME=(WDT1I1,WDT1I),PTR=SYMB                                    
+         XDFLD NAME=WDT1ISEQ,SEGMENT=WDT101,                           *        
+               SRCH=(IDDC,ADLAGFOM,ADLAGTOM,KDPRIOPF),                 *        
+               SUBSEQ=(ADGANFOM,ADPLAFOM,KDSTAPF,TIORDTIM),            *        
+               EXTRTN=WDT1AEXT                                                  
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

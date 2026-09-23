@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LADDAR EKONOMISKT HÄNDELSEREGISTER MED FELPOSTER                           
+//*                                                                             
+//*  FREKVENS:     DAGLIG        RTN W561D2                                     
+//*                                                                             
+//*  ÅTERSTART:    W56164    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W561P064 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W561..W561D2,                                             
+//             INDUT=&W561..W561D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56164   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W56164,W56164,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W56164D1 DD  DSN=&INDIN..W5616F(+0),DISP=SHR                                  
+//************ FEL-POSTER MED FELTEXT, ATT LÄGGAS UPP PÅ WDR8                   
+//W56164D2 DD  DSN=&INDIN..W5616B(+0),DISP=SHR                                  
+//************ 102-120 POSTER SOM VÄNTAR PÅ 102-121 POSTER.                     
+//*                                                                             
+//W56164D3 DD  DSN=&INDUT..W5616M(+1),DISP=(NEW,CATLG,DELETE), -LIM(9)          
+//************ UTFIL                                                            
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

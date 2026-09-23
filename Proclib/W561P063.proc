@@ -1,0 +1,40 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR FELPOSTFILEN MED EJ KOMPLETTA VERIFIKAT.                      
+//*  KOMPLETTA VERIFIKAT GÅR VIDARE TILL KONTERINGEN.                           
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W561D2                                           
+//*                                                                             
+//*  ÅTERSTART:    W56163    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W561P063 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W561..W561D2,                                             
+//             INDUT=&W561..W561D2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56163   EXEC PGM=V16459,PARM='W56163/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(200,200))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W56163D1 DD  DSN=&INDIN..W56164(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W56165(+0),DISP=SHR                                  
+//************ INFIL MED RÄTTPOSTER OCH FELPOSTER                               
+//*                                                                             
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL MED SORTERADE RÄTTPOSTER OCH FELPOSTER                   
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//W56163D2 DD  DSN=&INDUT..W56166(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ UTFIL MED RÄTTPOSTER                                             
+//             DATACLAS=PSEB,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//W56163D3 DD  DSN=&INDUT..W5616F(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ UTFIL MED FELPOSTER                                              
+//             DATACLAS=PSEB,MGMTCLAS=&NOBACKUP                                 

@@ -1,0 +1,77 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4283400                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER FIL W42834 FRÅN PGM W4283300.                   *        
+*                SKRIVER EN LISTA MED SUMMAN AV STANDARDVÄRDET PÅ      *        
+*                NA-RETURER ( 8111 , 8211 ) PER STATUS.                *        
+*                AK-PAV = STATUS 4                                     *        
+*                AKS    = STATUS 5 OCH 6                               *        
+*                INLAGT = STATUS 7                                     *        
+*                                                                      *        
+*  FÖRFATTARE :  SUSANNE OLSSON                                        *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W42834D1                                                                   
+*                                                                               
+%W407R32A  'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W42834D2  PRINTER VB (125 0)                                               
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  W-SUSTDTOT-PAV W 7  P 2  MASK 'ZZZZZZZZZZ9.99'                                
+  W-SUSTDTOT-AKS W 7  P 2  MASK 'ZZZZZZZZZZ9.99'                                
+  W-SUSTDTOT-INL W 7  P 2  MASK 'ZZZZZZZZZZ9.99'                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LÄSER IN W42834 - DAGENS RETURER , SUMMERAR STANDARD-                 
+*         VÄRDET PER STATUS.                                                    
+*                                                                               
+JOB INPUT (W42834D1) START A-INIT FINISH Z-FINIT                                
+                                                                                
+                                                                                
+  IF IN-R32-KDLEVANM = '4'                                                      
+    W-SUSTDTOT-PAV = W-SUSTDTOT-PAV + IN-R32-SUSTDTOT                           
+  ELSE                                                                          
+    IF IN-R32-KDLEVANM = '5', '6'                                               
+      W-SUSTDTOT-AKS = W-SUSTDTOT-AKS + IN-R32-SUSTDTOT                         
+    ELSE                                                                        
+      IF IN-R32-KDLEVANM = '7'                                                  
+        W-SUSTDTOT-INL = W-SUSTDTOT-INL + IN-R32-SUSTDTOT                       
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+  A-INIT. PROC                                                                  
+    W-SUSTDTOT-PAV = +0                                                         
+    W-SUSTDTOT-AKS = +0                                                         
+    W-SUSTDTOT-INL = +0                                                         
+  END-PROC                                                                      
+                                                                                
+  Z-FINIT. PROC                                                                 
+    PRINT W42834-001                                                            
+  END-PROC                                                                      
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+REPORT W42834-001  PRINTER W42834D2 LINESIZE 120 DTLCTL FIRST                   
+TITLE 1  'VOLVO CAR CORPORATION CUSTOMER SERVICE     W42834-001'                
+TITLE 3  'AK-FOLLOW-UP LIST-GOODS FROM THE US'                                  
+                                                                                
+HEADING  W-SUSTDTOT-PAV    ' STD VALUE PAV'                                     
+HEADING  W-SUSTDTOT-AKS    ' STD VALUE R31'                                     
+HEADING  W-SUSTDTOT-INL    ' STD VALUE R32'                                     
+                                                                                
+LINE  1  W-SUSTDTOT-PAV W-SUSTDTOT-AKS W-SUSTDTOT-INL                           

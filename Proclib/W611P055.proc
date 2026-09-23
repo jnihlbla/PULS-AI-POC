@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SUMMERAR INFORMATION FRÅN STATUS TRANSAR PER UPPFÖLJNINGSSTATUS            
+//*  ANTAL RADER, VÄRDE OCH GENOMLOPPSTID / VECKA                               
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611V1                                            
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W61155    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P055 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W611..W611V1,                                             
+//             INDUT=&W611..W611V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD51),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61140B(+0),DISP=SHR                                 
+//************ STATUS POSTER FRÅN W6G3                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&TEMPFIL,DISP=(NEW,PASS,DELETE),                            
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61155   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W61155,W61155,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=NJORS2,HOLD=YES        -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W61155D1 DD  DSN=&&TEMPFIL,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTERAD W6G3 FIL                                                
+//*                                                                             
+//W61155D2 DD  DSN=&INDIN..W6115A(+0),DISP=SHR                                  
+//************ FIL FRÅN W6G130 MED ÖNSKADE GENOMLOPPSTIDER                      
+//*                                                                             
+//W61155D3 DD  DSN=&INDUT..W61155(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ STATUS POSTER SUMMERADE PER UPPFÖLJNINGSSTATUS                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

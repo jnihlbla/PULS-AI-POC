@@ -1,0 +1,436 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W8101100                                              *        
+*                                                                      *        
+*  FUNKTION   :  PURCHASE PLANNING REPORT- BRISTLISA                   *        
+*                                                                      *        
+*  FÖRFATTARE :  KUMAR LOVISH                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+* AVBOKADE RADAR FRI-SUN  (2 GENERATIONER)                                      
+FILE W81011D1                                                                   
+%W02008   'IN1-'                                                                
+*                                                                               
+* AVBOKADE RADER ÖVRIGA VECKODAGAR (1 GENERATION)                               
+FILE W81011D2                                                                   
+%W02008   'IN2-'                                                                
+*                                                                               
+* CDC INFO-FILE                                                                 
+FILE W81011D3                                                                   
+%WCDCPART 'IN3-'                                                                
+*                                                                               
+* RESTORDERRADER                                                                
+FILE W81011D4                                                                   
+%W44060   'RO'                                                                  
+*                                                                               
+* IN DELIVERY-FILE                                                              
+FILE W81011D5                                                                   
+%W6111001 'IN4-'                                                                
+*                                                                               
+* BRISLISTA                                                                     
+FILE W81011D6 PRINTER VB(260 0)                                                 
+*                                                                               
+* TEMPFILER FÖR AVBOKADE RADER EFTER VAL AV INFIL                               
+FILE INTEMP1 FB (30 0) VIRTUAL                                                  
+%W02008   'INT1-'                                                               
+*                                                                               
+FILE INTEMP2 FB (30 0) VIRTUAL                                                  
+%W02008   'INT2-'                                                               
+*                                                                               
+FILE INTEMP3 FB (30 0) VIRTUAL RETAIN                                           
+%W02008   'INT3-'                                                               
+*                                                                               
+FILE INTEMP4 FB (30 0) VIRTUAL RETAIN                                           
+%W02008   'INT4-'                                                               
+*                                                                               
+* FILER FÖR FRAMTAGNING AV ARTIKLAR MED RESTORDER                               
+FILE WORKFIL1 FB (30 0) VIRTUAL RETAIN                                          
+IDARTNR          10    5 P                                                      
+REINKORD         18    1 P                                                      
+REAVBRAD         21    2 P 2                                                    
+*                                                                               
+FILE WORKFIL2 VIRTUAL FB (327 0)                                                
+%W44060                                                                         
+*                                                                               
+FILE SUMFIL VIRTUAL FB (25 6000)                                                
+SUM-IDARTNR       1    5 P                                                      
+SUM-ANTRAD        6   10 P 0                                                    
+SUM-EJAVBRAD     16   10 P 2                                                    
+*                                                                               
+FILE SUMFIL1 VIRTUAL FB (15 6000)                                               
+SUM1-IDARTNR      1    5 P                                                      
+SUM1-ANTRAD       6   10 P 0                                                    
+*                                                                               
+FILE SORTFIL1 FB (177 0) VIRTUAL                                                
+%W6111001   'SORT1-'                                                            
+*                                                                               
+FILE UTTEMP    FB  (34 0) VIRTUAL                                               
+UTT1-ARTNR        1    8 N                                                      
+UTT1-AKPLAC1      9    4 A                                                      
+UTT1-AKPLAC2     13    4 A                                                      
+UTT1-FÖRP        17    4 A                                                      
+UTT1-ODETTE-AVI  21    8 A                                                      
+UTT1-ANT-AVI     29    6 N 0                                                    
+*----------------------------                                                   
+%WDATAREA                                                                       
+%WDATKORT                                                                       
+DATUM1              W  8 A                                                      
+AA1     DATUM1         2 A                                                      
+MM1     DATUM1   +3    2 A                                                      
+DD1     DATUM1   +6    2 A                                                      
+DATUM2              W  6 A                                                      
+AA2     DATUM2         2 A                                                      
+MM2     DATUM2   +2    2 A                                                      
+DD2     DATUM2   +4    2 A                                                      
+DATUM3  DATUM2         6 N                                                      
+WS-TID              W  2 N                                                      
+W-DATUM           W  6  N                                                       
+W-AA  W-DATUM        2  N                                                       
+W-MM  W-DATUM     +2 2  N                                                       
+W-DD  W-DATUM     +4 2  N                                                       
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+* FÖR BERÄKNING AV SERVICEGRAD:                                                 
+FIRST-LINE1       S   1 A   VALUE 'J'                                           
+UT-SEMI           W   1 A   VALUE ';'                                           
+PGM-NAMN          W   6 A   VALUE 'W81011'                                      
+DATKORT-ID        W   6 A   VALUE 'WDATUM'                                      
+*****************************************                                       
+W-WRK2-IDARTNR    W   5  P                                                      
+EJAVBRAD          W   4  P 2                                                    
+W-S-ANTRAD        W   4  N 0 MASK 'ZZZ9'                                        
+W-S-EJAVBRAD      W   6  N 2 MASK 'ZZZ9,99'                                     
+W-KVAKS01-CDC     W   6  N 0 MASK 'ZZZZZ9'                                      
+W-KVAKS01-PAV     W   6  N 0 MASK 'ZZZZZ9'                                      
+W-KVAKS01-T       W   6  N 0 MASK 'ZZZZZ9'                                      
+W-RO-ANTRAD       W   4  N 0 MASK 'ZZZ9'                                        
+W-RO-STYCK        W   5  N 0 MASK 'ZZZZ9'                                       
+W-SL-STYCK        W   5  N 0 MASK 'ZZZZ9'                                       
+W-LAGOMR          W   3  N                                                      
+**************************************************-                             
+* DAGLIG INLEVERANS HISTORIK SAMT ODETTEAVISERAT                                
+* PÅ KOLLINIVÅ                                                                  
+* SORTERAD I ARTNRORDNING OCH SELEKTERAD PÅ R32 OCH AVISERAT                    
+W-ARTNR           W   8 N   VALUE 0                                             
+W-AKPLAC1         W   4 A                                                       
+W-AKPLAC2         W   4 A                                                       
+W-FÖRP            W   4 A                                                       
+W-ODETTE-AVI      W   8 A                                                       
+W-ANT-AVI         W   6 N 0 VALUE 0 MASK 'ZZZZZ9'                               
+*                                                                               
+W-ANTRAD          W   6 N 0 VALUE 0                                             
+W-SERVICE         W   6 N 2 VALUE 0                                             
+W-REST            W   8 N 2 VALUE 0                                             
+********************************                                                
+* DAGSFILEN MOTTAGNING FÖR ATT TA FRAM AK-PLACERING OCH ODETTE AVIS             
+                                                                                
+SORT W81011D5 TO SORTFIL1 USING +                                               
+        (IN4-IDARTNR IN4-KDINLSTA IN4-ADINLOMR) BEFORE URV3                     
+                                                                                
+URV3. PROC                                                                      
+   IF IN4-KDRT = 0                                                              
+     IF IN4-KDINLSTA = 'FPK' OR IN4-KDINLSTA = '   '                            
+        SELECT                                                                  
+     END-IF                                                                     
+     IF IN4-KDINLSTA = 'AVI'                                                    
+       IF IN4-IDFS NE '        '                                                
+          SELECT                                                                
+       END-IF                                                                   
+     END-IF                                                                     
+   END-IF                                                                       
+END-PROC                                                                        
+                                                                                
+JOB INPUT SORTFIL1 FINISH SLUT                                                  
+                                                                                
+   IF SORT1-IDARTNR = 0                                                         
+      W-ARTNR  = SORT1-IDARTNR                                                  
+      IF SORT1-KDINLSTA = '   '                                                 
+          W-AKPLAC1 = SORT1-ADINLOMR                                            
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+   IF SORT1-IDARTNR = W-ARTNR                                                   
+      IF SORT1-KDINLSTA = '   '                                                 
+         IF SORT1-ADINLOMR NE W-AKPLAC1                                         
+            W-AKPLAC2 = SORT1-ADINLOMR                                          
+         END-IF                                                                 
+      END-IF                                                                    
+      IF SORT1-KDINLSTA = 'FPK'                                                 
+         W-FÖRP       = 'FÖRP'                                                  
+      END-IF                                                                    
+      IF SORT1-KDINLSTA = 'AVI'                                                 
+         W-ODETTE-AVI = 'AVISERAT'                                              
+         W-ANT-AVI    = W-ANT-AVI + SORT1-KVINLART                              
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+   IF SORT1-IDARTNR NE W-ARTNR                                                  
+      UTT1-ARTNR      = W-ARTNR                                                 
+      UTT1-AKPLAC1    = W-AKPLAC1                                               
+      UTT1-AKPLAC2    = W-AKPLAC2                                               
+      UTT1-FÖRP       = W-FÖRP                                                  
+      UTT1-ODETTE-AVI = W-ODETTE-AVI                                            
+      UTT1-ANT-AVI    = W-ANT-AVI                                               
+      PUT UTTEMP                                                                
+                                                                                
+      W-ARTNR         = SORT1-IDARTNR                                           
+      W-AKPLAC1       = '    '                                                  
+      W-AKPLAC2       = '    '                                                  
+      W-FÖRP          = '    '                                                  
+      W-ODETTE-AVI    = '      '                                                
+      W-ANT-AVI       = 0                                                       
+                                                                                
+      IF SORT1-KDINLSTA = '   '                                                 
+         W-AKPLAC1 = SORT1-ADINLOMR                                             
+      END-IF                                                                    
+                                                                                
+      IF SORT1-KDINLSTA = 'FPK'                                                 
+         W-FÖRP    = 'FÖRP'                                                     
+      END-IF                                                                    
+                                                                                
+      IF SORT1-KDINLSTA = 'AVI'                                                 
+         W-ODETTE-AVI = 'AVISERAT'                                              
+         W-ANT-AVI    = W-ANT-AVI + SORT1-KVINLART                              
+      END-IF                                                                    
+                                                                                
+   END-IF                                                                       
+                                                                                
+SLUT. PROC                                                                      
+  UTT1-ARTNR      = W-ARTNR                                                     
+  UTT1-AKPLAC1    = W-AKPLAC1                                                   
+  UTT1-AKPLAC2    = W-AKPLAC2                                                   
+  UTT1-FÖRP       = W-FÖRP                                                      
+  UTT1-ODETTE-AVI = W-ODETTE-AVI                                                
+  UTT1-ANT-AVI    = W-ANT-AVI                                                   
+  PUT UTTEMP                                                                    
+                                                                                
+  CALL DATKORT USING (PGM-NAMN DATKORT-ID DATUMKORT)                            
+  W-AA = D-AAR                                                                  
+  W-MM = D-MAANAD                                                               
+  W-DD = D-DAG                                                                  
+                                                                                
+* DATUM1 = SYSDATE                                                              
+* AA2 = AA1                                                                     
+* MM2 = MM1                                                                     
+* DD2 = DD1                                                                     
+                                                                                
+  DAT-I-TIDATUM = W-DATUM                                                       
+  DAT-KDDATFORM = 'AAMMDD'                                                      
+  CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM, DAT-O-TIDATUM, +           
+                      DAT-KDSVAR)                                               
+  WS-TID = DAT-TID                                                              
+                                                                                
+END-PROC                                                                        
+                                                                                
+* RÄKNAR SERVICEGRAD                                                            
+* MONDAY SATURDAY SUNDAY                                                        
+                                                                                
+JOB INPUT W81011D1 START TESTM                                                  
+                                                                                
+   IF IN1-REINKORD = 1                                                          
+      PUT INTEMP1 FROM W81011D1                                                 
+   END-IF                                                                       
+                                                                                
+TESTM. PROC                                                                     
+   IF WS-TID      = 2 THRU 5                                                    
+      STOP                                                                      
+   END-IF                                                                       
+END-PROC                                                                        
+                                                                                
+* ÖTHER DAYS                                                                    
+                                                                                
+JOB INPUT W81011D2 START TEST                                                   
+                                                                                
+   IF IN2-REINKORD = 1                                                          
+      PUT INTEMP2 FROM W81011D2                                                 
+   END-IF                                                                       
+                                                                                
+TEST. PROC                                                                      
+   IF WS-TID     = 1 6 7                                                        
+      STOP                                                                      
+   END-IF                                                                       
+END-PROC                                                                        
+                                                                                
+* SLÅR SAMMAN INTEMP1 OCH INTEMP2                                               
+JOB INPUT (INTEMP2 KEY(INT2-IDARTNR) INTEMP1 KEY(INT1-IDARTNR))                 
+                                                                                
+   IF INTEMP1 AND NOT INTEMP2                                                   
+      PUT INTEMP3 FROM INTEMP1                                                  
+   END-IF                                                                       
+                                                                                
+   IF INTEMP2 AND NOT INTEMP1                                                   
+      PUT INTEMP3 FROM INTEMP2                                                  
+   END-IF                                                                       
+                                                                                
+* BERÄKNING AV SERVICEGRAD OCH ANTALS FIL FÖR BERÄKNING                         
+* AV RESTORDER PER ARTIKEL                                                      
+                                                                                
+SORT INTEMP3 TO INTEMP4 USING(INT3-IDARTNR) BEFORE URVAL                        
+                                                                                
+* VÄLJER NYA ORDER                                                              
+URVAL. PROC                                                                     
+   IF INT3-IDDC EQ '11'                                                         
+      SELECT                                                                    
+   END-IF                                                                       
+*                                                                               
+*  REMOVING CHECKS ON DISTRICTS - THIS SHOULD NOT BE USED AS                    
+*  AS FILTER CRITERIA                                                           
+*                                                                               
+*  IF INT3-IDDISTR NE 7674                                                      
+*     IF INT3-IDDISTR NE  7574 5222 7838 6271                                   
+*        SELECT                                                                 
+*     END-IF                                                                    
+*  END-IF                                                                       
+END-PROC                                                                        
+                                                                                
+SORT INTEMP4 TO WORKFIL1 USING(INT4-IDARTNR)                                    
+                                                                                
+*EGENTLIGEN ONÖDIGT - BEROR PÅ ATT TVÅ PROGRAM ÄR HOPKLIPPTA                    
+JOB INPUT WORKFIL1                                                              
+                                                                                
+    EJAVBRAD = 1 - REAVBRAD                                                     
+    PRINT RAPPORT1                                                              
+                                                                                
+REPORT RAPPORT1 SUMMARY SUMFILE SUMFIL NOHEADING NODATE NOPAGE                  
+    CONTROL FINAL NOPRINT IDARTNR NOPRINT                                       
+    TITLE 1 ' '                                                                 
+    LINE 1 IDARTNR TALLY EJAVBRAD                                               
+*                                                                               
+SORT W81011D4 TO WORKFIL2 USING(RORAD-IDARTNR) BEFORE URVAL1                    
+                                                                                
+URVAL1.  PROC                                                                   
+*  IF RORAD-KDSTARAD = '2' AND  RORAD-IDDC = '11'                               
+   IF RORAD-KDSTARAD = '2'                                                      
+      SELECT                                                                    
+   END-IF                                                                       
+END-PROC                                                                        
+                                                                                
+JOB INPUT WORKFIL2                                                              
+    W-WRK2-IDARTNR  = RAD-IDARTNR                                               
+    PRINT RAPPORT3                                                              
+                                                                                
+REPORT RAPPORT3 SUMMARY SUMFILE SUMFIL1 NOHEADING NODATE NOPAGE                 
+    SEQUENCE W-WRK2-IDARTNR                                                     
+    CONTROL FINAL NOPRINT W-WRK2-IDARTNR NOPRINT                                
+    TITLE 1 ' '                                                                 
+    LINE 1 W-WRK2-IDARTNR TALLY                                                 
+                                                                                
+JOB INPUT INTEMP3 FINISH W-FINISH                                               
+                                                                                
+W-ANTRAD     = W-ANTRAD + 1                                                     
+W-REST       = INT3-RERORAD + W-REST                                            
+                                                                                
+W-FINISH. PROC                                                                  
+   W-SERVICE = ((W-ANTRAD - W-REST) * 100 / W-ANTRAD) + 0.005                   
+END-PROC                                                                        
+                                                                                
+JOB INPUT (W81011D3 KEY (IN3-IDARTNR) SUMFIL1 KEY (SUM1-IDARTNR) +              
+           SUMFIL KEY (SUM-IDARTNR) UTTEMP KEY(UTT1-ARTNR))                     
+                                                                                
+   IF W81011D3                                                                  
+      IF IN3-IDLEVNR NQ '  520' ' 2591' '10290'                                 
+        IF W81011D3 AND SUMFIL1 AND SUMFIL AND (NOT UTTEMP)                     
+           W-AKPLAC1    =   '    '                                              
+           W-AKPLAC2    =   '    '                                              
+           W-ODETTE-AVI =   '    '                                              
+           W-ANT-AVI    =   0                                                   
+           PERFORM TILLDELA                                                     
+        END-IF                                                                  
+        IF W81011D3 AND SUMFIL1 AND SUMFIL AND UTTEMP                           
+           W-AKPLAC1    =  UTT1-AKPLAC1                                         
+           W-AKPLAC2    =  UTT1-AKPLAC2                                         
+           W-ODETTE-AVI =  UTT1-ODETTE-AVI                                      
+           W-ANT-AVI    =  UTT1-ANT-AVI                                         
+           PERFORM TILLDELA                                                     
+        END-IF                                                                  
+      END-IF                                                                    
+   END-IF                                                                       
+                                                                                
+TILLDELA. PROC                                                                  
+                                                                                
+     W-S-ANTRAD     = SUM-ANTRAD                                                
+     W-S-EJAVBRAD   = SUM-EJAVBRAD                                              
+     W-KVAKS01-CDC  = IN3-KVAKS-CDC                                             
+     W-KVAKS01-PAV  = IN3-KVAKS-PAV                                             
+     W-KVAKS01-T    = IN3-KVAKS-T                                               
+     W-RO-ANTRAD    = SUM1-ANTRAD                                               
+     W-RO-STYCK     = IN3-KVROS                                                 
+     W-SL-STYCK     = IN3-KVSLAGER                                              
+     W-LAGOMR       = IN3-ADLAGOMR                                              
+                                                                                
+     IF SUM-EJAVBRAD GT 9                                                       
+        PRINT RAPPORT2                                                          
+     END-IF                                                                     
+                                                                                
+     W-S-ANTRAD    = 0                                                          
+     W-S-EJAVBRAD  = 0                                                          
+     W-KVAKS01-CDC = 0                                                          
+     W-KVAKS01-PAV = 0                                                          
+     W-KVAKS01-T   = 0                                                          
+     W-RO-ANTRAD   = 0                                                          
+     W-RO-STYCK    = 0                                                          
+                                                                                
+END-PROC                                                                        
+                                                                                
+    REPORT RAPPORT2         +                                                   
+           PRINTER W81011D6 +                                                   
+           PAGESIZE 10000   +                                                   
+           LINESIZE 255     +                                                   
+           SPACE 0          +                                                   
+           NOHEADING        +                                                   
+           NOADJUST         +                                                   
+           NOPAGE           +                                                   
+           NODATE           +                                                   
+           NOSPREAD                                                             
+    SEQUENCE  W-S-EJAVBRAD D                                                    
+    LINE   SUM-IDARTNR      +                                                   
+           UT-SEMI          +                                                   
+           IN3-BEART-ENG    +                                                   
+           UT-SEMI          +                                                   
+           W-S-ANTRAD       +                                                   
+           UT-SEMI          +                                                   
+           W-S-EJAVBRAD     +                                                   
+           UT-SEMI          +                                                   
+           W-KVAKS01-CDC    +                                                   
+           UT-SEMI          +                                                   
+           W-KVAKS01-PAV    +                                                   
+           UT-SEMI          +                                                   
+           W-KVAKS01-T      +                                                   
+           UT-SEMI          +                                                   
+           W-RO-ANTRAD      +                                                   
+           UT-SEMI          +                                                   
+           W-RO-STYCK       +                                                   
+           UT-SEMI          +                                                   
+           W-SL-STYCK       +                                                   
+           UT-SEMI          +                                                   
+           IN3-KDPRODSL     +                                                   
+           UT-SEMI          +                                                   
+           IN3-IDANSK       +                                                   
+           UT-SEMI          +                                                   
+           IN3-IDLEVNR      +                                                   
+           UT-SEMI          +                                                   
+           W-LAGOMR         +                                                   
+           UT-SEMI          +                                                   
+           W-AKPLAC1        +                                                   
+           UT-SEMI          +                                                   
+           W-AKPLAC2        +                                                   
+           UT-SEMI          +                                                   
+           W-ANT-AVI                                                            
+                                                                                
+BEFORE-LINE. PROC                                                               
+  IF FIRST-LINE1 = 'J'                                                          
+    DISPLAY '¤DAPW81011-001'                                                    
+    DISPLAY '¤DAPW81011'                                                        
+    DISPLAY  'SERVICE : ' W-SERVICE '%'                                         
+    DISPLAY  'LINES   : ' W-ANTRAD                                              
+    DISPLAY 'PART NUMBER;DESCRIPTION(ENG);QTY LINES YDAY;'            +         
+            'UNB LINES YDAY;AK CDC;GIT;AK IN TERMINAL;TOTAL BO LINES;'+         
+            'TOTAL BO QTY/SS;SAFETY STOCK;PRODUCT GROUP;'             +         
+            'PURCHASE PLANNER;SUPPLIER;AREA(WAREHOUSE LOCATION CDC);' +         
+            'AK LOCATION 1;AK LOCATION 2;ADVICED QUANTITY;'                     
+    FIRST-LINE1  = 'N'                                                          
+  END-IF                                                                        
+END-PROC                                                                        

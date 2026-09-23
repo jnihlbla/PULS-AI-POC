@@ -1,0 +1,147 @@
+                                                                                
+************************************************************************        
+***                                                                    *        
+***PROGRAM    :  W4404600                                              *        
+***                                                                    *        
+***FUNKTION   :  SKAPAR INFO                                          *         
+***              VID RO PÅ LDC-ARTIKLAR                                *        
+***                                                                    *        
+***FÖRFATTARE :  JAN PETTERSSON                                        *        
+***                                                                    *        
+***           :                                                        *        
+***                                                                    *        
+***   DATUM       NAMN                     AVDELNING                   *        
+***   020304      ÅKE REINHOLDSSON         9233                        *        
+***   ......      ..................       ......                      *        
+***                                                                    *        
+************************************************************************        
+*IST OFF                                                                        
+                                                                                
+FILE W44046D1                                                                   
+%W44046    'IN-'                                                                
+IN-ARTNR    1   5  P   MASK 'ZZZZZZZ99'                                         
+IN-RODAT    6   4  P   MASK 'Z999999'                                           
+IN-DISTR   10   3  P   MASK 'ZZZ99'                                             
+IN-KUNDNR  13   4  P   MASK 'ZZZZ999'                                           
+                                                                                
+FILE W44046D2  PRINTER FB(121 121)                                              
+                                                                                
+%WDATKORT 'DATKORT-'                                                            
+                                                                                
+*--------------------------*                                                    
+* DATAREA                  *                                                    
+*--------------------------*                                                    
+                                                                                
+NEWPAGE                                                                         
+%WDATAREA                                                                       
+                                                                                
+*--------------------------*                                                    
+* DAGAREA                  *                                                    
+*--------------------------*                                                    
+                                                                                
+NEWPAGE                                                                         
+%WDAGAREA                                                                       
+                                                                                
+  PROGRAM-NAMN          W  6 A   VALUE 'W44046'                                 
+  DATUMKORT-ID          W  6 A   VALUE 'WDATUM'                                 
+  WDATKONV              W  8 A   VALUE 'WDATKONV'                               
+                                                                                
+******************************************************                          
+***           HJÄLP AREOR                          ***                          
+******************************************************                          
+  DD-TIAAVVD                          W   5  N                                  
+  DD-TIAA             DD-TIAAVVD          2  N                                  
+  DD-TIVV             DD-TIAAVVD      +2  2  N                                  
+  DD-TID              DD-TIAAVVD      +2  1  N                                  
+                                                                                
+  DAGENS-DATUM        W                     6   N                               
+  DAGENS-DATUM-AA     DAGENS-DATUM          2   N                               
+  DAGENS-DATUM-MM     DAGENS-DATUM      +2  2   N                               
+  DAGENS-DATUM-DD     DAGENS-DATUM      +4  2   N                               
+                                                                                
+******************************************************                          
+***           HJÄLP AREA                           ***                          
+******************************************************                          
+W-ANTAL      W   3   P                                                          
+*                                                                               
+******************************************************                          
+ JOB INPUT W44046D1              +                                              
+           START A-INIT          +                                              
+           FINISH Z-FINISH       +                                              
+           NAME  STEG01                                                         
+*     SKRIV LISTAN                                                              
+    IF W-ANTAL < 100                                                            
+      PRINT RAPPORT                                                             
+       W-ANTAL = W-ANTAL + 1                                                    
+    END-IF                                                                      
+                                                                                
+A-INIT. PROC                                                                    
+                                                                                
+*  HÄMTA DATUM FRÅN DATKORT                                                     
+                                                                                
+   CALL DATKORT USING (PROGRAM-NAMN +                                           
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+                                                                                
+   MOVE DATKORT-D-AAR    TO DAGENS-DATUM-AA                                     
+   MOVE DATKORT-D-MAANAD TO DAGENS-DATUM-MM                                     
+   MOVE DATKORT-D-DAG    TO DAGENS-DATUM-DD                                     
+                                                                                
+END-PROC                                                                        
+                                                                                
+Z-FINISH. PROC                                                                  
+                                                                                
+*  SKRIV LISTA ÄVEN OM POSTER SAKNAS                                            
+                                                                                
+   IF W-ANTAL = 0                                                               
+      DISPLAY W44046D2 NEWPAGE +                                                
+         COL 01 SYSDATE                                                         
+      DISPLAY W44046D2         +                                                
+         COL 41 'VOLVO CAR CUSTOMER SERVICE       W44046-001'                   
+      DISPLAY W44046D2         +                                                
+         COL 45 'LDC LISTA   RESTORDER               '                          
+      DISPLAY W44046D2 SKIP 3  +                                                
+         COL 11 'INGA POSTER PÅ LISTAN IDAG          '                          
+   END-IF                                                                       
+END-PROC                                                                        
+                                                                                
+******************                                                              
+*RAPPORTER       *                                                              
+******************                                                              
+                                                                                
+REPORT RAPPORT                                                  +               
+       PRINTER W44046D2                                         +               
+       LINESIZE 120                                             +               
+       SPACE 1                                                  +               
+       PAGESIZE 41                                                              
+                                                                                
+SEQUENCE IN-DISTR IN-RODAT D IN-KUNDNR IN-ARTNR                                 
+                                                                                
+*ONTROL                                                                         
+                                                                                
+TITLE 1  '   '                                                                  
+                                                                                
+TITLE 2  '    VOLVO CAR CUSTOMER SERVICE       W44046-001'                      
+                                                                                
+                                                                                
+TITLE 3  '    LDC LISTA   RESTORDER               '                             
+                                                                                
+HEADING  IN-RODAT             ('RO DATUM')                                      
+HEADING  IN-DISTR             ('DISTRIKT')                                      
+HEADING  IN-KUNDNR            ('KUND NR')                                       
+HEADING  IN-IDORDNR5          ('ORDER NR')                                      
+HEADING  IN-ARTNR             ('ARTIKEL NR')                                    
+HEADING  IN-BEART-SVE         ('BENÄMNING')                                     
+HEADING  IN-KVART             ('ANTAL')                                         
+HEADING  IN-BERADREF          ('RAD REFERENS')                                  
+HEADING  IN-IDDC              ('DC')                                            
+                                                                                
+LINE 01  IN-RODAT              +                                                
+         IN-DISTR              +                                                
+         IN-KUNDNR             +                                                
+         IN-IDORDNR5           +                                                
+         IN-ARTNR              +                                                
+         IN-BEART-SVE          +                                                
+         IN-KVART              +                                                
+         IN-BERADREF           +                                                
+         IN-IDDC                                                                

@@ -1,0 +1,82 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W1117600                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER INFIL W11175 MED ARTIKLAR MED INLEVERANS        *        
+*                SOM SAKNAS STATNUMMER FÖR ENGLAND, BELGIEN            *        
+*                ELLER SVERIGE.                                        *        
+*                SKAPAR LARMLISTA.                                     *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL  940110                                 *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W11176D1                                                                   
+*                                                                               
+%W11175EE  'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W11176D2  PRINTER FB (121 121)                                             
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+WS-IDARTNR        W   9   N   MASK 'ZZZZZZZZ9'                                  
+WS-IDFKNGRP       W   5   N   MASK 'Z9999'                                      
+WS-KVLS           W   7   N   MASK 'ZZZZZZ9'                                    
+WS-TIAAMMDD       W   7   N   MASK 'Z999999'                                    
+WS-KDPRODSL       W   3   N   MASK 'Z99'                                        
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SKAPAR L LISTA                                                        
+*                                                                               
+JOB INPUT W11176D1                                                              
+                                                                                
+  WS-IDARTNR  = IN-IDARTNR                                                      
+  WS-IDFKNGRP = IN-IDFKNGRP                                                     
+  WS-KVLS     = IN-KVLS                                                         
+  WS-TIAAMMDD = IN-TIAAMMDD                                                     
+  WS-KDPRODSL = IN-KDPRODSL                                                     
+                                                                                
+  PRINT LARMLISTA                                                               
+                                                                                
+NEWPAGE                                                                         
+REPORT LARMLISTA PRINTER W11176D2 LINESIZE 120 DTLCTL FIRST     +               
+       NOADJUST PAGESIZE 41 TITLESKIP 3 NOHEADING               +               
+       SKIP 1 SPACE 0                                                           
+                                                                                
+CONTROL FINAL NOPRINT                                           +               
+        WS-KDPRODSL NOPRINT                                     +               
+        WS-IDFKNGRP NOPRINT                                                     
+                                                                                
+TITLE 1  COL 12  'VOLVO CAR AFTERSALES W11176-001'                              
+                                                                                
+TITLE 2  ' '                                                                    
+                                                                                
+TITLE 3  COL 35  'LARMLISTA INLEVERERADE ARTIKLAR UTAN '        +               
+         COL 72  'STATNUMMER'                                   +               
+         COL 82  WS-TIAAMMDD                                                    
+                                                                                
+TITLE 4  ' '                                                                    
+                                                                                
+TITLE 5  COL 12  'ARTIKELNUMMER'                                +               
+         COL 27  'SVENSK BENÄMNING'                             +               
+         COL 63  'FUNKTIONSGRUPP'                               +               
+         COL 79  'LAGERSALDO'                                   +               
+         COL 91  'PRODUKTSLAG'                                                  
+                                                                                
+LINE 01  COL 16   WS-IDARTNR                                    +               
+         COL 27   IN-BEART-SVE                                  +               
+         COL 72   WS-IDFKNGRP                                   +               
+         COL 82   WS-KVLS                                       +               
+         COL 99   WS-KDPRODSL                                                   

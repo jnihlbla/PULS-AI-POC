@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTA KOLLI I FAKTURA                                               
+//*                                                                             
+//*  FREKVENS:     DAG       RTN W612S1                                         
+//*                                                                             
+//*  ÅTERSTART:    W61234    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P034 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W612..W612S1,                                             
+//             DEST1=&QSE09012                                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD34),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W61233(0),DISP=SHR                                   
+//************ LISTFIL                                                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61233,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD W61233                                                  
+//         SPACE=(66,(1,3),RLSE),AVGREC=K                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61234   EXEC PGM=W61234                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W61234D1 DD  DSN=&&W61233,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD W61233                                                  
+//*                                                                             
+//W61234D2 DD  SYSOUT=(A,,STD),DEST=&DEST1                                      
+//************ W61234-001  KOLLI I FAKTURA                                      
+//*                                                                             

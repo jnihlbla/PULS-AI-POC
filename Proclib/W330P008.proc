@@ -1,0 +1,36 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  ARTIKELSTATISTIK                                                           
+//*  LÄSER OCH TAR BORT JUSTERINGSTRANSAR FRÅN WDG2                             
+//*                                                                             
+//*  FREKVENS:     DAG      RTN W330D1                                          
+//*                DETTA JOB KÖRS EMELLERTID 1 GGN/VECKA                        
+//*                                                                             
+//*  ÅTERSTART:    W33008   NORMAL (BMP)                                        
+//*                .                                                            
+//*                .        .                                                   
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P008 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDUT=&W330..W330D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33008   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W33008,W33008,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W33008D1 DD  DSN=&INDUT..W33009(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ JUSTERINGAR TILL ARTIKELSTATISTIKEN                              
+//             MGMTCLAS=&NOBACKUP,SPACE=(23461,(100,10),RLSE)                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

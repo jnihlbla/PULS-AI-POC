@@ -1,0 +1,58 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SORTERA OCH SPLITTA PÅ LISTTYP (VA1,VA2 OCH VP1)                           
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W330B2                                      
+//*                                                                             
+//*  ÅTERSTART:    W330SRT   NORMAL                                             
+//*                .                                                            
+//*                W33072   NORMAL                                              
+//*                .                                                            
+//*                DFUP   NORMAL                                                
+//*                .                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P072 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W330..W330B2,                                             
+//             INDUT=&W330..W330B2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330SRT  EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W330PD72),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W33071(+0),DISP=SHR                                  
+//************ BESTÄLLNINGSFIL. VECKO-,PRODUKTSTATISTIK.                        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W33071,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD BESTÄLLNINGSFIL                                         
+//             VOL=(,,,2),SPACE=(24288,(1000,5000),RLSE)                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33072   EXEC PGM=W33072                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W33072D1 DD  DSN=&&W33071,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W33072D2 DD  DSN=&INDUT..W33073(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL W33073 SKAPAR VA1 LISTOR                                     
+//             MGMTCLAS=DEL2,VOL=(,,,3),                                        
+//             SPACE=(24486,(1500,2000),RLSE)                                   
+//*                                                                             
+//W33072D3 DD  DSN=&INDUT..W33077(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL W33077 SKAPAR VA2 LISTOR                                     
+//             MGMTCLAS=DEL2,VOL=(,,,3),                                        
+//             SPACE=(24846,(1500,2000),RLSE)                                   
+//*                                                                             
+//W33072D4 DD  DSN=&INDUT..W33081(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FIL W33081 SKAPAR VP1 LISTOR                                     
+//             MGMTCLAS=DEL2,VOL=(,,,3),                                        
+//             SPACE=(24528,(1500,2000),RLSE)                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

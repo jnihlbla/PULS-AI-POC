@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CALL PROJECT44 TO GET INFO ABOUT ETA TIMES.                                
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W612DB                                         
+//*                                                                             
+//*  RESTART:                NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W612P027 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W612..W612DB                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD27),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W612211(+0),DISP=SHR                                 
+//************ FILE TO P44 WITH BOOKING NO AND TRANSPORTER                      
+//*                                                                             
+//SORTOUT  DD  DSN=&&W612211,DISP=(NEW,PASS,DELETE),                            
+//************ FILE TO P44 WITH BOOKING NO AND TRANSPORTER                      
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W612PD28),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W612212(+0),DISP=SHR                                 
+//************ FILE TO P44 WITH CONTAINER NO AND TRANSPORTER                    
+//*                                                                             
+//SORTOUT  DD  DSN=&&W612212,DISP=(NEW,PASS,DELETE),                            
+//************ FILE TO P44 WITH CONTAINER NO AND TRANSPORTER                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W61227   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W61227,W61227,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//         DD  DSN=F1SY&VX..BAQ.&ZCEEVER..SBAQLIB,DISP=SHR                      
+//CEEOPTS  DD  DSN=&INDRTE..CONSTANT(ZCEECONN),DISP=SHR                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W61227D1 DD  DSN=&&W612211,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTED W612211                                                   
+//W61227D2 DD  DSN=&&W612212,DISP=(OLD,DELETE,DELETE)                           
+//************ SORTED W612212                                                   
+//W61227D3 DD  DSN=&INDIN..W612213(+0),DISP=SHR                                 
+//************ FILE TO P44 WITH SHIPMENT ID (CER TRANSACTION)                   
+//*                                                                             

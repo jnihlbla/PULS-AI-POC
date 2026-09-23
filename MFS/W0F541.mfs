@@ -1,0 +1,97 @@
+*          FÖR SÄNDNING AV MEMO FRÅN IMS                                        
+*                                                                               
+         PRINT NOGEN                                                            
+W0F541   FMT                                                                    
+         DEV   TYPE=(3270,2),                                          *        
+               FEAT=IGNORE,                                            *        
+               PFK=(FLDPFK,'W0T551U ','WINFO   ','W0T541  ','W0T501  ',*        
+               'W0T501  ','W0T501  ','W0T541 7','W0T541 8','W0T501  ', *        
+               'WHELP   ','W0T541U ','/RCL.   ','W0T541  ','W0T501  ', *        
+               'W0T501  ','W0T501  ','W0T501  ','W0T501  ','W0T501  ', *        
+               'W0T501  ','W0T501  ','WHELP   ','W0T541U ','/RCL.   '),*        
+               DSCA=X'0080',SYSMSG=FSYSMSG                                      
+         DIV   TYPE=INOUT                                                       
+         DPAGE CURSOR=((02,19)),                                       *        
+               FILL=NONE                                                        
+         ALPHA 'abcdefghijklmnopqrstuvwxyzåäöéü'                                
+FLD0102  DFLD  POS=(01,02),LTH=0001,ATTR=(ALPHA,NOPROT,MOD)                     
+FLD0104  DFLD  POS=(01,04),LTH=0001,ATTR=(NUM)                                  
+FLD0106  DFLD  POS=(01,06),LTH=0001,ATTR=(NUM)                                  
+FLD0108  DFLD  POS=(01,08),LTH=0001,ATTR=(NUM)                                  
+         DFLD  'Send MEMO to one MEMO-id ',                            *        
+               POS=(01,12),LTH=25,ATTR=(PROT)                                   
+FLD0141  DFLD  POS=(01,41),LTH=0040,ATTR=(NUM,PROT,HI)                          
+         DFLD  'Send to      dg:',POS=(02,02),LTH=16,ATTR=(PROT)                
+FLD0219  DFLD  POS=(02,19),LTH=0008,ATTR=(MOD)                                  
+         DFLD  'id:',POS=(02,28),LTH=03,ATTR=(PROT)                             
+FLD0232  DFLD  POS=(02,32),LTH=0008,ATTR=(MOD)                                  
+         DFLD  'memo-title:',POS=(02,41),LTH=11,ATTR=(PROT)                     
+FLD0253  DFLD  POS=(02,53),LTH=0014,ATTR=(MOD)                                  
+         DFLD  'Your memo-id dg:',POS=(03,02),LTH=16,ATTR=(PROT)                
+FLD0319  DFLD  POS=(03,19),LTH=0008,ATTR=(MOD)                                  
+         DFLD  'id:',POS=(03,28),LTH=3,ATTR=(PROT)                              
+FLD0332  DFLD  POS=(03,32),LTH=0008,ATTR=(MOD)                                  
+         DFLD  'password:',POS=(03,41),LTH=9,ATTR=(PROT)                        
+FLD0351  DFLD  POS=(03,51),LTH=0008,ATTR=(MOD,NODISP)                           
+         DO    15,SUF=05                                                        
+COL03    DFLD  POS=(05,03),LTH=0066,ATTR=(ALPHA,MOD)                            
+         ENDDO                                                                  
+FLD2302  DFLD  POS=(23,02),LTH=0055,ATTR=(NUM,PROT,HI)                          
+         DFLD  ' VCP ',POS=(23,58)                                              
+FLD2364  DFLD  POS=(23,64),LTH=0008,ATTR=(NUM,PROT)                             
+FLD2373  DFLD  POS=(23,73),LTH=0008,ATTR=(NUM,PROT)                             
+FSYSMSG  DFLD  POS=(24,02),LTH=0079,ATTR=(NUM,PROT,HI)                          
+         FMTEND                                                                 
+         EJECT                                                                  
+W0O54101 MSG   TYPE=OUTPUT,                                            *        
+               SOR=(W0F541,IGNORE),                                    *        
+               OPT=2,                                                  *        
+               NXT=W0I54101,                                           *        
+               FILL=PT,                                                *        
+               PAGE=NO                                                          
+         SEG                                                                    
+         MFLD  FLD0102,LTH=0001                                                 
+         MFLD  FLD0104,LTH=0001                                                 
+         MFLD  FLD0106,LTH=0001                                                 
+         MFLD  FLD0108,LTH=0001                                                 
+         MFLD  FLD0141,LTH=0040                                                 
+         MFLD  FLD0219,LTH=0008                                                 
+         MFLD  FLD0232,LTH=0008                                                 
+         MFLD  FLD0253,LTH=0014                                                 
+         MFLD  FLD0319,LTH=0008                                                 
+         MFLD  FLD0332,LTH=0008                                                 
+         MFLD  FLD0351,LTH=0008                                                 
+         DO    15,SUF=05                                                        
+         MFLD  COL03,LTH=0066                                                   
+         ENDDO                                                                  
+         MFLD  FLD2302,LTH=0055                                                 
+         MFLD  (FLD2364,DATE4)                                                  
+         MFLD  (FLD2373,TIME)                                                   
+         MFLD  (FSYSMSG,' '),LTH=0001                                           
+         MSGEND                                                                 
+         EJECT                                                                  
+W0I54101 MSG   TYPE=INPUT,                                             *        
+               SOR=W0F541,                                             *        
+               OPT=2,                                                  *        
+               NXT=W0O54101                                                     
+         SEG                                                                    
+         MFLD  FLDPFK,LTH=0008,FILL=NULL                                        
+         MFLD  'W',LTH=0001                                                     
+         MFLD  FLD0102,LTH=0001,FILL=C'0'                                       
+         MFLD  'T',LTH=0001                                                     
+         MFLD  FLD0104,LTH=0001,FILL=C'5'                                       
+         MFLD  FLD0106,LTH=0001,FILL=C'4'                                       
+         MFLD  FLD0108,LTH=0001,FILL=C'1'                                       
+         MFLD  '  ',LTH=0002                                                    
+         MFLD  '05411',LTH=0005                                                 
+         MFLD  (FLD0219,'VCC1    '),LTH=0008,FILL=C' '                          
+         MFLD  (FLD0232,'++++++++'),LTH=0008,FILL=C' '                          
+         MFLD  (FLD0253,'++++++++++++++'),LTH=0014,FILL=C' '                    
+         MFLD  (FLD0319,'VCC1    '),LTH=0008,FILL=C' '                          
+         MFLD  (FLD0332,'++++++++'),LTH=0008,FILL=C' '                          
+         MFLD  (FLD0351,'++++++++'),LTH=0008,FILL=C' '                          
+         DO    15,SUF=05                                                        
+         MFLD  COL03,LTH=0066,FILL=C' '                                         
+         ENDDO                                                                  
+         MSGEND                                                                 
+         END                                                                    

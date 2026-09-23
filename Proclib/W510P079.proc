@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR RÄTTNINGSTRANSAR PÅ FIL TILL LEVA1                            
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W510D4                                           
+//*                                                                             
+//*  ÅTERSTART:    W51079    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W510P079 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W510..W510D4,                                             
+//             INDUT=&W510..W510D4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51079   EXEC PGM=V16459,PARM='W51079/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=LOCAL,HOLD=YES                             
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W51079D1 DD  DSN=&INDIN..W5103A,DISP=SHR                                      
+//************ LEVA1-HÄNDELSER I INLEVERANSSYSTEMEN                             
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR SORTFIL FÖR LEVA1-POSTERNA                              
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL2   DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMPORÄR FIL FÖR RÄTTNINGSTRANSARNAS LÖPNUMMER                   
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51079D2 DD  DSN=&INDUT..W51079(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ KOMPLETTERAD FIL FÖR LEVA1-POSTERNA                              
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  

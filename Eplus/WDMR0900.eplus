@@ -1,0 +1,65 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WDMR0900                                              *        
+*                                                                      *        
+*  FUNKTION   :  SORTERA OCH PLOCCKA BORT DUBLETTER                    *        
+*                DATASET                                               *        
+*                                                                      *        
+*  FÖRFATTARE :  ODD OLSEN                                             *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR09D1                                                                   
+*                                                                               
+  IN-POST              1 80 A                                                   
+  IN-DSN               1 41 A                                                   
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP FB(80 23440) VIRTUAL                                                  
+*                                                                               
+  TEMP-POST            1 80 A                                                   
+  TEMP-DSN             1 41 A                                                   
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR09D2 FB(80 23440)                                                      
+*                                                                               
+  UT-POST              1 80 A                                                   
+  UT-DSN               1 41 A                                                   
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* ARBETSAREA                                                                    
+*                                                                               
+  SPAR-POST            W 80 A                                                   
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+NEWPAGE                                                                         
+*                                                                               
+* SORT                                                                          
+*                                                                               
+SORT WDMR09D1 TO +                                                              
+     TEMP USING (IN-POST)                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* BEARBETA                                                                      
+*                                                                               
+JOB INPUT(TEMP)                                                                 
+                                                                                
+    IF TEMP-POST ^= SPAR-POST                                                   
+      PUT WDMR09D2 FROM TEMP                                                    
+      SPAR-POST = TEMP-POST                                                     
+    END-IF                                                                      
+                                                                                
+    GOTO JOB                                                                    
+                                                                                
+STOP                                                                            

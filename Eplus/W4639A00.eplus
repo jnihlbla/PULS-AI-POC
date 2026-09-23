@@ -1,0 +1,189 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4639A00                                              *        
+*                                                                      *        
+*  FUNKTION   :  DIREKTLEVERANSUPPFÖLJNING TILL LEVERANTÖR             *        
+*                                                                      *        
+*                                                                      *        
+*  FÖRFATTARE :  ÅKE REINHOLDSSON    2002-02-01                        *        
+*                KOPIERAT FRÅN W8.IC.JCL(TTIFR)                        *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+*                                                                               
+FILE W4639AD1                                                                   
+%W46382   'IN1-'                                                                
+*                                                                               
+FILE W4639AD2                                                                   
+%W46341   'IN2-'                                                                
+*                                                                               
+FILE SORTFIL1      FB (59 0)  VIRTUAL                                           
+%W46382   'SRT1-'                                                               
+*                                                                               
+FILE SORTFIL2      FB (200 0) VIRTUAL                                           
+%W46341   'SRT2-'                                                               
+*                                                                               
+FILE TEMPFIL1      FB (103 0) VIRTUAL                                           
+%W4639A   'TMP1-'                                                               
+*                                                                               
+FILE W4639AD3      FB (103 0)                                                   
+%W4639A   'UTS-'                                                                
+*                                                                               
+W-IDLOPNR     W    5 N    VALUE 0                                               
+*                                                                               
+%WWLEV06   'IN2-' WORK ''                                                       
+*----------------------------------------------------------------*              
+* STEG 1                                                         *              
+*----------------------------------------------------------------*              
+*                                                                               
+SORT W4639AD1 TO SORTFIL1     +                                                 
+     USING ( IN1-IDDISTR      +                                                 
+             IN1-IDKUNDNR     +                                                 
+             IN1-IDORDNR7     +                                                 
+             IN1-IDARTNR   )  +                                                 
+     BEFORE URVAL1                                                              
+*                                                                               
+URVAL1. PROC                                                                    
+   PERFORM S01-TEST-DDGS                                                        
+   IF IN1-IDLEVNR EQ  LEV06-DDGS                                                
+      SELECT                                                                    
+   END-IF                                                                       
+END-PROC                                                                        
+*                                                                               
+%WWLEV06 'IN1-' PROC ''                                                         
+*----------------------------------------------------------------*              
+* STEG 2                                                         *              
+*----------------------------------------------------------------*              
+*                                                                               
+SORT W4639AD2 TO SORTFIL2     +                                                 
+     USING ( IN2-IDDISTR      +                                                 
+             IN2-IDKUNDNR     +                                                 
+             IN2-IDORDNR7     +                                                 
+             IN2-IDARTNR      +                                                 
+             IN2-DAREGDAT  )  +                                                 
+     BEFORE URVAL2                                                              
+*                                                                               
+URVAL2. PROC                                                                    
+   PERFORM S01-TEST-DDGS                                                        
+   IF IN2-IDLEVNR EQ  LEV06-DDGS                                                
+      SELECT                                                                    
+   END-IF                                                                       
+END-PROC                                                                        
+*                                                                               
+%WWLEV06 'IN2-' PROC ''                                                         
+*----------------------------------------------------------------*              
+* STEG 3     MATCH                                               *              
+*----------------------------------------------------------------*              
+*                                                                               
+JOB INPUT (SORTFIL1 KEY(      +                                                 
+             SRT1-IDDISTR     +                                                 
+             SRT1-IDKUNDNR    +                                                 
+             SRT1-IDORDNR7    +                                                 
+             SRT1-IDARTNR   ) +                                                 
+           SORTFIL2 KEY(      +                                                 
+             SRT2-IDDISTR     +                                                 
+             SRT2-IDKUNDNR    +                                                 
+             SRT2-IDORDNR7    +                                                 
+             SRT2-IDARTNR   ))                                                  
+*                                                                               
+IF NOT MATCHED                                                                  
+   IF SORTFIL1                                                                  
+*                                                                               
+      W-IDLOPNR = W-IDLOPNR + 1                                                 
+      PERFORM PUT-UTEST-RADER                                                   
+*                                                                               
+   END-IF                                                                       
+END-IF                                                                          
+*                                                                               
+IF MATCHED                                                                      
+*                                                                               
+   IF FIRST-DUP SORTFIL2 OR (NOT DUPLICATE SORTFIL2)                            
+      W-IDLOPNR = W-IDLOPNR + 1                                                 
+      PERFORM PUT-UTEST-RADER                                                   
+*                                                                               
+   END-IF                                                                       
+*                                                                               
+   W-IDLOPNR = W-IDLOPNR + 1                                                    
+   PERFORM PUT-OVR-RADER                                                        
+*                                                                               
+END-IF                                                                          
+*                                                                               
+PUT-UTEST-RADER. PROC                                                           
+   TMP1-IDPTYP       = '1'                                                      
+   TMP1-IDLOPNR      = W-IDLOPNR                                                
+   TMP1-IDLEVNR      = SRT1-IDLEVNR                                             
+   TMP1-IDDISTR      = SRT1-IDDISTR                                             
+   TMP1-IDKUNDNR     = SRT1-IDKUNDNR                                            
+   TMP1-IDORDNR7     = SRT1-IDORDNR7                                            
+   TMP1-IDARTNR      = SRT1-IDARTNR                                             
+*                                                                               
+   TMP1-KVBEART      = SRT1-KVBEART                                             
+   TMP1-KVLEVART     = SRT1-KVLEVART                                            
+   TMP1-IDPURAD      = SRT1-IDPURAD                                             
+   TMP1-KDANNULL     = SRT1-KDANNULL                                            
+   TMP1-TIUTSKR      = SRT1-TIUTSKR                                             
+   TMP1-TIUTSTID     = SRT1-TIUTSTID                                            
+   TMP1-IDPRODNR     = SRT1-IDPRODNR                                            
+   TMP1-KDORDKL      = SRT1-KDORDKL                                             
+   TMP1-TISKEPPN-DDC = SRT1-TISKEPPN-DDC                                        
+*                                                                               
+   TMP1-DAREGDAT     = 0                                                        
+   TMP1-DALEVDAT     = 0                                                        
+   TMP1-KVANTAL      = 0                                                        
+   TMP1-KDORDBEK     = 0                                                        
+*                                                                               
+   PUT TEMPFIL1                                                                 
+ END-PROC                                                                       
+*                                                                               
+PUT-OVR-RADER. PROC                                                             
+   TMP1-IDPTYP       = '2'                                                      
+   TMP1-IDLOPNR      = W-IDLOPNR                                                
+   TMP1-IDLEVNR      = SRT1-IDLEVNR                                             
+   TMP1-IDDISTR      = SRT1-IDDISTR                                             
+   TMP1-IDKUNDNR     = SRT1-IDKUNDNR                                            
+   TMP1-IDORDNR7     = SRT1-IDORDNR7                                            
+   TMP1-IDARTNR      = SRT1-IDARTNR                                             
+*                                                                               
+   TMP1-KVBEART      = 0                                                        
+   TMP1-KVLEVART     = 0                                                        
+   TMP1-IDPURAD      = 0                                                        
+   TMP1-KDANNULL     = ' '                                                      
+   TMP1-TIUTSKR      = SRT1-TIUTSKR                                             
+   TMP1-TIUTSTID     = SRT1-TIUTSTID                                            
+   TMP1-IDPRODNR     = SRT1-IDPRODNR                                            
+   TMP1-KDORDKL      = SRT1-KDORDKL                                             
+   TMP1-TISKEPPN-DDC = SRT1-TISKEPPN-DDC                                        
+*                                                                               
+   TMP1-DAREGDAT     = SRT2-DAREGDAT                                            
+   TMP1-DALEVDAT     = SRT2-DALEVDAT                                            
+   TMP1-KVANTAL      = SRT2-KVANTAL                                             
+   TMP1-KDORDBEK     = SRT2-KDORDBEK                                            
+*                                                                               
+   PUT TEMPFIL1                                                                 
+ END-PROC                                                                       
+*                                                                               
+*----------------------------------------------------------------*              
+* STEG 4                                                         *              
+*----------------------------------------------------------------*              
+*                                                                               
+SORT TEMPFIL1 TO TEMPFIL1      +                                                
+     USING ( TMP1-IDLEVNR      +                                                
+             TMP1-TIUTSKR      +                                                
+             TMP1-TIUTSTID     +                                                
+             TMP1-IDLOPNR   )                                                   
+*                                                                               
+*----------------------------------------------------------------*              
+* STEG 5     SELEKTERA                                           *              
+*----------------------------------------------------------------*              
+*                                                                               
+JOB INPUT TEMPFIL1                                                              
+*                                                                               
+    PUT W4639AD3    FROM TEMPFIL1                                               
+                                                                                

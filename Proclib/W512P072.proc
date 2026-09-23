@@ -1,0 +1,66 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  GIT REPORT TO SHOW RECORDS OLDER THAN SIX MONTHS                           
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W51272      NORMAL                                           
+//*                READS        WDB6                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P072 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W011..&RTEGRP.,                                          
+//             INDIN2=&W512..W512M2,                                            
+//             INDUT=&W512..W512M2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W011PD60),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN1..W01160(+0),DISP=SHR                                 
+//************ CDC INFO                                                         
+//*                                                                             
+//SORTOUT  DD  DSN=&&W01160,DISP=(NEW,PASS,DELETE),                             
+//************ CDC INFO SORTED                                                  
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT02   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W512PD61),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN2..W51262(+0),DISP=SHR                                 
+//************ EXTRACT FOR WDL6, R30 TRANSACTION                                
+//*                                                                             
+//SORTOUT  DD  DSN=&&W51262,DISP=(NEW,PASS,DELETE),                             
+//************ W51262 SORTED IN ASCENDING ORDER OF IDARTNR AND IDDC             
+//             DATACLAS=PSEB                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51272   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W51272,W51272,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W51272D1 DD  DSN=&&W01160,DISP=(OLD,DELETE,DELETE)                            
+//************ CDC INFO                                                         
+//W51272D2 DD  DSN=&&W51262,DISP=(OLD,DELETE,DELETE)                            
+//************ R30 FROM WDL6                                                    
+//*                                                                             
+//W51272D3 DD  DSN=&INDUT..W51272(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ GIT REPORT TO SHOW OLD ITEMS                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

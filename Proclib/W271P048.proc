@@ -1,0 +1,65 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  MATCHAR GRUNDFILER                                                         
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W271D1/W271DA                                    
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W27148    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P048 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT1=&W271..LDC,                                               
+//             INDUT2=&W271..SDC,                                               
+//             INDUT3=&W271..NDC,                                               
+//             INDUT4=&W271..CHN                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTARDC),DISP=SHR                         
+//SORTIN   DD  DUMMY                                                            
+//************ DAGENS GRUNDDATA FRÅN WDK7                                       
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27147NY,DISP=(NEW,PASS,DELETE),                           
+//             DATACLAS=PSEB                                                    
+//************ SORTERAD DAGENS FIL                                              
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTARDC),DISP=SHR                         
+//*                                                                             
+//SORTIN   DD  DUMMY                                                            
+//************ GÅRDAGENS GRUNDDATA FRÅN WDK7                                    
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27147GA,DISP=(NEW,PASS,DELETE),                           
+//             DATACLAS=PSEB                                                    
+//************ SORTERAD GÅRDAGENS FIL                                           
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27148   EXEC PGM=W27148                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W27148D1 DD  DSN=&&W27147NY,DISP=(OLD,DELETE,DELETE)                          
+//************ ARTIKLAR FRÅN WDK7, DAGENS FILER                                 
+//************                                                                  
+//W27148D2 DD  DSN=&&W27147GA,DISP=(OLD,DELETE,DELETE)                          
+//************ ARTIKLAR FRÅN WDK7, GÅRDAGENS FILER                              
+//************                                                                  
+//W27148D3 DD  DSN=&INDUT1..W27148(+1),                        -LIM(1)          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W27148D4 DD  DSN=&INDUT2..W27148(+1),                        -LIM(1)          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W27148D5 DD  DSN=&INDUT3..W27148(+1),                        -LIM(1)          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W27148D6 DD  DSN=&INDUT4..W27148(+1),                        -LIM(1)          
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

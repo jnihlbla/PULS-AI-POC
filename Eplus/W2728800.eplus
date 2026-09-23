@@ -1,0 +1,68 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2728800                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATE A FILE WITH CLAG-KVPB-PLAN THAT                *        
+*                SHOULD BE UPPDATED DUE TO TREND                       *        
+*  FÖRFATTARE :  JOHAN NIHLBLAD                                        *        
+*                                                                      *        
+*  CHANGE LOG :                                                        *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W27288D1                                                                   
+%W01160    'IN1-'                                                               
+                                                                                
+FILE W27288D2 FB(13 0)                                                          
+%W27288    'UT-'                                                                
+                                                                                
+****************************                                                    
+* PARAMETERAR TILL DATKONV *                                                    
+****************************                                                    
+%WDATAREA                                                                       
+                                                                                
+                                                                                
+W-TIAAVVD-2V           W   5 N                                                  
+                                                                                
+W-TIAAVVD              W   5 N                                                  
+W-TIAAVV     W-TIAAVVD     4 N                                                  
+W-TIAAVVD-D  W-TIAAVVD +4  1 N                                                  
+                                                                                
+W-KVPB-TREND-WEEK      W   4 P 1                                                
+                                                                                
+TODAYS-AAAAMMDD                      W    8  N                                  
+TODAYS-AA      TODAYS-AAAAMMDD            2  N                                  
+DAGENS-DATUM   TODAYS-AAAAMMDD       +2   6  N                                  
+                                                                                
+%WY2000W2                                                                       
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT W27288D1 START A-SOEK-DATUM                                           
+                                                                                
+  IF IN1-CLAG-DAPBPLAN > TODAYS-AAAAMMDD                                        
+    IF IN1-CLAG-KVPB-TREND NE 0                                                 
+     W-KVPB-TREND-WEEK ROUNDED = IN1-CLAG-KVPB-TREND / 4.33                     
+     UT-KVPB-PLAN = IN1-CLAG-KVPB-PLAN + W-KVPB-TREND-WEEK                      
+     UT-IDARTNR   = IN1-CLAG-IDARTNR                                            
+     UT-KVPB-TREND-WEEK  = W-KVPB-TREND-WEEK                                    
+       PUT W27288D2                                                             
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+A-SOEK-DATUM.   PROC                                                            
+                                                                                
+  DAT-KDDATFORM  = 'IDAG  '                                                     
+  CALL WDATKONV USING (DAT-KDDATFORM DAT-I-TIDATUM +                            
+                       DAT-O-TIDATUM DAT-KDSVAR)                                
+  DAGENS-DATUM   = DAT-TIAAMMDD                                                 
+  TODAYS-AA      = DAT-TISEKEL                                                  
+                                                                                
+  DISPLAY ' DAGENS-DATUM ' DAGENS-DATUM                                         
+  DISPLAY ' TODAYS-DATE  ' TODAYS-AAAAMMDD                                      
+                                                                                
+END-PROC                                                                        
+                                                                                

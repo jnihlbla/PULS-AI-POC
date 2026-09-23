@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER FILER MED 310,R33,R34 OCH R40 INFORMATION                            
+//*  KONTROLLERAR OCH SKICKAR TRANSAR VIA DISPATCHEN                            
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611D3                                            
+//*                                                                             
+//*  ÅTERSTART:    W61104    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P004 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN1=&W092..W611D3,                                            
+//             INDIN2=&W476..W611D3                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT    EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN1..W09210,DISP=SHR                                     
+//**************   R33 R40 FRÅN TRATTEN                                         
+//*                                                                             
+//         DD  DSN=&INDIN2..W47693,DISP=SHR                                     
+//*************    FRÅN W476P093 I W476D5 (R33 DIREKT LEV)                      
+//*                                                                             
+//SORTOUT  DD  DSN=&&W61104,DISP=(NEW,PASS,DELETE),                             
+//**************   SORTOUT R40 R33 R34 310                                      
+//             SPACE=(6233,(15,9),RLSE)                                         
+//*                                                                             
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W611PD04),DISP=SHR                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61104   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('BMP,W61104,W61104,,,N00,,,,,&CPU,,,&IMS')                 
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W61104D1 DD  DSN=&&W61104,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             

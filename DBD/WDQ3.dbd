@@ -1,0 +1,132 @@
+*        ORDERDELAR                                                             
+*                                                                               
+         DBD   NAME=WDQ3,                                              *        
+               ACCESS=(HISAM,VSAM)                                              
+         DATASET DD1=WDQ3K,DEVICE=3390,SIZE=4096                                
+*                                                                               
+         SEGM  NAME=WDQ301,PARENT=0,BYTES=200                                   
+         FIELD NAME=(WDQ301KY,SEQ,U),BYTES=12,START=1,TYPE=X                    
+         FIELD NAME=(IDORDER),BYTES=4,START=1,TYPE=P                            
+         FIELD NAME=(IDDC),BYTES=2,START=5,TYPE=X                               
+         FIELD NAME=(IDPRODNR),BYTES=4,START=7,TYPE=P                           
+         FIELD NAME=(IDPLKLST),BYTES=2,START=11,TYPE=P                          
+         FIELD NAME=(IDGMTREF),BYTES=17,START=16,TYPE=X                         
+         FIELD NAME=(IDDISTR),BYTES=3,START=16,TYPE=P                           
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=19,TYPE=P                          
+         FIELD NAME=(IDKUNDRF),BYTES=10,START=23,TYPE=X                         
+         FIELD NAME=(IDLEVNR),BYTES=5,START=33,TYPE=X                           
+         FIELD NAME=(IDPRC),BYTES=4,START=38,TYPE=X                             
+         FIELD NAME=(IDPRCBAS),BYTES=3,START=38,TYPE=X                          
+         FIELD NAME=(IDPRCVAR),BYTES=1,START=41,TYPE=X                          
+         FIELD NAME=(IDUSER),BYTES=8,START=42,TYPE=X                            
+         FIELD NAME=(KDODELST),BYTES=1,START=52,TYPE=X                          
+         FIELD NAME=(KVRADER),BYTES=3,START=63,TYPE=P                           
+         FIELD NAME=(SUORDV),BYTES=6,START=70,TYPE=P                            
+         FIELD NAME=(SUPTID),BYTES=3,START=76,TYPE=P                            
+         FIELD NAME=(TIREGDAT),BYTES=4,START=93,TYPE=P                          
+         FIELD NAME=(VKORDNTO),BYTES=4,START=101,TYPE=P                         
+         FIELD NAME=(VLORDNTO),BYTES=4,START=105,TYPE=P                         
+         FIELD NAME=(FILLERC),BYTES=16,START=109,TYPE=X                         
+         FIELD NAME=(IDTRP),BYTES=5,START=109,TYPE=X                            
+         FIELD NAME=(DATRPAVT),BYTES=11,START=114,TYPE=X                        
+         FIELD NAME=(FILLERA),BYTES=36,START=125,TYPE=X                         
+         FIELD NAME=(DAUTSKR),BYTES=8,START=125,TYPE=X                          
+         FIELD NAME=(TIUTSTID),BYTES=4,START=133,TYPE=P                         
+         FIELD NAME=(FILLERB),BYTES=24,START=137,TYPE=X                         
+         FIELD NAME=(DARFS),BYTES=12,START=137,TYPE=X                           
+         FIELD NAME=(DALSTORD),BYTES=12,START=149,TYPE=X                        
+         FIELD NAME=(DARFSDAT),BYTES=8,START=161,TYPE=X                         
+         FIELD NAME=(FILLER2),BYTES=12,START=169,TYPE=X                         
+         FIELD NAME=(IDPRCPLK),BYTES=4,START=184,TYPE=X                         
+         FIELD NAME=(IDLOTNRP),BYTES=2,START=188,TYPE=P                         
+         LCHILD NAME=(WDQ3A1,WDQ3A),PTR=SYMB                                    
+         XDFLD NAME=WDQ3ASEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDC,FILLERC,FILLERB,IDPRC),                      *        
+               SUBSEQ=(IDORDER,IDPRODNR,IDPLKLST),                     *        
+               DDATA=(IDDISTR,IDKUNDNR),                               *        
+               EXTRTN=WDQ3AEXT                                                  
+*                                                                               
+* WDQ3A EXISTS WHEN KDODELST = R                                                
+*                                                                               
+         LCHILD NAME=(WDQ3B1,WDQ3B),PTR=SYMB                                    
+         XDFLD NAME=WDQ3BSEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDC,IDPRCBAS,FILLERA,IDPRCVAR),                  *        
+               SUBSEQ=(IDORDER,IDPRODNR,IDPLKLST),                     *        
+               DDATA=(IDDISTR,IDKUNDNR),                               *        
+               EXTRTN=WDQ3BEXT                                                  
+*                                                                               
+* WDQ3B EXISTS WHEN KDODELST = R                                                
+*                                                                               
+         LCHILD NAME=(WDQ3C1,WDQ3C),PTR=SYMB                                    
+         XDFLD NAME=WDQ3CSEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDC,IDPRC,DARFS,DALSTORD,IDORDER),               *        
+               SUBSEQ=(IDPRODNR,IDPLKLST),                             *        
+               DDATA=(KVRADER,SUPTID,KDODELST),                        *        
+               EXTRTN=WDQ3CEXT                                                  
+*                                                                               
+* WDQ3C EXISTS WHEN KDODELST = R ELLER U                                        
+*                                                                               
+         LCHILD NAME=(WDQ3D1,WDQ3D),PTR=SYMB                                    
+         XDFLD NAME=WDQ3DSEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDPRODNR,IDPLKLST),                               *        
+               SUBSEQ=(IDORDER,IDDC)                                            
+*                                                                               
+         LCHILD NAME=(WDQ3E1,WDQ3E),PTR=SYMB                                    
+         XDFLD NAME=WDQ3ESEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDC,DARFSDAT,IDTRP),                             *        
+               SUBSEQ=(IDORDER,IDPRODNR,IDPLKLST),                     *        
+               DDATA=(KDODELST,KVRADER)                                         
+*                                                                               
+         LCHILD NAME=(WDQ3F1,WDQ3F),PTR=SYMB                                    
+         XDFLD NAME=WDQ3FSEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDC,DARFSDAT,IDPRC),                             *        
+               SUBSEQ=(IDORDER,IDPRODNR,IDPLKLST),                     *        
+               DDATA=(KDODELST,KVRADER)                                         
+*                                                                               
+         LCHILD NAME=(WDQ3G1,WDQ3G),PTR=SYMB                                    
+         XDFLD NAME=WDQ3GSEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDISTR,IDKUNDNR,IDDC,IDKUNDRF),                  *        
+               SUBSEQ=(IDORDER,IDPRODNR,IDPLKLST),                     *        
+               DDATA=(IDUSER,SUORDV,FILLER2,TIREGDAT)                           
+*                                                                               
+         LCHILD NAME=(WDQ3H1,WDQ3H),PTR=SYMB                                    
+         XDFLD NAME=WDQ3HSEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDC,IDPRCPLK,IDLOTNRP),                          *        
+               SUBSEQ=(IDPRODNR,IDPLKLST),                             *        
+               EXTRTN=WDQ3HEXT                                                  
+*                                                                               
+* WDQ3H EXISTS WHEN KDODELST = U                                                
+*               AND IDPRCPLK NE SPACE OCH IDLOTNRP NE 0                         
+*                                                                               
+         LCHILD NAME=(WDQ3I1,WDQ3I),PTR=SYMB                                    
+         XDFLD NAME=WDQ3ISEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDC,IDPRCPLK,IDLOTNRP),                          *        
+               SUBSEQ=(IDPRODNR,IDPLKLST),                             *        
+               EXTRTN=WDQ3IEXT                                                  
+*                                                                               
+* WDQ3I EXISTS WHEN KDODELST = U OR P                                           
+*               AND IDPRCPLK NE SPACE OCH IDLOTNRP NE 0                         
+*                                                                               
+         LCHILD NAME=(WDQ3J1,WDQ3J),PTR=SYMB                                    
+         XDFLD NAME=WDQ3JSEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDC,DAUTSKR,TIUTSTID),                           *        
+               SUBSEQ=(IDPRCPLK,IDLOTNRP,IDPRODNR,IDPLKLST),           *        
+               DDATA=(IDUSER),                                         *        
+               EXTRTN=WDQ3HEXT                                                  
+*                                                                               
+* WDQ3J EXISTS WHEN KDODELST = U                                                
+*               AND IDPRCPLK NE SPACE OCH IDLOTNRP NE 0                         
+*                                                                               
+         LCHILD NAME=(WDQ3K1,WDQ3K),PTR=SYMB                                    
+         XDFLD NAME=WDQ3KSEQ,SEGMENT=WDQ301,                           *        
+               SRCH=(IDDC,DARFS,IDPRC),                                *        
+               SUBSEQ=(IDPRODNR,IDPLKLST,IDORDER),                     *        
+               DDATA=(KVRADER,IDTRP,VKORDNTO,VLORDNTO),                *        
+               EXTRTN=WDQ3AEXT                                                  
+*                                                                               
+* WDQ3K EXISTS WHEN KDODELST = R                                                
+*                                                                               
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

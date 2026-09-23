@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR DAGENS NA-RETURER TILL CDC (DISTR 8111,8211) , I              
+//*  STATUS 4,5,6 OCH 7 MED STANDARDPRIS                                        
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W428D1                                           
+//*                                                                             
+//*  ÅTERSTART:    W42833      NORMAL                                           
+//*                LÄSER        WDA2 WDK6                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P033 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W428..W428D1,                                             
+//             INDUT=&W428..W428D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42833   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W42833,W42833,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDA2     INCLUDE MEMBER=WDA2                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W42833D1 DD  DSN=&INDIN..W42831(+0),DISP=SHR                                  
+//************ DAGENS USA-RETURER CDC I STATUS 4, 5, 6 (SORTERAD)               
+//*                                                                             
+//         DD  DSN=&INDIN..W42832(+0),DISP=SHR                                  
+//************ DAGENS USA-RETURER CDC I STATUS 7                                
+//*                                                                             
+//W42833D2 DD  DSN=&INDUT..W42834(+1),DISP=(NEW,CATLG,DELETE),  -LIM(7)         
+//************ KOMPLETTERAD UTFIL                                               
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 

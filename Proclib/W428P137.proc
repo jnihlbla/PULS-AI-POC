@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TO EXECUTE PGM W42837 AND CREATE 2 NEW FILES TO PGM W4283800               
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W428D3                                         
+//*                                                                             
+//*  RESTART:      W42837    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P137 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W418..W418D2,                                             
+//             INDUT=&W428..W428D3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42837   EXEC PGM=V16459,PARM='W42837/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//TEMPFIL1 DD  SPACE=(309,(100,100)),AVGREC=K                                   
+//W42837D1 DD  DSN=&INDIN..W41842(+0),DISP=SHR                                  
+//************ INPUT FILE FROM WDA2 DB                                          
+//*                                                                             
+//W42837D2 DD  DSN=&INDUT..W42837(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ O/P FILE FOR ALL THE BINNED LINES FOR TODAY                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W42837D3 DD  DSN=&INDUT..W42838(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ O/P FILE FOR ALL NON TREATED LINES TILL NOW                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

@@ -1,0 +1,235 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W3715K00                                              *        
+*                                                                      *        
+*  FUNCTION   :  REPORT W3715K-091 YESTERDAYS SCRAPORDERS IN DC91      *        
+*                                                                      *        
+*  AUTHOR     :  SARASWATHY S                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+FILE W3715KD1                                                                   
+*                                                                               
+%W47923B  'IN1-'                                                                
+*                                                                               
+FILE TPFILE1 FB(320 0)                                                          
+*                                                                               
+%W47923B  'TP1-'                                                                
+*                                                                               
+FILE TPFILE5 FB(320 0)                                                          
+*                                                                               
+%W47923B  'TP5-'                                                                
+*                                                                               
+FILE TPFILE6 FB(320 0)                                                          
+*                                                                               
+%W47923B  'TP6-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE W3715KD2                                                                   
+*                                                                               
+%W47925X  'IN2-'                                                                
+*                                                                               
+FILE TPFILE2 FB(94 0)                                                           
+*                                                                               
+%W47925X  'TP2-'                                                                
+*                                                                               
+FILE TPFILE4 FB(94 0)                                                           
+*                                                                               
+%W47925X  'TP4-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE W3715KD3                                                                   
+*                                                                               
+%WDQ301  'IN3-'                                                                 
+*                                                                               
+FILE TPFILE3 FB(190 0)                                                          
+*                                                                               
+%WDQ301  'TP3-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+FILE W3715KD4 PRINTER VB (205 0)                                                
+UT-IDARTNR     W  9 N 0  MASK 'ZZZZZZZZ9'                                       
+UT-IDDISTR     W  6 N 0  MASK 'ZZZZZ9'                                          
+UT-IDKUNDNR    W  8 N 0  MASK 'ZZZZZZZ9'                                        
+UT-IDPRC       W  4 A                                                           
+UT-IDPRODNR    W  8 N 0  MASK 'ZZZZZZZ9'                                        
+UT-ADLAGOMR    W  4 N 0  MASK 'ZZZ9'                                            
+UT-KVBEART     W  8 N 0  MASK 'ZZZZZZZ9'                                        
+UT-TIORDREG    W  8 N 0  MASK 'ZZZZZZZ9'                                        
+UT-TIPACKN     W  8 N 0  MASK 'ZZZZZZZ9'                                        
+*                                                                               
+NEWPAGE                                                                         
+%WDATKORT                                                                       
+%WWDC99                                                                         
+*                                                                               
+NEWPAGE                                                                         
+W-PGMNAMN   W  6  A  VALUE 'W3715K'                                             
+W-WDATUM    W  6  A  VALUE 'WDATUM'                                             
+W-DATUM                W  6   N                                                 
+W-AAR     W-DATUM         2   N                                                 
+W-MM      W-DATUM    +2   2   N                                                 
+W-DD      W-DATUM    +4   2   N                                                 
+*                                                                               
+W-SEM1      W  1  A  VALUE ';'                                                  
+*                                                                               
+JA              W   1  A   VALUE 'J'                                            
+NEJ             W   1  A   VALUE 'N'                                            
+SW-FIRST        S   1  A   VALUE 'J'                                            
+*                                                                               
+NEWPAGE                                                                         
+***************************************************                             
+* STEP 1. SORT INPUT FILE W47923B WITH IDPRODNR                                 
+***************************************************                             
+SORT W3715KD1 TO TPFILE1  USING IN1-IDPRODNR SIZE 3000000                       
+*                                                                               
+NEWPAGE                                                                         
+***************************************************                             
+* STEP 2. SORT INFILE2 W47925X WITH IDPRODNR                                    
+***************************************************                             
+SORT W3715KD2 TO TPFILE2  USING IN2-IDPRODNR SIZE 3000000                       
+*                                                                               
+NEWPAGE                                                                         
+***************************************************                             
+* STEP 3. SORT INFILE3 W41302 WITH IDPRODNR                                     
+***************************************************                             
+SORT W3715KD3 TO TPFILE3  USING (IN3-ODEL-IDORDER IN3-ODEL-IDDC +               
+                                 IN3-ODEL-IDPRODNR IN3-ODEL-IDPLKLST) +         
+                                 SIZE 3000000                                   
+*                                                                               
+NEWPAGE                                                                         
+***************************************************                             
+* STEP 4. REMOVE DUPLICATES FROM W47925X - TPFILE2                              
+***************************************************                             
+JOB INPUT (TPFILE2 KEY (TP2-IDPRODNR TP2-IDKOLLI))                              
+                                                                                
+  IF DUPLICATE TPFILE2                                                          
+     IF FIRST-DUP TPFILE2                                                       
+                                                                                
+        PUT TPFILE4 FROM TPFILE2                                                
+     END-IF                                                                     
+  ELSE                                                                          
+                                                                                
+     PUT TPFILE4 FROM TPFILE2                                                   
+  END-IF                                                                        
+***************************************************                             
+* STEP 5. MATCH TPFILE4 AND TPFILE1                                             
+***************************************************                             
+JOB INPUT (TPFILE4  KEY (TP4-IDPRODNR TP4-IDKOLLI) +                            
+           TPFILE1  KEY (TP1-IDPRODNR TP1-IDKOLLI))                             
+  IF MATCHED                                                                    
+     TP1-IDPTYP   = TP4-IDPTYP                                                  
+     TP1-TIBEGPAC = TP4-TIBEGPAC                                                
+     TP1-IDPRC    = '0000'                                                      
+     TP1-IDSHIFT  = '0'                                                         
+     TP1-KDPRODSL = 0                                                           
+     TP1-PRARTSTD = 0                                                           
+     TP1-TIPACKN  = TP4-TIPACKN                                                 
+     TP1-TIPACTID = TP4-TIPACTID                                                
+     TP1-IDPLOCK  = TP4-IDPLOCK                                                 
+     TP1-IDFAKT   = TP4-IDFAKT                                                  
+     TP1-DASUPREF = TP4-DASUPREF                                                
+     TP1-IDSHIPM  = TP4-IDSHIPM                                                 
+     TP1-IDLBBET  = TP4-IDLBBET                                                 
+     TP1-KDKOLLI  = TP4-KDKOLLI                                                 
+     TP1-KDVIA    = TP4-KDVIA                                                   
+     TP1-TISUPTID = TP4-TISUPTID                                                
+     TP1-TILASTN  = TP4-TILASTN                                                 
+     TP1-TILASTID = TP4-TILASTID                                                
+     TP1-TIFAKT   = TP4-TIFAKT                                                  
+     TP1-TIFAKTID = TP4-TIFAKTID                                                
+     TP1-TISKPTID = TP4-TISKPTID / 100                                          
+     TP1-TISKEPPN = TP4-TISKEPPN                                                
+     PUT TPFILE5  FROM TPFILE1                                                  
+   END-IF                                                                       
+***************************************************                             
+* STEP 6. SORT TPFILE5 WITH IDORDER, IDDC, IDPRODNR AND IDPLKLST                
+***************************************************                             
+SORT TPFILE5 TO TPFILE6  USING (TP5-IDORDER TP5-IDDC +                          
+                                TP5-IDPRODNR TP5-IDPLKLST) +                    
+                                SIZE 3000000                                    
+*                                                                               
+***************************************************                             
+* STEP 7. MATCH TPFILE1, TPFILE2 AND TPFIL3 WITH IDPRODNR                       
+***************************************************                             
+JOB INPUT (TPFILE3  KEY (TP3-ODEL-IDORDER  TP3-ODEL-IDDC      +                 
+                         TP3-ODEL-IDPRODNR TP3-ODEL-IDPLKLST) +                 
+           TPFILE6  KEY (TP6-IDORDER  TP6-IDDC      +                           
+                         TP6-IDPRODNR TP6-IDPLKLST)) START INIT-PROC            
+   IF MATCHED                                                                   
+      IF TP6-IDDC = SDC-NL-ET                                                   
+       IF TP6-IDDISTR = 82 81                                                   
+         IF TP6-IDPRC NE '600S'                                                 
+            UT-IDARTNR  = TP6-IDARTNR                                           
+            UT-IDDISTR  = TP6-IDDISTR                                           
+            UT-IDKUNDNR = TP6-IDKUNDNR                                          
+            UT-IDPRC    = TP3-ODEL-IDPRC                                        
+            UT-IDPRODNR = TP6-IDPRODNR                                          
+            UT-ADLAGOMR = TP6-ADLAGOMR-VERKLIG                                  
+            UT-KVBEART  = TP6-KVBEART                                           
+            UT-TIORDREG = TP6-TIORDREG                                          
+            UT-TIPACKN  = TP6-TIPACKN                                           
+            PRINT RPT01                                                         
+         END-IF                                                                 
+       END-IF                                                                   
+      END-IF                                                                    
+   END-IF                                                                       
+INIT-PROC. PROC                                                                 
+   CALL DATKORT USING (W-PGMNAMN W-WDATUM DATUMKORT)                            
+   W-AAR = D-AAR                                                                
+   W-MM  = D-MAANAD                                                             
+   W-DD  = D-DAG                                                                
+END-PROC                                                                        
+*****                                                                           
+  REPORT    RPT01            +                                                  
+            PRINTER W3715KD4 +                                                  
+            PAGESIZE 30000   +                                                  
+            LINESIZE 199     +                                                  
+            TITLESKIP 3      +                                                  
+            SPACE 0          +                                                  
+            SKIP  0          +                                                  
+            NODATE           +                                                  
+            NOPAGE           +                                                  
+            NOADJUST         +                                                  
+            NOHEADING        +                                                  
+            NOSPREAD                                                            
+*                                                                               
+  SEQUENCE                   +                                                  
+            UT-IDARTNR       +                                                  
+            UT-IDDISTR       +                                                  
+            UT-IDKUNDNR      +                                                  
+            UT-IDPRC         +                                                  
+            UT-IDPRODNR                                                         
+*                                                                               
+  LINE      UT-IDARTNR       +                                                  
+            W-SEM1           +                                                  
+            UT-IDDISTR       +                                                  
+            W-SEM1           +                                                  
+            UT-IDKUNDNR      +                                                  
+            W-SEM1           +                                                  
+            UT-IDPRC         +                                                  
+            W-SEM1           +                                                  
+            UT-IDPRODNR      +                                                  
+            W-SEM1           +                                                  
+            UT-ADLAGOMR      +                                                  
+            W-SEM1           +                                                  
+            UT-KVBEART       +                                                  
+            W-SEM1           +                                                  
+            UT-TIORDREG      +                                                  
+            W-SEM1           +                                                  
+            UT-TIPACKN       +                                                  
+            W-SEM1                                                              
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF SW-FIRST = JA                                                               
+     DISPLAY '¤DAPW3715K-091'                                                   
+     DISPLAY '¤DAPW3715K'                                                       
+     DISPLAY 'VOLVO CAR PARTS  W3715K-091 YESTERDAYS +                          
+              SCRAPORDERS IN DC91 DATE:'  W-DATUM                               
+     DISPLAY '  PARTNO ;DISTNO; CUSTNO ;PRC ; PRODNO ;AREA; +                   
+                  QTY    ;REGTIME ;PACKTIME;'                                   
+    SW-FIRST = NEJ                                                              
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               

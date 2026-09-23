@@ -1,0 +1,37 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RENSNING AV TRANSAR FRÅN WDR8 (WLFILB)                                     
+//*                                                                             
+//*   DSIN = NAMN PÅ FIL MED DE TRANSAR SOM SKA RENSAS                          
+//*          (COPYTEXT WDR801)                                                  
+//*                                                                             
+//*                                                                             
+//*  FREKVENS:     DAG       OLIKA RUTINER                                      
+//*                                                                             
+//*  ÅTERSTART:    W01538    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W015P036 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             DSIN=NULLFILE                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W01538   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('BMP,W01538,WDR8UP,,,N00,,,,,&CPU,,,&IMS')                 
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//W01538D1 DD  DSN=&DSIN,DISP=SHR                                               
+//************ LOGG-FIL MED TRANSAR ATT RENSA                                   
+//*                                                                             

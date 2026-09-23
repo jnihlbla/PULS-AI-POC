@@ -1,0 +1,121 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM... :  W5515500                                              *        
+*                                                                      *        
+*  FUNKTION.. :  PROGRAMMET UPPDATERAR W55154-FILEN MED                *        
+*                KALKYLPÅLÄGG                                          *        
+*                SKRIVER EN FELLISTA                                   *        
+*                                                                      *        
+* INDATA .... : W551.W551B1.W55154(+0) D1 - PRISFIL                    *        
+*               W551.W551B7.W55105(+0) D2 - KALKYLPÅLÄGG               *        
+*               W551.W551B7.W55114(+0)      KONKATENERAT & SORTAT      *        
+*                                                                      *        
+* UTDATA .... : W551.W551B1.W55155(+0) D3 - W55152 + WDF1 + WDR2       *        
+*                                                                      *        
+* RAPPORTER.. : W55155-001             D4 - FELLISTA KALKYLPÅLÄGG      *        
+*                                                                      *        
+*                                                                      *        
+* FÖRFATTARE :  PER FREDRIKSSON  940915                                *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55154  -   PRISFIL                                     *               
+*                                                               *               
+*****************************************************************               
+FILE W55155D1                                                                   
+*                                                                               
+%W55150  'IN-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55105 OCH W55114 KALKYLPÅLÄGG (KONKAT OCH SORTADE)     *               
+*                                                               *               
+*****************************************************************               
+FILE W55155D2                                                                   
+*                                                                               
+%W55124    'KALK-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* RAPPORT1      -  W55155-001 FEL FRÅN MATCH MED LEV.REG FIL    *               
+*                                                               *               
+*****************************************************************               
+FILE W55155D4  VB (172 0)                                                       
+*                                                                               
+%W55158  'FEL-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UTFIL W55155  - W55154 KOMPLETTERAD MED KALKYLPÅLÄGG          *               
+*                                                               *               
+*****************************************************************               
+FILE W55155D3 FB(273 0)                                                         
+*                                                                               
+%W55150  'UT-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* ARBETSAREA                                                    *               
+*                                                               *               
+*****************************************************************               
+*                                                                               
+  W-FELTYP          W    21 A                                                   
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 1. MATCHAR KALKYLPÅLÄGG MOT PRISFIL                      *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT (W55155D1 KEY(  IN-IDARTNR)                           +               
+           W55155D2 KEY(KALK-IDARTNR))                          +               
+NAME STEG-1-MATCHAR-KALK                                                        
+*                                                                               
+IF MATCHED                                                                      
+  IN-PRDIRLON-KOM    = KALK-PRDIRLON                                            
+  IN-PRDMTRL-KOM     = KALK-PRDMTRL                                             
+  IN-PROVRPAL-KOM    = KALK-PROVRPAL                                            
+  PUT W55155D3 FROM W55155D1                                                    
+ELSE                                                                            
+  IF W55155D2                                                                   
+    PERFORM B-FYLL-I-LEV-FALT                                                   
+    W-FELTYP          = 'ARTIKEL SAKNAS  '                                      
+    PUT W55155D4                                                                
+  ELSE                                                                          
+    PUT W55155D3 FROM W55155D1                                                  
+  END-IF                                                                        
+END-IF                                                                          
+*                                                                               
+NEWPAGE                                                                         
+B-FYLL-I-LEV-FALT. PROC                                                         
+*                                                                               
+    FEL-IDLEVNR       =  ' '                                                    
+    FEL-IDARTNR       =  KALK-IDARTNR                                           
+    FEL-KDPRBEH       =  ' '                                                    
+    FEL-KDVALISO      =  ' '                                                    
+    FEL-PRARTBEL-PR   =  0                                                      
+    FEL-PRKURS        =  0                                                      
+    FEL-RETULF-1      =  0                                                      
+    FEL-RETULF-2      =  0                                                      
+    FEL-TITULF        =  0                                                      
+    FEL-TIPRLIST      =  0                                                      
+    FEL-PRINK-KOM     =  0                                                      
+    FEL-PRDIRLON-KOM  =  KALK-PRDIRLON                                          
+    FEL-PRMATRL-KOM   =  KALK-PRDMTRL                                           
+    FEL-PROVRPAL-KOM  =  KALK-PROVRPAL                                          
+    FEL-REAENDR       =  0                                                      
+    FEL-IDPRANSV      =  ' '                                                    
+    FEL-FELTYP        =  W-FELTYP                                               
+*                                                                               
+END-PROC                                                                        
+NEWPAGE                                                                         

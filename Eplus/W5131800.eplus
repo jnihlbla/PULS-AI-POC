@@ -1,0 +1,346 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W513   SUMMERAD POSTER FÖR INV LISTOR                 *        
+*                FREKVENS, PERIOD SLUT.                                *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER POSTER FRÅN W51368 OCH SKAPAR LISTA             *        
+*              WDH7 POSTER, INVENTERADE ARTIKLAR, EN GÅNG/FLERA GÅNGER *        
+*  FÖRFATTARE :  MARKUS ASPFJÄLL                                       *        
+*                                                                      *        
+*  INFILER    :  W513.W513R1.W51365 (PERIOD FIL)                       *        
+*  INFILER    :  W011.W01177        (LAGERBAND WDK6 MÅNADS)            *        
+*                                                                      *        
+*                                                                      *        
+*  UTDATA     :  FIL W51318                                            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W51318D1                                                                   
+%W51368   'INV-'                                                                
+* ALLA INVENTERADE ARTIKLAR I ÅR FÖR CDC                                        
+                                                                                
+FILE W51318D2                                                                   
+%W011100  'LB1-'                                                                
+* LAGER BAND                                                                    
+                                                                                
+FILE TPFIL1   FB(22 0)                                                          
+%W51368   'TP1-'                                                                
+*                                                                               
+                                                                                
+FILE TPFIL2   FB(70 0)                                                          
+TP2-IDDC            1  2  A                                                     
+TP2-IDARTNR         3  9  N                                                     
+TP2-KDJUSTYP       13  1  N                                                     
+TP2-FLAUTLSJ       14  1  A                                                     
+TP2-KVANTAL        15  4  P 0                                                   
+TP2-PRARTSTD       20  9  N 2                                                   
+TP2-KVLS           35  5  P 0                                                   
+TP2-KVEFRS         45  5  P 0                                                   
+TP2-KVAKS-CDC      55  5  P 0                                                   
+TP2-KVJUSTKV       65  4  P 0                                                   
+                                                                                
+FILE W51318D3 PRINTER  VB (135 0)                                               
+** RAPPORTEN                                                                    
+                                                                                
+*------------------------------------------------*                              
+* ARBETS-AREOR                                   *                              
+*------------------------------------------------*                              
+                                                                                
+W-SUARTFSG-E  W  11  N  2                                                       
+W-SUBV-E      W  11  N  2                                                       
+FIRST-POST    W   1  A  VALUE 'J'                                               
+                                                                                
+W-SUARTFSG1                 W   11 N 2                                          
+W-SUARTFSG-HEL W-SUARTFSG1       9 N                                            
+W-SUARTFSG-DEC W-SUARTFSG1  +9   2 N                                            
+                                                                                
+W-SUBV1                     W   11 N 2                                          
+W-SUBV-HEL     W-SUBV1           9 N                                            
+W-SUBV-DEC     W-SUBV1     +9    2 N                                            
+                                                                                
+W-FORSTA-POST    W 1 A                                                          
+W-ARTIKEL-POST-2 W 1 A                                                          
+                                                                                
+W-ANTAL-FORSTA   W 6 N                                                          
+                                                                                
+W-KVJUSTKV          W   5   P   0                                               
+W-KVLS              W   5   P   0                                               
+W-IDARTNR           W   5   P                                                   
+WS-FLAUTLSJ         W   1   A                                                   
+W-SUARTSTD          W   6   P   2                                               
+W-SUARTSTD-TOT      W   6   P   2                                               
+W-COUNT-PROC        W   3   P   2                                               
+W-COUNT-PROC-TOT    W   3   P   2                                               
+W-STOCK-VALUE       W   7   P   2                                               
+W-STOCK-VALUE-TOT   W   7   P   2                                               
+W-LAGERVARDE        W   7   P   2                                               
+W-LAGERVARDE-TOT    W   7   P   2                                               
+W-INV-VALUE         W   7   P   2                                               
+W-INV-VALUE-TOT     W   7   P   2                                               
+WS-STOCKVALUE-P     W   7   P   2                                               
+WS-STOCKVALUE-N     W  14   N   2   +                                           
+       MASK '---.---.---.--9,99-'                                               
+W-JUSTERING             W   2   A                                               
+W-KDJUSTYP W-JUSTERING      1   N                                               
+W-FLAUTLSJ W-JUSTERING  +1  1   A                                               
+                                                                                
+                                                                                
+PROGRAM-NAMN           W   8   A        VALUE 'W5131800'                        
+DATUMKORT-ID           W   6   A        VALUE 'WDATUM'                          
+%WDATKORT                                                                       
+                                                                                
+W-DATUM              W   6  N                                                   
+W-AA     W-DATUM         2  N                                                   
+W-MANAD  W-DATUM     +2  2  N                                                   
+W-DAG    W-DATUM     +4  2  N                                                   
+W-PERIOD             W   2  N                                                   
+* ÅRETS DATUM                                                                   
+W-AKT-AAAAVV           W   6  N                                                 
+AKT-AA  W-AKT-AAAAVV       2  N                                                 
+AKT-AAR W-AKT-AAAAVV  +2   2  N                                                 
+AKT-VV  W-AKT-AAAAVV  +4   2  N                                                 
+AKT-AAAA W-AKT-AAAAVV      4  N                                                 
+                                                                                
+W-RUBRIK1                 W 130   A                                             
+W-RUB1-LINE01 W-RUBRIK1           8  A VALUE 'W51318-0'                         
+W-RUB1-IDDC   W-RUBRIK1    +8     2  A                                          
+W-RUB1-LINE02 W-RUBRIK1    +19    4  A    +                                     
+  VALUE 'VCCS'                                                                  
+W-RUB1-LINE03 W-RUBRIK1    +39   22  A VALUE 'ACCUMULATED ADJUSTMENT'           
+W-RUB1-LINE33 W-RUBRIK1    +62   24  A VALUE ' IN % OF INVENTORY VALUE'         
+W-RUB1-LINE04 W-RUBRIK1    +90    3  A VALUE 'DC:'                              
+W-RUB1-IDDC1  W-RUBRIK1    +93    2  A                                          
+W-RUB1-LINE05 W-RUBRIK1    +100   5  A VALUE 'DATE:'                            
+W-RUB1-DATE   W-RUBRIK1    +105   6  N                                          
+W-RUB1-LINE06 W-RUBRIK1    +114   7  A VALUE 'PERIOD:'                          
+W-RUB1-PERIOD W-RUBRIK1    +122   2  N                                          
+                                                                                
+W-RUBRIK2                 W 130   A                                             
+W-RUB2-LINE01 W-RUBRIK2    +12   18  A VALUE 'SINGEL PART COUNT '               
+W-RUB2-LINE02 W-RUBRIK2    +60   18  A VALUE 'MULTI PART COUNT  '               
+                                                                                
+W-RUBRIK3                 W 101   A                                             
+W-RUB3-LINE01 W-RUBRIK3           8  A VALUE 'ADJ.TYPE'                         
+W-RUB3-LINE02 W-RUBRIK3    +11   19  A VALUE 'VALUE OF STOCK TAKE'              
+W-RUB3-LINE04 W-RUBRIK3    +32   15  A VALUE 'COUNTED PARTS %'                  
+W-RUB3-LINE06 W-RUBRIK3    +59    5  A VALUE 'VALUE'                            
+W-RUB3-LINE07 W-RUBRIK3    +66   15  A VALUE 'COUNTED PARTS %'                  
+W-RUB3-LINE05 W-RUBRIK3    +89   12  A VALUE 'STOCK VALUE:'                     
+                                                                                
+                                                                                
+*-----------------------------------------------*                               
+*  JOB1 SORTERA DE INVENTERADE POSTERNA         *                               
+*-----------------------------------------------*                               
+                                                                                
+SORT W51318D1 TO TPFIL1 USING INV-IDARTNR                                       
+                                                                                
+*-------------------------------------------------------------*                 
+*  JOB2 MATCHA TPFIL MED CDC LAGERBANDET OCH SKAPA EN TEMPFIL *                 
+*  MED IDDC LAGEROMR OCH ARTIKEL                              *                 
+*-------------------------------------------------------------*                 
+                                                                                
+JOB INPUT (W51318D2 KEY (LB1-IDARTNR) TPFIL1  KEY (TP1-IDARTNR))                
+*                                                                               
+ IF MATCHED                                                                     
+   TP2-IDDC      = TP1-IDDC                                                     
+   TP2-IDARTNR   = TP1-IDARTNR                                                  
+   TP2-KDJUSTYP  = TP1-KDJUSTYP                                                 
+   TP2-FLAUTLSJ  = TP1-FLAUTLSJ                                                 
+   TP2-KVJUSTKV  = TP1-KVJUSTKV                                                 
+   TP2-KVANTAL   = TP1-KVANTAL                                                  
+   TP2-PRARTSTD  = LB1-PRARTSTD                                                 
+   TP2-KVLS      = LB1-KVLS                                                     
+   TP2-KVEFRS    = LB1-KVEFRS                                                   
+   TP2-KVAKS-CDC = LB1-KVAKS-CDC                                                
+   IF NOT DUPLICATE TPFIL1 OR FIRST-DUP TPFIL1                                  
+   WS-STOCKVALUE-P = WS-STOCKVALUE-P + ((LB1-KVLS + LB1-KVEFRS + +              
+       LB1-KVAKS-CDC + LB1-KVAKS-PAV) * LB1-PRARTSTD)                           
+   END-IF                                                                       
+*                                                                               
+   PUT TPFIL2                                                                   
+ ELSE                                                                           
+   IF W51318D2                                                                  
+   WS-STOCKVALUE-P = WS-STOCKVALUE-P + ((LB1-KVLS + LB1-KVEFRS + +              
+       LB1-KVAKS-CDC + LB1-KVAKS-PAV) * LB1-PRARTSTD)                           
+   END-IF                                                                       
+  IF TPFIL1                                                                     
+   DISPLAY '*** ARTIKEL SAKNAS PÅ LAGERBANDET' TP1-IDARTNR                      
+  END-IF                                                                        
+ END-IF                                                                         
+*--------------------------------------------------------------------*          
+*  SORT TEMPFIL PÅ KDJUSTYP OCH FLAUTLSJ  OCH ARTIKEL                           
+*--------------------------------------------------------------------*          
+                                                                                
+ SORT TPFIL2 TO TPFIL2 USING (TP2-KDJUSTYP TP2-FLAUTLSJ TP2-IDARTNR)            
+                                                                                
+*--------------------------------------------------------------------*          
+*  TA TEMPFILEN OCH KOLLA O RÄKNA UT ANTAL INVENTERINGAR                        
+*  SKRIV LISTA                                                                  
+*--------------------------------------------------------------------*          
+ JOB INPUT TPFIL2 START A-INIT  FINISH Z-INIT                                   
+                                                                                
+   IF W-FORSTA-POST   = 'J'                                                     
+     WS-STOCKVALUE-N    EQ   WS-STOCKVALUE-P                                    
+     W-RUB1-IDDC        EQ   TP2-IDDC                                           
+     W-RUB1-IDDC1       EQ   TP2-IDDC                                           
+     W-IDARTNR          EQ   TP2-IDARTNR                                        
+     W-KDJUSTYP         EQ   TP2-KDJUSTYP                                       
+     W-KVJUSTKV         EQ   TP2-KVJUSTKV                                       
+                                                                                
+     W-LAGERVARDE       EQ  (TP2-KVLS + TP2-KVEFRS + TP2-KVAKS-CDC) +           
+                             * TP2-PRARTSTD                                     
+                                                                                
+     W-LAGERVARDE-TOT   EQ  (TP2-KVLS + TP2-KVEFRS + TP2-KVAKS-CDC) +           
+                             * TP2-PRARTSTD                                     
+                                                                                
+     W-STOCK-VALUE     EQ   TP2-KVANTAL    * TP2-PRARTSTD                       
+     W-STOCK-VALUE-TOT EQ   TP2-KVANTAL    * TP2-PRARTSTD                       
+                                                                                
+     W-INV-VALUE       EQ   TP2-KVJUSTKV     * TP2-PRARTSTD                     
+     W-INV-VALUE-TOT   EQ   TP2-KVJUSTKV     * TP2-PRARTSTD                     
+                                                                                
+     WS-FLAUTLSJ        EQ   TP2-FLAUTLSJ                                       
+                                                                                
+     IF TP2-FLAUTLSJ    = 'J'                                                   
+       W-FLAUTLSJ        = 'A'                                                  
+     ELSE                                                                       
+       W-FLAUTLSJ        = ' '                                                  
+     END-IF                                                                     
+     W-FORSTA-POST       = 'N'                                                  
+   ELSE                                                                         
+    IF (W-KDJUSTYP NE TP2-KDJUSTYP) OR (TP2-FLAUTLSJ NE WS-FLAUTLSJ)            
+     IF W-LAGERVARDE NE 0 AND W-INV-VALUE   NE 0                                
+       W-COUNT-PROC     = (W-STOCK-VALUE / WS-STOCKVALUE-N) * 100               
+     ELSE                                                                       
+       W-COUNT-PROC = 0                                                         
+     END-IF                                                                     
+     IF W-LAGERVARDE-TOT NE 0 AND W-INV-VALUE-TOT   NE 0                        
+       W-COUNT-PROC-TOT = (W-STOCK-VALUE-TOT / WS-STOCKVALUE-N) * 100           
+     ELSE                                                                       
+       W-COUNT-PROC-TOT = 0                                                     
+     END-IF                                                                     
+     PRINT RAPPORT01                                                            
+     PERFORM NOLLA-RADER                                                        
+    ELSE                                                                        
+*                                                                               
+     IF W-IDARTNR EQ TP2-IDARTNR                                                
+       W-STOCK-VALUE-TOT     EQ   W-STOCK-VALUE-TOT +        +                  
+                               TP2-KVANTAL    * TP2-PRARTSTD                    
+                                                                                
+       W-LAGERVARDE-TOT   EQ   W-LAGERVARDE-TOT  +     +                        
+                            ((TP2-KVLS + TP2-KVEFRS + TP2-KVAKS-CDC) +          
+                              * TP2-PRARTSTD)                                   
+                                                                                
+       W-INV-VALUE-TOT    EQ  W-INV-VALUE-TOT  +              +                 
+                          TP2-KVJUSTKV * TP2-PRARTSTD                           
+     ELSE                                                                       
+*************                                                                   
+* NY ARTIKEL*                                                                   
+*************                                                                   
+* * *IF W-IDARTNR NE TP2-IDARTNR                                                
+       W-STOCK-VALUE      EQ   W-STOCK-VALUE  +        +                        
+                              (TP2-KVANTAL    * TP2-PRARTSTD)                   
+       W-STOCK-VALUE-TOT  EQ   W-STOCK-VALUE-TOT +     +                        
+                              (TP2-KVANTAL       * TP2-PRARTSTD)                
+                                                                                
+       W-LAGERVARDE       EQ   W-LAGERVARDE   +        +                        
+        ((TP2-KVLS + TP2-KVEFRS + TP2-KVAKS-CDC) * TP2-PRARTSTD)                
+                                                                                
+       W-LAGERVARDE-TOT   EQ   W-LAGERVARDE-TOT  +     +                        
+        ((TP2-KVLS + TP2-KVEFRS + TP2-KVAKS-CDC) * TP2-PRARTSTD)                
+                                                                                
+       W-INV-VALUE        EQ  W-INV-VALUE      +              +                 
+                          TP2-KVJUSTKV * TP2-PRARTSTD                           
+                                                                                
+       W-INV-VALUE-TOT    EQ  W-INV-VALUE-TOT  +              +                 
+                          TP2-KVJUSTKV * TP2-PRARTSTD                           
+                                                                                
+       W-IDARTNR          EQ   TP2-IDARTNR                                      
+     END-IF                                                                     
+    END-IF                                                                      
+   END-IF                                                                       
+                                                                                
+ A-INIT. PROC                                                                   
+  CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                      
+  AKT-AA          =   20                                                        
+  AKT-AAR         =   D-AAR                                                     
+  AKT-VV          =   D-VECKA                                                   
+                                                                                
+  W-PERIOD        =   D-MAANAD                                                  
+  W-RUB1-PERIOD   =   W-PERIOD                                                  
+                                                                                
+  W-AA            =   D-AAR                                                     
+  W-MANAD         =   D-MAANAD                                                  
+  W-DAG           =   D-DAG                                                     
+  W-RUB1-DATE     =   W-DATUM                                                   
+  W-IDARTNR       =   0                                                         
+  W-FORSTA-POST   = 'J'                                                         
+ END-PROC                                                                       
+                                                                                
+ NOLLA-RADER. PROC                                                              
+     W-KDJUSTYP         EQ   TP2-KDJUSTYP                                       
+     W-LAGERVARDE       EQ  (TP2-KVLS + TP2-KVEFRS + TP2-KVAKS-CDC) +           
+                             * TP2-PRARTSTD                                     
+                                                                                
+     W-LAGERVARDE-TOT   EQ  (TP2-KVLS + TP2-KVEFRS + TP2-KVAKS-CDC) +           
+                             * TP2-PRARTSTD                                     
+                                                                                
+     W-STOCK-VALUE     EQ   TP2-KVANTAL    * TP2-PRARTSTD                       
+     W-STOCK-VALUE-TOT EQ   TP2-KVANTAL    * TP2-PRARTSTD                       
+                                                                                
+     W-INV-VALUE       EQ   TP2-KVJUSTKV   * TP2-PRARTSTD                       
+     W-INV-VALUE-TOT   EQ   TP2-KVJUSTKV   * TP2-PRARTSTD                       
+                                                                                
+     WS-FLAUTLSJ        EQ   TP2-FLAUTLSJ                                       
+                                                                                
+     IF TP2-FLAUTLSJ    = 'J'                                                   
+       W-FLAUTLSJ        = 'A'                                                  
+     ELSE                                                                       
+       W-FLAUTLSJ        = ' '                                                  
+     END-IF                                                                     
+     W-IDARTNR          EQ   TP2-IDARTNR                                        
+ END-PROC                                                                       
+ Z-INIT. PROC                                                                   
+     IF W-LAGERVARDE NE 0 AND W-STOCK-VALUE NE 0                                
+       W-COUNT-PROC     = (W-STOCK-VALUE   / WS-STOCKVALUE-N) * 100             
+     ELSE                                                                       
+       W-COUNT-PROC = 0                                                         
+     END-IF                                                                     
+     IF W-LAGERVARDE-TOT NE 0 AND W-INV-VALUE-TOT   NE 0                        
+       W-COUNT-PROC-TOT = (W-STOCK-VALUE-TOT /  WS-STOCKVALUE-N) * 100          
+     ELSE                                                                       
+       W-COUNT-PROC-TOT = 0                                                     
+     END-IF                                                                     
+     PRINT RAPPORT01                                                            
+ END-PROC                                                                       
+***********************************************                                 
+* RAPPORT                                     *                                 
+*---------------------------------------------*                                 
+  REPORT RAPPORT01         +                                                    
+         PRINTER W51318D3  +                                                    
+         LINESIZE 130      +                                                    
+         SUMSPACE 0        +                                                    
+         NOHEADING         +                                                    
+         NOADJUST          +                                                    
+         PAGESIZE 999      +                                                    
+         SUMMARY           +                                                    
+         NOPAGE            +                                                    
+         NODATE                                                                 
+  SEQUENCE W-KDJUSTYP  W-JUSTERING                                              
+  CONTROL  W-KDJUSTYP  W-JUSTERING                                              
+  SUM W-STOCK-VALUE W-COUNT-PROC W-STOCK-VALUE-TOT W-COUNT-PROC-TOT             
+  TITLE 1 COL 1 W-RUBRIK1                                                       
+  TITLE 2 COL 1 W-RUBRIK2                                                       
+  TITLE 3 COL 1 W-RUBRIK3 WS-STOCKVALUE-N                                       
+                                                                                
+  LINE COL 1   W-JUSTERING              +                                       
+       COL 14  W-STOCK-VALUE            +                                       
+       COL 40  W-COUNT-PROC             +                                       
+       COL 48  W-STOCK-VALUE-TOT        +                                       
+       COL 74  W-COUNT-PROC-TOT                                                 
+                                                                                
+  AFTER-BREAK. PROC                                                             
+    IF LEVEL = 2                                                                
+       DISPLAY  ' '                                                             
+    END-IF                                                                      
+  END-PROC                                                                      

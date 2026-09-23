@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      KURANSGRUPPERING SUMMA USA                                   *         
+//*                                                                   *         
+//*      PERIODICITET:   MÅNADSSLUT                                   *         
+//*                                                                   *         
+//*      ÅTERSTART:      NORMAL                                       *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W512P087 PROC INDIN=&W512..W512M2,                                            
+//             INDUT=&W512..W512M2,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT    EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&INDIN..W51284(+0),DISP=SHR                                  
+//************** KURANSVÄRDEN FÖR DC                                 ***        
+//*                                                                             
+//SORTOUT  DD  DSN=&&W51284,DISP=(NEW,PASS,DELETE),                             
+//**************  SORTERAD KURANSVÄRDE PÅ PRODUKTSLAG               ***         
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W512PD85),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51287  EXEC PGM=W51287                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//V16247D3 DD  SYSOUT=*                                  (POSTSUM)              
+//*                                                                             
+//W51287D1 DD  DSN=&&W51284,DISP=(OLD,DELETE,DELETE)                            
+//************ KURANSSALDO-FIL                                                  
+//*                                                                             
+//W51287D2 DD  DSN=&INDUT..W51287S(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ UTFIL SELFLIFE                                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//W51287D3 DD  DSN=&INDUT..W51287K(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ UTFIL KGR                                                        
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

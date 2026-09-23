@@ -1,0 +1,23 @@
+000100 01  W155004.                                                             
+000200*                                 COPYTEXT FÖR HISTORIKREG.               
+000300*                                 RUBRIKRAD 4                             
+000400*                                 IDPTYP      131/155                     
+000500*                                 IDPTYP-1    004                         
+000600     03 IDKATNR              PIC S9(5)           COMP-3.                  
+000700*                                 KATALOG-ID                              
+000800     03 IDKATGRP             PIC X(3).                                    
+000900*                                 KATALOG-GRUPP                           
+001000     03 IDKATAVS             PIC S9(5)           COMP-3.                  
+001100*                                 KATALOG-AVSNITT                         
+001200     03 IDKATRAD             PIC S9(5)           COMP-3.                  
+001300*                                 RADNUMMER                               
+001400     03 IDPTYP               PIC X(3).                                    
+001500*                                 POSTTYP                                 
+001600     03 IDPTYP-1             PIC X(3).                                    
+001700*                                 POSTTYP                                 
+001800     03 BERUBTEXT.                                                        
+001900        05 BERUBTEXT-1       PIC X(30).                                   
+002000*                                 RUBRIKTEXT                              
+002100        05 BERUBTEXT-2       PIC X(30).                                   
+002200*                                 RUBRIKTEXT                              
+002300*** END COPY W155004CC0  LENGTH=78                                        

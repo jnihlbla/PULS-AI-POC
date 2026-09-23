@@ -1,0 +1,178 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4182800                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER IN FIL IFRÅN UNIX MED ARTIKLAR                  *        
+*                LÄSER IN FIL MED SOP PARAMETRAR                       *        
+*                KONTROLLERAR FILEN                                    *        
+*                MATCHAR EMOT W11604 , ARTIKLAR SOM ÄR GODKÄNDA SOM BUY*        
+*                SKAPAR FEL FIL ELLER EN OK FIL                        *        
+*                                                                      *        
+*  FÖRFATTARE :  ASPFJÄLL MARKUS                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE SYSINPUT                                                                   
+SOP-AREA       1  80 A                                                          
+SOP-IDUSER    SOP-AREA       7  A                                               
+SOP-FILLER01  SOP-AREA  +7   1  A                                               
+SOP-IDDISTR   SOP-AREA  +8   4  N                                               
+SOP-FILLER02  SOP-AREA  +12  1  A                                               
+SOP-IDKUNDNR  SOP-AREA  +13  6  N                                               
+SOP-FILLER03  SOP-AREA  +19  1  A                                               
+SOP-MINVARDE  SOP-AREA  +20  3  N                                               
+SOP-FILLER04  SOP-AREA  +23  1  A                                               
+SOP-FOBNET    SOP-AREA  +24  3  N                                               
+SOP-FILLER05  SOP-AREA  +27  1  A                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W41828D2                                                                   
+* FIL IFRÅN UNIX                                                                
+%W4182801  'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP01 FB(16 0)                                                            
+*                                                                               
+%W4182801  'TP01-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W41828D3 FB(16 0)                                                          
+*                                                                               
+%W4182801  'FEL-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W41828D4                                                                   
+* FIL MED GODKÄNDA ARTIKLAR W11604                                              
+%W11604    'IN2-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP02 FB(40 0)                                                            
+*                                                                               
+%W4182802  'TP02-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W41828D5                                                                   
+* INFIL LAGERBAND W01160                                                        
+%W01160   'LB-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W41828D6 FB(40 0)                                                          
+* UTFIL                                                                         
+%W4182802  'UT-'                                                                
+                                                                                
+NEWPAGE                                                                         
+*-----------------------------------------------------------------*             
+* ARBETSFÄLT                                                                    
+*-----------------------------------------------------------------*             
+W-FELFLAGGA         W   1 A                                                     
+W-IDUSER            W   8 A                                                     
+W-IDDISTR           W   4 N                                                     
+W-IDKUNDNR          W   6 N                                                     
+W-MINVARDE          W   3 N                                                     
+W-FOBNET            W   3 N                                                     
+RAKNARE             W   3 N VALUE 0                                             
+*                                                                               
+NEWPAGE                                                                         
+******************************************************************              
+* STEG 1. TAR IN UNIX FILEN KOLLAR OM FILEN ÄR OK ANNARS SKAPAS                 
+*         FELPOSTER                                                             
+******************************************************************              
+JOB INPUT  W41828D2 START A-INIT                                                
+IF W-FELFLAGGA EQ 'N'                                                           
+  IF IN-IDARTNR NUMERIC                                                         
+    IF IN-KVANTAL NUMERIC                                                       
+      IF IN-SEMICOLON-01 EQ ' ' ';' ','                                         
+          TP01-W4182801  EQ IN-W4182801                                         
+          PUT TEMP01                                                            
+      ELSE                                                                      
+        FEL-W4182801 EQ IN-W4182801                                             
+        PUT W41828D3                                                            
+        W-FELFLAGGA EQ 'J'                                                      
+      END-IF                                                                    
+    ELSE                                                                        
+      FEL-W4182801 EQ IN-W4182801                                               
+      PUT W41828D3                                                              
+      W-FELFLAGGA EQ 'J'                                                        
+    END-IF                                                                      
+  ELSE                                                                          
+    FEL-W4182801 EQ IN-W4182801                                                 
+    PUT W41828D3                                                                
+    W-FELFLAGGA EQ 'J'                                                          
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+                                                                                
+A-INIT. PROC                                                                    
+  W-FELFLAGGA EQ 'N'                                                            
+  GET SYSINPUT                                                                  
+                                                                                
+  MOVE SOP-IDUSER    TO W-IDUSER                                                
+  MOVE SOP-IDDISTR   TO W-IDDISTR                                               
+  MOVE SOP-IDKUNDNR  TO W-IDKUNDNR                                              
+  MOVE SOP-MINVARDE  TO W-MINVARDE                                              
+  MOVE SOP-FOBNET    TO W-FOBNET                                                
+                                                                                
+END-PROC                                                                        
+******************************************************************              
+* SORTA TEMPFILEN PÅ ARTIKEL                                                    
+*                                                                               
+******************************************************************              
+SORT TEMP01 TO TEMP01 USING(TP01-IDARTNR)                                       
+******************************************************************              
+* KOLLA OM DET FINNS FEL POSTER                                                 
+*                                                                               
+******************************************************************              
+JOB INPUT W41828D3                                                              
+IF RECORD-COUNT = 1                                                             
+DISPLAY ' FEL FANNS KOLLA UTFILEN'                                              
+  MOVE 7 TO RETURN-CODE                                                         
+  STOP EXECUTE                                                                  
+**ELSE                                                                          
+**  GOTO JOB STEG-MATCH                                                         
+END-IF                                                                          
+******************************************************************              
+* MATCHA MED W11604 FILEN GODKÄNDA ARTIKLAR                                     
+*                                                                               
+******************************************************************              
+JOB INPUT (W41828D4 KEY (IN2-IDARTNR)  TEMP01 KEY (TP01-IDARTNR))  +            
+ NAME STEG-MATCH                                                                
+                                                                                
+IF MATCHED                                                                      
+  IF IN2-KDBBCL EQ 1                                                            
+*   DISPLAY ' GODKÄND ARTIKEL '                                                 
+    TP02-IDUSER   EQ W-IDUSER                                                   
+    TP02-IDDISTR  EQ W-IDDISTR                                                  
+    TP02-IDKUNDNR EQ W-IDKUNDNR                                                 
+    TP02-SUMINVD  EQ W-MINVARDE                                                 
+    TP02-REFOBNET EQ W-FOBNET                                                   
+    TP02-IDARTNR  EQ TP01-IDARTNR                                               
+    TP02-KVANTAL  EQ TP01-KVANTAL                                               
+    TP02-FLMATCH  EQ 'J'                                                        
+  ELSE                                                                          
+*   DISPLAY ' INTE GODKÄND ARTIKEL '                                            
+    TP02-IDUSER   EQ W-IDUSER                                                   
+    TP02-IDDISTR  EQ W-IDDISTR                                                  
+    TP02-IDKUNDNR EQ W-IDKUNDNR                                                 
+    TP02-SUMINVD  EQ W-MINVARDE                                                 
+    TP02-REFOBNET EQ W-FOBNET                                                   
+    TP02-IDARTNR  EQ TP01-IDARTNR                                               
+    TP02-KVANTAL  EQ TP01-KVANTAL                                               
+    TP02-FLMATCH  EQ 'N'                                                        
+  END-IF                                                                        
+  PUT TEMP02                                                                    
+END-IF                                                                          
+******************************************************************              
+* MATCHA MED W01164 FILEN TEMP02 (MATCHADE MED W11064)                          
+* POSTERNA MÅSTE HA ETT STD PRIS OCH SJK                                        
+******************************************************************              
+JOB INPUT (W41828D5 KEY (LB-CLAG-IDARTNR) TEMP02 KEY (TP02-IDARTNR))            
+IF MATCHED                                                                      
+ IF LB-CLAG-PRARTSJK GT 0                                                       
+  IF LB-CLAG-PRARTSTD GT 0                                                      
+    UT-W4182802 EQ TP02-W4182802                                                
+    PUT W41828D6                                                                
+  END-IF                                                                        
+ END-IF                                                                         
+END-IF                                                                          

@@ -1,0 +1,72 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*    FUNKTION:     GENERELL PROCEDUR FÖR LOAD                       *         
+//*                  AV DB2 TABLESPACE                                *         
+//*                                                                   *         
+//*    ÅTERSTART:    KONTAKTA JOURANSVARIG.                           *         
+//*                  RESTART AV UTILITY ELLER                         *         
+//*                  TERMINATE UTILITY OCH NORMAL ÅTERSTART           *         
+//*                                                                   *         
+//*    ANSVARIG:     39650                                            *         
+//*                                                                   *         
+//*    ANMÄRKNING:   RC=04 FÅS I FÖLJANDE KÄNDA FALL:                 *         
+//*                  - IMAGE COPY REQUIRED (LOAD MED LOG=NO)          *         
+//*                  - RESUME ANGIVET MEN TSP TOMT                    *         
+//*                  - DATA CONVERSION ERROR (DISCARD-FIL SKRIVEN)    *         
+//*                  - PRIMARY KEY VIAOLATION (DISCARD-FIL SKRIVEN)   *         
+//*                  - TABLESPACE I COPY PENDING MODE                 *         
+//*                                                                   *         
+//*    DATE/ANSV     ÄNDRINGSBESKRIVNING                              *         
+//*    ---------     -------------------                              *         
+//*    890921/AR     ANPASSNING TILL DB2 2.1                          *         
+//*                  NYA DD-KORT SYSMAP, SYSERR, SYSDISC              *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WG02LOAD PROC SYSTEM=&DB2SYS,                                                 
+//             UID=,UTPROC=,                                                    
+//             JOBNAME=,DSIN=NULLFILE,                                          
+//             TTLOAD=SAKNAS,                                                   
+//             DISCARD=NULLFILE,                                                
+//             SPRIM=400,SSEC=100,                                              
+//             ERR='&&ERR',MAP='&&MAP'                                          
+//*                                                                             
+//LOAD    EXEC PGM=DSNUTILB,                                                    
+//             PARM=(&SYSTEM,&UID,&UTPROC)                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//UTPRINT  DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=*                                                         
+//SORTWK01 DD  DSN=&&SORTWK01,                                                  
+//             DISP=(NEW,DELETE),                                               
+//             SPACE=(CYL,(&SPRIM,&SSEC),RLSE)                                  
+//SORTWK02 DD  DSN=&&SORTWK02,                                                  
+//             DISP=(NEW,DELETE),                                               
+//             SPACE=(CYL,(&SPRIM,&SSEC),RLSE)                                  
+//SORTWK03 DD  DSN=&&SORTWK03,                                                  
+//             DISP=(NEW,DELETE),                                               
+//             SPACE=(CYL,(&SPRIM,&SSEC),RLSE)                                  
+//SORTWK04 DD  DSN=&&SORTWK04,                                                  
+//             DISP=(NEW,DELETE),                                               
+//             SPACE=(CYL,(&SPRIM,&SSEC),RLSE)                                  
+//SORTOUT  DD  DISP=(NEW,DELETE),                                               
+//             SPACE=(CYL,(&SPRIM,&SSEC),RLSE)                                  
+//SYSMAP   DD  DSN=&MAP,DISP=(NEW,PASS),                                        
+//             SPACE=(CYL,(10,25),RLSE),                                        
+//             MGMTCLAS=DEL2                                                    
+//SYSERR   DD  DSN=&ERR,DISP=(NEW,PASS),                                        
+//             SPACE=(CYL,(10,25),RLSE),                                        
+//             MGMTCLAS=DEL2                                                    
+//SYSDISC  DD  DSN=&DISCARD,                                                    
+//             DISP=(NEW,CATLG,CATLG),                                          
+//             SPACE=(CYL,(10,25),RLSE),                                        
+//             MGMTCLAS=DEL2                                                    
+//SYSREC   DD  DSN=&DSIN,                                                       
+//             DISP=SHR                                                         
+//SYSUT1   DD  DISP=(NEW,DELETE,DELETE),                                        
+//             SPACE=(CYL,(10,25),RLSE)                                         
+//SYSIN    DD  DSN=&INDRTE..DDL(&TTLOAD),DISP=SHR                               
+//*            KONTROLLKORT FÖR LADD-FIL                                        
+//*                                                                             
+//DUMMY    DD  DUMMY,DSN=&JOBNAME  -- UTGÅNGEN PARAMETER                        
+//*                                                                             
+//ABEND   EXEC PGM=ABEND,COND=(4,GE,LOAD),PARM='1234567890123456'               

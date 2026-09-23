@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SÄNDER MEMO VID HÖG ORDERINGÅNG FÖR ARTIKLAR PÅ NDC I                      
+//*  NORDAMERIKA TILL HANDLÄGGARE FÖR ARTIKLAR SOM TILLHÖR                      
+//*  BUYER 4, 5, 6 11, 12, 20, 21, 31, 32, 33, 35                               
+//*                                                                             
+//*  FREKVENS:     DAG      RTN W271D9                                          
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P00L PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W271..W271D9                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W2710L   EXEC PGM=V16459,PARM='W2710L/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W2710LD1  DD DSN=&INDIN..W2710L,DISP=SHR                                      
+//************ ARTIKLAR MED HÖG OI, NDC N AMERIKA,                              
+//*            BUYER 4, 5, 6 11, 12, 20, 21, 31, 32, 33, 35                     
+//W2710LD3  DD DSN=&&RAPP01,DISP=(NEW,PASS,DELETE),                             
+//             SPACE=(111,(100,10),RLSE),AVGREC=U                               
+//********** W2710A-001 DETTA ÄR RAPPORTEN (RAPPORTFILEN) SOM                   
+//********** SKALL BLI MEMO. I DETTA LÄGET INNEHÅLLER DET BLIVANDE              
+//********** MEMOTS STYRTECKEN.                                                 
+//*                                                                             
+//W2710LD4  DD DSN=&&CMD,DISP=(NEW,PASS,DELETE),                                
+//********** FIL MED MEMOKOMMANDON FÖR SJÄLVA SÄNDADET AV MEMOT                 
+//             SPACE=(81,(1,1),RLSE),AVGREC=U                                   
+//*                                                                             
+//W2710LD5  DD DSN=*.W2710LD3,DISP=OLD,VOL=REF=*.W2710LD3                       
+//********** 'MEMOFIL' MED ASA-STYRTECKEN. DETTA DD-KORT PEKAR                  
+//********** EGENTLIGEN PÅ RAPPORTFILEN (W2710LD3).                             
+//*                                                                             
+//W2710LD6  DD DSN=&&MEMO,DISP=(NEW,PASS,DELETE),                               
+//             SPACE=(75,(1,1),RLSE),AVGREC=U                                   
+//********** 'MEMOFIL' UTAN ASA-STYRTECKEN. NU ÄR MEMOT FÄRDIGT.                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//TOMEMO   EXEC WMEMOSND,DSIN='&&MEMO'                                          
+//*                                                                             
+//APIFILE   DD DSN=&&CMD,DISP=(OLD,DELETE,DELETE)                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             

@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATE OUTPUT FILE TO UPDATE H-TYPE 2213/2214                              
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN W224S1                           
+//*                                                                             
+//*  RESTART:      W22458    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W224P058 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W011..NDC,                                                
+//             INDUT=&W224..W224S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W224PD58),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W01184(+0),DISP=SHR                                  
+//SORTOUT  DD  DSN=&&W01184,DISP=(NEW,PASS,DELETE),                             
+//************ NDC:ERS  LAGERBAND SORTERAT ARTIKELNR, DC                        
+//************ EXTRAKT BARA NDC-US OCH NDC-CN                                   
+//             DATACLAS=PSEN                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22458   EXEC PGM=W22458                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W22458D1 DD  DUMMY                                                            
+//************ PARMETER FILE                                                    
+//*                                                                             
+//W22458D2 DD  DSN=&&W01184,DISP=(OLD,DELETE,DELETE)                            
+//************ UTDRAG UR WDK711,K712 OCH K722 (ARTIKELORDNING)                  
+//*                                                                             
+//W22458D3 DD  DSN=&INDUT..W2245801(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//************ OUTPUT TO UPDATE H-TYPE 2213/2214                                
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

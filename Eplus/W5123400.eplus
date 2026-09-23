@@ -1,0 +1,121 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W512                                                  *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR FILER MED PRISER OCH SALDO FÖR CENTRALA- OCH   *        
+*                SUPPORTLAGER- OCH LDC-ARTIKLAR.                       *        
+*                EN TRANS PER ARTIKELNUMMER.                           *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON : MAJ 2005                         *        
+*                                                                      *        
+*  INFILER    :  W51233     ART.INFO FRÅN CDC(11)                      *        
+*                INFIL1 SORTERAS TILL TEMP1 PER ARTIKELNUMMER.         *        
+*                                                                      *        
+*             :  W51053(+0) FIL MED SALDO PÅ ÖVR. LAGER                *        
+*                W51054(+0) FIL MED SALDO PÅ CDC                       *        
+*                W51058(+0) FIL SOM BACKAR SALDO TILLBAKA TILL MIDNATT *        
+*                INFIL2 SORTERAS TILL TEMP2 PER ARTIKELNUMMER.         *        
+*                                                                      *        
+*  UTFIL      :  W51235(+1)   LAGERSALDON PER ARTNR DÄR                *        
+*                                    TOTALA SALDOT > 0                 *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*----------------------------------*                                            
+* LAGERSALDON I CDC                *                                            
+*----------------------------------*                                            
+                                                                                
+FILE W51234D1                                                                   
+%W51233   'I1-'                                                                 
+                                                                                
+*-------------------------------------*                                         
+* SORTERAD INFIL1, SORTERAD PER ARTNR                                           
+*-------------------------------------*                                         
+*                                                                               
+FILE TPFIL1 FB(123 0)                                                           
+%W51233   'T1-'                                                                 
+                                                                                
+*-----------------------------------------*                                     
+* SALDOFIL MED ALLA DC UTOM CDC OCH NDC-NA                                      
+*-----------------------------------------*                                     
+                                                                                
+FILE W51234D2                                                                   
+%W51054   'I2-'                                                                 
+                                                                                
+*-------------------------------------*                                         
+* SORTERAD INFIL2, SORTERAD PER ARTNR                                           
+*-------------------------------------*                                         
+*                                                                               
+FILE TPFIL2 FB(46 0)                                                            
+%W51054   'T2-'                                                                 
+                                                                                
+*-----------------------------------------*                                     
+* UTFIL, LAGERSALDON PER ARTIKELNUMMER     *                                    
+*-----------------------------------------*                                     
+                                                                                
+FILE W51234D3  FB(123 0)                                                        
+%W51233   'UT-'                                                                 
+                                                                                
+*-------------*                                                                 
+* ARBETSAREOR *                                                                 
+*-------------*                                                                 
+                                                                                
+W-TOT-SALDO    W   4   P   0                                                    
+                                                                                
+*----------------------------------------------------*                          
+* STEG 1 SORTERA INFIL1 TILL TPFIL1 PER ARTIKELNUMMER                           
+*----------------------------------------------------*                          
+                                                                                
+SORT W51234D1 TO TPFIL1 USING (I1-IDARTNR) SIZE 350000                          
+                                                                                
+*----------------------------------------------------*                          
+* STEG 2 SORTERA INFIL2 TILL TPFIL2 PER ARTIKELNUMMER                           
+*----------------------------------------------------*                          
+                                                                                
+SORT W51234D2 TO TPFIL2 USING (I2-IDARTNR) SIZE 400000 +                        
+                          BEFORE SORT-INIT                                      
+ SORT-INIT. PROC                                                                
+  IF I2-KVLS EQ 0 AND I2-KVEFRS EQ 0 AND I2-KVAKS-PAV EQ 0 +                    
+     AND I2-KVAKS EQ 0                                                          
+  ELSE                                                                          
+    SELECT                                                                      
+  END-IF                                                                        
+ END-PROC                                                                       
+                                                                                
+*----------------------------------------------------*                          
+* STEG 3                                                                        
+* MATCHA CDC-FIL MED SALDOFIL FÖR ALLA DC UTOM NORDAMERIKA                      
+* SAMT ADDERA SALDO PER ARTIKELNUMMER.                                          
+* PÅ UTFILEN W51234D3 FINNS EN TRANS PER ART,                                   
+* FÖR ALLA ARTIKLAR DÄR SALDO EJ ÄR NOLL                                        
+*----------------------------------------------------*                          
+                                                                                
+JOB INPUT (TPFIL1 KEY (T1-IDARTNR) TPFIL2 KEY (T2-IDARTNR))                     
+                                                                                
+IF MATCHED                                                                      
+  IF FIRST-DUP TPFIL2 OR NOT DUPLICATE TPFIL2                                   
+    UT-W51233             = T1-W51233                                           
+    UT-KVLS     = 0                                                             
+    UT-KVEFRS   = 0                                                             
+    UT-KVAKS    = 0                                                             
+  END-IF                                                                        
+                                                                                
+  UT-KVLS       = UT-KVLS    + T2-KVLS                                          
+  UT-KVEFRS     = UT-KVEFRS  + T2-KVEFRS                                        
+  UT-KVAKS      = UT-KVAKS   + T2-KVAKS + T2-KVAKS-PAV                          
+                                                                                
+  IF LAST-DUP TPFIL2 OR NOT DUPLICATE TPFIL2                                    
+    W-TOT-SALDO = UT-KVLS + UT-KVEFRS + UT-KVAKS                                
+    IF W-TOT-SALDO NQ +0                                                        
+      PUT W51234D3                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+ELSE                                                                            
+  IF TPFIL1                                                                     
+    UT-W51233             = T1-W51233                                           
+    W-TOT-SALDO = UT-KVLS + UT-KVEFRS + UT-KVAKS                                
+    IF W-TOT-SALDO NQ +0                                                        
+      PUT W51234D3                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+END-IF                                                                          

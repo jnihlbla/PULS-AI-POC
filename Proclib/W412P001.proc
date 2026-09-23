@@ -1,0 +1,65 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*      KONTROLL ORDER TRANSAKTIONER   RUTIN W412S1                  *         
+//*                                                                   *         
+//*      PERIODICITET: DAG                                            *         
+//*                                                                   *         
+//*      ÅTERSTART:    FILER KATALOGISERAS I FLERA STEG               *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W412P001 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W412..ORDTYP,                                             
+//             INDUT=&W412..W412S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41201   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W41201,W41201,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB2     INCLUDE MEMBER=WDB2                                                  
+//WDP7     INCLUDE MEMBER=WDP7                                                  
+//W41201D1 DD  DSN=&INDIN..W41210(+0),DISP=SHR,LRECL=334                        
+//**************   ORDERFIL FRAMSTÄLLT AV RTN SOM STÅR I SYMB. PARAM.           
+//*                                                                             
+//W41201D2 DD  DSN=&&W41201,DISP=(NEW,PASS,DELETE),                             
+//************ GODKÄNDA ORDER                                                   
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W41201D3 DD  DSN=&INDUT..W41202(+1),DISP=(NEW,PASS,DELETE),   -LIM(1)         
+//************ FELAKTIGA POSTER                                                 
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W41201D4 DD  DSN=&INDUT..W41209(+1),DISP=(NEW,PASS,DELETE),   -LIM(1)         
+//************ ANNULLATIONSPOSTER                                               
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//W41201S  EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W412PD01),DISP=SHR                         
+//SORTIN   DD  DSN=&&W41201,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W41201(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ GODKÄNDA ORDER - SORTERADE                                       
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* KATALOGISERING LAGD I SISTA STEGET:                                         
+//W41201D3 DD  DSN=&INDUT..W41202(+1),DISP=(OLD,CATLG,DELETE)                   
+//W41201D4 DD  DSN=&INDUT..W41209(+1),DISP=(OLD,CATLG,DELETE)                   

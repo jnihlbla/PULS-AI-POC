@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DIREKTLEVERANSLARM TILL D&P                                                
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W463V2                                         
+//*                                                                             
+//*  ÅTERSTART:    W46396    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W463P096 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W463..W463V2,                                             
+//             INDUT=&W463..W463V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W463PD96),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W4639J(+0),DISP=SHR                                  
+//************ DIREKTLEVERANSLARM                                               
+//*                                                                             
+//SORTOUT  DD  DSN=&&W4639J,DISP=(NEW,PASS,DELETE),                             
+//************ DIREKTLEVERANSLARM SORTERAD FÖR RAPPORT                          
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W46396   EXEC PGM=W46396                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W46396D1 DD  DSN=&&W4639J,DISP=(OLD,DELETE,DELETE)                            
+//************ DIREKTLEVERANSLARM SORTERD FÖR RAPPORT                           
+//*                                                                             
+//W46396D2 DD  DSN=&INDUT..W4639L(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ DIREKTLEVERANSLARM TILL D&P EXCEL-FORMAT                         
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

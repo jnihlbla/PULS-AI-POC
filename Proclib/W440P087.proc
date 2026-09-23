@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LATEST WEEKS BACKORDER LINES, TOP 30 PARTS                                 
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W440V2                                         
+//*                                                                             
+//*  RESTART:      W44087      NORMAL                                           
+//*                READS        WDD9                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P087 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W440..W440V2,                                             
+//             INDUT=&W440..W440V2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W44087   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W44087,W44087,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//W44087D1 DD  DSN=&INDIN..W44084(+0),DISP=SHR                                  
+//************ INFIL W44084                                                     
+//*                                                                             
+//W44087D2 DD DSN=&&W44087,DISP=(NEW,PASS,DELETE),                              
+//************ UTFIL TILL SORTERING                                             
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W440PD87),DISP=SHR                         
+//SORTIN   DD  DSN=&&W44087,DISP=(OLD,DELETE,DELETE)                            
+//************ SORT PÅ IDLANDX3                                                 
+//SORTOUT  DD  DSN=&INDUT..W44087(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ UTFIL TILL W44090-PGM                                            
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             

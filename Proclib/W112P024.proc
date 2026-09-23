@@ -1,0 +1,75 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR RASA-FILEN                                                          
+//*                                                                             
+//*  FREKVENS:     DAGLIGEN     RTN W112D1                                      
+//*                                                                             
+//*  ÅTERSTART:    W11224   NORMAL                                              
+//*                                                                             
+//*                         LÄSER      WDD3 WDK6 WDJ1                           
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W112P024 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W112..W112D1,                                             
+//             INDUT2=&W020..&RTEGRP,                                           
+//             INDUT3=&WXTR..W112D1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11224   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W11224,W11224,,00')                                  
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM1K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDF5     INCLUDE MEMBER=WDF5                                                  
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDJ1     INCLUDE MEMBER=WDJ1                                                  
+//W11224D1 DD  DSN=&INDUT..W11225(+1),DISP=(NEW,PASS,DELETE),   -LIM(3)         
+//************ RASA-FILEN                                                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W11224D2 DD  DSN=&&W11225X,DISP=(NEW,PASS,DELETE),                            
+//************ FILES TO AZURE DATALAKE                                          
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W11224D3 DD  DSN=&INDUT..W11226(+1),DISP=(NEW,PASS,DELETE),   -LIM(3)         
+//************ WXTR-FILEN                                                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGENER EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W11225(+1),DISP=(OLD,CATLG,DELETE)                   
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..W11225(+1),DISP=(NEW,CATLG,DELETE),                 
+//************ RASA-FILEN                                                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGENE2 EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W11226(+1),DISP=(OLD,CATLG,DELETE)                   
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT3..W11226(+1),DISP=(NEW,CATLG,DELETE),                 
+//************ WXTR-FILEN                                                       
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

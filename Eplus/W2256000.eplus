@@ -1,0 +1,60 @@
+                                                                                
+************************************************************************        
+*                                                                      *        
+*   PROGRAM:     W22560                                                *        
+*                                                                      *        
+*   FÖRFATTARE:  JOHAN LINDKVIST/MONICA                                *        
+*                                                                      *        
+*   FUNKTION:    LISTAR SERVICEGRAD PER VENDOR                         *        
+*                                                                      *        
+*   INPUT:       W231.W231V3.DC61.W23195                               *        
+*                                                                      *        
+*   OUTPUT:      LISTA                                                 *        
+*                                                                      *        
+*                                                                      *        
+************************************************************************        
+FILE W22560D1                                                                   
+%W23195                                                                         
+FILE W22560D2 PRINTER VB (125 0)                                                
+*                                                                               
+SERVGN   W  3 P 1                                                               
+SERVGB   W  3 P 1                                                               
+*                                                                               
+VENDOR   W  5 A                                                                 
+AVBOK    W  7  P 2 MASK (BWZ)                                                   
+INKOMM   W  7  P 0 MASK (BWZ)                                                   
+FYSAVV   W  7  P 2 MASK (BWZ)                                                   
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+*                                                                               
+JOB INPUT W22560D1                                                              
+VENDOR   = IDLEVNR                                                              
+AVBOK    = SUAVBRP                                                              
+INKOMM   = SUINKORD                                                             
+FYSAVV   = SUFYSAVP                                                             
+                                                                                
+     PRINT RAPPORT01                                                            
+                                                                                
+REPORT RAPPORT01  SUMMARY +                                                     
+       PRINTER W22560D2 LINESIZE 120 SPACE 3 NOADJUST                           
+SEQUENCE VENDOR                                                                 
+CONTROL VENDOR                                                                  
+TITLE 1  COL 12 'VOLVO CAR PARTS               W22560-001'                      
+TITLE 2  COL 12 'LISTING OF SERVICE PER VENDOR   (IN JAPAN)'                    
+HEADING IDLEVNR  ('VENDOR')                                                     
+HEADING SERVGN   ('SERVICE' 'NET')                                              
+HEADING SERVGB   ('SERVICE' 'GROSS')                                            
+HEADING TALLY    ('NO. OF' 'PARTS')                                             
+HEADING INKOMM   ('NO. OF' 'LINES')                                             
+HEADING AVBOK    ('  ')                                                         
+HEADING FYSAVV   ('  ')                                                         
+LINE VENDOR SERVGN SERVGB TALLY INKOMM AVBOK FYSAVV                             
+BEFORE-BREAK. PROC                                                              
+ IF INKOMM > 0                                                                  
+    SERVGB ROUNDED = AVBOK * 100 / INKOMM                                       
+    SERVGN ROUNDED = (AVBOK - FYSAVV) * 100 / INKOMM                            
+ END-IF                                                                         
+    AVBOK   = 0                                                                 
+    FYSAVV  = 0                                                                 
+END-PROC                                                                        

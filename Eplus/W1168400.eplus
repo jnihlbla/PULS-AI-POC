@@ -1,0 +1,96 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W1168400                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR EN ARTIKEL FIL PER DC (VIPS MARKET).           *        
+*                ORSAKEN ÄR ATT VI SKALL SKICKA FULL PART RANGE        *        
+*                TILL VIPS.                                                     
+*                DC SOM SKALL HA FULL PART RANGE FINNS UPDATERAD                
+*                I CONSTANT MEMBER W116DC01                                     
+*                                                                      *        
+*  FÖRFATTARE :  INGER STENING                                         *        
+*                                                                      *        
+*  DATUM      :  200213                                                *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W11684D1                                                                   
+%W11684   'IN-FULL-PART-RANGE-'                                                 
+*                                                                               
+FILE TEMPFIL FB(2 0) VIRTUAL                                                    
+%W11684   'TMP1-FULL-PART-RANGE-'                                               
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  W11606 ARTINFO INKL BUY-BACK KOD    *                                        
+* -------------------------------------*                                        
+FILE W11684D2                                                                   
+%W11606   'IN-ART-'                                                             
+*                                                                               
+NEWPAGE                                                                         
+FILE W11684D3 FB(430 0)                                                         
+%W11606A  'OUT-ART-'                                                            
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  ARBETSFÄLT                          *                                        
+* -------------------------------------*                                        
+*                                                                               
+ TAB-IDDC-FULL-PART-RANGE W  2 A   OCCURS 50                                    
+ JA                       W  1 A   VALUE 'J'                                    
+ NEJ                      W  1 A   VALUE 'N'                                    
+ IX1                      W  2 N   VALUE 0                                      
+ IX1-DC                   W  2 N   VALUE 0                                      
+ IX1-DC-MAX               W  2 N   VALUE 50                                     
+*                                                                               
+NEWPAGE                                                                         
+SORT W11684D1 TO TEMPFIL USING IN-FULL-PART-RANGE-IDDC                          
+                                                                                
+JOB INPUT TEMPFIL START A-INIT                                                  
+*                                                                               
+IX1-DC = IX1-DC + 1                                                             
+TAB-IDDC-FULL-PART-RANGE (IX1-DC) = TMP1-FULL-PART-RANGE-IDDC                   
+                                                                                
+A-INIT. PROC                                                                    
+  IX1-DC = +1                                                                   
+  DO WHILE IX1-DC LT (IX1-DC-MAX + 1)                                           
+     TAB-IDDC-FULL-PART-RANGE (IX1-DC) = ' '                                    
+     IX1-DC = IX1-DC + 1                                                        
+  END-DO                                                                        
+  IX1-DC = +0                                                                   
+END-PROC                                                                        
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+* STEG 1. SKAPA EN ARTTIKEL FIL PER DC (VIPS MARKNAD).             *            
+*         ORSAKEN ÄR ATT VI SKALL SKICKA FULL PART RANGE TILL VIPS.*            
+*         SAKNAS ARTKEL/DC PÅ W01184 HÄMTAS INFO FRÅN ARTIKEL FIL. *            
+* -----------------------------------------------------------------*            
+JOB INPUT W11684D2                                                              
+*                                                                               
+   OUT-ART-IDARTNR        = IN-ART-IDARTNR                                      
+   OUT-ART-W11606-ART-GRP = IN-ART-W11606-ART-GRP                               
+   IX1                    = 1                                                   
+   DO WHILE IX1 LT +11                                                          
+     OUT-ART-W11606-BEN-GRP(IX1) = IN-ART-W11606-BEN-GRP(IX1)                   
+     IX1 = IX1 + 1                                                              
+   END-DO                                                                       
+   OUT-ART-KDTIPPR        = IN-ART-KDTIPPR                                      
+   IX1                    = 1                                                   
+   DO WHILE IX1 LT +4                                                           
+     OUT-ART-IDKAT (IX1)  = IN-ART-IDKAT(IX1)                                   
+     IX1 = IX1 + 1                                                              
+   END-DO                                                                       
+   OUT-ART-BELEVART       = IN-ART-BELEVART                                     
+   OUT-ART-FLGEMFMC       = IN-ART-FLGEMFMC                                     
+   OUT-ART-IDPROJUP       = IN-ART-IDPROJUP                                     
+   OUT-ART-TIERSDAT       = IN-ART-TIERSDAT                                     
+   OUT-ART-TIURPROD       = IN-ART-TIURPROD                                     
+                                                                                
+   IX1-DC = +1                                                                  
+   DO WHILE TAB-IDDC-FULL-PART-RANGE (IX1-DC) NE '  '                           
+      OUT-ART-IDDC        = TAB-IDDC-FULL-PART-RANGE (IX1-DC)                   
+      PUT W11684D3                                                              
+      IX1-DC = IX1-DC + 1                                                       
+   END-DO                                                                       
+*                                                                               

@@ -1,0 +1,56 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR GRUNDFIL REFILL UPPFÖLJNING NDC                                     
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W231V3                                         
+//*                                                                             
+//*  ÅTERSTART:    W23195    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W231P095 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W231..W231V3,                                             
+//             INDUT=&W231..W231V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* SORT ON IDARTNR AND IDDC                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W231PD92),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W23194(+0),DISP=SHR                                  
+//************ SDC ARTIKLAR                                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&&W23194,DISP=(NEW,PASS,DELETE),                             
+//************ SDC ARTIKLAR                                                     
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23195   EXEC PGM=V16459,PARM='W23195/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W23195D1 DD  DSN=&INDIN..W23193(+0),DISP=SHR                                  
+//************ ARTIKEL-FIL                                                      
+//*                                                                             
+//W23195D2 DD  DSN=&&W23194,DISP=(OLD,DELETE,DELETE)                            
+//************ SRS-INFO                                                         
+//*                                                                             
+//W23195D3 DD  DSN=&INDUT..W23195(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ GRUNDFIL REFILL UPPF NDC                                         
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGENER EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W23195(+1),DISP=(OLD,CATLG,DELETE)                   
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT..W23196(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ KOPIA AV GRUNDFIL REFILL, ANVÄNDS FÖR SERVICEGRADSLISTOR         
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEB                                  
+//*                                                                             

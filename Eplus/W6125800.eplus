@@ -1,0 +1,269 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6125800                                              *        
+*                                                                      *        
+*  FUNKTION   :  LIST                                                  *        
+*                                                                      *        
+*  FÖRFATTARE :  JOHAN LINDKVIST                                       *        
+*                                                                      *        
+*  ÄNDRING    :   97-11-26    JOHAN L                                  *        
+*                 ÄNDRA TILL AMERIKANSKA MÅTTENHETER OM SÅ SKALL VARA  *        
+*                 SKÖNTEKNISKA FEL ÄVEN BORTAGNA                       *        
+*  ÄNDRING    :   12-05       GÖRAN K                                  *        
+*                 SORTEN FLYTTAS TILL STD-SORT FÖRE PROGRAMMET         *        
+*                 OM SAMTLIGA RAPPORTER SKRIVS I SAMMA STEG            *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     971127      JOHAN                    50 653                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61258D1                                                                   
+*                                                                               
+%W61255  'IN-'                                                                  
+                                                                                
+FILE W61258D2 PRINTER FB (133 0)                                                
+                                                                                
+FILE W61258D3 PRINTER VB (133 0)                                                
+                                                                                
+%WDATKORT 'DATKORT-'                                                            
+*                                                                               
+*                                                                               
+* KONVERTERINGSPARAMETERAR                                                      
+*                                                                               
+CONV-CM3-TO-IN3  W 5 P 9  VALUE 0.061023744                                     
+*                  CUBIC CENTIMETERS TO CUBIC INCHES                            
+*                                                                               
+CONV-GR-TO-OZ    W 4 P 7  VALUE 0.0352740                                       
+*                  GRAMS TO OUNCES                                              
+*                                                                               
+PROGRAM-NAMN  W  6  A     VALUE 'W61258'                                        
+DATUMKORT-ID  W  6  A     VALUE '000000'                                        
+*                                                                               
+DAGENS-DATUM  W  6  A                                                           
+DAGENS-AA     DAGENS-DATUM     2 A                                              
+DAGENS-MM     DAGENS-DATUM +2  2 A                                              
+DAGENS-DD     DAGENS-DATUM +4  2 A                                              
+*                                                                               
+WS-PAGE       W  8  A     VALUE '    PAGE'                                      
+WS-TEST       W  2  P 1 VALUE 0                                                 
+WS-PREV-IDDC  W  2  A                                                           
+*                                                                               
+WS-KDFRAKT    W  2  N     MASK 'ZZ'                                             
+WS-KDVSOP     W  3  N                                                           
+WS-ADLAGOMR   W  2  N     MASK 'ZZ'                                             
+WS-IDARTNR    W  8  N     MASK 'ZZZZZZZZ'                                       
+WS-KVAVIS     W  6  N     MASK 'ZZZZZ9'                                         
+WS-KVPB-REF   W  6  N  1  MASK 'ZZZZ9.9'                                        
+WS-VKART      W  7  N     MASK 'ZZZZZZ9'                                        
+WS-VKART-US   W  9  N  2  MASK 'ZZZZZZ9.99'                                     
+WS-VLARTNTO   W  8  N  1  MASK 'ZZZZZZ9.9'                                      
+WS-IDFAKT     W  7  N     MASK 'ZZZZZZ9'                                        
+WS-IDKOLLI    W  5  N     MASK 'ZZZZ9'                                          
+WS-IDORDNR5   W  5  N     MASK 'ZZZZ9'                                          
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+W-Y2K-TIBERANK   W  6  N                                                        
+                                                                                
+NEWPAGE                                                                         
+*    --- TO CHECK IF "WEB DC"                                                   
+*                                                                               
+%WL10WBDC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+  JOB INPUT W61258D1 +                                                          
+                   START A-INIT                                                 
+                                                                                
+  WS-IDARTNR     = IN-SHIST-IDARTNR                                             
+  WS-KVAVIS      = IN-SHIST-KVAVIS                                              
+  WS-KDVSOP      = IN-SHIST-KDVSOP                                              
+  WS-ADLAGOMR    = IN-SHIST-ADLAGOMR                                            
+  WS-KVPB-REF    = IN-SHIST-KVPB-REF                                            
+  WS-VKART       = IN-SHIST-VKART                                               
+  WS-VLARTNTO    = IN-SHIST-VLARTNTO                                            
+                                                                                
+  WS-IDFAKT      = IN-SHIST-IDFAKT                                              
+  WS-KDFRAKT     = IN-SHIST-KDFRAKT                                             
+  WS-IDKOLLI     = IN-SHIST-IDKOLLI                                             
+  WS-IDORDNR5    = IN-SHIST-IDORDNR5                                            
+                                                                                
+  W-Y2K-TIBERANK = IN-SHIST-TIBERANK                                            
+                                                                                
+  PERFORM S23-CHECK-IN-SHIST-IDDC                                               
+  PERFORM X-CHECK-IF-WEB-REPORT                                                 
+  IF WBDC-FLWEBDC = 'J'                                                         
+     IF IN-SHIST-IDDC = NDC-CA                                                  
+*       OMVANDLING TILL AMERIKANSKA MÅTTENHETER !                               
+        WS-VKART-US  = WS-VKART * CONV-GR-TO-OZ                                 
+        WS-VLARTNTO  = WS-VLARTNTO * CONV-CM3-TO-IN3                            
+* TO FIX CA REPORT.                                                             
+        WS-VKART     = WS-VKART-US                                              
+     END-IF                                                                     
+     PRINT NEW-PARTS-WEB                                                        
+  ELSE                                                                          
+     IF IN-SHIST-IDDC = NDC-US                                                  
+*       OMVANDLING TILL AMERIKANSKA MÅTTENHETER !                               
+        WS-VKART-US  = WS-VKART * CONV-GR-TO-OZ                                 
+        WS-VLARTNTO  = WS-VLARTNTO * CONV-CM3-TO-IN3                            
+                                                                                
+        PRINT NEW-PARTS-US                                                      
+                                                                                
+     ELSE                                                                       
+       PRINT NEW-PARTS-SE                                                       
+     END-IF                                                                     
+  END-IF                                                                        
+*                                                                               
+NEWPAGE                                                                         
+A-INIT. PROC                                                                    
+   CALL DATKORT USING (PROGRAM-NAMN +                                           
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+                                                                                
+   DAGENS-AA = DATKORT-D-AAR                                                    
+   DAGENS-MM = DATKORT-D-MAANAD                                                 
+   DAGENS-DD = DATKORT-D-DAG                                                    
+END-PROC                                                                        
+*                                                                               
+*    --- S23-CHECK-IN-SHIST-IDDC (MACRO PROCEDURE)                              
+%WWDC02 'IN-SHIST-'                                                             
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+X-CHECK-IF-WEB-REPORT. PROC                                                     
+   WBDC-IDDC = IN-SHIST-IDDC                                                    
+   CALL WL10WBDC USING WBDC-AREA                                                
+END-PROC                                                                        
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+REPORT NEW-PARTS-SE  PRINTER W61258D2 LINESIZE 122 DTLCTL NONE +                
+       TITLESKIP 3 NOSPREAD NOADJUST SPACE 1 SUMCTL NONE       +                
+       NODATE SKIP 1                                                            
+                                                                                
+SEQUENCE IN-SHIST-IDDC IN-SHIST-ADLAGOMR                       +                
+         W-Y2K-TIBERANK IN-SHIST-KDFRAKT IN-SHIST-IDARTNR                       
+                                                                                
+CONTROL IN-SHIST-IDDC NEWPAGE                                                   
+SUM WS-TEST                                                                     
+                                                                                
+TITLE 1  COL 12  'VOLVO CAR AFTERSALES        W61258-001'   +                   
+         COL 90  DAGENS-AA                                  +                   
+         COL 93  DAGENS-MM                                  +                   
+         COL 96  DAGENS-DD                                  +                   
+         COL 107 WS-PAGE                                                        
+TITLE 2  COL 12  'DC: ' IN-SHIST-IDDC                          +                
+         COL 40  'LIST NEW PARTS IN AK WITHOUT PRIME LOCATION'                  
+                                                                                
+HEADING  WS-IDARTNR        ('PART' 'NUMBER')                                    
+HEADING  IN-SHIST-BEART    ('PART' 'DESCRIPTION')                               
+HEADING  IN-SHIST-TIBERANK ('ARRIVAL' 'DATE')                                   
+HEADING  WS-KVPB-REF       ('FORE' 'CAST')                                      
+HEADING  WS-KVAVIS         ('AK' 'QUANT.')                                      
+HEADING  WS-KDVSOP         ('VS' 'OP')                                          
+HEADING  WS-VKART          ('WEIGHT')                                           
+HEADING  WS-VLARTNTO       ('VOLUME')                                           
+HEADING  WS-ADLAGOMR       ('CDC' 'AREA')                                       
+HEADING  WS-KDFRAKT        ('FC')                                               
+HEADING  WS-IDFAKT         ('INVOICE')                                          
+HEADING  WS-IDORDNR5       ('ORDER')                                            
+HEADING  WS-IDKOLLI        ('CASE')                                             
+                                                                                
+LINE  1  WS-IDARTNR         +                                                   
+         IN-SHIST-BEART     +                                                   
+         IN-SHIST-TIBERANK  +                                                   
+         WS-KVPB-REF        +                                                   
+         WS-KVAVIS          +                                                   
+         WS-KDVSOP          +                                                   
+         WS-VKART           +                                                   
+         WS-VLARTNTO        +                                                   
+         WS-ADLAGOMR        +                                                   
+         WS-KDFRAKT         +                                                   
+         WS-IDFAKT          +                                                   
+         WS-IDORDNR5        +                                                   
+         WS-IDKOLLI                                                             
+*                                                                               
+NEWPAGE                                                                         
+REPORT NEW-PARTS-US  PRINTER W61258D2 LINESIZE 122 DTLCTL NONE +                
+       TITLESKIP 3 NOSPREAD NOADJUST SPACE 1 SUMCTL NONE       +                
+       NODATE SKIP 1                                                            
+                                                                                
+SEQUENCE IN-SHIST-IDDC IN-SHIST-ADLAGOMR                       +                
+         W-Y2K-TIBERANK IN-SHIST-KDFRAKT IN-SHIST-IDARTNR                       
+                                                                                
+CONTROL IN-SHIST-IDDC NEWPAGE                                                   
+SUM WS-TEST                                                                     
+                                                                                
+TITLE 1  COL 12  'VOLVO CAR AFTERSALES        W61258-001'   +                   
+         COL 90  DAGENS-AA                                  +                   
+         COL 93  DAGENS-MM                                  +                   
+         COL 96  DAGENS-DD                                  +                   
+         COL 107 WS-PAGE                                                        
+TITLE 2  COL 12  'DC: ' IN-SHIST-IDDC                          +                
+         COL 40  'LIST NEW PARTS IN AK WITHOUT PRIME LOCATION'                  
+                                                                                
+HEADING  WS-IDARTNR        ('PART' 'NUMBER')                                    
+HEADING  IN-SHIST-BEART    ('PART' 'DESCRIPTION')                               
+HEADING  IN-SHIST-TIBERANK ('ARRIVAL' 'DATE')                                   
+HEADING  WS-KVPB-REF       ('FORE' 'CAST')                                      
+HEADING  WS-KVAVIS         ('AK' 'QUANT.')                                      
+HEADING  WS-KDVSOP         ('VS' 'OP')                                          
+HEADING  WS-VKART-US       ('WEIGHT')                                           
+HEADING  WS-VLARTNTO       ('VOLUME')                                           
+HEADING  WS-ADLAGOMR       ('CDC' 'AREA')                                       
+HEADING  WS-KDFRAKT        ('FC')                                               
+HEADING  WS-IDFAKT         ('INVOICE')                                          
+HEADING  WS-IDORDNR5       ('ORDER')                                            
+HEADING  WS-IDKOLLI        ('CASE')                                             
+                                                                                
+LINE  1  WS-IDARTNR         +                                                   
+         IN-SHIST-BEART     +                                                   
+         IN-SHIST-TIBERANK  +                                                   
+         WS-KVPB-REF        +                                                   
+         WS-KVAVIS          +                                                   
+         WS-KDVSOP          +                                                   
+         WS-VKART-US        +                                                   
+         WS-VLARTNTO        +                                                   
+         WS-ADLAGOMR        +                                                   
+         WS-KDFRAKT         +                                                   
+         WS-IDFAKT          +                                                   
+         WS-IDORDNR5        +                                                   
+         WS-IDKOLLI                                                             
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+REPORT NEW-PARTS-WEB PRINTER W61258D3 LINESIZE 122      +                       
+                                      NOHEADING         +                       
+                                      NOADJUST          +                       
+                                      NODATE            +                       
+                                      NOSPREAD          +                       
+                                      SPACE 0                                   
+                                                                                
+LINE  1  IN-SHIST-IDDC      +                                                   
+         WS-IDARTNR         +                                                   
+         IN-SHIST-BEART     +                                                   
+         IN-SHIST-TIBERANK  +                                                   
+         WS-KVPB-REF        +                                                   
+         WS-KVAVIS          +                                                   
+         WS-KDVSOP          +                                                   
+         WS-VKART           +                                                   
+         WS-VLARTNTO        +                                                   
+         WS-ADLAGOMR        +                                                   
+         WS-KDFRAKT         +                                                   
+         WS-IDFAKT          +                                                   
+         WS-IDORDNR5        +                                                   
+         WS-IDKOLLI                                                             
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF IN-SHIST-IDDC NE WS-PREV-IDDC                                              
+   DISPLAY '¤DAPW61258-001'                                                     
+   DISPLAY '¤DAP' IN-SHIST-IDDC                                                 
+   WS-PREV-IDDC = IN-SHIST-IDDC                                                 
+  END-IF                                                                        
+END-PROC                                                                        
+*                                                                               

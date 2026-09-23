@@ -1,0 +1,105 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W6141000                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR ARTIKELDATA OCH BENÄMNINGSFIL.                *        
+*                SKAPAR FIL MED ARTIKLAR FRÅN WDK6 MED                 *        
+*                LEVERANSSPÄRR/SPÄRRAD KVANT.                          *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL                                         *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*--------------------------------------*                                        
+*   ARTIKELDATA                        *                                        
+* -------------------------------------*                                        
+FILE W61410D1                                                                   
+*                                                                               
+%W01160                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  BENÄMNINGAR                         *                                        
+* -------------------------------------*                                        
+FILE W61410D2                                                                   
+%W01174   'BEN-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  UTFIL                               *                                        
+* -------------------------------------*                                        
+FILE W61410D3 FB (106 0)                                                        
+%W61410    'UT-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  TEMPFIL                             *                                        
+* -------------------------------------*                                        
+FILE W61410D4 FB(106 0) VIRTUAL                                                 
+%W61410    'TEMP1-'                                                             
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+* STEG 1. SELEKTERAR UT POSTER FRÅN W01160                         *            
+* -----------------------------------------------------------------*            
+*                                                                               
+JOB INPUT W61410D1                                                              
+                                                                                
+   IF CLAG-KDLEVSP > 0 OR CLAG-KVSPARR-KVAL > 0                                 
+      PERFORM AA-ARTIKELDATA                                                    
+      PUT W61410D4                                                              
+   END-IF                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ AA-ARTIKELDATA. PROC                                                           
+   TEMP1-KDSORT1       = 0                                                      
+   TEMP1-IDDC-BEST     = ' '                                                    
+   TEMP1-BEART-ENG     = ' '                                                    
+   TEMP1-BEART-SVE     = ' '                                                    
+   TEMP1-IDARTNR       = CLAG-IDARTNR                                           
+   TEMP1-IDFKNGRP      = CLAG-IDFKNGRP                                          
+   TEMP1-IDDC          = '11'                                                   
+   TEMP1-IDUSER-SPKVAL = CLAG-IDUSER-SPKVAL                                     
+   TEMP1-KDLEVSP       = CLAG-KDLEVSP                                           
+   TEMP1-KVLS          = CLAG-KVLS                                              
+   TEMP1-KVROS         = CLAG-KVROS                                             
+   TEMP1-KVSPARR-KVAL  = CLAG-KVSPARR-KVAL                                      
+   TEMP1-PRARTSTD      = CLAG-PRARTSTD                                          
+   TEMP1-PRAVCOST      = 0                                                      
+   TEMP1-TISPARR-KVAL  = CLAG-TISPARR-KVAL                                      
+   TEMP1-IDLEVNR       = CLAG-IDLEVNR                                           
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*------------------------------------------------------------------*            
+* STEG 2. MATCHAR TEMPFIL OCH BENÄMNINGSFIL TILL UTFIL             *            
+* -----------------------------------------------------------------*            
+*                                                                               
+JOB INPUT (W61410D4 KEY(TEMP1-IDARTNR) W61410D2 KEY(BEN-IDARTNR))               
+                                                                                
+ IF MATCHED                                                                     
+    PERFORM AB-SKAPA-UTFIL                                                      
+    PUT W61410D3                                                                
+ END-IF                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ AB-SKAPA-UTFIL. PROC                                                           
+   UT-KDSORT1       = TEMP1-KDSORT1                                             
+   UT-BEART-ENG     = BEN-BEART(4)                                              
+   UT-BEART-SVE     = BEN-BEART(8)                                              
+   UT-IDARTNR       = TEMP1-IDARTNR                                             
+   UT-IDFKNGRP      = TEMP1-IDFKNGRP                                            
+   UT-IDDC          = TEMP1-IDDC                                                
+   UT-IDUSER-SPKVAL = TEMP1-IDUSER-SPKVAL                                       
+   UT-KDLEVSP       = TEMP1-KDLEVSP                                             
+   UT-KVLS          = TEMP1-KVLS                                                
+   UT-KVROS         = TEMP1-KVROS                                               
+   UT-KVSPARR-KVAL  = TEMP1-KVSPARR-KVAL                                        
+   UT-PRARTSTD      = TEMP1-PRARTSTD                                            
+   UT-PRAVCOST      = TEMP1-PRAVCOST                                            
+   UT-TISPARR-KVAL  = TEMP1-TISPARR-KVAL                                        
+   UT-IDLEVNR       = TEMP1-IDLEVNR                                             
+ END-PROC                                                                       

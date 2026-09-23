@@ -1,0 +1,33 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  BMP - KONVERTERAR ORDERPOSTER OCH UPPDATERAR WDP8                          
+//*                                                                             
+//*  FREKVENS:     DAG                  RTN W412S1                              
+//*                                                                             
+//*  ÅTERSTART:    W41202     KÖRS OM AV SYSTEMANSVARIG                         
+//*                LÄSER      WDR4                                              
+//*                UPDATERAR  WDP8 (OCH WDR4 FÖR CHKPOINT)                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W412P002 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W412..W412S1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41202   EXEC PGM=DFSRRC00,                                                   
+// PARM=('BMP,W41202,W41202,,,N00,,,,,&CPU,,,&IMS')                             
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                    -- POSTSUM           
+//W41202D1 DD  DSN=&INDIN..W41201(+0),DISP=SHR                                  
+//************ RÄTTA ORDERPOSTER                                                
+//*                                                                             

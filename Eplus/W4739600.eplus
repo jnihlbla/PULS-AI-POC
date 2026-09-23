@@ -1,0 +1,138 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*                                                                      *        
+*  SYSTEM     :  W4739600                                                       
+*                                                                      *        
+*  FUNKTION   :  EN FIL IN, EN AKTIVITET, LISTA UT                     *        
+*                                                                      *        
+*  FÖRFATTARE :                                                        *        
+*                                                                      *        
+*  INFILER    :  R.AVH.W47398(+0)                                      *        
+*                R.AVH.W47387(+0)                                      *        
+*  UTFILER    :                                                        *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVD                         *        
+*     ........    ....................     ..............              *        
+*     ........    ....................     ..............              *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W47396D1                                                                   
+*-------------*                                                                 
+* COPYTEXT    *                                                                 
+*-------------*                                                                 
+*                                                                               
+%W4739203  'C1-'                                                                
+*                                                                               
+*                                                                               
+FILE W47396D3 PRINTER FB(335 0)                                                 
+*                                                                               
+*                                                                               
+*-------------*                                                                 
+* ARBETSAREOR *                                                                 
+*-------------*                                                                 
+*                                                                               
+BRYT1               W    4    P                                                 
+BRYT2               W    4    P                                                 
+*                                                                               
+W-V-PARANTES        W    1    A   VALUE '('                                     
+W-H-PARANTES        W    1    A   VALUE ')'                                     
+*                                                                               
+W-C1-IDDISTR        W                   3    P    MASK 'ZZZZZ'                  
+W-C1-IDKUNDNR       W                   4    P    MASK 'ZZZZZZZ'                
+W-C1-IDPRODNR       W                   4    P    MASK 'ZZZZZZZ'                
+W-C1-KDORDKL        W                   1    P    MASK 'Z'                      
+W-C1-IDAVD          W                   3    P    MASK 'ZZZZZ'                  
+W-C1-EMBTAB         W                  72    A                                  
+W-C1-EMBKLASS       W-C1-EMBTAB        24    A    OCCURS 3                      
+W-C1-KVEMBTYP       W-C1-EMBKLASS       3    P    MASK 'ZZZZZ' OCCURS 8         
+W-C1-IDEMBNR        W                   4    P    MASK 'ZZZZZZZ'                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+*-------------*                                                                 
+* JOB         *                                                                 
+*-------------*                                                                 
+*                                                                               
+JOB INPUT W47396D1 NAME AKT01                                                   
+     BRYT1 = BRYT1 + 1                                                          
+     W-C1-IDDISTR = C1-IDDISTR                                                  
+     W-C1-IDKUNDNR = C1-IDKUNDNR                                                
+     W-C1-IDPRODNR = C1-IDPRODNR                                                
+     W-C1-KDORDKL = C1-KDORDKL                                                  
+     W-C1-IDAVD = C1-IDAVD                                                      
+     W-C1-EMBTAB = C1-EMBTAB                                                    
+     W-C1-EMBKLASS = C1-EMBKLASS                                                
+     W-C1-KVEMBTYP = C1-KVEMBTYP                                                
+     W-C1-IDEMBNR = C1-IDEMBNR                                                  
+     IF W-C1-IDPRODNR = 0                                                       
+          MOVE SPACE TO W-V-PARANTES                                            
+          MOVE SPACE TO W-H-PARANTES                                            
+     ELSE                                                                       
+          W-V-PARANTES = '('                                                    
+          W-H-PARANTES = ')'                                                    
+     END-IF                                                                     
+     PRINT RAPPORT01                                                            
+*                                                                               
+*-------------*                                                                 
+* REPORT      *                                                                 
+*-------------*                                                                 
+*                                                                               
+  REPORT RAPPORT01 PRINTER W47396D3 +                                           
+         LINESIZE 83 NOADJUST NODATE NOPAGE NOHEADING                           
+         CONTROL BRYT1 NEWPAGE NOPRINT                                          
+    LINE    ' '                                                                 
+    LINE  7 COL 44 SYSDATE-LONG                                                 
+    LINE 8  COL 67 'P' +                                                        
+            COL 68 W-C1-IDEMBNR                                                 
+    LINE 11 COL 44 C1-BEGMT-RAD1                                                
+    LINE 12 COL 44 C1-BEGMT-RAD2                                                
+    LINE 13 COL  8 W-C1-IDAVD +                                                 
+            COL 16 W-C1-KDORDKL +                                               
+            COL 44 C1-ADGMT-GATA                                                
+    LINE 14 COL 44 C1-ADGMT-PADR                                                
+    LINE 15 COL 44 C1-ADGMT-LAND                                                
+    LINE 16 COL  8 W-C1-IDDISTR +                                               
+            COL 15 W-C1-IDKUNDNR +                                              
+            COL 24 C1-ID-TEXT +                                                 
+            COL 36 W-V-PARANTES +                                               
+            COL 37 W-C1-IDPRODNR +                                              
+            COL 44 W-H-PARANTES                                                 
+    LINE 20 COL 44 '****' +                                                     
+            COL 51 'DISTR' +                                                    
+            COL 59 'KUNDNR' +                                                   
+            COL 68 '****'                                                       
+    LINE 21 COL 44 '****' +                                                     
+            COL 51 W-C1-IDDISTR +                                               
+            COL 58 W-C1-IDKUNDNR +                                              
+            COL 68 '****'                                                       
+    LINE 27 COL 60 'U 2181' +                                                   
+            COL 68 'W 701'  +                                                   
+            COL 74 'Y 780'                                                      
+    LINE 29 COL 27 W-C1-KVEMBTYP(1, 1) +                                        
+            COL 34 W-C1-KVEMBTYP(1, 2) +                                        
+            COL 41 W-C1-KVEMBTYP(1, 3) +                                        
+            COL 48 W-C1-KVEMBTYP(1, 4) +                                        
+            COL 55 W-C1-KVEMBTYP(1, 5) +                                        
+            COL 61 W-C1-KVEMBTYP(1, 6) +                                        
+            COL 68 W-C1-KVEMBTYP(1, 7) +                                        
+            COL 74 W-C1-KVEMBTYP(1, 8)                                          
+    LINE 31 COL 27 W-C1-KVEMBTYP(2, 1) +                                        
+            COL 34 W-C1-KVEMBTYP(2, 2) +                                        
+            COL 41 W-C1-KVEMBTYP(2, 3) +                                        
+            COL 48 W-C1-KVEMBTYP(2, 4) +                                        
+            COL 55 W-C1-KVEMBTYP(2, 5) +                                        
+            COL 61 W-C1-KVEMBTYP(2, 6) +                                        
+            COL 68 W-C1-KVEMBTYP(2, 7) +                                        
+            COL 74 W-C1-KVEMBTYP(2, 8)                                          
+    LINE 41 COL 27 W-C1-KVEMBTYP(3, 1) +                                        
+            COL 34 W-C1-KVEMBTYP(3, 2) +                                        
+            COL 41 W-C1-KVEMBTYP(3, 3) +                                        
+            COL 48 W-C1-KVEMBTYP(3, 4) +                                        
+            COL 55 W-C1-KVEMBTYP(3, 5) +                                        
+            COL 61 W-C1-KVEMBTYP(3, 6) +                                        
+            COL 68 W-C1-KVEMBTYP(3, 7) +                                        
+            COL 74 W-C1-KVEMBTYP(3, 8)                                          
+*                                                                               

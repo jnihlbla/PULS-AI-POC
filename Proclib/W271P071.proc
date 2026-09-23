@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  RESTORDERLISTA TOPP 100 I ORDERRADSORDNING                                 
+//*  FÖR FÖRRA VECKAN                                                           
+//*  NDC TOTALT PER LAND                                                        
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W271V7                                         
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W27171    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W271P071 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W271..W271V7,                                             
+//             INDUT=&W271..W271V7                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W271PD71),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W27170(+0),DISP=SHR                                  
+//************ RESTORDERPOSTER                                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W27170,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE RESTORDERPOSTER I ORDERRADSORDNING + ARTNR             
+//         SPACE=(80,(2,6),RLSE),AVGREC=K                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W27171   EXEC PGM=W27171                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W27171D1 DD  DSN=&&W27170,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERADE RESTORDERPOSTER I ARTNR                                
+//*                                                                             
+//W27171D2 DD  DSN=&INDUT..W27171(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ W27171-001  RESTORDERLISTA SOM FIL TILL DAP                      
+//************             RESTORDERLISTA TOPP 100 I ORDERRADSORDNING           
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//W27171D3 DD  DSN=&INDUT..W27176(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ W27171-080  RESTORDERLISTA, BUYER > 80 I ORDERRADSORDNING        
+//************                                                                  
+//             DATACLAS=PSEB,                                                   
+//             MGMTCLAS=&BACKUPC                                                

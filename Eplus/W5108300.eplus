@@ -1,0 +1,136 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5108300                                              *        
+*                                                                      *        
+*  FUNKTION   :  LISTAR VAROR PÅ VÄG I LEVA1-SYSTEMET SOM HÖR TILL     *        
+*                FÖREGÅENDE PERIOD                                     *        
+*                                                                      *        
+*  FÖRFATTARE :  MARKUS ASPFJÄLL                                       *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W51083D1                                                                   
+*                                                                               
+%A432GSDB 'IN-'                                                                 
+                                                                                
+NEWPAGE                                                                         
+FILE W51083D2  PRINTER VB(75 0)                                                 
+                                                                                
+UT-DATUM-AVS       W  8  N                                                      
+UT-LEVNR           W  5  A                                                      
+UT-ARTNR           W  9  N                                                      
+UT-ANTAL           W  7  N                                                      
+UT-PACKNR          W  7  N                                                      
+UT-SIGN2           W  1  A                                                      
+UT-BEL-STD-N       W 11  N                                                      
+UT-BEL-STD-D       W  2  N                                                      
+                                                                                
+*************************************                                           
+* WORKINGSTORAGE                    *                                           
+*************************************                                           
+W-BEL-STD                W    13  N 2                                           
+W-BEL-STD-N    W-BEL-STD      11  N                                             
+W-BEL-STD-D    W-BEL-STD +11   2  N                                             
+                                                                                
+W-DATUM           W  8  N                                                       
+W-SEKEL W-DATUM      2  N                                                       
+W-AA    W-DATUM   +2 2  N                                                       
+W-MM    W-DATUM   +4 2  N                                                       
+W-DD    W-DATUM   +6 2  N                                                       
+W-AAMMDD W-DATUM  +2 6  N                                                       
+                                                                                
+W-DATUM-2         W  4  N                                                       
+W-AAR   W-DATUM-2    2  N                                                       
+W-VV    W-DATUM-2 +2 2  N                                                       
+                                                                                
+FIRST-LINE1       W  1  A VALUE 'J'                                             
+W-SEM             W  1  A VALUE ';'                                             
+W-DECIMAL         W  1  A VALUE '.'                                             
+PROGRAM-NAMN      W  6  A VALUE 'W51083'                                        
+DATUMKORT-ID      W  6  A VALUE 'WDATUM'                                        
+                                                                                
+%WDATAREA                                                                       
+%WDATKORT                                                                       
+NEWPAGE                                                                         
+*************************************                                           
+* STEG 1. LÄSER IN FILEN            *                                           
+*************************************                                           
+JOB INPUT (W51083D1) START A-INIT                                               
+  IF IN-FTAG = 57                                                               
+    IF IN-DATUM-AVS LT W-DATUM                                                  
+      UT-LEVNR = IN-GSDB                                                        
+      UT-ARTNR = IN-ARTNR                                                       
+      UT-ANTAL = IN-ANTAL                                                       
+      UT-PACKNR = IN-PACKNR                                                     
+      IF IN-BEL-STD > 0 OR IN-BEL-STD = 0                                       
+        MOVE ' ' TO UT-SIGN2                                                    
+      ELSE                                                                      
+        MOVE '-' TO UT-SIGN2                                                    
+      END-IF                                                                    
+      W-BEL-STD = IN-BEL-STD                                                    
+      UT-BEL-STD-N = W-BEL-STD-N                                                
+      UT-BEL-STD-D = W-BEL-STD-D                                                
+      UT-DATUM-AVS = IN-DATUM-AVS                                               
+      PRINT RAPPORT01                                                           
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+                                                                                
+A-INIT. PROC                                                                    
+  CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DATUMKORT)                      
+  W-AAR   = D-AAR                                                               
+  W-VV    = D-VECKA                                                             
+  MOVE 'AAVV  '     TO DAT-KDDATFORM                                            
+  DAT-I-TIDATUM      = W-DATUM-2                                                
+                                                                                
+  CALL WDATKONV USING (DAT-KDDATFORM +                                          
+                       DAT-I-TIDATUM +                                          
+                       DAT-O-TIDATUM +                                          
+                       DAT-KDSVAR)                                              
+  W-AAMMDD = DAT-TIAAMMDD                                                       
+  IF W-AA > 50                                                                  
+    W-SEKEL = 19                                                                
+  ELSE                                                                          
+    W-SEKEL = 20                                                                
+  END-IF                                                                        
+                                                                                
+END-PROC                                                                        
+************************************************************************        
+*** REPORT W51083-001 TO D&P                                                    
+************************************************************************        
+  REPORT   RAPPORT01            +                                               
+           PRINTER W51083D2     +                                               
+           LINESIZE 70          +                                               
+           SPACE 0              +                                               
+           NOHEADING            +                                               
+           NOSPREAD             +                                               
+           NOADJUST             +                                               
+           PAGESIZE 32767       +                                               
+           NODATE                                                               
+LINE  1  UT-DATUM-AVS           +                                               
+         W-SEM                  +                                               
+         UT-LEVNR               +                                               
+         W-SEM                  +                                               
+         UT-ARTNR               +                                               
+         W-SEM                  +                                               
+         UT-ANTAL               +                                               
+         W-SEM                  +                                               
+         UT-PACKNR              +                                               
+         W-SEM                  +                                               
+         UT-SIGN2               +                                               
+         UT-BEL-STD-N           +                                               
+         W-DECIMAL              +                                               
+         UT-BEL-STD-D           +                                               
+         W-SEM                                                                  
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF FIRST-LINE1 = 'J'                                                           
+   DISPLAY '¤DAPW51083-001'                                                     
+   DISPLAY '¤DAPW51083'                                                         
+   DISPLAY 'DISPATCH DATE;SUPPLIER;PART NO;QUANTITY;PACKAGING NO;'  +           
+           'TOTAL AMOUNT;'                                                      
+   FIRST-LINE1  = 'N'                                                           
+ END-IF                                                                         
+END-PROC                                                                        

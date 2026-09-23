@@ -1,0 +1,92 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W3715E00                                              *        
+*                                                                      *        
+*  FUNCTION   :  LIST ALL EXCHANGE PARTS AND THE CORRESPONDING PROD    *        
+*                NUMBERS AND SEND TO SITTARD WEEKLY.                   *        
+*                                                                      *        
+*  AUTHOR     :  RAHUL REDDY                                           *        
+*                                                                      *        
+*  CHANGE LOG :                                                        *        
+*                                                                      *        
+*      YY/MM/DD - NAME            - CHANGE DESCRIPTION                 *        
+*      ----------------------------------------------------------      *        
+*      15/07/06 - REDDY RAHUL     - E'TRACKER 10239446.                *        
+*                                   INITIAL VERSION.                   *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+FILE W3715ED1                                                                   
+%W371003   (IN-)                                                                
+*                                                                               
+NEWPAGE                                                                         
+FILE W3715ED2 PRINTER VB(26 0)                                                  
+                                                                                
+*                                                                               
+FIRST-TIME-SW           W   1 A   VALUE 'Y'                                     
+WS-IX                   W   1 N   VALUE 0                                       
+BYT19-BYTES             W   1 A   VALUE 'N'                                     
+BYT19-RADIO             W   1 A   VALUE 'N'                                     
+TEST-IDARTNR            W   9 N   VALUE 0                                       
+*                                                                               
+UT-CORE-NO              W   9 N   VALUE 0 MASK 'ZZZZZZZZ9'                      
+UT-DELIMITER            W   1 A   VALUE ';'                                     
+UT-PROD-NO              W   9 N   VALUE 0 MASK 'ZZZZZZZZ9'                      
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEP 1. READ INPUT, WRITE ONE RECORD FOR EVERY CORE NUMBER AND                
+*         PRODUCTION NUMBER COMBINATION.                                        
+*                                                                               
+JOB INPUT W3715ED1                                                              
+                                                                                
+  IF IN-IDPTYP = '003'                                                          
+    TEST-IDARTNR   = IN-BYTESNR                                                 
+    PERFORM WWBYT19                                                             
+    IF BYT19-RADIO = 'J'                                                        
+       UT-CORE-NO     = TEST-IDARTNR + 1000                                     
+    ELSE                                                                        
+       IF BYT19-BYTES = 'J'                                                     
+          UT-CORE-NO  = TEST-IDARTNR + 6000                                     
+       END-IF                                                                   
+    END-IF                                                                      
+                                                                                
+    WS-IX          = 1                                                          
+    DO WHILE WS-IX < 4                                                          
+      IF IN-PRODNR (WS-IX) > 0                                                  
+        UT-PROD-NO = IN-PRODNR (WS-IX)                                          
+        PRINT RAPPORT01                                                         
+      END-IF                                                                    
+      WS-IX        = WS-IX + 1                                                  
+    END-DO                                                                      
+  END-IF                                                                        
+                                                                                
+%WWBYT19 'TEST-'                                                                
+                                                                                
+*                                                                               
+NEWPAGE                                                                         
+REPORT RAPPORT01 PRINTER W3715ED2 LINESIZE 21                       +           
+                                  PAGESIZE 32767                    +           
+                                  NOHEADING                         +           
+                                  NOADJUST                          +           
+                                  NODATE                            +           
+                                  NOPAGE                            +           
+                                  NOSPREAD                          +           
+                                  SPACE 0                           +           
+                                  SKIP  0                                       
+                                                                                
+LINE  1  UT-CORE-NO        +                                                    
+         UT-DELIMITER      +                                                    
+         UT-PROD-NO                                                             
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF FIRST-TIME-SW = 'Y'                                                         
+   DISPLAY '¤DAPW3715E-001'                                                     
+   DISPLAY '¤DAPW3715E00'                                                       
+   DISPLAY 'CORE NO;PRODUCTION NO'                                              
+   FIRST-TIME-SW = 'N'                                                          
+ END-IF                                                                         
+END-PROC                                                                        
+*                                                                               

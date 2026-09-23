@@ -1,0 +1,30 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  GENERELL PROCEDUR FÖR KONTROLL OM FIL INNEHÅLLER POSTER          *         
+//*  LÄMNAR RETURKODER:                                               *         
+//*                                                                   *         
+//*            RC = 0   ==>   POSTER FINNS                            *         
+//*            RC = 4   ==>   FIL TOM                                 *         
+//*                                                                   *         
+//*  ÅTERSTART: NORMAL                                                *         
+//*                                                                   *         
+//*  UNDERHÅLLS AV AVD 57051                                          *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WEMPTST  PROC DSIN=NULLFILE,STPLIB=&INDRTE..LOAD,CONDS=                       
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//T       EXEC PGM=W00927,COND=&CONDS                                           
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                      (DISPLAY)          
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//DD1      DD  DSN=&DSIN,DISP=SHR,FREE=CLOSE                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ABEND   EXEC PGM=ABEND,PARM='1234567890123456',                               
+//             COND=((8,GE,T))                                                  
+//*            COND=((8,GE,T),&CONDS)                                           
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            

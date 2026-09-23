@@ -1,0 +1,69 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PROCEDUR FÖR KÖRNING AV PGM W61161                                         
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W611S5                                            
+//*                                                                             
+//*  ÅTERSTART:    W61161    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//R0C3632B PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&W611..W611S5,                                             
+//             INDUT1=&WUT..W611S5,                                             
+//             INDUT2=&W611..W611S5                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61161   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W61161,W61161,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//************ INFIL TILL KÖRNING AV PGM W61161                                 
+//W61161D1 DD  DSN=&INDIN..W61160,DISP=SHR                                      
+//************                                                                  
+//*                                                                             
+//************ UTFIL FRÅN KÖRNING AV PGM W61161                                 
+//W61161D2 DD  DSN=&INDUT1..W61161(+1),DISP=(NEW,PASS,DELETE),                  
+//             MGMTCLAS=&DEL2BKPC,SPACE=(80,(200,100),RLSE),AVGREC=U            
+//************                                                                  
+//*                                                                             
+//************ UTFIL FRÅN KÖRNING AV PGM W61161,ICKE PLATSSATTA KOLLI           
+//W61161D3 DD  DSN=&INDUT2..W61162(+1),DISP=(NEW,PASS,DELETE),                  
+//             MGMTCLAS=&NOBACKUP,SPACE=(80,(200,100),RLSE),AVGREC=U            
+//************                                                                  
+//*                                                                             
+//************ MEMOFIL                                                          
+//W61161D4 DD  DSN=&&MEMO,DISP=(NEW,PASS,DELETE),                               
+//             SPACE=(80,(200,100),RLSE),AVGREC=U                               
+//************                                                                  
+//*                                                                             
+//************ UTFIL FRÅN KÖRNING AV PGM W61161,RAPPORTERAT ELLER EJ            
+//W61161D5 DD  DSN=&INDUT2..W61163(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             MGMTCLAS=&NOBACKUP,SPACE=(80,(200,100),RLSE),AVGREC=U            
+//************                                                                  
+//*                                                                             
+//************ SMTP-API FRÅN PGM W61161                                         
+//************ BEROENDE PÅ CONDITION                                            
+//** 070222 - TAR BORT MAILSÄNDNING                                             
+//*M       EXEC PGM=SMTPAPIX,COND=(0,EQ,W61161)                                 
+//*APIFILE  DD  DDNAME=SYSIN                                                    
+//*APIOKLOG DD  DUMMY,DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160)                      
+//*APIORLOG DD  DUMMY,DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160)                      
+//*SYSIN    DD  DSN=&&MEMO,DISP=(OLD,DELETE,DELETE)                             
+//************                                                                  
+//*                                                                             
+//CATLG    EXEC PGM=IEFBR14                                                     
+//CB1XXX01 DD  DSN=&INDUT1..W61161(+1),DISP=(OLD,CATLG,DELETE)                  
+//CB1XXX01 DD  DSN=&INDUT2..W61162(+1),DISP=(OLD,CATLG,DELETE)                  

@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTOR ÅRSINVENTARIUM FÖR USA (LISTOR PÅ FIL)                       
+//*                                                                             
+//*  FREKVENS:     ÅRSRUTIN  RTN W560Y1                                         
+//*                                                                             
+//*  ÅTERSTART:    W56066    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W560P066 PROC INDIN=&W560..W560Y1,                                            
+//             INDIN1=&W011..&RTEGRP.,                                          
+//             INDUT1=&W560..W560Y1,                                            
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W56066   EXEC PGM=V16459,PARM='W56066/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(10000,4000))                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//*                                                                             
+//W56066D1 DD  DSN=&INDIN..W56064(+0),DISP=SHR                                  
+//************ EXTRAKTFIL MED ARTIKELINFO FRÅN WDK6                             
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//************ TEMPORÄR EXTRAKTFIL SORTERAD                                     
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W56066D2 DD  DSN=&INDIN1..W01174(+0),DISP=SHR                                 
+//************ EXTRAKT FRÅN WDD311 (BENÄMNINGAR)                                
+//*                                                                             
+//W56066D3 DD  DSN=&&TEMP6A,DISP=(NEW,PASS,DELETE),                             
+//************** LISTA W56066-001 END YEAR REPORT, DETAIL                       
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W56066D4 DD  DSN=&&TEMP6B,DISP=(NEW,PASS,DELETE),                             
+//************** LISTA W56066-002 END YEAR REPORT, SUMMARY                      
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*    KOPIERAR LISTORNA PÅ FIL ÅT LAB FÖR ATT                        *         
+//*    VCOM EJ KLARAR ATT HANTERA FILER MED FBA (SKALL VARA FB)       *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W560GEN EXEC PGM=ICEGENER                                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&&TEMP6A,DISP=(OLD,DELETE,DELETE)                            
+//         DD  DSN=&&TEMP6B,DISP=(OLD,DELETE,DELETE)                            
+//************** LISTA END YEAR REPORT, DETAIL AND SUMMARY          ***         
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT1..W56066(+1),                        -LIM(03)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//*********** LISTFIL  W56066-001 AND W56066-002                                
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  

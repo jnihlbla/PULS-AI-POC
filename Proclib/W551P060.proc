@@ -1,0 +1,54 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPA ANALYS-FIL OCH EXTRAKTFIL SAMT KOPIA AV EXTRAKT-FILEN                
+//*  SKAPA ÄVEN PRISFIL ÅT MARKNADSBOLAGEN (AMC)                                
+//*                                                                             
+//*  FREQUENCE:    DAILY    RTN W551B1                                          
+//*                                                                             
+//*  RESTART:      W55160    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W551P060 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W551..W551B1,                                             
+//             INDIN2=&W910,                                                    
+//             INDUT=&W551..W551B1,                                             
+//             INDUT2=&WXTR..W551B1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55160   EXEC PGM=V16459,PARM='W55160/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(8192,(2000,2000))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//W55160D1 DD  DSN=&INDIN..W55158(+0),DISP=SHR                                  
+//************ LADD-FIL FRÅN W551P058                                           
+//*                                                                             
+//W55160D2 DD  DSN=&INDIN2..W91042(+0),DISP=SHR                                 
+//************ DAGLIGT LAGERBAND                                                
+//*                                                                             
+//W55160D3 DD  DSN=&INDUT..W55159(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ ARTIKELFIL ÅT RUTIN W551B7                                       
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//W55160D4 DD  DSN=&INDUT..W55160(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ ARTIKELFIL ÅT RUTIN W551B8 OCH W551J038 (FÖR WYR001)             
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//W55160D5 DD  DSN=&INDUT..W55161(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ FIL ÅT AMC (MARKNADSBOLAGEN)                                     
+//             DATACLAS=PSEN,MGMTCLAS=&BACKUPC                                  
+//*                                                                             
+//WXTR5B   EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W55160(+1),DISP=SHR                                  
+//************ ANALYS-FIL FÖR SPIS                                              
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..WXTR5B(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ KOPIA AV W55160 SOM ANVÄNDS I EXTRAKT-MILJÖN                     
+//             DATACLAS=PSEN,MGMTCLAS=NOBACKUP                                  

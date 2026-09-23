@@ -1,0 +1,93 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4121700                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFANO GIOBBI                                        *        
+*                                                                      *        
+*  DATUM      :  970422                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET KOMPLETTERAR EJ LÖSTA VOR-RADER MED        *        
+*                SVENSK BENÄMNING.                                     *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W41217D1                                                                   
+%W41217        'VORIN-'                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W41217D2                                                                   
+*                                                                               
+%W01174        'DLB-'                                                           
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W41217D3                                                                   
+*                                                                               
+%W01160        'DLB2-'                                                          
+*                                                                               
+NEWPAGE                                                                         
+FILE TEMP VIRTUAL RETAIN FB(67 0)                                               
+*                                                                               
+%W41218    'TEMP-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W41217D4   FB (67 0)                                                       
+*                                                                               
+%W41218        'VORUT-'                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1 A   VALUE 'J'                                 
+  NEJ                       W   1 A   VALUE 'N'                                 
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT (W41217D2 KEY (  DLB-IDARTNR)                        +              
+             W41217D1 KEY (VORIN-IDARTNR))                       +              
+                                                 NAME   STEG01                  
+    IF MATCHED                                                                  
+      TEMP-W41218    = VORIN-W41217                                             
+      TEMP-BEART-SVE = DLB-BEART (4)                                            
+      PUT TEMP                                                                  
+    END-IF                                                                      
+                                                                                
+NEWPAGE                                                                         
+*----------------------------------------------------------------*              
+*                    JOB STEG02N                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT (W41217D3 KEY ( DLB2-CLAG-IDARTNR)                   +              
+             TEMP     KEY (TEMP-IDARTNR))                        +              
+                                                 NAME   STEG02                  
+    IF MATCHED                                                                  
+      VORUT-W41218    = TEMP-W41218                                             
+      VORUT-IDLEVNR   = DLB2-CLAG-IDLEVNR                                       
+      PUT W41217D4                                                              
+    END-IF                                                                      
+                                                                                
+NEWPAGE                                                                         

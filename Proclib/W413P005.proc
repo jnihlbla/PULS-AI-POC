@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PRINTAR RAPPORT PA ANTAL RADER PACKADE                                     
+//*  PER PACKARE                                                                
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W413D1                                           
+//*                                                                             
+//*  ÅTERSTART:    W41305    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W413P005 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W413,                                                     
+//             DEST1=&QUS05257,                                                 
+//             DEST2=&QUS05650,                                                 
+//             DEST3=&QUS05692,                                                 
+//             INDUT=&W413..W413D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41305   EXEC PGM=V16459,PARM='W41305/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=F1ST00.CONSTANT(NORMAL),DISP=SHR         -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W41305D1 DD  DSN=&INDIN..W41302(+0),DISP=SHR                                  
+//************ FIL MED WDQ301 POSTER                                            
+//*                                                                             
+//W41305D2 DD  SYSOUT=(A,,STD),DEST=&DEST1                                      
+//************ W41305-041  LISTA DC41                                           
+//*                                                                             
+//W41305D3 DD  SYSOUT=(A,,STD),DEST=&DEST2                                      
+//************ W41305-042  LISTA DC42                                           
+//*                                                                             
+//W41305D4 DD  SYSOUT=(A,,STD),DEST=&DEST3                                      
+//************ W41305-043  LISTA DC43                                           
+//*                                                                             
+//W41305D6 DD  DSN=&INDUT..W41305(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ MATCHAD UTFIL                                                    
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//TEMPFIL  DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//             DATACLAS=PSEB                                                    
+//*                                                                             

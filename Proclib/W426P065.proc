@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UTSKRIFT AV LISTA MED ARTIKLAR FÖR UPPDATERING                             
+//*  AV KKOD                                                                    
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W426V3                                          
+//*                                                                             
+//*  ÅTERSTART:              NORMAL                                             
+//*                W42665    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W426P065 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W426..W426V3,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W426PD65),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W42663(+0),DISP=SHR                                  
+//************ SORTFIL IN                                                       
+//*                                                                             
+//         DD  DSN=&INDIN..W42664(+0),DISP=SHR                                  
+//************ SORTFIL IN                                                       
+//*                                                                             
+//SORTOUT  DD  DSN=&&W42665,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERADE ARTIKLAR FÖR LISTUTSKRIFT                              
+//*        SPACE=(82,(1,1),RLSE),AVGREC=K                                       
+//         DATACLAS=PSEN                                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42665   EXEC PGM=V16459,PARM='W42665/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//A4LF  OUTPUT FORMDEF=SLSR6C,PAGEDEF=SLSR6C                                    
+//************ A4 LANDSCAPE, SINGLE SIDE, RASTER  (FOLDED PAPER)                
+//W42665D1 DD  DSN=&&W42665,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERADE ARTIKLAR FÖR LISTUTSKRIFT                              
+//*                                                                             
+//W42665D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W42665-001  IDFKNGRP = 1000 - 2999                               
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W42665D3 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W42665-002  IDFKNGRP = 3000 - 3999                               
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W42665D4 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W42665-003  IDFKNGRP = 8000-8699,8800-8899                       
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             
+//W42665D5 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W42665-003  IDFKNGRP = ÖVRIGA                                    
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             

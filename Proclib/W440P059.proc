@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  UNDERHÅLLER AKTIVA VOR-RADER OCH SKAPAR FIL MED                            
+//*  ÄNDRADE VOR-RADER                                                          
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W440V3                                           
+//*                                                                             
+//*  ÅTERSTART:    W44059    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P059 PROC STPLIB=&INDRTE..LOAD, -- PERHAPS REMOVE COMMA                   
+//             INDIN=&W440..W440V3,                                             
+//             INDUT=&W440..W440V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W44059   EXEC PGM=V16459,PARM='W44059/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W44059D1 DD  DSN=&INDIN..W44062(+0),DISP=SHR                                  
+//************ DAGEXTRAKT                                                       
+//*                                                                             
+//W44059D2 DD  DSN=&INDIN..W44060(+0),DISP=SHR                                  
+//************ GAMLA VOR-RADER                                                  
+//*                                                                             
+//W44059D3 DD  DSN=&INDUT..W44060(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ AKTIVA VOR-RADER                                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W44059D4 DD  DSN=&INDUT..W44067(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)          
+//************ FÖRÄNDRADE VOR-RADER                                             
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W44059D5 DD  DSN=&INDUT..W44067D(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ BORTTAGNA VOR-RADER                                              
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

@@ -1,0 +1,118 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6112100                                              *        
+*                                                                      *        
+*  FUNKTION   :  LISTA GAMLA ODETTE AVISERINGAR                        *        
+*                                                                      *        
+*  FÖRFATTARE :  MÅNS SAMUELSSON                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING   PROJEKT/ÄT      *        
+*     941129      CONNY EGHOLT .....       57053.      SDC ST....      *        
+*     ......      ..................       ......      ..........      *        
+*     ......      ..................       ......      ..........      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61121D1                                                                   
+*                                                                               
+%W6112001  'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+*              LISTOR FÖR CDC                                                   
+*                                                                               
+FILE W61121D2  PRINTER FB (121 121)                                             
+*                                                                               
+FILE W61121D3  PRINTER FB (121 121)                                             
+*                                                                               
+SPAR-IDLEVNR             W 5 A                                                  
+SPAR-IDFS                W 8 A                                                  
+SPAR-TIAVIDAT            W 4 P                                                  
+SPAR-TIANKDAG            W 4 P                                                  
+SPAR-ADINLOMR            W 4 A                                                  
+*                                                                               
+DAGENS-DATUM             W 6 N                                                  
+*                                                                               
+DATUM                    W 8 A                                                  
+D-AA         DATUM         2 N                                                  
+D-1          DATUM +2      1 A                                                  
+D-MM         DATUM +3      2 N                                                  
+D-2          DATUM +5      1 A                                                  
+D-DD         DATUM +6      2 N                                                  
+*                                                                               
+DATUM-FIX                W 6 N                                                  
+D-AA-FIX  DATUM-FIX        2 N                                                  
+D-MM-FIX  DATUM-FIX +2     2 N                                                  
+D-DD-FIX  DATUM-FIX +4     2 N                                                  
+                                                                                
+%WY2000W1                                                                       
+ W-Y2K-TIANKDAG          W 6 N                                                  
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. LISTA GAMLA ODETTE AVISERINGAR                                        
+*                                                                               
+JOB INPUT W61121D1 START START-PROC                                             
+*                                                                               
+ IF IN-IDLEVNR  = SPAR-IDLEVNR  AND +                                           
+    IN-IDFS     = SPAR-IDFS     AND +                                           
+    IN-TIAVIDAT = SPAR-TIAVIDAT                                                 
+ ELSE                                                                           
+   TMP1-YYMMDD = IN-TIANKDAG                                                    
+   TMP2-YYMMDD = DAGENS-DATUM                                                   
+   PERFORM WY2000P1                                                             
+   IF TMP1-YYMMDD LE TMP2-YYMMDD                                                
+     SPAR-IDLEVNR  = IN-IDLEVNR                                                 
+     SPAR-IDFS     = IN-IDFS                                                    
+     SPAR-TIAVIDAT = IN-TIAVIDAT                                                
+     SPAR-TIANKDAG = IN-TIANKDAG                                                
+     SPAR-ADINLOMR = IN-ADINLOMR                                                
+                                                                                
+     TMP1-YYMMDD    = SPAR-TIANKDAG                                             
+     PERFORM WY2000P1                                                           
+     W-Y2K-TIANKDAG = TMP1-YYMMDD                                               
+     IF IN-IDDC = CDC-SE                                                        
+       IF SPAR-ADINLOMR = '529R'                                                
+         PRINT LISTA-002                                                        
+       ELSE                                                                     
+         PRINT LISTA-001                                                        
+       END-IF                                                                   
+     END-IF                                                                     
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+START-PROC. PROC                                                                
+  DATUM = SYSDATE                                                               
+  D-AA-FIX = D-AA                                                               
+  D-MM-FIX = D-MM                                                               
+  D-DD-FIX = D-DD                                                               
+  DAGENS-DATUM = DATUM-FIX                                                      
+END-PROC                                                                        
+                                                                                
+ NEWPAGE                                                                        
+%WY2000P1                                                                       
+NEWPAGE                                                                         
+REPORT  LISTA-001 PRINTER W61121D2 LINESIZE 120 DTLCTL FIRST                    
+SEQUENCE SPAR-IDLEVNR W-Y2K-TIANKDAG                                            
+TITLE 1  'VCCS          W61121-001  GAMLA INLEVERANS-AVISERINGAR       '        
+HEADING  SPAR-IDLEVNR 'LEVNR'                                                   
+HEADING  SPAR-IDFS  'FS'                                                        
+HEADING  SPAR-TIAVIDAT 'AVI.DAT'                                                
+HEADING  SPAR-TIANKDAG 'ANK.DAG'                                                
+LINE  1  SPAR-IDLEVNR SPAR-IDFS SPAR-TIAVIDAT SPAR-TIANKDAG                     
+*                                                                               
+REPORT  LISTA-002 PRINTER W61121D3 LINESIZE 120 DTLCTL FIRST                    
+SEQUENCE SPAR-IDLEVNR W-Y2K-TIANKDAG                                            
+TITLE 1  'VCCS          W61121-002  GAMLA REREFILL-AVISERINGAR       '          
+HEADING  SPAR-IDLEVNR 'LEVNR'                                                   
+HEADING  SPAR-IDFS  'FS'                                                        
+HEADING  SPAR-TIAVIDAT 'AVI.DAT'                                                
+HEADING  SPAR-TIANKDAG 'ANK.DAG'                                                
+LINE  1  SPAR-IDLEVNR SPAR-IDFS SPAR-TIAVIDAT SPAR-TIANKDAG                     

@@ -1,0 +1,261 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM... :  W5512200                                              *        
+*                                                                      *        
+*  FUNKTION.. :  PROGRAM MATCHES W55121 AND W55158                     *        
+*                                                                      *        
+* INDATA .... : W551.W551B1.W55121(+0) D1 - PRICE FILE                 *        
+*               W551.W551B1.W55158(+0) D2 - CHARGES                    *        
+*                                                                      *        
+* UTDATA .... : W551.W551B1.W55122(+0) D3 - OUT FILE                   *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55121  -  PRICE FILE                                   *               
+*                                                               *               
+*****************************************************************               
+FILE W55122D1                                                                   
+*                                                                               
+%W55147  'IN1-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*-------------------------------------*                                         
+* SORTED INFIL1, SORTED WITH IDARTNR                                            
+*-------------------------------------*                                         
+*                                                                               
+FILE TPFIL1 FB(320 0)                                                           
+%W55147   'T1-'                                                                 
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55158                                                  *               
+*                                                               *               
+*****************************************************************               
+FILE W55122D2                                                                   
+*                                                                               
+%W55147  'IN2-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*-------------------------------------*                                         
+* SORTED INFIL2, SORTED WITH IDARTNR                                            
+*-------------------------------------*                                         
+*                                                                               
+FILE TPFIL2 FB(320 0)                                                           
+%W55147   'T2-'                                                                 
+*****************************************************************               
+*                                                               *               
+* INFIL W55145  -  CURRENCY REGISTER FILE                       *               
+*                                                               *               
+*****************************************************************               
+FILE W55122D3                                                                   
+*                                                                               
+%W55145    'VAL-'                                                               
+*                                                                               
+NEWPAGE                                                                         
+*-------------------------------------*                                         
+* SORTED INFIL1, COVERTED WITH KDVALISO                                         
+*-------------------------------------*                                         
+*                                                                               
+FILE TPFIL3 FB(320 0)                                                           
+%W55147   'T3-'                                                                 
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UTFIL W55122  - LADDTRANSAR TILL SPIS-BASEN                   *               
+*                                                               *               
+*****************************************************************               
+FILE W55122D4 FB(262 0)                                                         
+*                                                                               
+%W55122  'UT-'                                                                  
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+*WORK AREA                                                                      
+W-PRKURS-CNY             W  6 P 5                                               
+W-PRKURS-USD             W  6 P 5                                               
+NEWPAGE                                                                         
+*----------------------------------------------------*                          
+* STEP 1 SORT INFIL1 TO TPFIL1 USING KDVALISO                                   
+*----------------------------------------------------*                          
+                                                                                
+SORT W55122D1 TO W55122D1 USING (IN1-IDARTNR) SIZE 800000       +               
+                                BEFORE SORT-INIT-1                              
+  SORT-INIT-1. PROC                                                             
+   IF IN1-KDVALISO EQ 'CNY' 'USD'                                               
+     SELECT                                                                     
+   END-IF                                                                       
+  END-PROC                                                                      
+*                                                                               
+*****************************************************************               
+*                                                               *               
+* STEP 2  READ FILE W55145 FOR PRKURS                           *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT W55122D3                                                              
+   IF VAL-KDVALISO = 'CNY'                                                      
+      W-PRKURS-CNY = (VAL-PRKURS / VAL-REVALUTA)                                
+   ELSE                                                                         
+      IF VAL-KDVALISO = 'USD'                                                   
+         W-PRKURS-USD = (VAL-PRKURS / VAL-REVALUTA)                             
+      END-IF                                                                    
+   END-IF                                                                       
+*                                                                               
+*****************************************************************               
+*                                                               *               
+* STEP 3. READ W55121                                           *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT (W55122D1 KEY (IN1-IDARTNR))                                          
+   IF IN1-KDVALISO = 'CNY'                                                      
+     T3-PRKURS =  W-PRKURS-CNY                                                  
+   ELSE                                                                         
+     IF IN1-KDVALISO = 'USD'                                                    
+        T3-PRKURS =  W-PRKURS-USD                                               
+     END-IF                                                                     
+   END-IF                                                                       
+     T3-IDARTNR           =  IN1-IDARTNR                                        
+     T3-FLAPC             =  IN1-FLAPC                                          
+     T3-FLIART            =  IN1-FLIART                                         
+     T3-FLPRFIL           =  IN1-FLPRFIL                                        
+     T3-IDFKNGRP          =  IN1-IDFKNGRP                                       
+     T3-IDLEVNR           =  IN1-IDLEVNR                                        
+     T3-IDLEVNR-HUV       =  IN1-IDLEVNR-HUV                                    
+     T3-IDPRANSV          =  IN1-IDPRANSV                                       
+     T3-KDHF              =  IN1-KDHF                                           
+     T3-KDPRBEH           =  IN1-KDPRBEH                                        
+     T3-KDPRODSL          =  IN1-KDPRODSL                                       
+     T3-KDSTASPIS         =  IN1-KDSTASPIS                                      
+     T3-KDVALISO          =  IN1-KDVALISO                                       
+     T3-KVBEHOVAR         =  IN1-KVBEHOVAR                                      
+     T3-KVDISP-SPIS       =  IN1-KVDISP-SPIS                                    
+     T3-PRARTBEL-PR       =  IN1-PRARTBEL-PR                                    
+     T3-PRARTBES          =  IN1-PRARTBES                                       
+     T3-PRARTSJK          =  IN1-PRARTSJK                                       
+     T3-PRDIRLON-AKT      =  IN1-PRDIRLON-AKT                                   
+     T3-PRDIRLON-KOM      =  IN1-PRDIRLON-KOM                                   
+     T3-PRDMTRL-AKT       =  IN1-PRDMTRL-AKT                                    
+     T3-PRDMTRL-KOM       =  IN1-PRDMTRL-KOM                                    
+     T3-PRINK-AKT         =  IN1-PRINK-AKT                                      
+     T3-PRINK-KOM         =  IN1-PRINK-KOM                                      
+     T3-PROVRPAL-AKT      =  IN1-PROVRPAL-AKT                                   
+     T3-PROVRPAL-KOM      =  IN1-PROVRPAL-KOM                                   
+     T3-REAENDR           =  IN1-REAENDR                                        
+     T3-REDIRLEV          =  IN1-REDIRLEV                                       
+     T3-RETULF            =  IN1-RETULF                                         
+     T3-TEARTNOT          =  IN1-TEARTNOT                                       
+     T3-TIPRLIST          =  IN1-TIPRLIST                                       
+     T3-IDNAMN            =  IN1-IDNAMN                                         
+     T3-IDINK             =  IN1-IDINK                                          
+     T3-IDMAIL            =  IN1-IDMAIL                                         
+   PUT TPFIL3                                                                   
+*----------------------------------------------------*                          
+* STEP 4 SORT INFIL2 TO TPFIL2 USING IDARTNR                                    
+*----------------------------------------------------*                          
+                                                                                
+SORT W55122D2 TO TPFIL2 USING (IN2-IDARTNR) SIZE 800000                         
+*****************************************************************               
+*                                                               *               
+* STEP 5. MATCH W55121 AND W55158                               *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT (TPFIL3   KEY (T3-IDARTNR)                            +               
+           TPFIL2   KEY (T2-IDARTNR))                                           
+IF MATCHED                                                                      
+   PERFORM MOVE-UT-DATA-W55158                                                  
+ELSE                                                                            
+   IF TPFIL3                                                                    
+      PERFORM MOVE-UT-DATA-W55121                                               
+   ELSE                                                                         
+      IF TPFIL2                                                                 
+         PERFORM MOVE-UT-DATA-W55158                                            
+      END-IF                                                                    
+   END-IF                                                                       
+END-IF                                                                          
+*                                                                               
+SKIP 3                                                                          
+*                                                                               
+MOVE-UT-DATA-W55158. PROC                                                       
+************ MOVE DATA *****************                                        
+*                                                                               
+     UT-IDARTNR           =   T2-IDARTNR                                        
+     UT-FLAPC             =   T2-FLAPC                                          
+     UT-FLIART            =   T2-FLIART                                         
+     UT-FLPRFIL           =   T2-FLPRFIL                                        
+     UT-IDFKNGRP          =   T2-IDFKNGRP                                       
+     UT-IDLEVNR           =   T2-IDLEVNR                                        
+     UT-IDLEVNR-HUV       =   T2-IDLEVNR-HUV                                    
+     UT-IDPRANSV          =   T2-IDPRANSV                                       
+     UT-KDHF              =   T2-KDHF                                           
+     UT-KDPRBEH           =   T2-KDPRBEH                                        
+     UT-KDPRODSL          =   T2-KDPRODSL                                       
+     UT-KDSTASPIS         =   T2-KDSTASPIS                                      
+     UT-KDVALISO          =   T2-KDVALISO                                       
+     UT-KVBEHOVAR         =   T2-KVBEHOVAR                                      
+     UT-KVDISP-SPIS       =   T2-KVDISP-SPIS                                    
+     UT-PRARTBEL-PR       =   T2-PRARTBEL-PR                                    
+     UT-PRARTBES          =   T2-PRARTBES                                       
+     UT-PRARTSJK          =   T2-PRARTSJK                                       
+     UT-PRDIRLON-AKT      =   T2-PRDIRLON-AKT                                   
+     UT-PRDIRLON-KOM      =   T2-PRDIRLON-KOM                                   
+     UT-PRDMTRL-AKT       =   T2-PRDMTRL-AKT                                    
+     UT-PRDMTRL-KOM       =   T2-PRDMTRL-KOM                                    
+     UT-PRINK-AKT         =   T2-PRINK-AKT                                      
+     UT-PRINK-KOM         =   T2-PRINK-KOM                                      
+     UT-PRKURS            =   T2-PRKURS                                         
+     UT-PROVRPAL-AKT      =   T2-PROVRPAL-AKT                                   
+     UT-PROVRPAL-KOM      =   T2-PROVRPAL-KOM                                   
+     UT-REAENDR           =   T2-REAENDR                                        
+     UT-REDIRLEV          =   T2-REDIRLEV                                       
+     UT-RETULF            =   T2-RETULF                                         
+     UT-TEARTNOT          =   T2-TEARTNOT                                       
+     UT-TIPRLIST          =   T2-TIPRLIST                                       
+     UT-IDNAMN            =   T2-IDNAMN                                         
+     UT-IDINK             =   T2-IDINK                                          
+     UT-IDMAIL            =   T2-IDMAIL                                         
+     PUT W55122D4                                                               
+END-PROC                                                                        
+NEWPAGE                                                                         
+*                                                                               
+MOVE-UT-DATA-W55121. PROC                                                       
+************ MOVE DATA *****************                                        
+*                                                                               
+     UT-IDARTNR           =   T3-IDARTNR                                        
+     UT-FLAPC             =   T3-FLAPC                                          
+     UT-FLIART            =   T3-FLIART                                         
+     UT-FLPRFIL           =   T3-FLPRFIL                                        
+     UT-IDFKNGRP          =   T3-IDFKNGRP                                       
+     UT-IDLEVNR           =   T3-IDLEVNR                                        
+     UT-IDLEVNR-HUV       =   T3-IDLEVNR-HUV                                    
+     UT-IDPRANSV          =   T3-IDPRANSV                                       
+     UT-KDHF              =   T3-KDHF                                           
+     UT-KDPRBEH           =   T3-KDPRBEH                                        
+     UT-KDPRODSL          =   T3-KDPRODSL                                       
+     UT-KDSTASPIS         =   T3-KDSTASPIS                                      
+     UT-KDVALISO          =   T3-KDVALISO                                       
+     UT-KVBEHOVAR         =   T3-KVBEHOVAR                                      
+     UT-KVDISP-SPIS       =   T3-KVDISP-SPIS                                    
+     UT-PRARTBEL-PR       =   T3-PRARTBEL-PR                                    
+     UT-PRARTBES          =   T3-PRARTBES                                       
+     UT-PRARTSJK          =   T3-PRARTSJK                                       
+     UT-PRDIRLON-AKT      =   T3-PRDIRLON-AKT                                   
+     UT-PRDIRLON-KOM      =   T3-PRDIRLON-KOM                                   
+     UT-PRDMTRL-AKT       =   T3-PRDMTRL-AKT                                    
+     UT-PRDMTRL-KOM       =   T3-PRDMTRL-KOM                                    
+     UT-PRINK-AKT         =   T3-PRINK-AKT                                      
+     UT-PRINK-KOM         =   T3-PRINK-KOM                                      
+     UT-PRKURS            =   T3-PRKURS                                         
+     UT-PROVRPAL-AKT      =   T3-PROVRPAL-AKT                                   
+     UT-PROVRPAL-KOM      =   T3-PROVRPAL-KOM                                   
+     UT-REAENDR           =   T3-REAENDR                                        
+     UT-REDIRLEV          =   T3-REDIRLEV                                       
+     UT-RETULF            =   T3-RETULF                                         
+     UT-TEARTNOT          =   T3-TEARTNOT                                       
+     UT-TIPRLIST          =   T3-TIPRLIST                                       
+     UT-IDNAMN            =   T3-IDNAMN                                         
+     UT-IDINK             =   T3-IDINK                                          
+     UT-IDMAIL            =   T3-IDMAIL                                         
+     PUT W55122D4                                                               
+END-PROC                                                                        

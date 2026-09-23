@@ -1,0 +1,70 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKRIVER FILER INLEVERANSER OCH BEHOV                                       
+//*                                                                             
+//*  FREKVENS:     PLANERINGSPERIOD    RTN W233PV                               
+//*                                                                             
+//*  ÅTERSTART:    W23322      NORMAL                                           
+//*                LÄSER  WDK6 WDK9 WDK7 WDB6                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W233P022 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W233..W233PV                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23322   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W23322,W23322,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDK9     INCLUDE MEMBER=WDK9                                                  
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//WDB6     INCLUDE MEMBER=WDB6                                                  
+//W23322D1 DD  DSN=&&W23324,DISP=(NEW,PASS,DELETE),                             
+//************ INLEVERANSER OCH BEHOV                                           
+//         DATACLAS=PSEN                                                        
+//*                                                                             
+//W23322D2 DD  DSN=&&W23319,DISP=(NEW,PASS,DELETE),                             
+//************ PRODUKTSLAG                                                      
+//         DATACLAS=PSEN                                                        
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W233PD22),DISP=SHR                         
+//SORTIN   DD  DSN=&&W23324,DISP=(OLD,DELETE,DELETE)                            
+//************ PRODUKTSLAG                                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W23324(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ INLEVERANSER OCH BEHOV   SORT IDARTNR                            
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W233PD22),DISP=SHR                         
+//SORTIN   DD  DSN=&&W23319,DISP=(OLD,DELETE,DELETE)                            
+//************ INLEVERANSER OCH BEHOV   SORT IDARTNR                            
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W23319(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ PRODUKTSLAG UPPGIFTER   SORT IDARTNR                             
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               

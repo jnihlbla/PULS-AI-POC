@@ -1,0 +1,628 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4281800                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR W41820 MED W47905 OCH SKAPAR                  *        
+*                UPPFÖLJNINGSFIL LEVERANSANMÄRKNINGAR LDC'R.           *        
+*                                                                      *        
+*  FÖRFATTARE :  ELEONOR ÖSTRÖM                                        *        
+*                                                                      *        
+*  E'TRACKER  :  6785206  DATUM 2008-08  WEB LDC                       *        
+*  E'TRACKER  :  8997128  DATUM 2011-05  WEB LDC, DEL 2                *        
+*  E'TRACKER  :  10181786 DATUM 2012-11 WEB AUSTRALIEN FOLLOW-UP       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     20110512    SUSANNE OLSSON           9235                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W42818D1                                                                   
+%W4282001 'IN-'                                                                 
+*                                                                               
+FILE W42818D2                                                                   
+%W47905F  'IN2-'                                                                
+*                                                                               
+FILE W42818D3                                                                   
+%W42845   'IN3-'                                                                
+*                                                                               
+FILE W42818D4                                                                   
+%W47905F  'IN4-'                                                                
+*                                                                               
+FILE TPFIL1 FB (309 0)                                                          
+%W4282001 'TMP1-'                                                               
+*                                                                               
+FILE TPFIL2 FB (309 0)                                                          
+%W4282001 'TMP2-'                                                               
+*                                                                               
+FILE TPFIL3 FB (264 0)                                                          
+%W47905F  'TMP3-'                                                               
+*                                                                               
+FILE TPFIL4 FB (38 0)                                                           
+%W42845   'TMP4-'                                                               
+*                                                                               
+FILE TPFIL5 FB (264 0)                                                          
+%W47905F  'TMP5-'                                                               
+*                                                                               
+FILE TPFIL6 FB (22 0)                                                           
+%W4281801 'TMP6-'                                                               
+*                                                                               
+FILE TPFIL7 FB (22 0)                                                           
+%W4281801 'TMP7-'                                                               
+*                                                                               
+FILE TPFIL8 FB (28 0)                                                           
+%W4281901 'TMP8-'                                                               
+*                                                                               
+FILE TPFIL9 FB (28 0)                                                           
+%W4281901 'TMP9-'                                                               
+*                                                                               
+FILE TPFIL10 FB (28 0)                                                          
+%W4281901 'TMP10-'                                                              
+*                                                                               
+FILE TPFIL11 FB (28 0)                                                          
+%W4281901 'TMP11-'                                                              
+*                                                                               
+FILE W42818D5 FB (22 0)                                                         
+%W4281801 'UT1-'                                                                
+*                                                                               
+FILE W42818D6 FB (28 0)                                                         
+%W4281901 'UT2-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+************************************************                                
+*    ARBETSAREOR                               *                                
+************************************************                                
+*                                                                               
+*COPYTEXTER FÖR CALL                                                            
+*                                                                               
+%WDATAREA                                                                       
+*                                                                               
+WDATKONV        W  8   A   VALUE 'WDATKONV'                                     
+*                                                                               
+*---------------- LÄNKAREA FÖR DATUMKORT                                        
+%WDATKORT     'DAT-'                                                            
+*                                                                               
+    PROGRAM-NAMN          W          6         A  VALUE 'W42818'                
+    DATUMKORT-ID          W          6         A  VALUE 'WDATUM'                
+    WS-TIAAVV             W          4         N                                
+    WS-TIAAPP             W          4         N                                
+    WS-DATUM              W          6         N                                
+    WS-AAR                WS-DATUM   2         N                                
+    WS-MAANAD             WS-DATUM  +2  2      N                                
+    WS-DAG                WS-DATUM  +4  2      N                                
+                                                                                
+*                                                                               
+JA                         W  1   A   VALUE 'J'                                 
+NEJ                        W  1   A   VALUE 'N'                                 
+HELP-IDDC                  W  2   A                                             
+WS-IDDC                    W  2   A                                             
+WS-IDDC-RET                W  2   A                                             
+WS-KDANMORS                W  2   A                                             
+WS-TOT-KVLEVANM            W  5   N   0                                         
+WS-TOT-KVRADER             W  9   N   0                                         
+WS-SURADER-YEAR            W  9   N   0                                         
+WS-TIAAVV-ALFA             W  4   A                                             
+WS-TIAAVV-NUM WS-TIAAVV-ALFA  4   N                                             
+WS-TIAAVV-ALFA-DEL         W  4   A                                             
+WS-TIAAVV-NUM-DEL WS-TIAAVV-ALFA-DEL     4   N                                  
+WS-TIAA WS-TIAAVV-NUM-DEL                2   N                                  
+WS-TIVV WS-TIAAVV-NUM-DEL            +2  2   N                                  
+WS-TIFAKT                  W     6   N                                          
+WS-TIFAKT-AA WS-TIFAKT           2   N                                          
+WS-TIFAKT-MMDD WS-TIFAKT     +2  4   N                                          
+WS-IN-TIAAVV               W     4   N                                          
+WS-IN-TIAA   WS-IN-TIAAVV        2   N                                          
+WS-IN-TIVV   WS-IN-TIAAVV    +2  2   N                                          
+WS-IN-TIAAPP               W     4   A                                          
+WS-IN-TIAAR  WS-IN-TIAAPP        2   N                                          
+WS-IN-TIPP   WS-IN-TIAAPP    +2  2   N                                          
+                                                                                
+WS-IN-KDKREBEH                  W     3   A                                     
+WS-IN-KDKREBEH-1  WS-IN-KDKREBEH      1   A                                     
+WS-IN-KDKREBEH-N  WS-IN-KDKREBEH  +1  2   N                                     
+                                                                                
+NEWPAGE                                                                         
+*  CHECK IDDC VALUES                                                            
+%WWDC99                                                                         
+                                                                                
+NEWPAGE                                                                         
+*    --- TO CHECK IF "WEB DC"                                                   
+%WL10WBDC                                                                       
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 1 SELEKTERAR UT DATA FRÅN W42820 OCH SKAPAR TEMPFIL1                     
+*---------------------------------------------------------------*               
+*                                                                               
+JOB INPUT W42818D1 START A-INIT                                                 
+*                                                                               
+   WS-IN-KDKREBEH = IN-KDKREBEH                                                 
+   HELP-IDDC      = IN-IDDC                                                     
+   PERFORM S23-CHECK-HELP-IDDC                                                  
+   PERFORM X-CHECK-IF-WEB-REPORT                                                
+   IF WBDC-FLWEBDC  = 'J' AND                                 +                 
+      WS-IN-KDKREBEH-1 = 'J' 'Y' 'A' 'D' 'C'                                    
+                                                                                
+*----  BEHANDLA KREDITERADE/TILLÄGGS-FAKTURERADE RADER                          
+     WS-IN-TIAAVV   = IN-TISAAVV-KNOTA-TIAAVV                                   
+     IF IN-KDANMORS = '00' '11' '20' '21' '42' '43' '60' '61' +                 
+                      '62' AND +                                                
+        WS-IN-TIAA   = WS-AAR                                                   
+                                                                                
+        TMP1-W42820  = IN-W42820                                                
+        PUT TPFIL1                                                              
+     END-IF                                                                     
+                                                                                
+*----  BEHANDLA INLAGDA RETURRADER                                              
+     WS-IN-TIAAVV   = IN-TISAAVV-INLINL-TIAAVV                                  
+     IF IN-KDANMORS = '12' '22' AND +                                           
+        WS-IN-TIAA   = WS-AAR                                                   
+                                                                                
+        TMP1-W42820  = IN-W42820                                                
+        PUT TPFIL1                                                              
+     END-IF                                                                     
+                                                                                
+*----  BEHANDLA SKROTADE RADER                                                  
+     WS-IN-TIAAVV   = IN-TISAAVV-LEVANM-TIAAVV                                  
+     IF IN-KDANMORS = '13' '23' AND +                                           
+        WS-IN-TIAA   = WS-AAR                                                   
+                                                                                
+        TMP1-W42820  = IN-W42820                                                
+        PUT TPFIL1                                                              
+     END-IF                                                                     
+   END-IF                                                                       
+                                                                                
+NEWPAGE                                                                         
+*--------------------------------------------------------*                      
+* A-INIT  HÄMTAR DAGENS DATUM, INNEVARANDE VECKA VV AA   *                      
+*--------------------------------------------------------*                      
+*                                                                               
+ A-INIT.  PROC                                                                  
+*                                                                               
+ CALL DATKORT USING (PROGRAM-NAMN DATUMKORT-ID DAT-DATUMKORT)                   
+*                                                                               
+ WS-AAR    = DAT-D-AAR                                                          
+ WS-MAANAD = DAT-D-MAANAD                                                       
+ WS-DAG    = DAT-D-DAG                                                          
+*                                                                               
+ DAT-I-TIDATUM = WS-DATUM                                                       
+ DAT-KDDATFORM = 'AAMMDD'                                                       
+ CALL WDATKONV USING (DAT-KDDATFORM DAT-I-TIDATUM DAT-O-TIDATUM +               
+                      DAT-KDSVAR)                                               
+*                                                                               
+ IF DAT-KDSVAR NE ' '                                                           
+    DISPLAY ' *************************** '                                     
+    DISPLAY ' FEL VID ANROP TILL WDATKONV '                                     
+    DISPLAY ' *************************** '                                     
+    STOP EXECUTE                                                                
+ END-IF                                                                         
+ WS-TIAAVV-ALFA      = DAT-TIAAVV-GRP                                           
+ WS-TIAAPP           = DAT-TIAAPP                                               
+ WS-TIAAVV           = WS-TIAAVV-NUM                                            
+ WS-TIAAVV-ALFA-DEL  = DAT-TIAAVV-GRP                                           
+ END-PROC                                                                       
+                                                                                
+ *    --- S23-CHECK-HELP-IDDC (MACRO PROCEDUR)                                  
+ %WWDC02 'HELP-'                                                                
+ *                                                                              
+                                                                                
+NEWPAGE                                                                         
+X-CHECK-IF-WEB-REPORT. PROC                                                     
+   WBDC-IDDC = HELP-IDDC                                                        
+   CALL WL10WBDC USING WBDC-AREA                                                
+END-PROC                                                                        
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*---------------------------------------------------------------*               
+* STEG 2 SELEKTERAR UT DATA FRÅN TPFIL1 OCH SKAPAR TPFIL2                       
+*---------------------------------------------------------------*               
+*                                                                               
+JOB INPUT TPFIL1                                                                
+                                                                                
+  IF TMP1-KDANMORS = '00' '11' '20' '21' '42' '43' '60' '61' +                  
+                     '62' AND +                                                 
+     TMP1-TISAAVV-KNOTA-TIAAVV = WS-TIAAVV                                      
+                                                                                
+     TMP2-W42820 = TMP1-W42820                                                  
+     PUT TPFIL2                                                                 
+  ELSE                                                                          
+    IF TMP1-KDANMORS = '12' '22' AND +                                          
+       TMP1-TISAAVV-INLINL-TIAAVV = WS-TIAAVV                                   
+                                                                                
+       TMP2-W42820 = TMP1-W42820                                                
+       PUT TPFIL2                                                               
+    ELSE                                                                        
+      IF TMP1-KDANMORS = '13' '23' AND +                                        
+         TMP1-TISAAVV-LEVANM-TIAAVV = WS-TIAAVV                                 
+                                                                                
+         TMP2-W42820 = TMP1-W42820                                              
+         PUT TPFIL2                                                             
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+*---------------------------------------------------------------*               
+* STEG 2 SORTERAR TPFIL1 PÅ DC OCH KDANMORS (HITTILLS I ÅR)                     
+*---------------------------------------------------------------*               
+SORT TPFIL1 TO TPFIL1 USING +                                                   
+          (TMP1-IDDC, TMP1-KDANMORS)                                            
+*                                                                               
+NEWPAGE                                                                         
+*---------------------------------------------------------------*               
+* STEG 2A SUMMERAR TPFIL1 PER DC OCH KDANMORS (HITTILLS I ÅR)                   
+*---------------------------------------------------------------*               
+JOB INPUT NULL                                                                  
+                                                                                
+  GET TPFIL1                                                                    
+  WS-IDDC        = '  '                                                         
+  WS-KDANMORS    = '  '                                                         
+  WS-TOT-KVLEVANM = +0                                                          
+  DO WHILE NOT EOF TPFIL1                                                       
+     WS-IDDC        = TMP1-IDDC                                                 
+     WS-KDANMORS    = TMP1-KDANMORS                                             
+                                                                                
+     DO WHILE NOT EOF TPFIL1       AND +                                        
+       WS-IDDC        = TMP1-IDDC      AND +                                    
+       WS-KDANMORS    = TMP1-KDANMORS                                           
+       IF TMP1-KVLEVANM > 0                                                     
+         WS-TOT-KVLEVANM = WS-TOT-KVLEVANM + 1                                  
+       END-IF                                                                   
+       GET TPFIL1                                                               
+     END-DO                                                                     
+     TMP6-IDDC       = WS-IDDC                                                  
+     TMP6-KDANMORS   = WS-KDANMORS                                              
+     TMP6-SUART-WEEK = 0                                                        
+     TMP6-SUART-YEAR = WS-TOT-KVLEVANM                                          
+     TMP6-TIAAVV     = 0                                                        
+     PUT TPFIL6                                                                 
+     WS-TOT-KVLEVANM   = 0                                                      
+  END-DO                                                                        
+STOP                                                                            
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 3 SORTERAR TPFIL2 PÅ DC OCH KDANMORS (SENASTE VECKAN)                    
+*---------------------------------------------------------------*               
+SORT TPFIL2 TO TPFIL2 USING +                                                   
+          (TMP2-IDDC, TMP2-KDANMORS)                                            
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 3A SUMMERAR TPFIL2 PER DC OCH KDANMORS (SENASTE VECKAN)                  
+*---------------------------------------------------------------*               
+JOB INPUT NULL                                                                  
+                                                                                
+  GET TPFIL2                                                                    
+  WS-IDDC        = '  '                                                         
+  WS-KDANMORS    = '  '                                                         
+  WS-TOT-KVLEVANM = +0                                                          
+  DO WHILE NOT EOF TPFIL2                                                       
+     WS-IDDC        = TMP2-IDDC                                                 
+     WS-KDANMORS    = TMP2-KDANMORS                                             
+     IF TMP2-KDANMORS = '00' '11' '20' '21' '42' '43' '60' '61' '62'            
+       TMP7-TIAAVV    = TMP2-TISAAVV-KNOTA-TIAAVV                               
+     ELSE                                                                       
+       IF TMP2-KDANMORS = '12' '22'                                             
+         TMP7-TIAAVV    = TMP2-TISAAVV-INLINL-TIAAVV                            
+       ELSE                                                                     
+         IF TMP2-KDANMORS = '13' '23'                                           
+           TMP7-TIAAVV    = TMP2-TISAAVV-LEVANM-TIAAVV                          
+         END-IF                                                                 
+       END-IF                                                                   
+     END-IF                                                                     
+                                                                                
+     DO WHILE NOT EOF TPFIL2       AND +                                        
+       WS-IDDC        = TMP2-IDDC      AND +                                    
+       WS-KDANMORS    = TMP2-KDANMORS                                           
+       IF TMP2-KVLEVANM > 0                                                     
+         WS-TOT-KVLEVANM = WS-TOT-KVLEVANM + 1                                  
+                                                                                
+         IF TMP2-KDANMORS = '00' '11' '20' '21' '42' '43' '60' '61' '62'        
+           TMP7-TIAAVV  = TMP2-TISAAVV-KNOTA-TIAAVV                             
+         ELSE                                                                   
+           IF TMP2-KDANMORS = '12' '22'                                         
+             TMP7-TIAAVV  = TMP2-TISAAVV-INLINL-TIAAVV                          
+           ELSE                                                                 
+             IF TMP2-KDANMORS = '13' '23'                                       
+               TMP7-TIAAVV    = TMP2-TISAAVV-LEVANM-TIAAVV                      
+             END-IF                                                             
+           END-IF                                                               
+         END-IF                                                                 
+       END-IF                                                                   
+       GET TPFIL2                                                               
+     END-DO                                                                     
+     TMP7-IDDC       = WS-IDDC                                                  
+     TMP7-KDANMORS   = WS-KDANMORS                                              
+     TMP7-SUART-WEEK = WS-TOT-KVLEVANM                                          
+     TMP7-SUART-YEAR = 0                                                        
+     PUT TPFIL7                                                                 
+     WS-TOT-KVLEVANM   = 0                                                      
+  END-DO                                                                        
+STOP                                                                            
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 4 MATCHAR TPFIL6 MED TPFIL7 OCH SKAPAR UTFIL                             
+*---------------------------------------------------------------*               
+JOB INPUT (TPFIL6 KEY (TMP6-IDDC, TMP6-KDANMORS)+                               
+           TPFIL7 KEY (TMP7-IDDC, TMP7-KDANMORS))                               
+                                                                                
+  IF MATCHED                                                                    
+    UT1-IDDC          = TMP6-IDDC                                               
+    UT1-KDANMORS      = TMP6-KDANMORS                                           
+    UT1-SUART-WEEK    = TMP7-SUART-WEEK                                         
+    UT1-SUART-YEAR    = TMP6-SUART-YEAR                                         
+    UT1-TIAAVV        = TMP7-TIAAVV                                             
+    UT1-TIAAPP        = WS-TIAAPP                                               
+                                                                                
+    PUT W42818D5                                                                
+  ELSE                                                                          
+    IF TPFIL7                                                                   
+      UT1-IDDC          = TMP7-IDDC                                             
+      UT1-KDANMORS      = TMP7-KDANMORS                                         
+      UT1-SUART-WEEK    = TMP7-SUART-WEEK                                       
+      UT1-SUART-YEAR    = 0                                                     
+      UT1-TIAAVV        = TMP7-TIAAVV                                           
+      UT1-TIAAPP        = WS-TIAAPP                                             
+                                                                                
+      PUT W42818D5                                                              
+    ELSE                                                                        
+      UT1-IDDC          = TMP6-IDDC                                             
+      UT1-KDANMORS      = TMP6-KDANMORS                                         
+      UT1-SUART-WEEK    = 0                                                     
+      UT1-SUART-YEAR    = TMP6-SUART-YEAR                                       
+      UT1-TIAAVV        = WS-TIAAVV                                             
+      UT1-TIAAPP        = WS-TIAAPP                                             
+                                                                                
+      PUT W42818D5                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 4A SELEKTERAR UT DATA FRÅN W47905F OCH SKAPAR TPFIL3                     
+*        (W47905F SENASTE VECKAN)                                               
+*---------------------------------------------------------------*               
+*                                                                               
+JOB INPUT W42818D2                                                              
+*                                                                               
+ HELP-IDDC      = IN2-IDDC-LEV                                                  
+ PERFORM S23-CHECK-HELP-IDDC                                                    
+ PERFORM X-CHECK-IF-WEB-REPORT                                                  
+ IF WBDC-FLWEBDC = 'J'                                                          
+                                                                                
+    TMP3-W47905F = IN2-W47905F                                                  
+    PUT TPFIL3                                                                  
+ END-IF                                                                         
+                                                                                
+ *    --- S23-CHECK-HELP-IDDC (MACRO PROCEDUR)                                  
+ %WWDC02 'HELP-'                                                                
+ *                                                                              
+NEWPAGE                                                                         
+X-CHECK-IF-WEB-REPORT. PROC                                                     
+   WBDC-IDDC = HELP-IDDC                                                        
+   CALL WL10WBDC USING WBDC-AREA                                                
+END-PROC                                                                        
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 5 SORTERAR TPFIL3 PÅ DC-LEV                                              
+*---------------------------------------------------------------*               
+SORT TPFIL3 TO TPFIL3 USING +                                                   
+          (TMP3-IDDC-LEV)                                                       
+*---------------------------------------------------------------*               
+* STEG 5A SUMMERAR TPFIL3 PÅ DC-LEV                                             
+*---------------------------------------------------------------*               
+JOB INPUT NULL                                                                  
+                                                                                
+  GET TPFIL3                                                                    
+  WS-IDDC        = '  '                                                         
+  WS-TOT-KVRADER = +0                                                           
+  DO WHILE NOT EOF TPFIL3                                                       
+     WS-IDDC        = TMP3-IDDC-LEV                                             
+                                                                                
+     DO WHILE NOT EOF TPFIL3       AND +                                        
+       WS-IDDC        = TMP3-IDDC-LEV                                           
+       IF TMP3-KVLEVART2 > 0                                                    
+         WS-TOT-KVRADER = WS-TOT-KVRADER + 1                                    
+       END-IF                                                                   
+       GET TPFIL3                                                               
+     END-DO                                                                     
+     TMP11-IDDC         = WS-IDDC                                               
+     TMP11-SURADER-WEEK = WS-TOT-KVRADER                                        
+     TMP11-SURADER-YEAR = 0                                                     
+     TMP11-TIAAVV       = WS-TIAAVV                                             
+     PUT TPFIL11                                                                
+     WS-TOT-KVRADER    = 0                                                      
+  END-DO                                                                        
+STOP                                                                            
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 6 SELEKTERAR UT DATA FRÅN W47905F OCH SKAPAR TPFIL5                      
+*        (W47905F SENASTE MÅNADENS GENERATIONER)                                
+*---------------------------------------------------------------*               
+*                                                                               
+JOB INPUT W42818D4                                                              
+*                                                                               
+ HELP-IDDC      = IN4-IDDC-LEV                                                  
+ PERFORM S23-CHECK-HELP-IDDC                                                    
+ PERFORM X-CHECK-IF-WEB-REPORT                                                  
+ IF WBDC-FLWEBDC = 'J'                                                          
+                                                                                
+    TMP5-W47905F = IN4-W47905F                                                  
+    PUT TPFIL5                                                                  
+ END-IF                                                                         
+                                                                                
+ *    --- S23-CHECK-HELP-IDDC (MACRO PROCEDUR)                                  
+ %WWDC02 'HELP-'                                                                
+ *                                                                              
+NEWPAGE                                                                         
+X-CHECK-IF-WEB-REPORT. PROC                                                     
+   WBDC-IDDC = HELP-IDDC                                                        
+   CALL WL10WBDC USING WBDC-AREA                                                
+END-PROC                                                                        
+                                                                                
+*---------------------------------------------------------------*               
+* STEG 6A SORTERAR TPFIL5 PÅ DC-LEV                                             
+*---------------------------------------------------------------*               
+SORT TPFIL5 TO TPFIL5 USING +                                                   
+          (TMP5-IDDC-LEV)                                                       
+*---------------------------------------------------------------*               
+* STEG 7 SELEKTERAR UT DATA FRÅN W42846 OCH SKAPAR TPFIL4                       
+*---------------------------------------------------------------*               
+*                                                                               
+JOB INPUT W42818D3                                                              
+*                                                                               
+   WS-IN-TIAAPP   = IN3-TIFAKT-TIAAPP                                           
+   HELP-IDDC      = IN3-IDDC                                                    
+   PERFORM S23-CHECK-HELP-IDDC                                                  
+   PERFORM X-CHECK-IF-WEB-REPORT                                                
+   IF WBDC-FLWEBDC = 'J' AND                                    +               
+      WS-IN-TIAAR  = WS-AAR                                                     
+      TMP4-W42845  = IN3-W42845                                                 
+      PUT TPFIL4                                                                
+   END-IF                                                                       
+                                                                                
+ *    --- S23-CHECK-HELP-IDDC (MACRO PROCEDUR)                                  
+ %WWDC02 'HELP-'                                                                
+ *                                                                              
+NEWPAGE                                                                         
+X-CHECK-IF-WEB-REPORT. PROC                                                     
+   WBDC-IDDC = HELP-IDDC                                                        
+   CALL WL10WBDC USING WBDC-AREA                                                
+END-PROC                                                                        
+                                                                                
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 8 SORTERAR TPFIL4 PÅ DC (HITTILLS I ÅR)                                  
+*---------------------------------------------------------------*               
+SORT TPFIL4 TO TPFIL4 USING +                                                   
+          (TMP4-IDDC)                                                           
+*---------------------------------------------------------------*               
+* STEG 9 SUMMERAR TPFIL4 PER DC OCH KVRADER (HITTILLS I ÅR)                     
+*        SKAPAR TPFIL8                                                          
+*---------------------------------------------------------------*               
+JOB INPUT NULL                                                                  
+                                                                                
+  GET TPFIL4                                                                    
+  WS-IDDC        = '  '                                                         
+  WS-TOT-KVRADER = +0                                                           
+  DO WHILE NOT EOF TPFIL4                                                       
+     WS-IDDC        = TMP4-IDDC                                                 
+                                                                                
+     DO WHILE NOT EOF TPFIL4       AND +                                        
+       WS-IDDC        = TMP4-IDDC                                               
+       IF TMP4-KVRADER > 0                                                      
+         WS-TOT-KVRADER = WS-TOT-KVRADER + TMP4-KVRADER                         
+       END-IF                                                                   
+       GET TPFIL4                                                               
+     END-DO                                                                     
+     TMP8-IDDC         = WS-IDDC                                                
+     TMP8-SURADER-WEEK = 0                                                      
+     TMP8-SURADER-YEAR = WS-TOT-KVRADER                                         
+     TMP8-TIAAVV       = 0                                                      
+     PUT TPFIL8                                                                 
+     WS-TOT-KVRADER    = 0                                                      
+  END-DO                                                                        
+STOP                                                                            
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 10 SUMMERAR TPFIL5 PER DC OCH KVRADER (HITTILLS I ÅR)                    
+*         SKAPAR TPFIL9                                                         
+*---------------------------------------------------------------*               
+JOB INPUT NULL                                                                  
+                                                                                
+ GET TPFIL5                                                                     
+  WS-IDDC        = '  '                                                         
+  WS-TOT-KVRADER = +0                                                           
+  DO WHILE NOT EOF TPFIL5                                                       
+     WS-IDDC        = TMP5-IDDC-LEV                                             
+                                                                                
+     DO WHILE NOT EOF TPFIL5       AND +                                        
+       WS-IDDC        = TMP5-IDDC-LEV                                           
+       IF TMP5-KVLEVART2 > 0                                                    
+         WS-TOT-KVRADER = WS-TOT-KVRADER + 1                                    
+       END-IF                                                                   
+       GET TPFIL5                                                               
+     END-DO                                                                     
+     TMP9-IDDC         = WS-IDDC                                                
+     TMP9-SURADER-WEEK = 0                                                      
+     TMP9-SURADER-YEAR = WS-TOT-KVRADER                                         
+     TMP9-TIAAVV       = 0                                                      
+     PUT TPFIL9                                                                 
+     WS-TOT-KVRADER    = 0                                                      
+ END-DO                                                                         
+ STOP                                                                           
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 11 MATCHAR TPFIL8 MED TPFIL9 OCH SKAPAR TPFIL10                          
+*---------------------------------------------------------------*               
+JOB INPUT (TPFIL8 KEY (TMP8-IDDC)+                                              
+           TPFIL9 KEY (TMP9-IDDC))                                              
+                                                                                
+  IF MATCHED                                                                    
+    WS-SURADER-YEAR      = 0                                                    
+    TMP10-IDDC           = TMP8-IDDC                                            
+    TMP10-SURADER-WEEK   = 0                                                    
+    WS-SURADER-YEAR      = WS-SURADER-YEAR + TMP8-SURADER-YEAR                  
+    WS-SURADER-YEAR      = WS-SURADER-YEAR + TMP9-SURADER-YEAR                  
+    TMP10-SURADER-YEAR   = WS-SURADER-YEAR                                      
+    TMP10-TIAAVV         = 0                                                    
+                                                                                
+    PUT TPFIL10                                                                 
+  ELSE                                                                          
+    IF TPFIL9                                                                   
+      TMP10-IDDC          = TMP9-IDDC                                           
+      TMP10-SURADER-WEEK  = 0                                                   
+      TMP10-SURADER-YEAR  = TMP9-SURADER-YEAR                                   
+      TMP10-TIAAVV        = 0                                                   
+                                                                                
+      PUT TPFIL10                                                               
+    ELSE                                                                        
+      TMP10-IDDC          = TMP8-IDDC                                           
+      TMP10-SURADER-WEEK  = 0                                                   
+      TMP10-SURADER-YEAR  = TMP8-SURADER-YEAR                                   
+      TMP10-TIAAVV        = 0                                                   
+                                                                                
+      PUT TPFIL10                                                               
+    END-IF                                                                      
+  END-IF                                                                        
+*                                                                               
+*---------------------------------------------------------------*               
+* STEG 12 MATCHAR TPFI10 MED TPFIL11 OCH SKAPAR UTFIL2                          
+*---------------------------------------------------------------*               
+JOB INPUT (TPFIL10 KEY (TMP10-IDDC)+                                            
+           TPFIL11 KEY (TMP11-IDDC))                                            
+                                                                                
+  IF MATCHED                                                                    
+    UT2-IDDC           = TMP10-IDDC                                             
+    UT2-SURADER-WEEK   = TMP11-SURADER-WEEK                                     
+    UT2-SURADER-YEAR   = TMP10-SURADER-YEAR                                     
+    UT2-TIAAVV         = TMP11-TIAAVV                                           
+    UT2-TIAAPP         = WS-TIAAPP                                              
+                                                                                
+    PUT W42818D6                                                                
+  ELSE                                                                          
+    IF TPFIL11                                                                  
+      UT2-IDDC          = TMP11-IDDC                                            
+      UT2-SURADER-WEEK  = TMP11-SURADER-WEEK                                    
+      UT2-SURADER-YEAR  = 0                                                     
+      UT2-TIAAVV        = TMP11-TIAAVV                                          
+      UT2-TIAAPP        = WS-TIAAPP                                             
+                                                                                
+      PUT W42818D6                                                              
+    ELSE                                                                        
+      UT2-IDDC          = TMP10-IDDC                                            
+      UT2-SURADER-WEEK  = 0                                                     
+      UT2-SURADER-YEAR  = TMP10-SURADER-YEAR                                    
+      UT2-TIAAVV        = 0                                                     
+      UT2-TIAAPP        = WS-TIAAPP                                             
+                                                                                
+      PUT W42818D6                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+*                                                                               

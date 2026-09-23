@@ -1,0 +1,96 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR FIL MED ARTIKLAR MED BEORDRAD SKROTNING                             
+//*  OCH FIL MED ARTIKLAR MED SÄSONG                                            
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W200V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W21690      NORMAL                                           
+//*                LÄSER  WDK6                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W216P090 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W216..W200V1,                                             
+//             INDUT2=&WXTR..W200V1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W21690   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W21690,W21690,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//W21690D1 DD  DSN=&&W21691,DISP=(NEW,PASS,DELETE),                             
+//************ ARTIKLAR MED BEORDRAD SKROTNING                                  
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W21690D2 DD  DSN=&&W21692,DISP=(NEW,PASS,DELETE),                             
+//************ ARTIKLAR MED SÄSONGSVARIATION                                    
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W216PD90),DISP=SHR                         
+//SORTIN   DD  DSN=&&W21691,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKLAR MED SÄSONGSVARIATION                                    
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W21691(+1),DISP=(NEW,PASS,DELETE),   -LIM(1)         
+//************ ARTIKLAR MED SKROTBEORDRAN_(SORT IDARTNR A)                      
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W216PD90),DISP=SHR                         
+//SORTIN   DD  DSN=&&W21692,DISP=(OLD,DELETE,DELETE)                            
+//************ ARTIKLAR MED SKROTBEORDRAN(SORT IDARTNR A)                       
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W21692(+1),DISP=(NEW,PASS,DELETE),   -LIM(1)         
+//************ ARTIKLAR MED SÄSONG (SORT IDARTNR A)                             
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//GENER1   EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W21691(+1),DISP=(OLD,CATLG,DELETE)                   
+//************ ARTIKLAR MED SKROTBEORDRAN                                       
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..WXTR2A(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ ARTIKLAR MED SKROTBEORDRAN, KOPIA AV W21691 FÖR IC               
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=NOBACKUP                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//GENER2   EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W21692(+1),DISP=(OLD,CATLG,DELETE)                   
+//************ ARTIKLAR MED SÄSONG                                              
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..WXTR2B(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ ARTIKLAR MED SÄSONG, KOPIA AV W21692 FÖR IC                      
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=NOBACKUP                                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

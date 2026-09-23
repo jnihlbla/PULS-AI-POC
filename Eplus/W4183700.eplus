@@ -1,0 +1,101 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W418   RETURTILLSTÅND - VARNINGSLISTA                 *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR LISTA W41837-001 VARNINGSLISTA RETURTILLSTÅND  *        
+*                                                                      *        
+*  FÖRFATTARE :  BOO HAMMARIN, GDC-GROUP                               *        
+*                                                                      *        
+*  INFIL      :  W418.W418D2.W41871(+0)                                *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+FILE W41837D1 FB(53 27984)                                                      
+                                                                                
+%W41836                                                                         
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+FILE W41837D2 PRINTER FB(121 121)                                               
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+%WDATKORT                                                                       
+NEWPAGE                                                                         
+                                                                                
+  W-PAGE          W 10 A VALUE '  PAGE  '                                       
+                                                                                
+  W-PGMNAMN       W 6  A  VALUE 'W41837'                                        
+  W-WDATUM        W 6  A  VALUE 'WDATUM'                                        
+  W-IDFTG         W 2  N                                                        
+  W-IDDISTR       W 4  N  MASK '---9'      HEADING('DISTR')                     
+  W-IDKUNDNR      W 6  N  MASK '-----9'    HEADING('KUND')                      
+  W-IDRAPPNR      W 7  N  MASK '------9'   HEADING('RAPP')                      
+  W-IDRADNR       W 4  N  MASK '---9'      HEADING('RAD ')                      
+  W-KDKREBEH      W 3  A                   HEADING('BEH.STATUS')                
+  W-IDARTNR       W 9  N  MASK '--------9' HEADING('ART ')                      
+  W-KVLEVANM      W 6  N  MASK '-----9'    HEADING('LEV.ANM.ANTAL')             
+  W-DARTPMN       W 6  N  MASK BWZ         HEADING('PÅMINN.DATUM')              
+  W-KVDAGAR-RTATG W 6  N  MASK '-----9'    HEADING('ANTAL DAGAR/ÅTG.')          
+                                                                                
+  W-DATUM          W  6   N                                                     
+  W-AAR  W-DATUM   +4 2   N                                                     
+  W-MM   W-DATUM      2   N                                                     
+  W-DD   W-DATUM   +2 2   N                                                     
+                                                                                
+  W-AAVV           W  4   A                                                     
+  W-AA   W-AAVV       2   N                                                     
+  W-VV   W-AAVV    +2 2   N                                                     
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+JOB INPUT W41837D1 START INIT-PROC                                              
+                                                                                
+    W-IDDISTR         = RP-IDDISTR                                              
+    W-IDKUNDNR        = RP-IDKUNDNR                                             
+    W-IDRAPPNR        = RP-IDRAPPNR                                             
+    W-IDRADNR         = RP-IDRADNR                                              
+    W-KDKREBEH        = RP-KDKREBEH                                             
+    W-IDARTNR         = RP-IDARTNR                                              
+    W-KVLEVANM        = RP-KVLEVANM                                             
+    W-DARTPMN         = RP-DARTPMN                                              
+    W-KVDAGAR-RTATG   = RP-KVDAGAR-RTATG                                        
+                                                                                
+    PRINT RAPPORT                                                               
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+INIT-PROC. PROC                                                                 
+    CALL DATKORT USING (W-PGMNAMN W-WDATUM DATUMKORT)                           
+    W-AAR  = D-AAR                                                              
+    W-MM   = D-MAANAD                                                           
+    W-DD   = D-DAG                                                              
+    W-AA   = D-AAR                                                              
+    W-VV   = D-VECKA                                                            
+END-PROC                                                                        
+NEWPAGE                                                                         
+                                                                                
+******************                                                              
+*  RAPPORT                                                                      
+******************                                                              
+                                                                                
+REPORT RAPPORT PRINTER W41837D2 +                                               
+     SKIP 1 LINESIZE 120 NODATE NOSPREAD NOADJUST                               
+                                                                                
+SEQUENCE W-IDDISTR W-IDKUNDNR W-IDRAPPNR                                        
+CONTROL FINAL NOPRINT                                                           
+                                                                                
+TITLE 1 'VCC           W41837-001   RETURTILLSTÅND - '  +                       
+        'VARNINGSLISTA                               '  +                       
+         W-DATUM                                        +                       
+         COL 108     W-PAGE                                                     
+                                                                                
+LINE W-IDDISTR W-IDKUNDNR W-IDRAPPNR W-IDRADNR  +                               
+            COL 30 W-KDKREBEH                   +                               
+            COL 40 W-IDARTNR                    +                               
+            COL 55 W-KVLEVANM                   +                               
+            COL 70 W-DARTPMN                    +                               
+            COL 85 W-KVDAGAR-RTATG                                              
+                                                                                

@@ -1,0 +1,33 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPA VSOP OUTPUTFILE                                                      
+//*                                                                             
+//*  FREKVENS:     STARTAS AV ANV.     RTN WVSOP                                
+//*                                                                             
+//*  ÅTERSTART:    W85007   NORMAL                                              
+//*                .                                                            
+//*                DFUP   NORMAL                                                
+//*                .                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W850P007 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W850..WVSOP                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W85007   EXEC PGM=V16459,PARM='W85007/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//W85007D1 DD  DSN=&&W85005,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W85007D2 DD  DSN=&&W85012,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W85007D3 DD  DSN=&INDUT..W85012(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ VSOP OUTPUT FILE                                                 
+//             DCB=(RECFM=FB,LRECL=245,BLKSIZE=6125),                           
+//             MGMTCLAS=&BACKUPC,SPACE=(6125,(1000,200),RLSE)                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

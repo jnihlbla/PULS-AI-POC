@@ -1,0 +1,45 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SORTERAR FIL W11175 OCH SKAPAR LARMLISTA ÖVER                              
+//*  INLEVERERADE ARTIKLAR UTAN STATNUMMER                                      
+//*                                                                             
+//*  FREKVENS:     DAG      RTN W111V5                                          
+//*                W111J076 KÖRS BARA ONSDAG                                    
+//*  ÅTERSTART:    W11176    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W111P076 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W111..W111V5,                                             
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W111PD76),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W11176(+0),DISP=SHR                                  
+//************ ARTIKLAR MED INLEVERANS UTAN STATNUMMER                          
+//*                                                                             
+//SORTOUT  DD  DSN=&&W11176,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAD FIL W11175                                              
+//         SPACE=(43,(1000,333),RLSE),AVGREC=U                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11176   EXEC PGM=V16459,PARM='W11176/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W11176D1 DD  DSN=&&W11176,DISP=(OLD,DELETE,DELETE)                            
+//************ SORTERAD FIL W11176                                              
+//*                                                                             
+//A4LF OUTPUT FORMDEF=SLSR66,PAGEDEF=SLSR6C                                     
+//*                                                                             
+//W11176D2 DD  SYSOUT=(A,,3803),DEST=&DEST1,OUTPUT=(*.A4LF),                    
+//************ W11176-001  LARMLISTA INLEV. ARTIKLAR UTAN STATNUMMER            
+//             DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                            
+//*                                                                             

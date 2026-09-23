@@ -1,0 +1,438 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4796100                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER FIL W479.W479V2.W47955                          *        
+*                OCH SKAPAR LISTA OCH EXCELFIL.                        *        
+*                FAKTURERAT VECKA XX FÖR LAGER 778 (DANZAS).           *        
+*                                                                      *        
+*                LISTA REPORT01                                        *        
+*                                                                      *        
+*  FÖRFATTARE :  ELEONOR ÖSTRÖM   APRIL 2001                           *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+FILE W47961D1                                                                   
+* FAKTRADFIL                                                                    
+%W479055    'IN-'                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE TPFIL1 FB(50 0)                                                            
+T1-MARKET          1  9  A                                                      
+T1-KDORDKL         10 3  N                                                      
+T1-IDKUNDNR        13 6  N                                                      
+T1-IDORDNR5        19 5  A                                                      
+T1-IDKOLLI         24 6  N                                                      
+T1-STYCK           30 10  P 0                                                   
+T1-VKORDBTO-KOLLI  40 4   P 1                                                   
+T1-VKORDNTO-KOLLI  44 4   P 1                                                   
+*                                                                               
+NEWPAGE                                                                         
+PROGRAM-NAMN  W  8  A        VALUE 'W4796100'                                   
+WDATUM        W  6  A        VALUE 'WDATUM'                                     
+                                                                                
+%WDATKORT                                                                       
+                                                                                
+NEWPAGE                                                                         
+FILE W47961D2 PRINTER FB(100 0)                                                 
+*-------------------------------------------------*                             
+ID-KUNDNR        W 6  N   MASK 'ZZZZZ9'                                         
+KVA-STYCK        W 8  N 0 MASK 'ZZZZZZZ9'                                       
+ANT-RADER        W 7  N 0 MASK 'ZZZZZZ9'                                        
+ANT-KOLLI        W 6  N 0 MASK 'ZZZZZ9'                                         
+ANT-ORDER        W 6  N 0 MASK 'ZZZZZ9'                                         
+VIKT-KOLLI-B     W 8  N 1 MASK 'ZZZZZZ9.9'                                      
+SUPERTOT-VIKT    W 8  N 1 MASK 'ZZZZZZ9.9'                                      
+TOT-VIKT-KOLLI   W 8  N 1 MASK 'ZZZZZZ9.9'                                      
+VIKT-KOLLI-N     W 8  N 1 MASK 'ZZZZZZ9.9'                                      
+IDKUNDNR         W 6  N                                                         
+KDORDKL          W 3  N   MASK 'ZZ9'                                            
+IDKOLLI          W 6  N                                                         
+IDORDNR5         W 5  A                                                         
+W-VV             W 2  N                                                         
+W-AAR            W 2  N                                                         
+                                                                                
+NEWPAGE                                                                         
+* PCFIL FÖR EXCEL                                                               
+FILE W47961D3 FB (80 0)                                                         
+E-HEADER      1  80  A                                                          
+UTFIL         W  80  A                                                          
+E-IDKUNDNR    UTFIL       6  N   MASK 'ZZZZZ9'                                  
+E-FILLER1     UTFIL   +7  1  A   VALUE ';'                                      
+E-KDORDKL     UTFIL   +8  3  N   MASK 'ZZ9'                                     
+E-FILLER2     UTFIL  +11  1  A   VALUE ';'                                      
+E-KVASTYCK    UTFIL  +12  8  N 0 MASK 'ZZZZZZZ9'                                
+E-FILLER3     UTFIL  +20  1  A   VALUE ';'                                      
+E-ANTRADER    UTFIL  +21  7  N 0 MASK 'ZZZZZZ9'                                 
+E-FILLER4     UTFIL  +28  1  A   VALUE ';'                                      
+E-ANTKOLLI    UTFIL  +29  6  N 0 MASK 'ZZZZZ9'                                  
+E-FILLER5     UTFIL  +35  1  A   VALUE ';'                                      
+E-ANTORDER    UTFIL  +36  6  N 0 MASK 'ZZZZZ9'                                  
+E-FILLER6     UTFIL  +42  1  A   VALUE ';'                                      
+E-VIKT        UTFIL  +43  8  N   MASK 'ZZZZZZZ9'                                
+E-FILLER7     UTFIL  +51  1  A   VALUE ','                                      
+E-VIKT-DEC    UTFIL  +52  1  N   MASK '9'                                       
+E-FILLER8     UTFIL  +53  1  A   VALUE ';'                                      
+E-FILLER9     UTFIL  +54  1  A   VALUE ';'                                      
+                                                                                
+NEWPAGE                                                                         
+* WORKINGSTORAGE                                                                
+E-RUBRIK1     W  59  A                                                          
+E-FILLER01    E-RUBRIK1      13  A  VALUE 'W47961-001   '                       
+E-FILLER02    E-RUBRIK1 +14  22  A  VALUE 'WAREHOUSE DANZAS      '              
+E-FILLER03    E-RUBRIK1 +36  14  A  VALUE 'INVOICED WEEK '                      
+E-AAR         E-RUBRIK1 +50  2   N                                              
+E-VV          E-RUBRIK1 +52  2   N                                              
+                                                                                
+E-RUBRIK2     W  80  A                                                          
+E-AF          E-RUBRIK2      8   A  VALUE '  DEALER'                            
+E-FILL1       E-RUBRIK2 +9   1   A  VALUE ';'                                   
+E-KLASS       E-RUBRIK2 +10  9   A  VALUE '    CLASS'                           
+E-FILL2       E-RUBRIK2 +19  1   A  VALUE ';'                                   
+E-STYCK       E-RUBRIK2 +20  8   A  VALUE '  PIECES'                            
+E-FILL3       E-RUBRIK2 +28  1   A  VALUE ';'                                   
+E-RADER       E-RUBRIK2 +29  10  A  VALUE '     LINES'                          
+E-FILL4       E-RUBRIK2 +39  1   A  VALUE ';'                                   
+E-KOLLI       E-RUBRIK2 +40  9   A  VALUE '     CASE'                           
+E-FILL5       E-RUBRIK2 +49  1   A  VALUE ';'                                   
+E-ORDER       E-RUBRIK2 +50  8   A  VALUE '   ORDER'                            
+E-FILL6       E-RUBRIK2 +58  1   A  VALUE ';'                                   
+E-VIKTRUB     E-RUBRIK2 +59  11  A  VALUE 'CASE WEIGHT'                         
+E-FILL7       E-RUBRIK2 +70  1   A  VALUE ';'                                   
+                                                                                
+E-RUBRIK3      W  59  A                                                         
+E-ATERFOR      E-RUBRIK3      6   N  MASK 'ZZZZZ9'                              
+E-FILL02       E-RUBRIK3 +7   1   A  VALUE ';'                                  
+E-FILL03       E-RUBRIK3 +8   3   A  VALUE ' '                                  
+E-FILL04       E-RUBRIK3 +11  1   A  VALUE ';'                                  
+E-SUMSTYCK     E-RUBRIK3 +12  8   N                                             
+E-FILL05       E-RUBRIK3 +20  1   A  VALUE ';'                                  
+E-SUMRAD       E-RUBRIK3 +21  7   N                                             
+E-FILL06       E-RUBRIK3 +28  1   A  VALUE ';'                                  
+E-SUMKOLLI     E-RUBRIK3 +29  6   N                                             
+E-FILL07       E-RUBRIK3 +35  1   A  VALUE ';'                                  
+E-SUMORDER     E-RUBRIK3 +36  6   N                                             
+E-FILL08       E-RUBRIK3 +42  1   A  VALUE ';'                                  
+E-SUMVIKT      E-RUBRIK3 +43  8   N                                             
+E-FILL09       E-RUBRIK3 +51  1   A  VALUE ','                                  
+E-SUMVIKT-DEC  E-RUBRIK3 +52  1   N                                             
+E-FILL10       E-RUBRIK3 +53  1   A  VALUE ';'                                  
+                                                                                
+E-RUBRIK4      W  59  A                                                         
+E-FIL1         E-RUBRIK4      6   A  VALUE ' '                                  
+E-FIL2         E-RUBRIK4 +7   1   A  VALUE ';'                                  
+E-FIL3         E-RUBRIK4 +8   3   A  VALUE ' '                                  
+E-FIL4         E-RUBRIK4 +11  1   A  VALUE ';'                                  
+E-TOTSTYCK     E-RUBRIK4 +12  8   N                                             
+E-FIL5         E-RUBRIK4 +20  1   A  VALUE ';'                                  
+E-TOTRAD       E-RUBRIK4 +21  7   N                                             
+E-FIL6         E-RUBRIK4 +28  1   A  VALUE ';'                                  
+E-TOTKOLLI     E-RUBRIK4 +29  6   N                                             
+E-FIL7         E-RUBRIK4 +35  1   A  VALUE ';'                                  
+E-TOTORDER     E-RUBRIK4 +36  6   N                                             
+E-FIL8         E-RUBRIK4 +42  1   A  VALUE ';'                                  
+E-TOTVIKT      E-RUBRIK4 +43  8   N                                             
+E-FIL9         E-RUBRIK4 +51  1   A  VALUE ','                                  
+E-TOTVIKT-DEC  E-RUBRIK4 +52  1   N                                             
+E-FIL10        E-RUBRIK4 +53  1   A  VALUE ';'                                  
+                                                                                
+E-RUBRIK5     W  59  A                                                          
+E-FI01        E-RUBRIK5      7   A  VALUE ' '                                   
+E-FI02        E-RUBRIK5 +8   1   A  VALUE ';'                                   
+E-FI03        E-RUBRIK5 +9   7   A  VALUE ' '                                   
+E-FI04        E-RUBRIK5 +16  1   A  VALUE ';'                                   
+E-FI05        E-RUBRIK5 +17  7   A  VALUE ' '                                   
+E-FI06        E-RUBRIK5 +23  1   A  VALUE ';'                                   
+E-FI07        E-RUBRIK5 +24  7   A  VALUE ' '                                   
+E-FI08        E-RUBRIK5 +31  1   A  VALUE ';'                                   
+E-FI09        E-RUBRIK5 +32  7   A  VALUE ' '                                   
+E-FI010       E-RUBRIK5 +39  1   A  VALUE ';'                                   
+E-FI011       E-RUBRIK5 +40  7   A  VALUE ' '                                   
+E-FI012       E-RUBRIK5 +47  1   A  VALUE ';'                                   
+E-FI013       E-RUBRIK5 +48  7   A  VALUE ' '                                   
+E-FI014       E-RUBRIK5 +55  1   A  VALUE ';'                                   
+E-FI015       E-RUBRIK5 +56  2   A  VALUE ' '                                   
+E-FI016       E-RUBRIK5 +58  1   A  VALUE ';'                                   
+                                                                                
+W-SUMRAD          W  7  N                                                       
+W-SUMSTYCK        W  8  N                                                       
+W-SUMORDER        W  6  N                                                       
+W-SUMKOLLI        W  6  N                                                       
+W-TOTRAD          W  7  N                                                       
+W-TOTSTYCK        W  8  N                                                       
+W-TOTORDER        W  6  N                                                       
+W-TOTKOLLI        W  6  N                                                       
+W-VIKT-KOLLI                       W  8  N  1                                   
+W-VIKT-KOLLI-HEL W-VIKT-KOLLI         7  N                                      
+W-VIKT-KOLLI-DEC W-VIKT-KOLLI     +7  1  N                                      
+W-VIKT-KOLLI-TOT                   W  8  N                                      
+W-VIKT-KOLLI-DEC-TOT               W  1  N                                      
+W-VIKT-KOLLI-N W  6  N 1                                                        
+*-------------------------------------------------*                             
+* JOB INFIL01                                     *                             
+*-------------------------------------------------*                             
+NEWPAGE                                                                         
+JOB INPUT W47961D1 START INIT                                                   
+IF IN-FLDIRLEV NE 'J' 'Y'                                                       
+  IF IN-IDDISTR  =   778                                                        
+**  IF IN-IDDC-LEV =  '11'                                                      
+    IF IN-IDDC-LEV =  '1A'                                                      
+                                                                                
+      T1-MARKET    =  'DANZAS   '                                               
+      T1-KDORDKL   =  IN-KDORDKL                                                
+      T1-IDKUNDNR  =  IN-IDKUNDNR                                               
+      T1-IDORDNR5  =  IN-IDORDNR5                                               
+      T1-IDKOLLI   =  IN-IDKOLLI                                                
+      T1-STYCK     =  IN-KVLEVART2                                              
+      T1-VKORDBTO-KOLLI = IN-VKORDBTO-KOLLI                                     
+      T1-VKORDNTO-KOLLI = IN-VKORDNTO-KOLLI                                     
+*     DISPLAY 'IDARTNR ' IN-IDARTNR ' BTO ' IN-VKORDBTO-KOLLI +                 
+*            ' NTO ' IN-VKORDNTO-KOLLI +                                        
+*      ' KUNDNR ' IN-IDKUNDNR          +                                        
+*      ' ORDNR '  IN-IDORDNR5          +                                        
+*      ' KOLLINR '  IN-IDKOLLI ' KLASS ' IN-KDORDKL                             
+      PUT TPFIL1                                                                
+    END-IF                                                                      
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+INIT. PROC                                                                      
+  CALL DATKORT USING (PROGRAM-NAMN WDATUM DATUMKORT)                            
+  W-VV  =  D-VECKA                                                              
+  W-AAR =  D-AAR                                                                
+  E-AAR =  W-AAR                                                                
+  E-VV  =  W-VV                                                                 
+END-PROC                                                                        
+*-------------------------------------------------*                             
+* STEG2 SORTERA TPFIL1 PÅ IDKUNDNR, KDORDKL, IDORDNR5, IDKOLLI                  
+*-------------------------------------------------*                             
+                                                                                
+SORT TPFIL1 TO TPFIL1 USING (T1-IDKUNDNR, T1-KDORDKL +                          
+               T1-IDORDNR5, T1-IDKOLLI)                                         
+*--------------------------------------------------*                            
+NEWPAGE                                                                         
+JOB INPUT NULL                                                                  
+  GET TPFIL1                                                                    
+  IF NOT EOF TPFIL1                                                             
+    PERFORM INITIERA                                                            
+  END-IF                                                                        
+  DO WHILE NOT EOF TPFIL1                                                       
+    IF  T1-IDKUNDNR = ID-KUNDNR                                                 
+      IF  T1-IDKUNDNR = ID-KUNDNR AND T1-KDORDKL = KDORDKL                      
+        IF  T1-IDKUNDNR = ID-KUNDNR AND T1-KDORDKL = KDORDKL +                  
+           AND T1-IDORDNR5 = IDORDNR5                                           
+          IF  T1-IDKUNDNR = ID-KUNDNR AND T1-KDORDKL = KDORDKL +                
+            AND T1-IDKOLLI = IDKOLLI AND T1-IDORDNR5 = IDORDNR5                 
+***          VIKT-KOLLI-B = T1-VKORDBTO-KOLLI + VIKT-KOLLI-B                    
+          ELSE                                                                  
+            ANT-KOLLI = ANT-KOLLI + 1                                           
+            W-SUMKOLLI  = W-SUMKOLLI  + 1                                       
+            W-TOTKOLLI  = W-TOTKOLLI  + 1                                       
+            IDKOLLI = T1-IDKOLLI                                                
+            VIKT-KOLLI-B = T1-VKORDBTO-KOLLI + VIKT-KOLLI-B                     
+                                                                                
+          END-IF                                                                
+        ELSE                                                                    
+          W-SUMKOLLI  = W-SUMKOLLI  + 1                                         
+          W-SUMORDER  = W-SUMORDER  + 1                                         
+          W-TOTKOLLI  = W-TOTKOLLI  + 1                                         
+          W-TOTORDER  = W-TOTORDER  + 1                                         
+          ANT-KOLLI = ANT-KOLLI + 1                                             
+          VIKT-KOLLI-B = T1-VKORDBTO-KOLLI + VIKT-KOLLI-B                       
+          ANT-ORDER = ANT-ORDER + 1                                             
+          ID-KUNDNR          = T1-IDKUNDNR                                      
+          KDORDKL            = T1-KDORDKL                                       
+          IDKOLLI            = T1-IDKOLLI                                       
+          IDORDNR5           = T1-IDORDNR5                                      
+        END-IF                                                                  
+      ELSE                                                                      
+        E-IDKUNDNR         = ID-KUNDNR                                          
+        E-KDORDKL          = KDORDKL                                            
+        E-KVASTYCK         = KVA-STYCK                                          
+        E-ANTRADER         = ANT-RADER                                          
+        E-ANTKOLLI         = ANT-KOLLI                                          
+        E-ANTORDER         = ANT-ORDER                                          
+        W-VIKT-KOLLI       = VIKT-KOLLI-B                                       
+        E-VIKT             = W-VIKT-KOLLI-HEL                                   
+        E-VIKT-DEC         = W-VIKT-KOLLI-DEC                                   
+                                                                                
+        E-HEADER           = UTFIL                                              
+        PUT W47961D3                                                            
+                                                                                
+        PRINT REPORT01                                                          
+        ANT-RADER          = 0                                                  
+        KVA-STYCK          = 0                                                  
+        ID-KUNDNR          = T1-IDKUNDNR                                        
+        KDORDKL            = T1-KDORDKL                                         
+        IDKOLLI            = T1-IDKOLLI                                         
+        IDORDNR5           = T1-IDORDNR5                                        
+        ANT-ORDER          = 1                                                  
+        ANT-KOLLI          = 1                                                  
+        TOT-VIKT-KOLLI     = TOT-VIKT-KOLLI + VIKT-KOLLI-B                      
+        VIKT-KOLLI-B       = T1-VKORDBTO-KOLLI                                  
+*       VIKT-KOLLI-N       = T1-VKORDNTO-KOLLI                                  
+                                                                                
+        W-TOTKOLLI  = W-TOTKOLLI  + 1                                           
+        W-TOTORDER  = W-TOTORDER  + 1                                           
+      END-IF                                                                    
+    ELSE                                                                        
+        E-IDKUNDNR         = ID-KUNDNR                                          
+        E-KDORDKL          = KDORDKL                                            
+        E-KVASTYCK         = KVA-STYCK                                          
+        E-ANTRADER         = ANT-RADER                                          
+        E-ANTKOLLI         = ANT-KOLLI                                          
+        E-ANTORDER         = ANT-ORDER                                          
+        W-VIKT-KOLLI       = VIKT-KOLLI-B                                       
+        E-VIKT             = W-VIKT-KOLLI-HEL                                   
+        E-VIKT-DEC         = W-VIKT-KOLLI-DEC                                   
+        E-HEADER           = UTFIL                                              
+        PUT W47961D3                                                            
+                                                                                
+        W-SUMKOLLI         = W-SUMKOLLI + 1                                     
+        W-SUMORDER         = W-SUMORDER + 1                                     
+        W-TOTKOLLI         = W-TOTKOLLI + 1                                     
+        W-TOTORDER         = W-TOTORDER + 1                                     
+        E-ATERFOR          = ID-KUNDNR                                          
+        E-SUMSTYCK         = W-SUMSTYCK                                         
+        E-SUMRAD           = W-SUMRAD                                           
+        E-SUMKOLLI         = W-SUMKOLLI                                         
+        E-SUMORDER         = W-SUMORDER                                         
+        TOT-VIKT-KOLLI = TOT-VIKT-KOLLI + VIKT-KOLLI-B                          
+        W-VIKT-KOLLI       = TOT-VIKT-KOLLI                                     
+        E-SUMVIKT          = W-VIKT-KOLLI-HEL                                   
+        E-SUMVIKT-DEC      = W-VIKT-KOLLI-DEC                                   
+        E-HEADER           = E-RUBRIK3                                          
+        PUT W47961D3                                                            
+                                                                                
+        E-HEADER           = E-RUBRIK5                                          
+        PUT W47961D3                                                            
+                                                                                
+        E-TOTRAD           = W-TOTRAD                                           
+        E-TOTSTYCK         = W-TOTSTYCK                                         
+        E-TOTKOLLI         = W-TOTKOLLI                                         
+        E-TOTORDER         = W-TOTORDER                                         
+                                                                                
+        W-SUMSTYCK         = 0                                                  
+        W-SUMRAD           = 0                                                  
+        W-SUMKOLLI         = 1                                                  
+        W-SUMORDER         = 1                                                  
+                                                                                
+        SUPERTOT-VIKT = SUPERTOT-VIKT + TOT-VIKT-KOLLI                          
+        TOT-VIKT-KOLLI     = 0                                                  
+                                                                                
+        PRINT REPORT01                                                          
+        ANT-RADER          = 0                                                  
+        KVA-STYCK          = 0                                                  
+        ID-KUNDNR          = T1-IDKUNDNR                                        
+        KDORDKL            = T1-KDORDKL                                         
+        IDKOLLI            = T1-IDKOLLI                                         
+        IDORDNR5           = T1-IDORDNR5                                        
+        ANT-ORDER          = 1                                                  
+        ANT-KOLLI          = 1                                                  
+        VIKT-KOLLI-B       = T1-VKORDBTO-KOLLI                                  
+*       VIKT-KOLLI-N       = T1-VKORDNTO-KOLLI                                  
+    END-IF                                                                      
+    ANT-RADER = ANT-RADER + 1                                                   
+    KVA-STYCK = KVA-STYCK + T1-STYCK                                            
+    W-SUMRAD  = W-SUMRAD  + 1                                                   
+    W-SUMSTYCK = W-SUMSTYCK  + T1-STYCK                                         
+    W-TOTRAD  = W-TOTRAD  + 1                                                   
+    W-TOTSTYCK = W-TOTSTYCK  + T1-STYCK                                         
+    GET TPFIL1                                                                  
+   END-DO                                                                       
+   E-IDKUNDNR         = ID-KUNDNR                                               
+   E-KDORDKL          = KDORDKL                                                 
+   E-KVASTYCK         = KVA-STYCK                                               
+   E-ANTRADER         = ANT-RADER                                               
+   E-ANTKOLLI         = ANT-KOLLI                                               
+   E-ANTORDER         = ANT-ORDER                                               
+   W-VIKT-KOLLI       = VIKT-KOLLI-B                                            
+   E-VIKT             = W-VIKT-KOLLI-HEL                                        
+   E-VIKT-DEC         = W-VIKT-KOLLI-DEC                                        
+   E-HEADER           = UTFIL                                                   
+   PUT W47961D3                                                                 
+                                                                                
+   W-SUMKOLLI         = W-SUMKOLLI + 1                                          
+   W-SUMORDER         = W-SUMORDER + 1                                          
+   E-ATERFOR          = ID-KUNDNR                                               
+   E-SUMSTYCK         = W-SUMSTYCK                                              
+   E-SUMRAD           = W-SUMRAD                                                
+   E-SUMKOLLI         = W-SUMKOLLI                                              
+   E-SUMORDER         = W-SUMORDER                                              
+   TOT-VIKT-KOLLI = TOT-VIKT-KOLLI + VIKT-KOLLI-B                               
+   W-VIKT-KOLLI       = TOT-VIKT-KOLLI                                          
+   E-SUMVIKT          = W-VIKT-KOLLI-HEL                                        
+   E-SUMVIKT-DEC          = W-VIKT-KOLLI-DEC                                    
+   E-HEADER           = E-RUBRIK3                                               
+   PUT W47961D3                                                                 
+                                                                                
+   W-TOTKOLLI         = W-TOTKOLLI + 1                                          
+   W-TOTORDER         = W-TOTORDER + 1                                          
+   E-TOTRAD           = W-TOTRAD                                                
+   E-TOTSTYCK         = W-TOTSTYCK                                              
+   E-TOTKOLLI         = W-TOTKOLLI                                              
+   E-TOTORDER         = W-TOTORDER                                              
+   SUPERTOT-VIKT = SUPERTOT-VIKT + TOT-VIKT-KOLLI                               
+   W-VIKT-KOLLI       = SUPERTOT-VIKT                                           
+   E-TOTVIKT          = W-VIKT-KOLLI-HEL                                        
+   E-TOTVIKT-DEC          = W-VIKT-KOLLI-DEC                                    
+   E-HEADER     = E-RUBRIK4                                                     
+   PUT W47961D3                                                                 
+                                                                                
+   PRINT REPORT01                                                               
+STOP                                                                            
+INITIERA. PROC                                                                  
+    ID-KUNDNR          = T1-IDKUNDNR                                            
+    KDORDKL            = T1-KDORDKL                                             
+    IDKOLLI            = T1-IDKOLLI                                             
+    IDORDNR5           = T1-IDORDNR5                                            
+    ANT-ORDER          = 1                                                      
+    ANT-RADER          = 0                                                      
+    ANT-KOLLI          = 1                                                      
+*   VIKT-KOLLI-B       = 0                                                      
+    VIKT-KOLLI-B       = T1-VKORDBTO-KOLLI                                      
+*   VIKT-KOLLI-N       = 0                                                      
+    KVA-STYCK          = 0                                                      
+    W-SUMSTYCK         = 0                                                      
+    W-SUMRAD           = 0                                                      
+    W-SUMKOLLI         = 1                                                      
+    W-SUMORDER         = 1                                                      
+    E-HEADER           = E-RUBRIK1                                              
+    PUT W47961D3                                                                
+    E-HEADER           = E-RUBRIK5                                              
+    PUT W47961D3                                                                
+    E-HEADER           = E-RUBRIK2                                              
+    PUT W47961D3                                                                
+END-PROC                                                                        
+*-------------------------------------------------*                             
+                                                                                
+REPORT      REPORT01         +                                                  
+            PRINTER W47961D2 +                                                  
+            NOPAGE           +                                                  
+            TITLESKIP 0      +                                                  
+            PAGESIZE 9999    +                                                  
+            SPACE 1          +                                                  
+            NOADJUST         +                                                  
+            LINESIZE 99      +                                                  
+            NOHEADING                                                           
+*                                                                               
+SEQUENCE    ID-KUNDNR KDORDKL                                                   
+CONTROL     ID-KUNDNR KDORDKL NOPRINT                                           
+*                                                                               
+TITLE 01   COL 12 'W47961-001'        +                                         
+           COL 25 'LAGER DANZAS '     +                                         
+           COL 40 'FAKTURERAT VECKA ' +                                         
+           COL 58  W-VV                                                         
+*                                                                               
+TITLE 03   COL 4  'ÅF'                 +                                        
+           COL 9  'KLASS'              +                                        
+           COL 19 'STYCK'              +                                        
+           COL 30 'RADER'              +                                        
+           COL 40 'KOLLI'              +                                        
+           COL 50 'ORDER'              +                                        
+           COL 61 'KOLLI-VIKT'                                                  
+                                                                                
+*                                                                               
+LINE  ID-KUNDNR KDORDKL KVA-STYCK ANT-RADER ANT-KOLLI ANT-ORDER +               
+      VIKT-KOLLI-B                                                              

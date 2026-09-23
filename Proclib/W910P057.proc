@@ -1,0 +1,35 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FASTSTÄLLER VILKA KINESISKA BENÄMNINGAR SOM ÄNDRATS ELLER                  
+//*  TILLKOMMIT SEDAN SENASTE KÖRNING OCH SKICKAR DESSA TILL VR.                
+//*                                                                             
+//*  FREKVENS:     WEEKLY    RTN W91054                                         
+//*                                                                             
+//*  ÅTERSTART:    W91057    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W910P057 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDREG=&W910..W91054,                                            
+//             INDUT=&WUT..W91054                                               
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W91057   EXEC PGM=V16459,PARM='W91057/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W91057D1 DD  DSN=&INDREG..W91055(+0),DISP=SHR                                 
+//************ DEN NYA BENÄMNINGSINFORMATIONEN                                  
+//*                                                                             
+//W91057D2 DD  DSN=&INDREG..W91055(-1),DISP=SHR                                 
+//************ SAMMA FIL FRÅN FÖRRA KÖRNINGEN                                   
+//*                                                                             
+//W91057D3 DD  DSN=&INDUT..W91057(+1),DISP=(NEW,CATLG,DELETE),  -LIM(2)         
+//************ NYA/FÖRÄNDRADE BENÄMNINGAR TILL VR                               
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=NOBACKUP                                                

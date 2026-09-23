@@ -1,0 +1,147 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6115200                                              *        
+*                                                                      *        
+*  FUNKTION   :  LISTAR GENOMLOPPSTIDER                                *        
+*                                                                      *        
+*                                                                      *        
+*                                                                      *        
+*  FÖRFATTARE :  LARS THELL                                            *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING   PROJEKT/ÄT      *        
+*     941205      CONNY EGHOLT .....       57053.      SDC ST....      *        
+*     ......      ..................       ......      ..........      *        
+*     ......      ..................       ......      ..........      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61152D1                                                                   
+*                                                                               
+%W6115101  'IN-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W61152D2  PRINTER VB (125 0)                                               
+*                                                                               
+NEWPAGE                                                                         
+FILE W61152D3  PRINTER VB (125 0)                                               
+*                                                                               
+DEFINE  KDINLUPF                W 4 A                                           
+DEFINE  KVART-GLT               W 6 N   MASK 'ZZZZZ9'                           
+DEFINE  KVRADER                 W 5 N   MASK 'ZZZZ9'                            
+DEFINE  SUBEL-GLT               W 9 N 0 MASK 'ZZZZZZZZ9'                        
+DEFINE  SUBEL-GLT-PRIO-PROC     W 3 N   MASK 'ZZ9'                              
+DEFINE  KVRADER-GLT-PRIO-PROC   W 3 N   MASK 'ZZ9'                              
+                                                                                
+DEFINE  TIGLT                   W 5 N 2 MASK 'ZZ9.99'                           
+DEFINE  TIGLT-PRIO              W 5 N 2 MASK 'ZZ9.99'                           
+                                                                                
+DEFINE  MAAL-PROC               W 3 N   MASK 'ZZ9'                              
+DEFINE  MAAL-PRIO-PROC          W 3 N   MASK 'ZZ9'                              
+                                                                                
+WS-PREV-IDDC                    W 2 A                                           
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+JOB INPUT W61152D1                                                              
+                                                                                
+    IF IN-KDINLUPF          = ' '                                               
+        KDINLUPF             = 'TOT '                                           
+    ELSE                                                                        
+        KDINLUPF             = IN-KDINLUPF                                      
+    END-IF                                                                      
+    KVART-GLT                = IN-KVART                                         
+    KVRADER                  = IN-KVRADER                                       
+    SUBEL-GLT                = IN-SUBEL                                         
+    IF IN-SUBEL > +0                                                            
+      SUBEL-GLT-PRIO-PROC      = (IN-SUBEL-PRIO / IN-SUBEL) * 100               
+    ELSE                                                                        
+      SUBEL-GLT-PRIO-PROC      = +0                                             
+    END-IF                                                                      
+    IF IN-KVRADER > +0                                                          
+      KVRADER-GLT-PRIO-PROC    = (IN-KVRADER-PRIO / IN-KVRADER) * 100           
+    ELSE                                                                        
+      KVRADER-GLT-PRIO-PROC    = +0                                             
+    END-IF                                                                      
+    TIGLT                    = IN-TIGLT                                         
+    TIGLT-PRIO               = IN-TIGLT-PRIO                                    
+    IF IN-KVRADER > +0                                                          
+      MAAL-PROC              = (IN-KVRADER-MAAL / IN-KVRADER) * 100             
+    ELSE                                                                        
+      MAAL-PROC              = +0                                               
+    END-IF                                                                      
+    IF IN-KVRADER-PRIO > +0                                                     
+      MAAL-PRIO-PROC         = (IN-KVRADER-MAAL-PRIO /         +                
+                                IN-KVRADER-PRIO) * 100                          
+    ELSE                                                                        
+      MAAL-PRIO-PROC         = +0                                               
+    END-IF                                                                      
+                                                                                
+    PERFORM S23-CHECK-IN-IDDC                                                   
+    IF IN-IDDC = CDC-SE                                                         
+       PRINT CDC-LISTA                                                          
+    ELSE-IF IN-IDDC = NDC-CN                                                    
+       PRINT CN-LISTA                                                           
+    END-IF                                                                      
+*                                                                               
+*    --- S23-CHECK-IN-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'IN-'                                                                   
+*                                                                               
+NEWPAGE                                                                         
+  REPORT   CDC-LISTA PRINTER W61152D2 LINESIZE 120 DTLCTL FIRST +               
+           SUMCTL NONE SPACE 1                                                  
+  TITLE 1  'VOLVO CAR AFTERSALES         '        +                             
+           'AK GENOMLOPPSTIDER       '            +                             
+           'W61152-001'                                                         
+  TITLE 3  'DAGLIG LISTA                 '       +                              
+           'PRODUCERAD VOL    GLT    '            +                             
+           '          '                                                         
+  HEADING  KDINLUPF              'OMRÅDE'                                       
+  HEADING  KVART-GLT             'PARTIER'                                      
+  HEADING  KVRADER               'RADER'                                        
+  HEADING  SUBEL-GLT             ('  VÄRDE ' '  (SEK) ')                        
+  HEADING  SUBEL-GLT-PRIO-PROC   ('PRIO' '%VÄRDE')                              
+  HEADING  KVRADER-GLT-PRIO-PROC ('PRIO' '%RADER')                              
+  HEADING  TIGLT                 ('  GLT  ' ' TOTAL ')                          
+  HEADING  TIGLT-PRIO            ('  GLT  ' ' PRIO  ')                          
+  HEADING  MAAL-PROC             (' MÅL ' '   % ')                              
+  HEADING  MAAL-PRIO-PROC        ('MÅL PRIO' '   %  ')                          
+  LINE  1  KDINLUPF    KVART-GLT   KVRADER     SUBEL-GLT      +                 
+           KVRADER-GLT-PRIO-PROC   SUBEL-GLT-PRIO-PROC    +                     
+           TIGLT       TIGLT-PRIO  MAAL-PROC   MAAL-PRIO-PROC                   
+*                                                                               
+*                                                                               
+NEWPAGE                                                                         
+  REPORT   CN-LISTA               +                                             
+           LINESIZE 120           +                                             
+           PRINTER W61152D3       +                                             
+           NOADJUST               +                                             
+           NOHEADING              +                                             
+           NODATE                 +                                             
+           NOSPREAD               +                                             
+           SPACE 0                                                              
+  LINE  1  IN-IDDC                +                                             
+           KDINLUPF               +                                             
+           KVART-GLT              +                                             
+           KVRADER                +                                             
+           KVRADER-GLT-PRIO-PROC  +                                             
+           SUBEL-GLT-PRIO-PROC    +                                             
+           TIGLT                  +                                             
+           TIGLT-PRIO                                                           
+*                                                                               
+BEFORE-LINE. PROC                                                               
+  IF IN-IDDC NE WS-PREV-IDDC                                                    
+    DISPLAY '¤DAPW61152-002'                                                    
+    DISPLAY '¤DAP' IN-IDDC                                                      
+    WS-PREV-IDDC = IN-IDDC                                                      
+  END-IF                                                                        
+END-PROC                                                                        

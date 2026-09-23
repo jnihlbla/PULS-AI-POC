@@ -1,0 +1,70 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  EXTRACT PARTS FOR THE CONCERNED COUNTRY                                    
+//*                                                                             
+//*  FREQUENCE:    ON-REQUEST RTN W116SF                                        
+//*                                                                             
+//*  RESTART:      W1168A     NORMAL                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P08A PROC STPLIB=&INDRTE..LOAD, -- PERHAPS REMOVE COMMA                   
+//             INDREG=&W412,                                                    
+//             INDIN=&W116..W116D4,                                             
+//             INDIN2=&W116..W116D1,                                            
+//             INDUT=&W116..W116SF                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT01   EXEC PGM=SORT                                                        
+//SYSIN    DD  DUMMY                                                            
+//* SORT.SYSIN OVERWRITTEN FROM JCL                                             
+//SORTIN   DD  DSN=&INDREG..W41225(+0),DISP=SHR                                 
+//************ WDB601 SEGMENT DATA                                              
+//*                                                                             
+//SORTOUT  DD  DSN=&&W41225,DISP=(NEW,PASS,DELETE),                             
+//************ WDB601 SEGMENT DATA FOR CONCERNED COUNTRY                        
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT02   EXEC PGM=SORT                                                        
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PD09),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W11690(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN2..W11690(+0),DISP=SHR                                 
+//************ WDB601 SEGMENT DATA                                              
+//*                                                                             
+//SORTOUT  DD  DSN=&&W11690,DISP=(NEW,PASS,DELETE),                             
+//************ WDB601 SEGMENT DATA FOR CONCERNED PARTNUMBER                     
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W1168A   EXEC PGM=V16459,PARM='W1168A/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W1168AD1 DD  DSN=&&W41225,DISP=(OLD,DELETE,DELETE)                            
+//************ WDB601 SEGMENT DATA SUBSET                                       
+//*                                                                             
+//W1168AD2 DD  DSN=&&W11690,DISP=SHR                                            
+//************ PARTS FOR CONCERNED DC TO SEND TO VIPS                           
+//*                                                                             
+//W1168AD3 DD  DSN=&&W1168A,DISP=(NEW,PASS,DELETE),                             
+//************ PART, COUNTRY FOR CONCERNED COUNTRY                              
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//SORT03   EXEC PGM=SORT                                                        
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PD8A),DISP=SHR                         
+//SORTIN   DD  DSN=&&W1168A,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W1168A(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ PART, COUNTRY FOR CONCERNED COUNTRY SORTED                       
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//SYSOUT   DD  SYSOUT=*                                                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

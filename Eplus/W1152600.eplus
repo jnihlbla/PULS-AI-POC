@@ -1,0 +1,103 @@
+                                                                                
+*  FUNKTION   :  LÄSER EN FIL FRÅN BASLAGER SORTERAR DEN PÅ            *        
+*                ARTNR,VECKA  SUMMERAR IHOP DO-KVANT(BASL) PER         *        
+*                ARTNR,C-LAGER,VECKA.                                  *        
+*                (ÄT, C-LAGER FRÅN C-2, VÅREN-90)                      *        
+*                (ÄT PD90, NOV 90 SK)                                  *        
+*                                                                      *        
+*  FÖRFATTARE :  GUNNEL ERIKSSON SEPTEMBER-88                          *        
+*                                                                      *        
+*  INFILER    :  W11526D1                                              *        
+*                                                                      *        
+*  UTFILER    :  W11526D2                                              *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVD                         *        
+*     ........    ....................     ..............              *        
+*     ........    ....................     ..............              *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W11526D1                                                                   
+*                                                                               
+%W11522EE    'IN-'                                                              
+*------------------------------SORTFIL-----------------------                   
+*                                                                               
+ FILE  SORTFIL VIRTUAL FB (17 23460)                                            
+*                                                                               
+%W11522EE    'SORT-'                                                            
+*------------------------------UTFIL-------------------------                   
+FILE W11526D2                                                                   
+%W11526EE    'W11526-'                                                          
+*********************************************************                       
+FILE W11506D3  PRINTER                                                          
+*                                                                               
+*-------------*                                                                 
+* ARBETSAREOR *                                                                 
+*-------------*                                                                 
+*                                                                               
+SPAR-SUTPO-EJPB             W 7 N                                               
+SPAR-SUTPO-EJPB-GEN         W 7 N                                               
+SPAR-IDARTNR                W 9 N                                               
+SPAR-KDCLAGER               W 1 N                                               
+SPAR-TIBEHOV                W 5 N                                               
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+*-------------*                                                                 
+* JOB1        *                                                                 
+*-------------*                                                                 
+SORT W11526D1 TO SORTFIL USING (IN-IDARTNR IN-KDCLAGER IN-TIBEHOV)              
+*----------------*                                                              
+* JOB2           *                                                              
+*----------------*                                                              
+*                                                                               
+JOB INPUT NULL                                                                  
+  GET SORTFIL                                                                   
+  IF NOT EOF SORTFIL                                                            
+    PERFORM S01-SPARA-JMF-INFO                                                  
+  END-IF                                                                        
+*                                                                               
+  DO WHILE NOT EOF SORTFIL                                                      
+    DO WHILE NOT EOF SORTFIL +                                                  
+                      AND SPAR-IDARTNR   = SORT-IDARTNR   +                     
+                      AND SPAR-KDCLAGER  = SORT-KDCLAGER  +                     
+                      AND SPAR-TIBEHOV   = SORT-TIBEHOV                         
+      IF SORT-TIBASORD = 0                                                      
+*        * ADDERA UPP SUMMA TPO (EJ ORDER-GENERERAT)                            
+         SPAR-SUTPO-EJPB = SPAR-SUTPO-EJPB + SORT-SUTPO-EJPB                    
+      ELSE                                                                      
+*        * ADDERA UPP SUMMA TPO (ORDER-GENERERAT)                               
+         SPAR-SUTPO-EJPB-GEN = SPAR-SUTPO-EJPB-GEN + SORT-SUTPO-EJPB            
+      END-IF                                                                    
+      GET SORTFIL                                                               
+    END-DO                                                                      
+    PERFORM B-FYLL-I-UTPOST                                                     
+    PUT W11526D2                                                                
+    IF NOT EOF SORTFIL                                                          
+      PERFORM S01-SPARA-JMF-INFO                                                
+    END-IF                                                                      
+  END-DO                                                                        
+*                                                                               
+ STOP                                                                           
+*                                                                               
+B-FYLL-I-UTPOST                                                                 
+PROC                                                                            
+*                                                                               
+  W11526-IDARTNR    = SPAR-IDARTNR                                              
+  W11526-KDCLAGER   = SPAR-KDCLAGER                                             
+  W11526-TIBEHOV    = SPAR-TIBEHOV                                              
+  W11526-SUTPO-EJPB = SPAR-SUTPO-EJPB                                           
+  W11526-SUTPO-EJPB-GEN = SPAR-SUTPO-EJPB-GEN                                   
+END-PROC                                                                        
+*                                                                               
+S01-SPARA-JMF-INFO                                                              
+PROC                                                                            
+*                                                                               
+  SPAR-IDARTNR        = SORT-IDARTNR                                            
+  SPAR-KDCLAGER       = SORT-KDCLAGER                                           
+  SPAR-TIBEHOV        = SORT-TIBEHOV                                            
+  SPAR-SUTPO-EJPB     = +0                                                      
+  SPAR-SUTPO-EJPB-GEN = +0                                                      
+END-PROC                                                                        
+*                                                                               

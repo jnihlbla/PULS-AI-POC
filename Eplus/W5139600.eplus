@@ -1,0 +1,333 @@
+                                                                                
+************************************************************************        
+*  PROGRAM    : ATT SUMMERA ARTIKLAR SOM ÄR KVAR ATT INVENTERA                  
+*               OCH JÄMFÖRA MED FÖRRA VECKANS FIL                               
+*               OCH SUMMMA TOTALT ARTIKLAR SOM SKALL INVENTERAS                 
+*               FÅR MAN GENOM ATT LÄSA LAGERBANDET                              
+*  INFIL1       W513.W513V1.W51343 - INV HISTORIK                               
+*               - ALLT SOM HAR INVENTERATS                                      
+*  INFIL2       W513.W51372 - REGISTER                                          
+*               - ALLT SOM ÄR KVAR ATT INVENTERAS                               
+*  INFIL3       W011.DCXX.W01184 LAGERBAND                                      
+*               - ALLA ARTIKLAR PÅ LDC,SDC,NDC                                  
+************************************************************************        
+FILE W51396D1                                                                   
+%W51343 'IN1-'                                                                  
+                                                                                
+FILE W51396D2                                                                   
+%W51371  'IN2-'                                                                 
+                                                                                
+FILE W51396D3                                                                   
+%W01184  'IN3-'                                                                 
+                                                                                
+FILE TPFIL1 FB (28 0)                                                           
+%W51343    'TP1-'                                                               
+                                                                                
+FILE TPFIL2 FB(43 0)                                                            
+%W51396    'TP2-'                                                               
+                                                                                
+FILE TPFIL3 FB (28 0)                                                           
+%W51371    'TP3-'                                                               
+                                                                                
+FILE TPFIL4 FB(43 0)                                                            
+%W51396    'TP4-'                                                               
+                                                                                
+FILE TPFIL5 FB(43 0)                                                            
+%W51396    'TP5-'                                                               
+                                                                                
+FILE TPFIL6 FB(483 0)                                                           
+%W01184    'TP6-'                                                               
+                                                                                
+FILE TPFIL7 FB(43 0)                                                            
+%W51396    'TP7-'                                                               
+                                                                                
+FILE TPFIL8 FB(43 0)                                                            
+%W51396    'TP8-'                                                               
+                                                                                
+                                                                                
+FILE W51396D4 FB(43 0)                                                          
+%W51396    'UT-'                                                                
+                                                                                
+*******************************************************                         
+* ARBETS AREA                                         *                         
+*******************************************************                         
+                                                                                
+PROGRAM-NAMN           W   8   A        VALUE 'W5139600'                        
+DATUMKORT-ID           W   6   A        VALUE 'WDATUM'                          
+%WDATKORT                                                                       
+                                                                                
+W-TIAAVV            W   4   N                                                   
+W-TIAA W-TIAAVV         2   N                                                   
+W-TIVV W-TIAAVV     +2  2   N                                                   
+                                                                                
+W-DAGENS-DATUM                W   6   N                                         
+DAGENS-TIAA W-DAGENS-DATUM        2   N                                         
+DAGENS-TIMM W-DAGENS-DATUM    +2  2   N                                         
+DAGENS-TIDD W-DAGENS-DATUM    +4  2   N                                         
+                                                                                
+W-FORRA-VECKAN                W   6   N                                         
+                                                                                
+FORSTA-POST  W 1 A VALUE 'J'                                                    
+W-SUART-INV  W 6 N                                                              
+W-SUART-REM  W 6 N                                                              
+W-SUART-TOT  W 6 N                                                              
+W-IDDC       W 2 A                                                              
+                                                                                
+S23-IDDC     W 2 A                                                              
+%WWDC99                                                                         
+*                                                                               
+%WDAGAREA                                                                       
+*                                                                               
+*******************************************************                         
+* RÄKNAR UT VILKET DATUM DET VAR FÖRRA VECKAN         *                         
+*                                                                               
+*******************************************************                         
+JOB INPUT NULL                                                                  
+                                                                                
+*A-INIT. PROC                                                                   
+*  INHÄMTNING AV DATUM                                                          
+      CALL DATKORT USING (PROGRAM-NAMN       +                                  
+                          DATUMKORT-ID       +                                  
+                          DATUMKORT)                                            
+      DAGENS-TIAA        = D-AAR                                                
+      DAGENS-TIMM        = D-MAANAD                                             
+      DAGENS-TIDD        = D-DAG                                                
+      W-TIAA             = D-AAR                                                
+      W-TIVV             = D-VECKA                                              
+*  FRAMRÄKNING AV DATKORTSDATUM TILL NÄSTA DAG                                  
+ DISPLAY 'DAGENS DATUM ' W-DAGENS-DATUM                                         
+      DAG-TIAAMMDD-TOM   = W-DAGENS-DATUM                                       
+      DAG-KDCALL         = +003                                                 
+******* ------------->     +003 = FOM DATUM                                     
+      DAG-KVKALDAG       = +008                                                 
+      CALL WDAGKONV USING (DAG-KDCALL      +                                    
+                           DAG-DATUM-AREA  +                                    
+                           DAG-KDSVAR)                                          
+                                                                                
+      IF DAG-KDSVAR = ' '                                                       
+        W-FORRA-VECKAN   = DAG-TIAAMMDD-FOM                                     
+        DISPLAY ' FÖRRA VECKAN ' W-FORRA-VECKAN                                 
+      ELSE                                                                      
+         DISPLAY 'FEL FRÅN WDATKONV   I A-INIT SECTION I W51396'                
+                                                                                
+         STOP EXECUTE                                                           
+      END-IF                                                                    
+ STOP                                                                           
+*END-PROC                                                                       
+*******************************************************                         
+* SORTERA INV HISTORIK FILEN PÅ IDDC OCH ARTIKEL      *                         
+* PLOCKA BARA UT FÖRRA VECKANS INVENTERINGAR          *                         
+*******************************************************                         
+                                                                                
+SORT W51396D1 TO TPFIL1 USING (IN1-IDDC IN1-IDARTNR) +                          
+                    BEFORE SORT-INIT-1                                          
+                                                                                
+SORT-INIT-1. PROC                                                               
+*IF IN1-TIJUSTDA  EQ W-FORRA-VECKAN THRU W-DAGENS-DATUM                         
+ IF IN1-TIJUSTDA  GT W-FORRA-VECKAN                                             
+  SELECT                                                                        
+ END-IF                                                                         
+END-PROC.                                                                       
+                                                                                
+************************************************************                    
+* TA IN TEMP1 KOLLA OM LDC POST, SUMMAR IHOP ANTAL PER LDC *                    
+************************************************************                    
+                                                                                
+JOB INPUT TPFIL1 FINISH Z-INIT                                                  
+                                                                                
+*HÄMTA FÖRRA VECKANS ANTAL PÅ ARTIKLAR SOM INVENTERATS                          
+                                                                                
+ S23-IDDC = TP1-IDDC                                                            
+ PERFORM S23-CHECK-S23-IDDC                                                     
+ *  ---MACRO PROCEDUR S23 ----                                                  
+                                                                                
+ IF TP1-IDDC EQ LDC, NDC, SDC                                                   
+                                                                                
+   IF FORSTA-POST EQ 'J'                                                        
+     W-IDDC EQ TP1-IDDC                                                         
+     FORSTA-POST EQ 'N'                                                         
+   END-IF                                                                       
+   IF W-IDDC NE TP1-IDDC                                                        
+     TP2-IDDC     EQ W-IDDC                                                     
+     TP2-SUART-REM EQ 0                                                         
+     TP2-SUART-TOT EQ 0                                                         
+     TP2-SUART-INV EQ W-SUART-INV                                               
+     PUT TPFIL2                                                                 
+     W-IDDC       EQ TP1-IDDC                                                   
+     W-SUART-INV  EQ 1                                                          
+   ELSE                                                                         
+     W-SUART-INV = W-SUART-INV + 1                                              
+   END-IF                                                                       
+                                                                                
+ END-IF                                                                         
+%WWDC02 'S23-'                                                                  
+Z-INIT. PROC                                                                    
+    IF W-IDDC NE ' '                                                            
+     TP2-IDDC     EQ W-IDDC                                                     
+     TP2-SUART-REM EQ 0                                                         
+     TP2-SUART-TOT EQ 0                                                         
+     TP2-SUART-INV EQ W-SUART-INV                                               
+     PUT TPFIL2                                                                 
+    END-IF                                                                      
+END-PROC.                                                                       
+                                                                                
+*******************************************************                         
+* SORTERA FÖRRA VECKANS URVALSFIL PÅ IDDC OCH ARTIKEL *                         
+*******************************************************                         
+                                                                                
+SORT W51396D2 TO TPFIL3 USING (IN2-IDDC IN2-IDARTNR)                            
+                                                                                
+************************************************************                    
+* TA IN TEMP3 KOLLA OM LDC POST, SUMMAR IHOP ANTAL PER LDC *                    
+************************************************************                    
+                                                                                
+JOB INPUT TPFIL3 START A-INIT FINISH Z-INIT                                     
+                                                                                
+*HÄMTA FÖRRA VECKANS ANTAL PÅ ARTIKLAR SOM SKALL INVENTERAS                     
+                                                                                
+ S23-IDDC = TP3-IDDC                                                            
+ PERFORM S23-CHECK-S23-IDDC                                                     
+ *  ---MACRO PROCEDUR S23 ----                                                  
+                                                                                
+ IF TP3-IDDC EQ LDC, NDC, SDC                                                   
+   IF FORSTA-POST EQ 'J'                                                        
+     W-IDDC EQ TP3-IDDC                                                         
+     FORSTA-POST EQ 'N'                                                         
+   END-IF                                                                       
+   IF W-IDDC NE TP3-IDDC                                                        
+     TP4-IDDC     EQ W-IDDC                                                     
+     TP4-SUART-REM EQ W-SUART-REM                                               
+     TP4-SUART-TOT EQ 0                                                         
+     TP4-SUART-INV EQ 0                                                         
+     PUT TPFIL4                                                                 
+     W-IDDC       EQ TP3-IDDC                                                   
+     W-SUART-REM  EQ 1                                                          
+   ELSE                                                                         
+     W-SUART-REM = W-SUART-REM + 1                                              
+   END-IF                                                                       
+ END-IF                                                                         
+%WWDC02 'S23-'                                                                  
+                                                                                
+A-INIT. PROC                                                                    
+  FORSTA-POST EQ 'J'                                                            
+                                                                                
+END-PROC.                                                                       
+                                                                                
+Z-INIT. PROC                                                                    
+     TP4-IDDC     EQ W-IDDC                                                     
+     TP4-SUART-INV EQ 0                                                         
+     TP4-SUART-TOT EQ 0                                                         
+     TP4-SUART-REM EQ W-SUART-REM                                               
+     PUT TPFIL4                                                                 
+END-PROC.                                                                       
+*********************************************                                   
+* MATCHA IHOP TEMP2(INVENT) OCH TEMP4(KVAR) *                                   
+*********************************************                                   
+JOB INPUT (TPFIL2 KEY (TP2-IDDC) TPFIL4 KEY (TP4-IDDC))                         
+IF MATCHED                                                                      
+  TP5-IDDC     EQ TP2-IDDC                                                      
+  TP5-SUART-REM EQ TP4-SUART-REM                                                
+  TP5-SUART-TOT EQ 0                                                            
+  TP5-SUART-INV EQ TP2-SUART-INV                                                
+  PUT TPFIL5                                                                    
+ELSE                                                                            
+ IF TPFIL2                                                                      
+  TP5-IDDC     EQ TP2-IDDC                                                      
+  TP5-SUART-REM EQ TP2-SUART-REM                                                
+  TP5-SUART-TOT EQ 0                                                            
+  TP5-SUART-INV EQ TP2-SUART-INV                                                
+  PUT TPFIL5                                                                    
+ END-IF                                                                         
+ IF TPFIL4                                                                      
+  TP5-IDDC     EQ TP4-IDDC                                                      
+  TP5-SUART-REM EQ TP4-SUART-REM                                                
+  TP5-SUART-TOT EQ 0                                                            
+  TP5-SUART-INV EQ TP4-SUART-INV                                                
+  PUT TPFIL5                                                                    
+ END-IF                                                                         
+END-IF                                                                          
+                                                                                
+*******************************************************                         
+* SORTERA LAGERBANDEN PÅ IDDC                         *                         
+*******************************************************                         
+                                                                                
+SORT W51396D3 TO TPFIL6 USING (IN3-SLAG-IDDC) +                                 
+    BEFORE SORT-INIT-2                                                          
+                                                                                
+                                                                                
+SORT-INIT-2. PROC                                                               
+ IF (IN3-SLAG-KVLS NE 0) OR (IN3-SLAG-KVAKS-SDC NE 0) +                         
+    OR (IN3-SLAG-KVEFRS NE 0)                                                   
+  SELECT                                                                        
+ END-IF                                                                         
+END-PROC.                                                                       
+                                                                                
+************************************************************                    
+* TA IN TEMP6 KOLLA OM LDC POST, SUMMAR IHOP ANTAL PER LDC *                    
+************************************************************                    
+                                                                                
+JOB INPUT TPFIL6 START A-INIT FINISH Z-INIT                                     
+                                                                                
+*HÄMTA FÖRRA VECKANS ANTAL PÅ ARTIKLAR SOM SKALL INVENTERAS                     
+                                                                                
+   IF FORSTA-POST EQ 'J'                                                        
+     W-IDDC EQ TP6-SLAG-IDDC                                                    
+     FORSTA-POST EQ 'N'                                                         
+   END-IF                                                                       
+   IF W-IDDC NE TP6-SLAG-IDDC                                                   
+     TP7-IDDC      EQ W-IDDC                                                    
+     TP7-SUART-REM EQ 0                                                         
+     TP7-SUART-TOT EQ W-SUART-TOT                                               
+     TP7-SUART-INV EQ 0                                                         
+     PUT TPFIL7                                                                 
+                                                                                
+     W-IDDC        EQ TP6-SLAG-IDDC                                             
+     W-SUART-TOT   EQ 1                                                         
+   ELSE                                                                         
+     W-SUART-TOT = W-SUART-TOT + 1                                              
+   END-IF                                                                       
+                                                                                
+A-INIT. PROC                                                                    
+  FORSTA-POST EQ 'J'                                                            
+                                                                                
+END-PROC.                                                                       
+                                                                                
+Z-INIT. PROC                                                                    
+     TP7-IDDC      EQ W-IDDC                                                    
+     TP7-SUART-REM EQ 0                                                         
+     TP7-SUART-TOT EQ W-SUART-TOT                                               
+     TP7-SUART-INV EQ 0                                                         
+     PUT TPFIL7                                                                 
+END-PROC.                                                                       
+**************************************************                              
+* MATCHA IHOP TEMP5(INVENT, KVAR) OCH TEMP7(TOT) *                              
+**************************************************                              
+JOB INPUT (TPFIL7 KEY (TP7-IDDC) TPFIL5 KEY (TP5-IDDC)) +                       
+  START B-INIT                                                                  
+IF MATCHED                                                                      
+  UT-IDDC      EQ TP7-IDDC                                                      
+  UT-SUART-REM EQ TP5-SUART-REM                                                 
+  UT-SUART-TOT EQ TP7-SUART-TOT                                                 
+  UT-SUART-INV EQ TP5-SUART-INV                                                 
+  PUT W51396D4                                                                  
+ELSE                                                                            
+ IF TPFIL7                                                                      
+  UT-IDDC      EQ TP7-IDDC                                                      
+  UT-SUART-REM EQ 0                                                             
+  UT-SUART-TOT EQ TP7-SUART-TOT                                                 
+  UT-SUART-INV EQ 0                                                             
+  PUT W51396D4                                                                  
+ END-IF                                                                         
+ IF TPFIL5                                                                      
+  UT-IDDC      EQ TP5-IDDC                                                      
+  UT-SUART-REM EQ TP5-SUART-REM                                                 
+  UT-SUART-TOT EQ 0                                                             
+  UT-SUART-INV EQ TP5-SUART-INV                                                 
+  PUT W51396D4                                                                  
+ END-IF                                                                         
+END-IF                                                                          
+B-INIT. PROC                                                                    
+  UT-IDLANDX2 = ' '                                                             
+  UT-ADCITY   = ' '                                                             
+  UT-TIAAVV   = W-TIAAVV                                                        
+END-PROC                                                                        

@@ -1,0 +1,90 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W5518400                                              *        
+*                                                                      *        
+*  FUNKTION   :  CREATE .CSV LIST FOR INFREIGHT FACTOR CHANGE FOR THE  *        
+*                NEXT YEAR. THE LIST IS SENT TO D&P.                   *        
+*                                                                      *        
+*  FÖRFATTARE :  ARCHANA BHAT                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W55184D1                                                                   
+*                                                                               
+%W55183  'IN-'                                                                  
+                                                                                
+**** EXCEL-FIL, MAIL VIA DAP                                                    
+FILE W55184D2  PRINTER VB(140 0)                                                
+                                                                                
+W-TYPE                      W    3 A                                            
+W-SUPPLIER                  W    5 A                                            
+W-CODE                      W    1 N 0                                          
+W-NEW-INFR-FACTOR           W    7 N 4 MASK 'ZZ9.9999'                          
+W-OLD-INFR-FACTOR           W    7 N 4 MASK 'ZZ9.9999'                          
+W-CTRY                      W    3 N 0 MASK 'ZZ9'                               
+W-SUPPL-NAME                W   35 A                                            
+W-CTRY-ISO                  W    2 A                                            
+W-CTRY-NAME                 W    2 A                                            
+W-DATE                      W    8 N 0 MASK 'ZZZZZZZ9'                          
+W-SEM1                      W    1 A VALUE ';'                                  
+FIRST-TIME-SW               W    1 A VALUE 'Y'                                  
+                                                                                
+JOB INPUT W55184D1                                                              
+                                                                                
+     W-TYPE            = 'R18'                                                  
+     W-SUPPLIER        = IN-IDLEVNR                                             
+     W-CODE            = 2                                                      
+     W-NEW-INFR-FACTOR = IN-RETULF-1                                            
+     W-OLD-INFR-FACTOR = IN-RETULF-1                                            
+     W-CTRY            = IN-KDVALLEV                                            
+     W-SUPPL-NAME      = IN-BELEV                                               
+     W-CTRY-ISO        = IN-IDLANDX2                                            
+     W-CTRY-NAME       = IN-IDLAND                                              
+     W-DATE            = IN-NEXT-YR-DATE                                        
+     IF IN-IDLAND-WDF1 EQ 'SE'                                                  
+       PRINT XL-LIST                                                            
+     END-IF                                                                     
+                                                                                
+NEWPAGE                                                                         
+  REPORT   XL-LIST              +                                               
+           PRINTER W55184D2     +                                               
+           LINESIZE 135         +                                               
+           SPACE 0              +                                               
+           NOHEADING            +                                               
+           NOSPREAD             +                                               
+           NOADJUST             +                                               
+           PAGESIZE 32767       +                                               
+           NODATE                                                               
+  LINE  1  W-CTRY-NAME          +                                               
+           W-SEM1               +                                               
+           W-TYPE               +                                               
+           W-SEM1               +                                               
+           W-SUPPLIER           +                                               
+           W-SEM1               +                                               
+           W-CODE               +                                               
+           W-SEM1               +                                               
+           W-DATE               +                                               
+           W-SEM1               +                                               
+           W-NEW-INFR-FACTOR    +                                               
+           W-SEM1               +                                               
+           W-OLD-INFR-FACTOR    +                                               
+           W-SEM1               +                                               
+           W-CTRY               +                                               
+           W-SEM1               +                                               
+           W-SUPPL-NAME         +                                               
+           W-SEM1               +                                               
+           W-CTRY-ISO           +                                               
+           W-SEM1                                                               
+*                                                                               
+BEFORE-LINE. PROC                                                               
+ IF FIRST-TIME-SW = 'Y'                                                         
+   DISPLAY '¤DAPW55184-001'                                                     
+   DISPLAY '¤DAPW55184'                                                         
+   DISPLAY 'COUNTRY NAME;TYPE;SUPPLIER;CODE;DATE' +                             
+           'NEW INFREIGT FACTOR;OLD INFREIGT' +                                 
+           'FACTOR;COUNTY OF PURCHASE;SUPPLIER NAME;COUNTRY CODE ISO;'          
+   FIRST-TIME-SW = 'N'                                                          
+ END-IF                                                                         
+END-PROC                                                                        

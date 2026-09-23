@@ -1,0 +1,73 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6127800                                              *        
+*                                                                      *        
+*  FUNKTION   :  KOMPLETTERAR VALDA DELAR AV W01184-FILERNA FÖR NDC MED*        
+*                IDBUYER FRÅN FIL W01160 OCH SKAPAR UTFIL.             *        
+*                                                                      *        
+*  FÖRFATTARE :  KENT JEBSEN                                           *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61278D1                                                                   
+*                                                                               
+%W01184  'K7-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W61278D2                                                                   
+*                                                                               
+%W01160  'K6-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W61278D3 FB(59 0)                                                          
+*                                                                               
+%W6127801  'UT-'                                                                
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. MATCHAR  FILERNA OCH SKRIVER FIL                                      
+*                                                                               
+JOB INPUT (W61278D2 KEY (K6-CLAG-IDARTNR)                       +               
+          W61278D1  KEY (K7-SLAG-IDARTNR))                                      
+IF MATCHED                                                                      
+   UT-IDARTNR      = K7-SLAG-IDARTNR                                            
+   UT-IDDC         = K7-SLAG-IDDC                                               
+   UT-KVLS         = K7-SLAG-KVLS                                               
+   UT-KVRESS       = K7-SLAG-KVRESS                                             
+   UT-KVOKS        = K7-SLAG-KVOKS-BULK + K7-SLAG-KVOKS-DAG                     
+   UT-KVUTRS       = K7-SLAG-KVUTRS                                             
+   UT-KVROS        = K7-SLAG-KVROS-BULK + K7-SLAG-KVROS-DAG                     
+   UT-KVEFRS       = K7-SLAG-KVEFRS                                             
+   UT-KVAKS-SDC    = K7-SLAG-KVAKS-SDC                                          
+   UT-KVAKS-PAV    = K7-SLAG-KVAKS-PAV                                          
+   UT-KVBEART      = K7-SLAG-KVBEART                                            
+   IF K7-SLAG-KDLEVSP > 0                                                       
+     UT-KVSPARR-KVAL = K7-SLAG-KVSPARR-KVAL + K7-SLAG-KVLS                      
+   ELSE                                                                         
+     UT-KVSPARR-KVAL = K7-SLAG-KVSPARR-KVAL                                     
+   END-IF                                                                       
+   UT-PRAVCOST     = K7-SLAG-PRAVCOST                                           
+   UT-PRARTSTD     = K6-CLAG-PRARTSTD                                           
+                                                                                
+   PERFORM S23-CHECK-UT-IDDC                                                    
+   UT-IDPERSON-BUY = K7-SLAG-IDPERSON-BUY                                       
+                                                                                
+   PUT W61278D3                                                                 
+END-IF                                                                          
+*    --- S23-CHECK-UT-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'UT-'                                                                   
+*                                                                               

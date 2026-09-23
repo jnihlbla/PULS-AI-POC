@@ -1,0 +1,68 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WDMW3300                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHA LADDMODULER                                    *        
+*                                                                      *        
+*  FÖRFATTARE :  ODD OLSEN                                             *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR33D1                                                                   
+*                                                                               
+  NEW-LOAD            1 80 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR33D2                                                                   
+*                                                                               
+  OLD-LOAD            1 80 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR33D3 FB(21 23457)                                                      
+                                                                                
+  UT-STYR             1  1 A                                                    
+  UT-LOAD             2 20 A                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* ARBETSAREOR                                                                   
+*                                                                               
+  CANCEL              W  1 A   VALUE 'D'                                        
+  NEW                 W  1 A   VALUE 'N'                                        
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* MATCHNING AV LADDMODULER                                                      
+*                                                                               
+JOB INPUT (WDMR33D1 KEY(NEW-LOAD) +                                             
+           WDMR33D2 KEY(OLD-LOAD))                                              
+                                                                                
+  IF MATCHED                                                                    
+    GOTO JOB                                                                    
+  END-IF                                                                        
+                                                                                
+  IF WDMR33D1                                                                   
+    UT-STYR = NEW                                                               
+    UT-LOAD = NEW-LOAD                                                          
+    PUT WDMR33D3                                                                
+    GOTO JOB                                                                    
+  END-IF                                                                        
+                                                                                
+  IF WDMR33D2                                                                   
+    UT-STYR = CANCEL                                                            
+    UT-LOAD = OLD-LOAD                                                          
+    PUT WDMR33D3                                                                
+    GOTO JOB                                                                    
+  END-IF                                                                        
+                                                                                
+  GOTO JOB                                                                      

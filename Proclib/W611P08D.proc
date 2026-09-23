@@ -1,0 +1,42 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TO MATCH W01160 AND RGISTER FILE ON PART NUMBER AND TO                     
+//*  IDENTIFY THE CHANGED PART NUMBERS                                          
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W611D7                                         
+//*                                                                             
+//*  RESTART:      W6118D    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P08D PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN1=&W611,                                                    
+//             INDIN2=&W011..&RTEGRP.,                                          
+//             INDUT=&W611..W611D7,                                             
+//             INDUT1=&W611                                                     
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W6118D   EXEC PGM=V16459,PARM='W6118D/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W6118DD1 DD  DSN=&INDIN2..W01160(+0),DISP=SHR                                 
+//************ WDK6 - PART DATA UNLOADED                                        
+//*                                                                             
+//W6118DD2 DD  DSN=&INDIN1..W6118F(+0),DISP=SHR                                 
+//************ WDK6 - PART DATA UNLOADED                                        
+//*                                                                             
+//W6118DD3 DD  DSN=&INDUT..W6118D(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ CHANGED PART NUMBERS IN WDK6                                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W6118DD4 DD  DSN=&INDUT1..W6118F(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ REGISTER FILE(COPY OF WDK6)                                      
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

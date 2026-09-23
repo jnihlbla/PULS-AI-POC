@@ -1,0 +1,45 @@
+*        SAMLINGSKOLLIREGISTER                                                  
+         DBD   NAME=WDE7,RMNAME=(V12008,1,7200),                       *        
+               ACCESS=(HDAM,OSAM)                                               
+         DATASET DD1=WDE7V,DEVICE=3390,SIZE=4096,SCAN=0                         
+*                                                                               
+         SEGM  NAME=WDE701,PARENT=0,BYTES=8,PTR=T                               
+         FIELD NAME=(WDE701KY,SEQ,U),BYTES=8,START=1,TYPE=X                     
+         FIELD NAME=(IDTRPTNR),BYTES=2,START=1,TYPE=P                           
+         FIELD NAME=(IDVO),BYTES=2,START=3,TYPE=X                               
+         FIELD NAME=(IDDC),BYTES=2,START=5,TYPE=X                               
+         FIELD NAME=(KDFRAKTS),BYTES=2,START=7,TYPE=P                           
+*                                                                               
+         SEGM  NAME=WDE711,PARENT=WDE701,BYTES=50,PTR=T                         
+         FIELD NAME=(IDKOLLIS,SEQ,U),BYTES=3,START=1,TYPE=P                     
+         FIELD NAME=(IDDC),BYTES=2,START=12,TYPE=X                              
+         FIELD NAME=(KDSTASKL),BYTES=1,START=17,TYPE=X                          
+         FIELD NAME=(TIREGDAT),BYTES=4,START=29,TYPE=P                          
+         LCHILD NAME=(WDE7A1,WDE7A),PTR=INDX                                    
+         XDFLD NAME=WDE7ASEQ,SEGMENT=WDE711,                           *        
+               SRCH=(IDDC,IDKOLLIS)                                             
+*                                                                               
+         LCHILD NAME=(WDE7C1,WDE7C),PTR=INDX                                    
+         XDFLD NAME=WDE7CSEQ,SEGMENT=WDE711,                           *        
+               SRCH=(TIREGDAT,IDDC,IDKOLLIS),                          *        
+               EXTRTN=WDE7CEXT                                                  
+*                                                                               
+*        WDE7C FINNS NÄR KDSTASKL = R                                           
+*                                                                               
+         SEGM  NAME=WDE721,PARENT=WDE711,BYTES=39,PTR=T                         
+         FIELD NAME=(WDE721KY,SEQ,U),BYTES=17,START=1,TYPE=X                    
+         FIELD NAME=(IDDISTR),BYTES=3,START=1,TYPE=P                            
+         FIELD NAME=(IDKUNDNR),BYTES=4,START=4,TYPE=P                           
+         FIELD NAME=(IDORDNR7),BYTES=7,START=8,TYPE=X                           
+         FIELD NAME=(IDKOLLI),BYTES=3,START=15,TYPE=P                           
+         FIELD NAME=(IDDC),BYTES=2,START=22,TYPE=P                              
+         FIELD NAME=(IDTRPTNR),BYTES=2,START=24,TYPE=P                          
+         FIELD NAME=(/CKE711),BYTES=3,START=9,TYPE=P                            
+         LCHILD NAME=(WDE7B1,WDE7B),PTR=INDX                                    
+         XDFLD NAME=WDE7BSEQ,SEGMENT=WDE721,                           *        
+               SRCH=(IDDISTR,IDKUNDNR,IDORDNR7,IDKOLLI),               *        
+               DDATA=(/CKE711,IDTRPTNR,IDDC)                                    
+*                                                                               
+         DBDGEN                                                                 
+         FINISH                                                                 
+         END                                                                    

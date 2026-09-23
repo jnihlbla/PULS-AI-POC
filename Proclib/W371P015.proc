@@ -1,0 +1,58 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER INFIL W37114 OCH KOMPLETTERAR DEN MED INFO IFRÅN                     
+//*  WDK6 OCH SKPAR EN NY UTFIL                                                 
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN W371V6                                         
+//*                                                                             
+//*  ÅTERSTART:    W37115      NORMAL                                           
+//*                LÄSER        WDK6 WDK6                                       
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W371P015 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W371..W371V6,                                             
+//             INDUT=&W371..W371V6                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W37115   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W37115,W37115,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//W37115D1 DD  DSN=&INDIN..W37114(+0),DISP=SHR                                  
+//************ INFIL MED WDA7 INFO                                              
+//*                                                                             
+//W37115D2 DD  DSN=&&W37115T,DISP=(NEW,PASS,DELETE),                            
+//************ TEMPFIL                                                          
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W371PD15),DISP=SHR                         
+//SORTIN   DD  DSN=&&W37115T,DISP=(OLD,DELETE,DELETE)                           
+//************ TEMPORÄRFILEN                                                    
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W37115(+1),                                          
+//************ SORTERAD UTFIL                                                   
+//             DISP=(NEW,CATLG,DELETE), -LIM(5)                                 
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

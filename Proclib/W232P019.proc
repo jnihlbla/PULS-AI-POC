@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER NER WDL8 DAGLIG OI                                                   
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W232V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W23219      NORMAL                                           
+//*                LÄSER  WDL8                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W232P019 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDU2=&WXTR..W232V1,                                             
+//             INDUT=&W232..W232V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23219   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W23219,W23219,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//*FSVSAMP DD  DSN=&INDGRND..CONSTANT(OSAM),DISP=SHR                            
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDL8     INCLUDE MEMBER=WDL8                                                  
+//W23219D1 DD  DSN=&INDUT..W23221(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ DAGLIG OI PER ART   TILL W233P064                                
+//             SPACE=(656,(100,33),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&BACKUPC                                                
+//W23219D2 DD  DSN=&INDU2..W23221(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ DAGLIG OI PER ART   TILL EPLUS  CTX W232VOI                      
+//             SPACE=(656,(100,33),RLSE),AVGREC=K,                              
+//             MGMTCLAS=&BACKUPC                                                

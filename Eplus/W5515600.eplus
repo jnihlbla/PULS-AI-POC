@@ -1,0 +1,312 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM....: W5515600                                               *        
+*                                                                      *        
+*  FUNKTION...: PROGRAMMET UPPDATERAR W55155-FILEN MED UPPGIFTER       *        
+*               FRÅN SATS-BASEN.                                       *        
+*                                                                      *        
+* INDATA .....: W551.W551B1.W55155(+0) D1 - PRISFIL                    *        
+*               W551.W551B1.W55146(+0) D3 - SATS-REGISTER FIL          *        
+*                                                                      *        
+* TEMPFILER...: TEMP1                  D2 - W55150 + PRINK-KOM UTRÄKNAD*        
+*               TEMP2                  D4 - W55150 + PRINK-KOM + FLIART*        
+*               TEMP3                  D5 - SATS + INGI + PRINK-KOM +  *        
+*                                           DIRLON + DMTRL + OVRPÅL    *        
+*               TEMP4                  D6 - SUMMERAD / SATS-ART        *        
+*                                                                      *        
+* UTDATA .....: W551.W551B1.W55156(+0) D7 - PRISFIL + SATS-UPPGIFTER   *        
+*                                                                      *        
+* FÖRFATTARE..: PER FREDRIKSSON  940824                                *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55155  -   PRISFIL                                     *               
+*                                                               *               
+*****************************************************************               
+FILE W55156D1                                                                   
+*                                                                               
+%W55150  'IN-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55146  -  SATS-REGISTER FIL                            *               
+*                                                               *               
+*****************************************************************               
+FILE W55156D3                                                                   
+*                                                                               
+%W55146    'SATS-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* TEMP1         -  W55155 MED UTRÄKNAD PRINK-KOM                *               
+*                                                               *               
+*****************************************************************               
+FILE W55156D2 FB(273 0)                                                         
+*                                                                               
+%W55150  'T1-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* TEMP2         -  W55155 MED UTRÄKNAD PRINK-KOM + FLIART       *               
+*                                                               *               
+*****************************************************************               
+FILE W55156D4 FB(273 0)                                                         
+*                                                                               
+%W55150  'T2-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* TEMP3         -  SATS-ARTIKLAR OCH ARTIKLAR INGÅENDE I SATS   *               
+*                  MED KOMMANDE PÅLÄGG                          *               
+*                                                               *               
+*****************************************************************               
+FILE W55156D5 FB(28 0)                                                          
+*                                                                               
+  T3-IDARTNR-SATS  1  5  P  0                                                   
+  T3-IDARTNR-ING   6  5  P  0                                                   
+  T3-PRINK-KOM    11  5  P  3                                                   
+  T3-PRDIRLON-KOM 16  4  P  3                                                   
+  T3-PRDMTRL-KOM  20  5  P  3                                                   
+  T3-PROVRPAL-KOM 25  4  P  3                                                   
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* TEMP4         -  PRINK-KOM & PÅLÄGG SUMMERAT PER SATS-ARTIKEL *               
+*                                                               *               
+*****************************************************************               
+FILE W55156D6 FB(23 0)                                                          
+*                                                                               
+  T4-IDARTNR-SATS  1  5  P  0                                                   
+  T4-PRINK-KOM     6  5  P  3                                                   
+  T4-PRDIRLON-KOM 11  4  P  3                                                   
+  T4-PRDMTRL-KOM  15  5  P  3                                                   
+  T4-PROVRPAL-KOM 20  4  P  3                                                   
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UTFIL W55156  - W55155 KOMPLETTERAD SATS-REG INFORMATION      *               
+*                                                               *               
+*****************************************************************               
+FILE W55156D7 FB(273 0)                                                         
+*                                                                               
+%W55150  'UT-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* ARBETSAREA                                                    *               
+*                                                               *               
+*****************************************************************               
+*                                                                               
+  W-FLGODK        W     1 A                                                     
+                                                                                
+  SPAR-IDARTNR      W   5 P 0   VALUE +0                                        
+  SPAR-PRINK-KOM    W   5 P 4   VALUE +0                                        
+  SPAR-PRDIRLON-KOM W   4 P 3   VALUE +0                                        
+  SPAR-PRDMTRL-KOM  W   5 P 3   VALUE +0                                        
+  SPAR-PROVRPAL-KOM W   4 P 3   VALUE +0                                        
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 1. LÄSER W55155-FILEN OCH RÄKNAR UT PRINK-KOM            *               
+*                                                               *               
+*         OBS ! SATS-ARTIKLAR (1002) FÅR PRINK-KOM = PRINK-AKT. *               
+*                                                               *               
+*         OBS ! ARTIKLAR MED PRINK=+0 SÄTTS TILL PRINK=+0.01    *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT W55156D1                                              +               
+NAME STEG1-BERÄKNAR-PRINK-KOM                                                   
+                                                                                
+IF IN-FLAPC = 'N'                                                               
+  IF IN-PRARTBEL-PR = +0                                                        
+    IN-PRINK-KOM           = IN-PRINK-AKT                                       
+  ELSE                                                                          
+    IF IN-IDLEVNR-HUV = '1002 '                                                 
+      IN-PRINK-KOM         = IN-PRINK-AKT                                       
+    ELSE                                                                        
+      IN-PRINK-KOM ROUNDED = IN-PRARTBEL-PR * IN-RETULF * IN-PRKURS             
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+  IF IN-PRINK-KOM = +0                                                          
+    IN-PRINK-KOM  = +0.01                                                       
+  END-IF                                                                        
+                                                                                
+  PUT W55156D2 FROM W55156D1                                                    
+ELSE                                                                            
+  IN-PRINK-KOM ROUNDED = IN-PRARTBEL-PR                                         
+  PUT W55156D2 FROM W55156D1                                                    
+END-IF                                                                          
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 2. MATCHAR SATS-REG MOT TEMP1                            *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT (W55156D2 KEY(  T1-IDARTNR)                           +               
+           W55156D3 KEY(SATS-IDARTNR-ING))                      +               
+NAME STEG2-MATCHAR-SATS-MOT-PRIS                                                
+                                                                                
+IF MATCHED                                                                      
+  T1-FLIART = 'J'                                                               
+  T3-IDARTNR-SATS          = SATS-IDARTNR-SATS                                  
+  T3-IDARTNR-ING           = SATS-IDARTNR-ING                                   
+  T3-PRINK-KOM    ROUNDED  = T1-PRINK-KOM    * SATS-REANTPSA                    
+  T3-PRDIRLON-KOM ROUNDED  = T1-PRDIRLON-KOM * SATS-REANTPSA                    
+  T3-PRDMTRL-KOM  ROUNDED  = T1-PRDMTRL-KOM  * SATS-REANTPSA                    
+  T3-PROVRPAL-KOM ROUNDED  = T1-PROVRPAL-KOM * SATS-REANTPSA                    
+                                                                                
+  IF DUPLICATE W55156D3                                                         
+    IF FIRST-DUP W55156D3                                                       
+      PUT W55156D4 FROM W55156D2                                                
+      PUT W55156D5                                                              
+    ELSE                                                                        
+      PUT W55156D5                                                              
+    END-IF                                                                      
+  ELSE                                                                          
+    PUT W55156D4 FROM W55156D2                                                  
+    PUT W55156D5                                                                
+  END-IF                                                                        
+ELSE                                                                            
+NEWPAGE                                                                         
+*** OMATCHAT                                                                    
+  IF W55156D2                                                                   
+    PUT W55156D4 FROM W55156D2                                                  
+  ELSE                                                                          
+*   *************************************************************               
+*   *                                                           *               
+*   * ARTIKELN SOM INGÅR I EN SATS SAKNAS PÅ PRIS-FILEN.        *               
+*   * DETTA INNEBÄR ATT SATSENS PRIS INTE KAN RÄKNAS UT KORREKT *               
+*   *                                                           *               
+*   *************************************************************               
+    T3-IDARTNR-SATS       = SATS-IDARTNR-SATS                                   
+    T3-IDARTNR-ING        = SATS-IDARTNR-ING                                    
+    T3-PRINK-KOM          = +0                                                  
+    T3-PRDIRLON-KOM       = +0                                                  
+    T3-PRDMTRL-KOM        = +0                                                  
+    T3-PROVRPAL-KOM       = +0                                                  
+    PUT W55156D5                                                                
+  END-IF                                                                        
+END-IF                                                                          
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 3. SORTERAR TEMP3 PÅ T3-IDARTNR-SATS , T3-PRINK-KOM      *               
+*         (ALLA OGILTIGA SATSER FÅR FÖRSTA REC MED PRINK-KOM=0) *               
+*                                                               *               
+*****************************************************************               
+SORT W55156D5 TO W55156D5 USING (T3-IDARTNR-SATS,               +               
+                                 T3-PRINK-KOM   )                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 4. SUMMERAR PRINK-KOM, PRDIRLON-KOM, PRDMTRL-KOM OCH     *               
+*         PROVRPAL-KOM PER SATS-ARTIKEL SKRIVER TEMP4           *               
+*                                                               *               
+*         OM FÖRSTA REC I SATSEN HAR PRINK-KOM=0 SKALL SATSENS  *               
+*         PRIS INTE RÄKNAS UT.                                  *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT W55156D5                                              +               
+START  A-INIT                                                   +               
+FINISH Z-FINIT                                                                  
+                                                                                
+IF SPAR-IDARTNR       = T3-IDARTNR-SATS                                         
+  IF W-FLGODK         = 'J'                                                     
+    SPAR-PRINK-KOM    =  SPAR-PRINK-KOM    + T3-PRINK-KOM                       
+    SPAR-PRDIRLON-KOM =  SPAR-PRDIRLON-KOM + T3-PRDIRLON-KOM                    
+    SPAR-PRDMTRL-KOM  =  SPAR-PRDMTRL-KOM  + T3-PRDMTRL-KOM                     
+    SPAR-PROVRPAL-KOM =  SPAR-PROVRPAL-KOM + T3-PROVRPAL-KOM                    
+  END-IF                                                                        
+ELSE                                                                            
+  IF RECORD-COUNT EQ 1                                                          
+                                                                                
+    IF T3-PRINK-KOM   = +0                                                      
+      W-FLGODK        = 'N'                                                     
+    ELSE                                                                        
+      W-FLGODK        = 'J'                                                     
+    END-IF                                                                      
+                                                                                
+    SPAR-IDARTNR      = T3-IDARTNR-SATS                                         
+    SPAR-PRINK-KOM    = T3-PRINK-KOM                                            
+    SPAR-PRDIRLON-KOM = T3-PRDIRLON-KOM                                         
+    SPAR-PRDMTRL-KOM  = T3-PRDMTRL-KOM                                          
+    SPAR-PROVRPAL-KOM = T3-PROVRPAL-KOM                                         
+  ELSE                                                                          
+    IF W-FLGODK       = 'J'                                                     
+      T4-IDARTNR-SATS = SPAR-IDARTNR                                            
+      T4-PRINK-KOM    = SPAR-PRINK-KOM                                          
+      T4-PRDIRLON-KOM = SPAR-PRDIRLON-KOM                                       
+      T4-PRDMTRL-KOM  = SPAR-PRDMTRL-KOM                                        
+      T4-PROVRPAL-KOM = SPAR-PROVRPAL-KOM                                       
+      PUT W55156D6                                                              
+    END-IF                                                                      
+                                                                                
+                                                                                
+    IF T3-PRINK-KOM   = +0                                                      
+      W-FLGODK        = 'N'                                                     
+    ELSE                                                                        
+      W-FLGODK        = 'J'                                                     
+    END-IF                                                                      
+                                                                                
+    SPAR-IDARTNR      = T3-IDARTNR-SATS                                         
+    SPAR-PRINK-KOM    = T3-PRINK-KOM                                            
+    SPAR-PRDIRLON-KOM = T3-PRDIRLON-KOM                                         
+    SPAR-PRDMTRL-KOM  = T3-PRDMTRL-KOM                                          
+    SPAR-PROVRPAL-KOM = T3-PROVRPAL-KOM                                         
+  END-IF                                                                        
+END-IF                                                                          
+                                                                                
+A-INIT. PROC                                                                    
+  W-FLGODK            = 'J'                                                     
+END-PROC.                                                                       
+                                                                                
+Z-FINIT. PROC                                                                   
+                                                                                
+  IF W-FLGODK         = 'J'                                                     
+    T4-IDARTNR-SATS   = SPAR-IDARTNR                                            
+    T4-PRINK-KOM      = SPAR-PRINK-KOM                                          
+    T4-PRDIRLON-KOM   = SPAR-PRDIRLON-KOM                                       
+    T4-PRDMTRL-KOM    = SPAR-PRDMTRL-KOM                                        
+    T4-PROVRPAL-KOM   = SPAR-PROVRPAL-KOM                                       
+    PUT W55156D6                                                                
+  END-IF                                                                        
+                                                                                
+END-PROC.                                                                       
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 5. MATCHAR PRISFIL MED SATS-ARTIKLARNA                   *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT (W55156D4 KEY( T2-IDARTNR)                            +               
+           W55156D6 KEY( T4-IDARTNR-SATS))                      +               
+NAME STEG5-MATCHAR-PRIS-OCH-SATS                                                
+                                                                                
+IF MATCHED                                                                      
+  T2-PRINK-KOM    = T4-PRINK-KOM     +                +                         
+                    T4-PRDIRLON-KOM  +                +                         
+                    T4-PRDMTRL-KOM   +                +                         
+                    T4-PROVRPAL-KOM                                             
+  PUT W55156D7 FROM W55156D4                                                    
+ELSE                                                                            
+  IF W55156D4                                                                   
+    PUT W55156D7 FROM W55156D4                                                  
+  END-IF                                                                        
+END-IF                                                                          

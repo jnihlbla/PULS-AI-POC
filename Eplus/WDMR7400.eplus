@@ -1,0 +1,158 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WDMR7400                                              *        
+*                                                                      *        
+*  FUNKTION   :  X                                                     *        
+*                                                                      *        
+*  FÖRFATTARE :  KARIN OLSSON                                          *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR74D1                                                                   
+*                                                                               
+  NEW-DBD             1 36 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR74D2                                                                   
+*                                                                               
+  OLD-DBD             1 36 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE SORTFIL  FB(37 23458)                                                      
+*                                                                               
+  TMP-STYR            1  1 A                                                    
+  TMP-DBD             2 36 A                                                    
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+  TMP-SORT            2 12 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE STYRFIL  FB(37 23458)                                                      
+*                                                                               
+  ST-STYR             1  1 A                                                    
+  ST-DBD              2 36 A                                                    
+  ST-DBD-NAME         2 12 A                                                    
+                                                                                
+NEWPAGE                                                                         
+FILE WDMR74D5 FB(37 23458)                                                      
+*                                                                               
+  UT-STYR             1  1 A                                                    
+  UT-DBD              2 36 A                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* ARBETSAREOR                                                                   
+*                                                                               
+  CANCEL              W  1 A   VALUE 'A'                                        
+  NEW                 W  1 A   VALUE 'B'                                        
+  OLD                 W  1 A   VALUE 'Z'                                        
+  NU-TYP              W  1 A   VALUE ' '                                        
+  SPAR-DBD-NAME       W 12 A                                                    
+  WNEW-DBD            W 36 A                                                    
+  WOLD-DBD            W 36 A                                                    
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* MATCHNING AV DBD FILER                                                        
+*                                                                               
+JOB INPUT NULL                                                                  
+                                                                                
+                                                                                
+  GET WDMR74D1                                                                  
+  GET WDMR74D2                                                                  
+                                                                                
+  DO WHILE (NOT EOF WDMR74D1 OR NOT EOF WDMR74D2)                               
+                                                                                
+    IF NOT EOF WDMR74D1                                                         
+      WNEW-DBD = NEW-DBD                                                        
+    ELSE                                                                        
+      WNEW-DBD = '999999999999999999999999999999999999'                         
+    END-IF                                                                      
+    IF NOT EOF WDMR74D2                                                         
+      WOLD-DBD = OLD-DBD                                                        
+    ELSE                                                                        
+      WOLD-DBD = '999999999999999999999999999999999999'                         
+    END-IF                                                                      
+                                                                                
+    IF WNEW-DBD = WOLD-DBD                                                      
+      TMP-STYR = OLD                                                            
+      TMP-DBD = WNEW-DBD                                                        
+      PUT SORTFIL                                                               
+      GET WDMR74D1                                                              
+      GET WDMR74D2                                                              
+    ELSE                                                                        
+                                                                                
+      IF WNEW-DBD < WOLD-DBD                                                    
+        TMP-STYR = NEW                                                          
+        TMP-DBD = WNEW-DBD                                                      
+        PUT SORTFIL                                                             
+        GET WDMR74D1                                                            
+      ELSE                                                                      
+        TMP-STYR = CANCEL                                                       
+        TMP-DBD = WOLD-DBD                                                      
+        PUT SORTFIL                                                             
+        GET WDMR74D2                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+  END-DO                                                                        
+  STOP                                                                          
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* SORTERING AV DBDFILER                                                         
+*                                                                               
+SORT SORTFIL  TO +                                                              
+     STYRFIL  USING (TMP-SORT, TMP-STYR)                                        
+NEWPAGE                                                                         
+*                                                                               
+* PLOCKA UT POSTER FÖR UPPDATERING                                              
+*                                                                               
+JOB INPUT (STYRFIL)                                                             
+                                                                                
+  IF ST-DBD-NAME ^= SPAR-DBD-NAME                                               
+                                                                                
+    IF NU-TYP = CANCEL                                                          
+      UT-STYR = 'D'                                                             
+      UT-DBD = SPAR-DBD-NAME                                                    
+      PUT WDMR74D5                                                              
+      UT-STYR = ' '                                                             
+    END-IF                                                                      
+                                                                                
+    SPAR-DBD-NAME = ST-DBD-NAME                                                 
+                                                                                
+    IF ST-STYR = CANCEL                                                         
+      NU-TYP = CANCEL                                                           
+    END-IF                                                                      
+                                                                                
+    IF ST-STYR = OLD                                                            
+      NU-TYP = OLD                                                              
+    END-IF                                                                      
+                                                                                
+    IF ST-STYR = NEW                                                            
+      NU-TYP = NEW                                                              
+      UT-DBD = ST-DBD                                                           
+      PUT WDMR74D5                                                              
+    END-IF                                                                      
+  ELSE                                                                          
+    IF NU-TYP = CANCEL                                                          
+      IF ST-STYR ^= CANCEL                                                      
+        NU-TYP = NEW                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+    IF NU-TYP = NEW                                                             
+      UT-DBD = ST-DBD                                                           
+      PUT WDMR74D5                                                              
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+  GOTO JOB                                                                      

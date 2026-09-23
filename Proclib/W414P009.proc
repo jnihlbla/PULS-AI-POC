@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PROC TO CREATE REPORTS FOR SERVICE DC21 BUMPERS                            
+//*                                                                             
+//*  FREQUENCE:    WEEKLY    RTN W414V1                                         
+//*                                                                             
+//*  RESTART:      W41409    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W414P008 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W414..W414V1,                                             
+//             INDUT=&W414..W414V1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT10   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W414PD08),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W41415,DISP=SHR                                      
+//SORTOUT  DD  DSN=&&W41409,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W41409   EXEC PGM=W41409                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             -- DATKORT           
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      -- DATKORT           
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W41409D1 DD  DSN=&&W41409,DISP=(OLD,PASS,DELETE)                              
+//************ INPUT FROM W41401                                                
+//*                                                                             
+//W41409D2 DD  DSN=&INDUT..W41416(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ SUMMARY REPORT                                                   
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W41409D3 DD  DSN=&INDUT..W41417(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)          
+//************ DETAILED REPORT                                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             

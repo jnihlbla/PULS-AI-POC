@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  BEVAKAR ERSÄTTNINGAR TILL VIPS                                             
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W116D4                                       
+//*                                                                             
+//*  ÅTERSTART:    W1166000  NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P060 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W116..W116D4,                                            
+//             INDREG=&W116,                                                    
+//             INDUT=&W116..W116D4                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11660   EXEC PGM=V16459,PARM='W11660/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W11660D1 DD  DSN=&INDIN2..W11663(0),DISP=SHR                                  
+//************ FILE FROM W11662                                                 
+//*                                                                             
+//W11660D2 DD  DSN=&INDREG..W11679(+0),DISP=SHR                                 
+//************ INPUT FIL                                                        
+//*                                                                             
+//W11660D3 DD  DSN=&INDRTE..CONSTANT(W116NDC),DISP=SHR                          
+//************ IDLANDX2 - VIPS MARKET                                           
+//*                                                                             
+//W11660D5 DD  DSN=&INDUT..W11661(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ POSTER TILL VIPS                                                 
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W11660D4 DD  DSN=&&TEMPFIL,DISP=(NEW,PASS,DELETE),                            
+//************ TEMPFIL                                                          
+//             DATACLAS=PSEB                                                    
+//*                                                                             

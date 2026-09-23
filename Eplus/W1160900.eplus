@@ -1,0 +1,306 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W1160900                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR ARTIKELDATA, BENÄMNINGSFIL,                   *        
+*                CROSS-FIL OCH GEMENSAM ART. VCC-KDP OCH FORD.                  
+*                SKAPAR FIL FÖR UNDERLAG TILL VIPSÖVERFÖRING           *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL                                         *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*--------------------------------------*                                        
+*   ARTIKELDATA                        *                                        
+* -------------------------------------*                                        
+*                                                                               
+FILE W11609D1                                                                   
+%W01160                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  BENÄMNINGAR                         *                                        
+* -------------------------------------*                                        
+FILE W11609D2                                                                   
+%W01174   'BEN-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  CROSSFIL                            *                                        
+* -------------------------------------*                                        
+FILE W11609D4                                                                   
+%W11685   'CROSS-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  GEMENSAM ART VCC-KDP OCH FORD       *                                        
+* -------------------------------------*                                        
+FILE W11609D5                                                                   
+%W01169                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  UTFIL                               *                                        
+* -------------------------------------*                                        
+FILE W11609D3 FB (428 0)                                                        
+%W11606    'UT-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  TEMPFIL                             *                                        
+* -------------------------------------*                                        
+FILE TEMPFIL1 FB (428 0) VIRTUAL RETAIN                                         
+%W11606    'TMP1-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  TEMPFIL2                            *                                        
+* -------------------------------------*                                        
+FILE TEMPFIL2 FB (428 0) VIRTUAL RETAIN                                         
+%W11606    'TMP2-'                                                              
+*                                                                               
+*--------------------------------------*                                        
+*  ARBETSFÄLT                          *                                        
+* -------------------------------------*                                        
+*                                                                               
+ JA                       W  1 A   VALUE 'J'                                    
+ NEJ                      W  1 A   VALUE 'N'                                    
+ IX1                      W  2 N   VALUE 0                                      
+*                                                                               
+*    --- VALID KDPRODSL                                                         
+%WWPRODSL  'CLAG-' WORK ''                                                      
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+*  STEG 1                                                          *            
+*  LÄSER ARTIKELDATA OCH BENÄMNINGAR                               *            
+*  SKRIVER TEMPFIL                                                 *            
+* -----------------------------------------------------------------*            
+*                                                                               
+JOB INPUT (W11609D1 KEY (CLAG-IDARTNR)                   +                      
+           W11609D2 KEY (BEN-IDARTNR))                                          
+                                                                                
+ IF MATCHED                                                                     
+    PERFORM S25-CHECK-CLAG-KDPRODSL                                             
+    IF  CLAG-FLLSRDEL = JA              +                                       
+    AND CLAG-PRARTSTD > 0               +                                       
+    AND CLAG-PRARTSJK > 0               +                                       
+    AND CLAG-KDPRODSL NE KDPRODSL-LYNK                                          
+       PERFORM AA-ARTIKELDATA                                                   
+       PERFORM AB-BENAMNINGAR                                                   
+       PUT TEMPFIL1                                                             
+    END-IF                                                                      
+ ELSE                                                                           
+    IF W11609D1                                                                 
+       PERFORM S25-CHECK-CLAG-KDPRODSL                                          
+       IF CLAG-FLLSRDEL = JA             +                                      
+      AND CLAG-PRARTSTD > 0              +                                      
+      AND CLAG-PRARTSJK > 0              +                                      
+      AND CLAG-KDPRODSL NE KDPRODSL-LYNK                                        
+         PERFORM AA-ARTIKELDATA                                                 
+         PERFORM AC-BLANK-BEN                                                   
+         PUT TEMPFIL1                                                           
+       END-IF                                                                   
+    END-IF                                                                      
+ END-IF                                                                         
+%WWPRODSL 'CLAG-' PROC ''                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ AA-ARTIKELDATA. PROC                                                           
+                                                                                
+    TMP1-IDARTNR    = CLAG-IDARTNR                                              
+    TMP1-IDFKNGRP   = CLAG-IDFKNGRP                                             
+    TMP1-KDSRA      = CLAG-KDSRA                                                
+    TMP1-KVQPACK-0  = CLAG-KVQPACK-0                                            
+    TMP1-KDARTURS   = CLAG-KDARTURS                                             
+    TMP1-KDPRODSL   = CLAG-KDPRODSL                                             
+    TMP1-VLARTNTO   = CLAG-VLARTNTO                                             
+    TMP1-VKART      = CLAG-VKART                                                
+    TMP1-KDVSOP     = CLAG-KDVSOP                                               
+    TMP1-IDSTATNR (1) = CLAG-IDSTATNR (1)                                       
+    TMP1-IDSTATNR (2) = CLAG-IDSTATNR (2)                                       
+    TMP1-IDSTATNR (3) = CLAG-IDSTATNR (3)                                       
+    TMP1-IDSTATNR (4) = CLAG-IDSTATNR (4)                                       
+    TMP1-IDSTATNR (5) = CLAG-IDSTATNR (5)                                       
+    TMP1-KDSORT     = CLAG-KDSORT                                               
+    TMP1-KDERS      = CLAG-KDERS                                                
+    TMP1-KDBPSR     = CLAG-KDBPSR                                               
+    TMP1-KDBBCL     = 0                                                         
+    TMP1-IDLEVNR    = CLAG-IDLEVNR                                              
+    TMP1-KDAGE      = CLAG-KDAGE                                                
+    TMP1-IDPROJ     = CLAG-IDPROJ                                               
+    TMP1-PRARTSJK   = CLAG-PRARTSJK                                             
+    TMP1-PRARTSTD   = CLAG-PRARTSTD                                             
+    TMP1-KDPSLLOC   = CLAG-KDPSLLOC                                             
+    TMP1-TIFINLV    = CLAG-TIFINLV                                              
+    TMP1-KDERS-UTG  = CLAG-KDERS-UTG                                            
+    TMP1-KDTIPPR    = CLAG-KDTIPPR                                              
+    TMP1-KDUART     = CLAG-KDUART                                               
+    TMP1-IDKAT(1)   = CLAG-IDKAT(1)                                             
+    TMP1-IDKAT(2)   = CLAG-IDKAT(2)                                             
+    TMP1-IDKAT(3)   = CLAG-IDKAT(3)                                             
+    TMP1-BELEVART   = ' '                                                       
+    TMP1-FLGEMFMC   = ' '                                                       
+    TMP1-IDPROJUP   = CLAG-IDPROJUP                                             
+    TMP1-TIERSDAT   = CLAG-TIERSDAT                                             
+    TMP1-TIURPROD   = CLAG-TIURPROD                                             
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ AB-BENAMNINGAR. PROC                                                           
+    IX1 = 1                                                                     
+    DO WHILE IX1 < 11                                                           
+       TMP1-IDSKYLT(IX1) = BEN-IDSKYLT(IX1)                                     
+       TMP1-BEART(IX1)= BEN-BEART(IX1)                                          
+       IX1 = IX1 + 1                                                            
+    END-DO                                                                      
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ AC-BLANK-BEN. PROC                                                             
+    IX1 = 1                                                                     
+    DO WHILE IX1 < 11                                                           
+       TMP1-IDSKYLT(IX1) = ' '                                                  
+       TMP1-BEART (IX1) = ' '                                                   
+       IX1 = IX1 + 1                                                            
+    END-DO                                                                      
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+* STEG 2. MATCHAR IHOP CROSS-FIL OCH TEMPFIL1, SKAPAR TEMPFIL2     *            
+* -----------------------------------------------------------------*            
+*                                                                               
+JOB INPUT (TEMPFIL1 KEY (TMP1-IDARTNR) +                                        
+          W11609D4 KEY (CROSS-IDARTNR))                                         
+                                                                                
+IF MATCHED                                                                      
+    PERFORM AD-ARTIKELDATA                                                      
+    TMP2-BELEVART = CROSS-BELEVART                                              
+    PUT TEMPFIL2                                                                
+ ELSE                                                                           
+    IF TEMPFIL1                                                                 
+       PERFORM AD-ARTIKELDATA                                                   
+       TMP2-BELEVART = ' '                                                      
+       PUT TEMPFIL2                                                             
+    END-IF                                                                      
+ END-IF                                                                         
+*                                                                               
+ AD-ARTIKELDATA. PROC                                                           
+*                                                                               
+    TMP2-IDARTNR    = TMP1-IDARTNR                                              
+    TMP2-IDFKNGRP   = TMP1-IDFKNGRP                                             
+    TMP2-KDSRA      = TMP1-KDSRA                                                
+    TMP2-KVQPACK-0  = TMP1-KVQPACK-0                                            
+    TMP2-KDARTURS   = TMP1-KDARTURS                                             
+    TMP2-KDPRODSL   = TMP1-KDPRODSL                                             
+    TMP2-VLARTNTO   = TMP1-VLARTNTO                                             
+    TMP2-VKART      = TMP1-VKART                                                
+    TMP2-KDVSOP     = TMP1-KDVSOP                                               
+    TMP2-IDSTATNR (1) = TMP1-IDSTATNR (1)                                       
+    TMP2-IDSTATNR (2) = TMP1-IDSTATNR (2)                                       
+    TMP2-IDSTATNR (3) = TMP1-IDSTATNR (3)                                       
+    TMP2-IDSTATNR (4) = TMP1-IDSTATNR (4)                                       
+    TMP2-IDSTATNR (5) = TMP1-IDSTATNR (5)                                       
+    TMP2-KDSORT     = TMP1-KDSORT                                               
+    TMP2-KDERS      = TMP1-KDERS                                                
+    TMP2-KDBPSR     = TMP1-KDBPSR                                               
+    TMP2-KDBBCL     = 0                                                         
+    TMP2-IDLEVNR    = TMP1-IDLEVNR                                              
+    TMP2-KDAGE      = TMP1-KDAGE                                                
+    TMP2-IDPROJ     = TMP1-IDPROJ                                               
+    TMP2-PRARTSJK   = TMP1-PRARTSJK                                             
+    TMP2-PRARTSTD   = TMP1-PRARTSTD                                             
+    TMP2-KDPSLLOC   = TMP1-KDPSLLOC                                             
+    TMP2-TIFINLV    = TMP1-TIFINLV                                              
+    TMP2-KDERS-UTG  = TMP1-KDERS-UTG                                            
+    TMP2-KDTIPPR    = TMP1-KDTIPPR                                              
+    TMP2-KDUART     = TMP1-KDUART                                               
+    TMP2-IDKAT(1)   = TMP1-IDKAT(1)                                             
+    TMP2-IDKAT(2)   = TMP1-IDKAT(2)                                             
+    TMP2-IDKAT(3)   = TMP1-IDKAT(3)                                             
+    TMP2-IDPROJUP   = TMP1-IDPROJUP                                             
+    TMP2-TIERSDAT   = TMP1-TIERSDAT                                             
+    TMP2-TIURPROD   = TMP1-TIURPROD                                             
+                                                                                
+    IX1 = 1                                                                     
+    DO WHILE IX1 < 11                                                           
+       TMP2-IDSKYLT(IX1) = TMP1-IDSKYLT(IX1)                                    
+       TMP2-BEART(IX1)= TMP1-BEART(IX1)                                         
+       IX1 = IX1 + 1                                                            
+    END-DO                                                                      
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*------------------------------------------------------------------*            
+* STEG 3. MATCHAR IHOP TEMPFIL2 OCH GEMANSAM VCC-FORD SKAPAR       *            
+*                      UTFIL                                       *            
+* -----------------------------------------------------------------*            
+*                                                                               
+JOB INPUT (TEMPFIL2 KEY (TMP2-IDARTNR) +                                        
+          W11609D5 KEY (MPNR-IDARTNR))                                          
+                                                                                
+IF MATCHED                                                                      
+    PERFORM AE-ARTIKELDATA                                                      
+    UT-FLGEMFMC = MPNR-FLGEMFMC                                                 
+    PUT W11609D3                                                                
+ ELSE                                                                           
+    IF TEMPFIL2                                                                 
+       PERFORM AE-ARTIKELDATA                                                   
+       UT-FLGEMFMC = ' '                                                        
+       PUT W11609D3                                                             
+    END-IF                                                                      
+ END-IF                                                                         
+*                                                                               
+ AE-ARTIKELDATA. PROC                                                           
+*                                                                               
+    UT-IDARTNR      = TMP2-IDARTNR                                              
+    UT-IDFKNGRP     = TMP2-IDFKNGRP                                             
+    UT-KDSRA        = TMP2-KDSRA                                                
+    UT-KVQPACK-0    = TMP2-KVQPACK-0                                            
+    UT-KDARTURS     = TMP2-KDARTURS                                             
+    UT-KDPRODSL     = TMP2-KDPRODSL                                             
+    UT-VLARTNTO     = TMP2-VLARTNTO                                             
+    UT-VKART        = TMP2-VKART                                                
+    UT-KDVSOP       = TMP2-KDVSOP                                               
+    UT-IDSTATNR (1) = TMP2-IDSTATNR (1)                                         
+    UT-IDSTATNR (2) = TMP2-IDSTATNR (2)                                         
+    UT-IDSTATNR (3) = TMP2-IDSTATNR (3)                                         
+    UT-IDSTATNR (4) = TMP2-IDSTATNR (4)                                         
+    UT-IDSTATNR (5) = TMP2-IDSTATNR (5)                                         
+    UT-KDSORT       = TMP2-KDSORT                                               
+    UT-KDERS        = TMP2-KDERS                                                
+    UT-KDBPSR       = TMP2-KDBPSR                                               
+    UT-KDBBCL       = 0                                                         
+    UT-IDLEVNR      = TMP2-IDLEVNR                                              
+    UT-KDAGE        = TMP2-KDAGE                                                
+    UT-IDPROJ       = TMP2-IDPROJ                                               
+    UT-PRARTSJK     = TMP2-PRARTSJK                                             
+    UT-PRARTSTD     = TMP2-PRARTSTD                                             
+    UT-KDPSLLOC     = TMP2-KDPSLLOC                                             
+    UT-TIFINLV      = TMP2-TIFINLV                                              
+    UT-KDERS-UTG    = TMP2-KDERS-UTG                                            
+    UT-KDTIPPR      = TMP2-KDTIPPR                                              
+    UT-KDUART       = TMP2-KDUART                                               
+    UT-IDKAT(1)     = TMP2-IDKAT(1)                                             
+    UT-IDKAT(2)     = TMP2-IDKAT(2)                                             
+    UT-IDKAT(3)     = TMP2-IDKAT(3)                                             
+    UT-IDPROJUP     = TMP2-IDPROJUP                                             
+    UT-BELEVART     = TMP2-BELEVART                                             
+    UT-TIERSDAT     = TMP2-TIERSDAT                                             
+    UT-TIURPROD     = TMP2-TIURPROD                                             
+                                                                                
+    IX1 = 1                                                                     
+    DO WHILE IX1 < 11                                                           
+       UT-IDSKYLT(IX1) = TMP2-IDSKYLT(IX1)                                      
+       UT-BEART(IX1)= TMP2-BEART(IX1)                                           
+       IX1 = IX1 + 1                                                            
+    END-DO                                                                      
+ END-PROC                                                                       
+*                                                                               

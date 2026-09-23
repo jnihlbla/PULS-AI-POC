@@ -1,0 +1,56 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  ARTIKELSTATISTIKEN                                                         
+//*  SUMMERAR OCH SKAPAR DB2-LADDTRANSAR                                        
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD    RTN W330R1                             
+//*                                                                             
+//*  ÅTERSTART:    W33019 (SORT) NORMAL                                         
+//*                W33020   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P020 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W330..W330R1,                                             
+//             INDUT=&W330..W330R1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33019   EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W330PD19),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W33015(+0),DISP=SHR                                  
+//************ SEKUNDÄRREGISTER                                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&&W33020,DISP=(NEW,PASS,DELETE),                             
+//************ SORTERAT SEKUNDÄRREGISTER                                        
+//*            DCB=(RECFM=FB,LRECL=167,BLKSIZE=27899),                          
+//             SPACE=(27899,(4500,1000),RLSE)                                   
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33020   EXEC PGM=W33020                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W33020D1 DD  DSN=&&W33020,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W33020D2 DD  DSN=&INDUT..W33021(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LADDPOSTER WORLD WIDE                                            
+//             MGMTCLAS=&DEL2BKPC,VOL=(,,,2),                                   
+//             SPACE=(23352,(1000,1000),RLSE)                                   
+//*                                                                             
+//W33020D3 DD  DSN=&INDUT..W33023(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LADDPOSTER KONCERN                                               
+//             MGMTCLAS=&DEL2BKPC,VOL=(,,,2),                                   
+//             SPACE=(23406,(1000,1500),RLSE)                                   
+//*                                                                             
+//W33020D4 DD  DSN=&INDUT..W33025(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ LADDPOSTER DISTRIKT                                              
+//             MGMTCLAS=&DEL2BKPC,VOL=(,,,3),                                   
+//             SPACE=(23430,(10000,25000),RLSE)                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

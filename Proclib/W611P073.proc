@@ -1,0 +1,56 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTOR PÅ UPPDATERADE EMBALLAGE                                     
+//*                                                                             
+//*  FREQUENCE:    WEEK     RTN W611V1                                          
+//*                                                                             
+//*  RESTART:      W61173    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W611P073 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN3=&W020,                                                    
+//             INDIN2=&W910,                                                    
+//             INDIN=&W611,                                                     
+//             INDUT=&W611,                                                     
+//             DEST1=&CPRINT                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W61173   EXEC PGM=V16459,PARM='W61173/8/'                                     
+//STDCP    OUTPUT DEST=&DEST1,FORMDEF=SLSR6C,PAGEDEF=SLSR6C                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(1600,1200))                                         
+//SORTMSG  DD  SYSOUT=*                                                         
+//W61173D1 DD  DSN=&INDIN2..W91042(+0),DISP=SHR                                 
+//************ VLB                                                              
+//*                                                                             
+//W61173D2 DD  DSN=&INDIN..W61173(+0),DISP=SHR                                  
+//************ FÖRRA VECKANS LÄGE                                               
+//*                                                                             
+//W61173D3 DD  DSN=&INDUT..W61173(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ DENNA VECKANS LÄGE                                               
+//             SPACE=(28,(50,33),RLSE),AVGREC=K,                                
+//             MGMTCLAS=&BACKUPC                                                
+//W61173D4 DD  SYSOUT=(A,,3803),OUTPUT=*.STDCP                                  
+//************ W61173-001  UPPDATERADE EMBALLAGE UNDER VECKAN TOTAL             
+//*                                                                             
+//*W61173D5 DD  SYSOUT=(A,,3803),OUTPUT=*.STDCP                                 
+//W61173D5 DD  DUMMY                                                            
+//************ W61173-001  UPPDATERADE EMBALLAGE UNDER VECKAN PER LO            
+//*                                                                             
+//W61173D6 DD  SYSOUT=(A,,F001)                                                 
+//************ W61173-001  UPPDATERADE EMBALLAGE UNDER VECKAN CARPAC            
+//*                                                                             
+//*            DESTINATIONER I EXPRESSEN (R3130147,R3110031)                    
+//*                                                                             
+//W61173D7 DD  SYSOUT=(A,,3803),OUTPUT=*.STDCP                                  
+//************ W61173-001  UPPDATERADE EMBALLAGE UNDER VECKAN /FBGRP            
+//*                                                                             
+//W61173D8 DD  DSN=&INDIN3..LEVNRFB,DISP=SHR                                    
+//************ FB GRUPP FIL                                                     
+//*                                                                             

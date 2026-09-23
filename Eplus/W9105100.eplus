@@ -1,0 +1,149 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W9105100                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET LÄSER FIL W01174 OCH GÖR MERGE MOT W91054  *        
+*                OCH SKRIVER FIL W91051 MED ARTIKEL-BENÄMNING TILL VR  *        
+*                                                                      *        
+*  FÖRFATTARE :  BERT ANDERSSON                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W91051D1 FB(224  0)                                                        
+%W91054  'IN1-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W91051D2 FB(1447  0)                                                       
+%W01171  'IN2-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W91051D3 FB(108  0)                                                        
+%W91051  'UT-'                                                                  
+*                                                                               
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1 A   VALUE 'J'                                 
+  NEJ                       W   1 A   VALUE 'N'                                 
+  WS-IDDC                   W   2 A                                             
+*                                                                               
+  SPACE                     W   3 A   VALUE '   '                               
+*                                                                               
+  CZ                        W   3 A   VALUE 'CZ '                               
+  GREECE                    W   3 A   VALUE 'GR '                               
+  H                         W   3 A   VALUE 'H  '                               
+  IR                        W   3 A   VALUE 'IR '                               
+  J                         W   3 A   VALUE 'J  '                               
+  KOR                       W   3 A   VALUE 'KOR'                               
+  PL                        W   3 A   VALUE 'PL '                               
+  RC                        W   3 A   VALUE 'RC '                               
+  RCN                       W   3 A   VALUE 'RCN'                               
+  RO                        W   3 A   VALUE 'RO '                               
+  RUS                       W   3 A   VALUE 'RUS'                               
+  T                         W   3 A   VALUE 'T  '                               
+  TR                        W   3 A   VALUE 'TR '                               
+  YU                        W   3 A   VALUE 'YU '                               
+*                                                                               
+  SPRAK-IX                  W  2 N  VALUE 0                                     
+  W91054D1-IX               W  9 N  VALUE 0                                     
+  W01171D2-IX               W  9 N  VALUE 0                                     
+  MATCH-IX                  W  9 N  VALUE 0                                     
+  OMATCH-IX                 W  9 N  VALUE 0                                     
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+*******************************************                                     
+* MATCHAR W91054 OCH W01171                                                     
+*******************************************                                     
+*                                                                               
+JOB INPUT (W91051D1 KEY (IN1-IDARTNR) +                                         
+           W91051D2 KEY (IN2-IDARTNR)) +                                        
+                          START A-INIT +                                        
+                          FINISH Z-FINIT                                        
+                                                                                
+     IF MATCHED                                                                 
+                                                                                
+       UT-IDARTNR   = IN2-IDARTNR                                               
+       SPRAK-IX = 1                                                             
+       DO WHILE SPRAK-IX LT 15                                                  
+         UT-IDSKYLT   = ' '                                                     
+         UT-BEART     = ' '                                                     
+         UT-IDSKYLT   = IN2-IDSKYLT(SPRAK-IX)                                   
+         UT-BEART     = IN2-BEARTEXT (SPRAK-IX)                                 
+         PERFORM S01-WRITE-UTFIL                                                
+         SPRAK-IX = SPRAK-IX + 1                                                
+       END-DO                                                                   
+       MATCH-IX = MATCH-IX + 1                                                  
+                                                                                
+     ELSE                                                                       
+       OMATCH-IX = OMATCH-IX + 1                                                
+       IF W91051D2                                                              
+                                                                                
+           W01171D2-IX = W01171D2-IX + 1                                        
+                                                                                
+       ELSE                                                                     
+           W91054D1-IX = W91054D1-IX + 1                                        
+       END-IF                                                                   
+     END-IF                                                                     
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+  S01-WRITE-UTFIL. PROC                                                         
+                                                                                
+     PUT W91051D3                                                               
+     UT-BEART         = SPACE                                                   
+  END-PROC                                                                      
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+***                                                                             
+*--------------------------------------------------------*                      
+* A-INIT                                                 *                      
+*--------------------------------------------------------*                      
+*                                                                               
+ A-INIT.  PROC                                                                  
+*                                                                               
+*                                                                               
+ DISPLAY ' A-INIT START:::'                                                     
+                                                                                
+       UT-IDARTNR     = 0                                                       
+       UT-IDSKYLT     = SPACE                                                   
+       UT-BEART       = SPACE                                                   
+       SPRAK-IX       = 0                                                       
+       W91054D1-IX    = 0                                                       
+       W01171D2-IX    = 0                                                       
+       MATCH-IX       = 0                                                       
+       OMATCH-IX       = 0                                                      
+                                                                                
+                                                                                
+ END-PROC                                                                       
+*                                                                               
+***                                                                             
+NEWPAGE                                                                         
+*--------------------------------------------------------*                      
+* Z-FINIT                                                *                      
+*--------------------------------------------------------*                      
+*                                                                               
+ Z-FINIT.  PROC                                                                 
+*                                                                               
+*                                                                               
+      DISPLAY 'W91054D1-IX ='  W91054D1-IX                                      
+      DISPLAY 'W01171D2-IX ='  W01171D2-IX                                      
+      DISPLAY 'MATCH-IX    ='  MATCH-IX                                         
+      DISPLAY 'OMATCH-IX    =' OMATCH-IX                                        
+                                                                                
+*                                                                               
+ END-PROC                                                                       
+*                                                                               
+***                                                                             
+                                                                                

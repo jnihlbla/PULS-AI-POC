@@ -1,0 +1,167 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  WF104700                                              *        
+*                                                                      *        
+*  FUNKTION   :  SCRAP REPORT FOR CHINA INDIA KOREA USA                *        
+*                                                                      *        
+*  FÖRFATTARE :  BARSHARANI BISHOYE                                    *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE WF1047D1                                                                   
+*                                                                               
+%WF1046  'IN-'                                                                  
+NEWPAGE                                                                         
+FILE WF1047D2 PRINTER VB(280 0)                                                 
+                                                                                
+UT-IDLEGSEL             W    4   A                                              
+UT-IDFINDOC             W    9   N                                              
+UT-DAFINDOC             W    8   N                                              
+UT-IDFAKREF             W    9   N                                              
+UT-DAFAKREF             W    8   A                                              
+UT-IDLEGSEL-CREATER     W    4   A                                              
+UT-KDVALISO             W    3   A                                              
+UT-IDEXCUST-1           W   15   A                                              
+UT-IDEXCUST-2           W   15   A                                              
+UT-IDREF                W   15   A                                              
+UT-DAREFDAT             W    8   N                                              
+UT-IDACCNT-1            W   15   A                                              
+UT-IDACCNT-2            W   15   A                                              
+UT-BEVOLREF             W   10   A                                              
+UT-IDARTNR-FINANCE      W   50   A                                              
+UT-BEART                W   25   A                                              
+UT-KVLEVART             W    7   N                                              
+UT-PRARTNTO-N           W    7   N                                              
+UT-PRARTNTO-D           W    2   N                                              
+UT-SUNTO-TOT-N          W   11   N                                              
+UT-SUNTO-TOT-D          W    2   N                                              
+UT-IDPARTNR             W    9   A                                              
+UT-SEM1                 W    1   A   VALUE ';'                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************                           
+*WORKING STORAGE                                    *                           
+W-PRARTNTO-FMT                    W  13  N 2                                    
+W-PRARTNTO-N     W-PRARTNTO-FMT      11  N                                      
+W-PRARTNTO-D     W-PRARTNTO-FMT   +11 2  N                                      
+                                                                                
+W-SUNTO-TOT-FMT                   W  13  N 2                                    
+W-SUNTO-TOT-N     W-SUNTO-TOT-FMT    11  N                                      
+W-SUNTO-TOT-D     W-SUNTO-TOT-FMT +11 2  N                                      
+                                                                                
+W-DECIMAL         W   1 A  VALUE '.'                                            
+W-IDLEGSEL        W   4 A                                                       
+W-PREV-IDLEGSEL   W   4 A                                                       
+FIRST-LINE        S   1 A  VALUE 'J'                                            
+******************************************************                          
+  SORT WF1047D1 TO WF1047D1 USING(IN-IDLEGSEL)  SIZE 900000                     
+                                                                                
+  JOB INPUT  WF1047D1                                                           
+  W-IDLEGSEL            = IN-IDLEGSEL                                           
+  UT-IDLEGSEL           = W-IDLEGSEL                                            
+  UT-IDFINDOC           = IN-IDFINDOC                                           
+  UT-DAFINDOC           = IN-DAFINDOC                                           
+  UT-IDFAKREF           = IN-IDFAKREF                                           
+  UT-DAFAKREF           = IN-DAFAKREF                                           
+  UT-IDLEGSEL-CREATER   = IN-CREATER-IDLEGSEL                                   
+  UT-KDVALISO           = IN-KDVALISO                                           
+  UT-IDEXCUST-1         = IN-IDEXCUST-1                                         
+  UT-IDEXCUST-2         = IN-IDEXCUST-2                                         
+  UT-IDREF              = IN-IDREF                                              
+  UT-DAREFDAT           = IN-DAREFDAT                                           
+  UT-IDACCNT-1          = IN-IDACCNT-1                                          
+  UT-IDACCNT-2          = IN-IDACCNT-2                                          
+  UT-BEVOLREF           = IN-BEVOLREF                                           
+  UT-IDARTNR-FINANCE    = IN-IDARTNR-FINANCE                                    
+  UT-BEART              = IN-BEART                                              
+  UT-KVLEVART           = IN-KVLEVART                                           
+  W-PRARTNTO-FMT        = IN-PRARTNTO                                           
+  UT-PRARTNTO-N         = W-PRARTNTO-N                                          
+  UT-PRARTNTO-D         = W-PRARTNTO-D                                          
+  W-SUNTO-TOT-FMT       = IN-SUNTO                                              
+  UT-SUNTO-TOT-N        = W-SUNTO-TOT-N                                         
+  UT-SUNTO-TOT-D        = W-SUNTO-TOT-D                                         
+  UT-IDPARTNR           = IN-IDPARTNR                                           
+  UT-SEM1               = ';'                                                   
+                                                                                
+  IF W-IDLEGSEL  NE  ' '                                                        
+    PRINT RPT1                                                                  
+  END-IF                                                                        
+                                                                                
+  A-INIT. PROC                                                                  
+    W-PREV-IDLEGSEL = '    '                                                    
+  END-PROC                                                                      
+                                                                                
+*-----------------------------------------------------------------*             
+*     REPORT  WF1047-001                                                        
+*-----------------------------------------------------------------*             
+  REPORT    RPT1                +                                               
+            PRINTER   WF1047D2  +                                               
+            LINESIZE  275       +                                               
+            PAGESIZE  32000     +                                               
+            NOHEADING           +                                               
+            SPACE     0         +                                               
+            SKIP      0         +                                               
+            TITLESKIP 0         +                                               
+            NOADJUST            +                                               
+            NOSPREAD                                                            
+*                                                                               
+ LINE 01    UT-IDLEGSEL         +                                               
+            UT-SEM1             +                                               
+            UT-IDFINDOC         +                                               
+            UT-SEM1             +                                               
+            UT-DAFINDOC         +                                               
+            UT-SEM1             +                                               
+            UT-IDFAKREF         +                                               
+            UT-SEM1             +                                               
+            UT-DAFAKREF         +                                               
+            UT-SEM1             +                                               
+            UT-IDLEGSEL-CREATER +                                               
+            UT-SEM1             +                                               
+            UT-KDVALISO         +                                               
+            UT-SEM1             +                                               
+            UT-IDEXCUST-1       +                                               
+            UT-SEM1             +                                               
+            UT-IDEXCUST-2       +                                               
+            UT-SEM1             +                                               
+            UT-IDREF            +                                               
+            UT-SEM1             +                                               
+            UT-DAREFDAT         +                                               
+            UT-SEM1             +                                               
+            UT-IDACCNT-1        +                                               
+            UT-SEM1             +                                               
+            UT-IDACCNT-2        +                                               
+            UT-SEM1             +                                               
+            UT-BEVOLREF         +                                               
+            UT-SEM1             +                                               
+            UT-IDARTNR-FINANCE  +                                               
+            UT-SEM1             +                                               
+            UT-BEART            +                                               
+            UT-SEM1             +                                               
+            UT-KVLEVART         +                                               
+            UT-SEM1             +                                               
+            UT-PRARTNTO-N       +                                               
+            W-DECIMAL           +                                               
+            UT-PRARTNTO-D       +                                               
+            UT-SEM1             +                                               
+            UT-SUNTO-TOT-N      +                                               
+            W-DECIMAL           +                                               
+            UT-SUNTO-TOT-D      +                                               
+            UT-SEM1             +                                               
+            UT-IDPARTNR         +                                               
+            UT-SEM1                                                             
+                                                                                
+BEFORE-LINE. PROC                                                               
+IF W-IDLEGSEL NE W-PREV-IDLEGSEL                                                
+ DISPLAY '¤DAPWF1047-001'                                                       
+ DISPLAY '¤DAP' W-IDLEGSEL                                                      
+  DISPLAY 'COMPANY;INVOICE NO;INVOICE DATE;INVOICE REFERENCE;'   +              
+          'INVOICE REFERENCE DATE;LEGAL SELLER CREATOR;CURRENCY;' +             
+          'DISTRICT;CUSTOMER;REFRENCE NO;REFERENCE DATE;ACCOUNT ID1;' +         
+          'ACCOUNT ID2;VOLVO REFERENCE;PART NO;DESCRIPTION;QUANTITY;' +         
+          'NET PRICE;TOTAL AMOUNT;PARMA NO;'                                    
+   W-PREV-IDLEGSEL = W-IDLEGSEL                                                 
+ END-IF                                                                         
+END-PROC                                                                        

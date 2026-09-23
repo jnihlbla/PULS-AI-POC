@@ -1,0 +1,46 @@
+***********************************************************************         
+* CREATED BY v0C3830   ON 03/09/30  AT 12:20                                    
+***********************************************************************         
+         TITLE '                                '                               
+         PRINT ON,NOGEN                                                         
+         ALPHA 'abcdefghijklmnopqrstuvwxyzˆÈ¸‰Â…'                               
+W9F116   FMT                                                                    
+         DEV   TYPE=(3270,2),                                          +        
+               FEAT=IGNORE,                                            +        
+               SYSMSG=FSYSMSG,                                         +        
+               DSCA=X'0080'                                                     
+         DIV   TYPE=INOUT                                                       
+DGI00001 DPAGE CURSOR=((3,2)),                                         +        
+               FILL=NONE                                                        
+INDATA   DFLD  POS=(3,2),LTH=38,                                       +        
+               ATTR=(NUM,NOPROT)                                                
+UTDATA   DFLD  POS=(4,2),LTH=11,                                       +        
+               ATTR=(PROT)                                                      
+FSYSMSG  DFLD  POS=(24,2),LTH=79,                                      +        
+               ATTR=(PROT)                                                      
+         FMTEND                                                                 
+W9O11601 MSG   TYPE=OUTPUT,                                            +        
+               SOR=(W9F116,IGNORE),                                    +        
+               OPT=2,                                                  +        
+               NXT=W9I11601,                                           +        
+               FILL=PT                                                          
+MOD      LPAGE SOR=DGI00001                                                     
+         SEG                                                                    
+         MFLD  UTDATA,                                                 +        
+               LTH=11                                                           
+         MFLD  (FSYSMSG,                                               +        
+               ' '),                                                   +        
+               LTH=1                                                            
+         MSGEND                                                                 
+W9I11601 MSG   TYPE=INPUT,                                             +        
+               SOR=(W9F116),                                           +        
+               OPT=2,                                                  +        
+               NXT=W9O11601                                                     
+MID      LPAGE SOR=(DGI00001)                                                   
+         SEG                                                                    
+         MFLD  'W90116T ',                                             +        
+               LTH=8                                                            
+         MFLD  INDATA,                                                 +        
+               LTH=33                                                           
+         MSGEND                                                                 
+         END                                                                    

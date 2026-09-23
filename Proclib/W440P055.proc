@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LÄSER WDK711 OCH SORTERAR I IDDC/ARTNR ORDNING                             
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W440V3                                          
+//*                                                                             
+//*  ÅTERSTART:    W44055                                                       
+//*                LÄSER  WDK7                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W440P055 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W440..W440V3                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W44055   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W44055,W44055,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDK7     INCLUDE MEMBER=WDK7                                                  
+//W44055D1 DD  DSN=&&W44055,DISP=(NEW,PASS,DELETE),                             
+//************ TEMP-FIL MED WDK711 OKS-INFO                                     
+//             DATACLAS=PSEB                                                    
+//*            SPACE=(27990,(199,15),RLSE)                                      
+//W44055D2 DD  DSN=&&W44077,DISP=(NEW,PASS,DELETE),                             
+//************ TEMP-FIL MED WDK711 RES/ROS-INFO                                 
+//             DATACLAS=PSEB                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTDCAR),DISP=SHR                         
+//SORTIN   DD  DSN=&&W44055,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMP-FIL MED WDK711 OKS-INFO                                     
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W44055(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SORTERAD OKS-FIL FRÅN WDK711                                     
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 
+//*                                                                             
+//SORT2    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WSRTDCAR),DISP=SHR                         
+//SORTIN   DD  DSN=&&W44077,DISP=(OLD,DELETE,DELETE)                            
+//************ TEMP-FIL MED WDK711 RES/ROS-INFO                                 
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..W44077(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ SORTERAD RES/ROS-FIL FRÅN WDK711                                 
+//             MGMTCLAS=&DEL2BKPC,DATACLAS=PSEN                                 

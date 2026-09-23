@@ -1,0 +1,36 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KOMPLETTERAR UTVALD OKS/EFR-INFORMATION MED AVERAGE COST PRICE.            
+//*                                                                             
+//*  FREKVENS:     DAG         RTN W479D1                                       
+//*                                                                             
+//*  ÅTERSTART:    W4795O    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W479P05O PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W479..W479D1,                                             
+//             INDIN2=&W011,                                                    
+//             INDUT=&W479..W479D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W4795O   EXEC PGM=V16459,PARM='W4795O/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W4795OD1 DD  DSN=&INDIN..W47993(+0),DISP=SHR                                  
+//************ DAGLIG OKS/EFR-INFORMATION                                       
+//*                                                                             
+//W4795OD2 DD  DSN=&INDIN2..SDC.W01184(+0),DISP=SHR                             
+//         DD  DSN=&INDIN2..NDC.W01184(+0),DISP=SHR                             
+//************ LB                                                               
+//*                                                                             
+//W4795OD3 DD  DSN=&INDUT..W4795O(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ DAGLIG FAKTURAHISTORIK KOMPLETTERAD MED IDPRC                    
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&NOBACKUP                                               

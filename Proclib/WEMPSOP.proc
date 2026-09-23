@@ -1,0 +1,39 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SOP - BESTÄLL EN RUTIN/JOBB OM EN FIL INNEHÅLLER DATA,                     
+//*        ANNARS - TA BORT FILEN                                               
+//*                                                                             
+//*  FREKVENS:  KÖRS I JOBB SOM SKAPAR FILER SOM SKA BEHANDLAS                  
+//*             BARA OM DE INNEHÅLLER DATA.                                     
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WEMPSOP  PROC DSIN=NULLFILE,                                                  
+//             STPLIB=&INDRTE..LOAD,                                            
+//             PROCESS=DUMMY,DATE=000000,                                       
+//             SOPREG=&INDRTE..SOP,                                             
+//             PDSLIB=&INDRTE..JCL,                                             
+//             PDSTEMP=&INDRTE.TMP.JCL                                          
+//*                                                                             
+//ETST    EXEC WEMPTST,DSIN=&DSIN                                               
+//*                                                                             
+// IF (ETST.T.RC = 0) THEN                                                      
+//W98022  EXEC PGM=W98022,                                                      
+//             PARM=('ORDER &PROCESS ON &DATE/')                                
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//SYSUDUMP DD  SYSOUT=*                                                         
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SOPDD1   DD  DSN=&SOPREG,DISP=SHR            -- SOP DATA BASE                 
+//PDSDD1   DD  DSN=&PDSTEMP,DISP=SHR           -- TEMP PDS JOB LIB              
+//PDSDD2   DD  DSN=&PDSLIB,DISP=SHR            -- PDS JOB LIB                   
+//W98022D1 DD  DDNAME=SYSIN                                                     
+//SYSIN    DD  DUMMY                                                            
+// ELSE                                                                         
+//EDEL    EXEC PGM=IEFBR14                                                      
+//DD        DD DSN=&DSIN,DISP=(OLD,DELETE)                                      
+// ENDIF                                                                        
+//*                                                                             

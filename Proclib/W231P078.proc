@@ -1,0 +1,65 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR FIL MED GRUNDUPPGIFTER FÖR SORTIMENT-ANALYS                         
+//*                                                                             
+//*  FREKVENS:     VECKA    RTN W231V1                                          
+//*                                                                             
+//*  ÅTERSTART:    W23178    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W231P078 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W231..W231D1,                                             
+//             INDIN2=&W231..W231V1,                                            
+//             INDIN3=&W231..W231P1,                                            
+//             INDREG=&W011,                                                    
+//             INDREG2=&W910,                                                   
+//             INDREG3=&W225,                                                   
+//             INDUT=&W231..W231V1,                                             
+//             INDUT2=&WXTR..W231V1                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W23178   EXEC PGM=W23178                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W23178D1 DD  DSN=&INDREG..W01177(+0),DISP=SHR                                 
+//************ VLB                                                              
+//*                                                                             
+//W23178D2 DD  DSN=&INDREG2..W91042(+0),DISP=SHR                                
+//************ ARTIKELFIL                                                       
+//*                                                                             
+//W23178D3 DD  DSN=&INDIN3..W23123(+0),DISP=SHR                                 
+//************ ORDERINGÅNG                                                      
+//*                                                                             
+//W23178D4 DD  DSN=&INDREG3..W22509(+0),DISP=SHR                                
+//************ SERVICEGRAD                                                      
+//*                                                                             
+//W23178D5 DD  DSN=&INDIN..W23177(+0),DISP=SHR                                  
+//************ NEDLÄST WDK9                                                     
+//*                                                                             
+//W23178D6 DD  DSN=&INDIN2..W23180(+0),DISP=SHR                                 
+//************ LAGERSALDO                                                       
+//*                                                                             
+//W23178D7 DD  DSN=&INDUT..W23178(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ GRUNDFIL FÖR ANALYS-LISTOR                                       
+//             SPACE=(71,(320,80),RLSE),AVGREC=K,                               
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//ICEGENER EXEC PGM=V16459,PARM='ICEGENER/3/'                                   
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSIN    DD  DUMMY                                                            
+//SYSUT1   DD  DSN=&INDUT..W23178(+1),DISP=(OLD,CATLG,DELETE)                   
+//*                                                                             
+//SYSUT2   DD  DSN=&INDUT2..WXTR2C(+1),DISP=(NEW,CATLG,DELETE),                 
+//************ GRUNDFIL FÖR ANALYS-LISTOR                                       
+//             MGMTCLAS=NOBACKUP,SPACE=(71,(320,80),RLSE),AVGREC=K              
+//*                                                                             

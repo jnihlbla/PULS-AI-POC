@@ -1,0 +1,316 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W56076                                                *        
+*                                                                      *        
+*  FÖRFATTARE :  KARL JOHAN HANSSON NOV 2002                           *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR ÅRSINVENTARIEFIL MED ARTIKELBENÄMNINGAR OCH   *        
+*                FUNKTIONSGRUPPSBENÄMNINGAR OCH SKAPAR TVÅ RAPPORTER   *        
+*                'LIFO CALCULATION' OCH 'END YEAR INVENTORY' ÅT USA    *        
+*                 LISTORNA W56076-001 OCH -002.                        *        
+*                                                                      *        
+*  INFILER    :  W560.W560Y4.W56074 ÅRSINVENTARIEFIL                   *        
+*                W011.W01174        FIL MED ARTIKELBENÄMNINGAR         *        
+*                W560.W56099        FIL MED FUNKTIONSGRUPPSBENÄMNINGAR *        
+*                                                                      *        
+*  UTFIL      :  W56076, LISTOR PÅ FIL TILL LAB (USA)                  *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+* INFIL W560.W560Y1.W56074(+0) ÅRSINVENTARIUM                                   
+FILE W56076D1                                                                   
+%W56074  'I1-'                                                                  
+                                                                                
+* TEMPFIL ÅRSINVENTARIUM SORTERAD                                               
+FILE TPFIL01 FB(50 0)                                                           
+%W56074  'T1-'                                                                  
+                                                                                
+* TEMPFIL ÅRSINVENTARIUM SORTERAD OCH KOMPL. MED BENÄMNING                      
+FILE TPFIL02 FB(80 0)                                                           
+T2-IDARTNR        1  5 P 0                                                      
+T2-IDFKNGRP       6  4 N                                                        
+T2-KVANTAL       10  4 P 0                                                      
+T2-PRARTAVG      14  5 P 2                                                      
+T2-SUARTAVG      19  5 P 2                                                      
+T2-BEART         24 25 A                                                        
+                                                                                
+* INFIL W01174  FIL MED ARTIKELBENÄMNINGAR                                      
+FILE W56076D2                                                                   
+%W01174  'I2-'                                                                  
+                                                                                
+* INFIL W56099  FIL MED FUNKTIONSGRUPPS-BENÄMNINGAR                             
+FILE W56076D3                                                                   
+I3-IDFKNGRP         1  4 N                                                      
+I3-BEFKNGRP-SE      6 50 A                                                      
+I3-BEFKNGRP-GB     54 50 A                                                      
+                                                                                
+* RAPPORTER W56076-001 OCH W56076-002                                           
+FILE W56076D4 PRINTER VB(200 0)                                                 
+                                                                                
+* ARBETS-AREOR                                                  *               
+* ARBETS-TABELL FÖR FUNKTIONSGRUPPBESKRIVNINGAR                 *               
+W-TAB            W      540   A                                                 
+W-TAB-L     W-TAB        54   A OCCURS 10                                       
+W-SEM           W  6  A            VALUE ';'                                    
+ FIRST-LINE1     S  1  A            VALUE 'J'                                   
+ FIRST-LINE2     S  1  A            VALUE 'J'                                   
+                                                                                
+* ARBETS-AREA FÖR LISTA -001                                                    
+W-IDFKNGRP        W   4  N     MASK 'ZZZ9'                                      
+W-IDARTNR         W   9  N     MASK 'ZZZZZZZZ9'                                 
+W-BEART           W  25  A                                                      
+W-KVANTAL         W   7  N     MASK 'ZZZZZZ9'.                                  
+W-PRARTAVG        W   9  N  2  MASK 'ZZZZZZ9.99'                                
+W-SUARTAVG        W   9  N  2  MASK 'ZZZZZZ9.99'                                
+W-SUM-SUARTAVG    W   9  N  2  MASK 'ZZZZZZ9.99'                                
+W-TOT-SUARTAVG    W   9  N  2  MASK 'ZZZZZZ9.99'                                
+W-BEFKNGRP        W  35  A                                                      
+                                                                                
+* ARBETS-AREA FÖR LISTA -002                                                    
+W2-IDFKNGRP       W   4  N VALUE 0 MASK 'ZZZ9'                                  
+W2-IDFKNGRP1 W2-IDFKNGRP 1 N                                                    
+W2-FUNKKAT        W   2  N                                                      
+W2-TOT-SUARTAVG   W   9  N  2  MASK 'ZZZZZZ9.99'                                
+W2-SUM-SUARTAVG   W   9  N  2  MASK 'ZZZZZZ9.99'                                
+W2-GTOT-SUARTAVG  W   9  N  2  MASK 'ZZZZZZ9.99'                                
+W2-BEFKNGRP       W  35  A                                                      
+                                                                                
+*********************************                                               
+* STEG 1  SORTERAR INFILEN      *                                               
+*********************************                                               
+                                                                                
+SORT W56076D1 TO TPFIL01 USING (I1-IDARTNR)                                     
+                                                                                
+*****************************************************************               
+* STEG 2  MATCHA SORTERAD FIL MED BENÄMNINGSFIL O KOMPLETTERA                   
+*         MED ARTIKELBENÄMNING                                                  
+*****************************************************************               
+                                                                                
+JOB INPUT(W56076D2 KEY (I2-IDARTNR )                      +                     
+           TPFIL01 KEY (T1-IDARTNR))                                            
+                                                                                
+ IF MATCHED                                                                     
+   IF I2-BEART(10) = '                         '                                
+     T2-BEART      = I2-BEART(04)                                               
+   ELSE                                                                         
+     T2-BEART      = I2-BEART(10)                                               
+   END-IF                                                                       
+ ELSE                                                                           
+   IF TPFIL01                                                                   
+     W-BEART       = '                         '                                
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+ IF TPFIL01                                                                     
+   T2-IDARTNR      = T1-IDARTNR                                                 
+   T2-IDFKNGRP     = T1-IDFKNGRP                                                
+   T2-KVANTAL      = T1-TOT-STOCK                                               
+   T2-PRARTAVG     = T1-PRARTAVG                                                
+   T2-SUARTAVG     = T1-SUARTAVG                                                
+   PUT TPFIL02                                                                  
+ END-IF                                                                         
+                                                                                
+*****************************************************************               
+* STEG 3  SORTERA TEMPFILEN  PER IDFKNGRP                       *               
+*****************************************************************               
+                                                                                
+SORT TPFIL02 TO TPFIL02 USING (T2-IDFKNGRP T2-IDARTNR)                          
+                                                                                
+*****************************************************************               
+* STEG 4  MATCHA SORTERAD FIL OCH FIL MED FUNKTIONSGRUPPSBENÄMNING              
+*         OCH SKAPA LISTOR - LIFO CALCULATION OCH - TOTALLISTA                  
+*****************************************************************               
+                                                                                
+JOB INPUT(W56076D3 KEY (I3-IDFKNGRP)                      +                     
+           TPFIL02 KEY (T2-IDFKNGRP)) START A-INIT FINISH Z-FIN                 
+                                                                                
+ IF MATCHED                                                                     
+    W-BEFKNGRP             = I3-BEFKNGRP-GB                                     
+    PERFORM 4-SKAPA-LISTRAD                                                     
+ ELSE                                                                           
+   IF TPFIL02                                                                   
+     W-BEFKNGRP            = '             '                                    
+     PERFORM 4-SKAPA-LISTRAD                                                    
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+A-INIT. PROC                                                                    
+ W-TAB-L(1)  = 'GENERAL                                               '         
+ W-TAB-L(2)  = 'STANDARD PARTS, SERVICE AND MAINTENANCE MATERIAL      '         
+ W-TAB-L(3)  = 'ENGINE WITH MOUNTING AND EQUIPMENT                    '         
+ W-TAB-L(4)  = 'ELECTRIC POWER SUPPLY; LIGHTING; INSTRUMENTS; SOFTWARE'         
+ W-TAB-L(5)  = 'POWER TRANSMISSION                                    '         
+ W-TAB-L(6)  = 'BRAKE                                                 '         
+ W-TAB-L(7)  = 'WHEEL SUSPENSION AND STEERING                         '         
+ W-TAB-L(8)  = 'FRAME, SPRINGS, DAMPING AND WHEELS                    '         
+ W-TAB-L(9)  = 'BODY, CAB AND INTERIOR                                '         
+ W-TAB-L(10) = 'MISCELLANEOUS, SPECIAL FUNCTIONS                      '         
+END-PROC.                                                                       
+                                                                                
+4-SKAPA-LISTRAD. PROC                                                           
+                                                                                
+   W-IDFKNGRP             = T2-IDFKNGRP                                         
+   W-IDARTNR              = T2-IDARTNR                                          
+   W-BEART                = T2-BEART                                            
+   W-KVANTAL              = T2-KVANTAL                                          
+   W-PRARTAVG             = T2-PRARTAVG                                         
+   W-SUARTAVG             = T2-SUARTAVG                                         
+*  W-SUARTAVG             = W-PRARTAVG * T2-KVANTAL                             
+***  SUARTAVG ÄR ETT NÄRMERVÄRDE PÅ SUMMA AVG PÅ DC 41,42,43                    
+   W-SUM-SUARTAVG         = W-SUARTAVG                                          
+   W-TOT-SUARTAVG         = W-SUARTAVG                                          
+   IF W2-IDFKNGRP EQ T2-IDFKNGRP                                                
+     W2-SUM-SUARTAVG      = W2-SUM-SUARTAVG + W-SUARTAVG                        
+   ELSE                                                                         
+     IF W2-IDFKNGRP NE 0                                                        
+       W2-TOT-SUARTAVG    = W2-SUM-SUARTAVG                                     
+       W2-GTOT-SUARTAVG   = W2-SUM-SUARTAVG                                     
+       W2-FUNKKAT         = W2-IDFKNGRP1 + 1                                    
+       PRINT LISTA2                                                             
+     END-IF                                                                     
+     W2-IDFKNGRP          = T2-IDFKNGRP                                         
+     W2-BEFKNGRP          = W-BEFKNGRP                                          
+     W2-SUM-SUARTAVG      = W-SUARTAVG                                          
+   END-IF                                                                       
+   PRINT LISTA1                                                                 
+END-PROC.                                                                       
+                                                                                
+Z-FIN. PROC                                                                     
+   W2-TOT-SUARTAVG        = W2-SUM-SUARTAVG                                     
+   W2-GTOT-SUARTAVG       = W2-SUM-SUARTAVG                                     
+   W2-FUNKKAT             = W2-IDFKNGRP1 + 1                                    
+   PRINT LISTA2                                                                 
+END-PROC.                                                                       
+                                                                                
+**************************                                                      
+**  RAPPORT W56076-001   *                                                      
+**************************                                                      
+                                                                                
+  REPORT LISTA1                 +                                               
+         PRINTER W56076D4       +                                               
+         PAGESIZE 60            +                                               
+         LINESIZE 110           +                                               
+         SPACE 0                +                                               
+         NOHEADING              +                                               
+         NOSPREAD               +                                               
+         NODATE                 +                                               
+         NOADJUST                                                               
+                                                                                
+SEQUENCE W-IDFKNGRP             +                                               
+         W-IDARTNR                                                              
+                                                                                
+CONTROL  FINAL NOPRINT          +                                               
+         W-IDFKNGRP NOPRINT                                                     
+                                                                                
+SUM      W-SUM-SUARTAVG         +                                               
+         W-TOT-SUARTAVG                                                         
+                                                                                
+LINE  1   W-IDFKNGRP           +                                                
+          W-SEM                +                                                
+          W-IDARTNR            +                                                
+          W-SEM                +                                                
+          W-KVANTAL            +                                                
+          W-SEM                +                                                
+         'Å'                   +                                                
+          W-PRARTAVG           +                                                
+          W-SEM                +                                                
+         'Å'                   +                                                
+          W-SUARTAVG           +                                                
+          W-SEM                +                                                
+          W-BEART              +                                                
+          W-SEM                                                                 
+                                                                                
+ BEFORE-BREAK. PROC                                                             
+   IF LEVEL = 1                                                                 
+     DISPLAY W-SEM             +                                                
+             W-SEM             +                                                
+             'SUB TOTAL:'      +                                                
+             W-SEM             +                                                
+             W-SEM             +                                                
+             'Å'               +                                                
+             W-SUM-SUARTAVG    +                                                
+             W-SEM                                                              
+     DISPLAY ' '                                                                
+   END-IF                                                                       
+   IF LEVEL = 2                                                                 
+     DISPLAY W-SEM             +                                                
+             W-SEM             +                                                
+             'GRAND TOTAL:'    +                                                
+             W-SEM             +                                                
+             W-SEM             +                                                
+             'Å'               +                                                
+             W-TOT-SUARTAVG    +                                                
+             W-SEM                                                              
+     DISPLAY ' '                                                                
+   END-IF                                                                       
+ END-PROC                                                                       
+                                                                                
+BEFORE-LINE. PROC                                                               
+ IF FIRST-LINE1 = 'J'                                                           
+   DISPLAY '¤DAPW56076-001'                                                     
+   DISPLAY '¤DAPW56076'                                                         
+   DISPLAY 'FUNCTION GROUP;PART NUMBER;TOTAL STOCK;'    +                       
+           'INVOICE COST;EXTENDED COST;DESCRIPTION;'                            
+   FIRST-LINE1 = 'N'                                                            
+ END-IF                                                                         
+END-PROC                                                                        
+**************************                                                      
+**  RAPPORT W56076-002   *                                                      
+**************************                                                      
+                                                                                
+  REPORT LISTA2                 +                                               
+         PRINTER W56076D4       +                                               
+         PAGESIZE 60            +                                               
+         LINESIZE 78            +                                               
+         SPACE 0                +                                               
+         NOHEADING              +                                               
+         NOSPREAD               +                                               
+         NODATE                 +                                               
+         NOADJUST                                                               
+                                                                                
+SEQUENCE W2-IDFKNGRP                                                            
+                                                                                
+CONTROL  FINAL NOPRINT              +                                           
+         W2-FUNKKAT NOPRINT         +                                           
+         W2-IDFKNGRP NOPRINT                                                    
+                                                                                
+SUM      W2-TOT-SUARTAVG            +                                           
+         W2-GTOT-SUARTAVG                                                       
+                                                                                
+                                                                                
+LINE  1   W2-IDFKNGRP       +                                                   
+          W-SEM             +                                                   
+         'Å'                +                                                   
+          W2-SUM-SUARTAVG   +                                                   
+          W-SEM             +                                                   
+          W2-BEFKNGRP       +                                                   
+          W-SEM                                                                 
+                                                                                
+ BEFORE-BREAK. PROC                                                             
+   IF LEVEL = 2                                                                 
+     DISPLAY 'SUB TOTAL:'    +                                                  
+             W-SEM           +                                                  
+             'Å'             +                                                  
+             W2-TOT-SUARTAVG +                                                  
+             W-SEM                                                              
+     DISPLAY ' '                                                                
+   END-IF                                                                       
+   IF LEVEL = 3                                                                 
+     DISPLAY 'GRAND TOTAL:'   +                                                 
+             W-SEM            +                                                 
+             'Å'              +                                                 
+             W2-GTOT-SUARTAVG +                                                 
+             W-SEM                                                              
+     DISPLAY ' '                                                                
+   END-IF                                                                       
+ END-PROC                                                                       
+                                                                                
+BEFORE-LINE. PROC                                                               
+ IF FIRST-LINE2 = 'J'                                                           
+   DISPLAY '¤DAPW56076-002'                                                     
+   DISPLAY '¤DAPW56076'                                                         
+   DISPLAY 'FUNCTION GROUP;EXTENDED COST;FUNCTION GROUP NAME;'                  
+   FIRST-LINE2 = 'N'                                                            
+ END-IF                                                                         
+END-PROC                                                                        

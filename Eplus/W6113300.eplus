@@ -1,0 +1,82 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6113300                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER AVISERINGSINFO OCH SKAPAR FIL TIL VIOS          *        
+*                                                                      *        
+*  FÖRFATTARE :  MÅNS SAMUELSSON                                       *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING   PROJEKT/ÄT      *        
+*     941129      CONNY EGHOLT .....       57053.      SDC ST....      *        
+*     ......      ..................       ......      ..........      *        
+*     ......      ..................       ......      ..........      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W61133D1                                                                   
+*                                                                               
+%W6112001  'IN20-'                                                              
+                                                                                
+NEWPAGE                                                                         
+FILE W61133D2 FB(45 0)                                                          
+*                                                                               
+%W6113201  'UT33-'                                                              
+                                                                                
+NEWPAGE                                                                         
+%WDATAREA                                                                       
+NEWPAGE                                                                         
+*                                                                               
+JA              W 1 A VALUE 'J'                                                 
+NEJ             W 1 A VALUE 'N'                                                 
+*                                                                               
+WDATKONV        W 8 A VALUE 'WDATKONV'                                          
+*                                                                               
+FIX-TIAAVV      W 5 N                                                           
+NOLLA      FIX-TIAAVV     1 N                                                   
+FIX-TIAA   FIX-TIAAVV +1  2 N                                                   
+FIX-TIVV   FIX-TIAAVV +3  2 N                                                   
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+* STEG 1. SKRIVER AVISERINGSFIL                                                 
+*                                                                               
+JOB INPUT W61133D1                                                              
+  IF IN20-FLFEL = NEJ                                                           
+    UT33-IDARTNR    = IN20-IDARTNR                                              
+    UT33-IDDC       = IN20-IDDC                                                 
+    UT33-IDLEVNR    = IN20-IDLEVNR                                              
+    UT33-BEFT       = IN20-BEFT                                                 
+    UT33-KVINLART   = IN20-KVAVIS                                               
+    UT33-ADINLOMR   = '    '                                                    
+    UT33-ADLAGOMR   = +0                                                        
+    UT33-IDFKNGRP   = +0                                                        
+    UT33-VKART      = +0                                                        
+    UT33-VLARTNTO   = +0                                                        
+    UT33-FLFORAVI   = JA                                                        
+                                                                                
+    IF IN20-TIANKDAG > +0                                                       
+      DAT-KDDATFORM = 'AAMMDD'                                                  
+      DAT-I-TIDATUM = IN20-TIANKDAG                                             
+                                                                                
+      CALL WDATKONV USING (DAT-KDDATFORM, +                                     
+                           DAT-I-TIDATUM, +                                     
+                           DAT-O-TIDATUM, +                                     
+                           DAT-KDSVAR)                                          
+                                                                                
+      IF DAT-KDSVAR = ' '                                                       
+        NOLLA    = +0                                                           
+        FIX-TIAA = DAT-TIAA-VECKA                                               
+        FIX-TIVV = DAT-TIVV                                                     
+        UT33-TIANKVV = FIX-TIAAVV                                               
+      ELSE                                                                      
+        UT33-TIANKVV = +0                                                       
+      END-IF                                                                    
+    ELSE                                                                        
+      UT33-TIANKVV = +0                                                         
+    END-IF                                                                      
+    PUT W61133D2                                                                
+  END-IF                                                                        

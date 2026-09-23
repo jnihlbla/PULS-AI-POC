@@ -1,0 +1,91 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4795Q00                                              *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFANO GIOBBI                                        *        
+*                                                                      *        
+*  DATUM      :  970314                                                *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET KOMPLETTERAR DAGLIG EFR-                   *        
+*                HISTORIK (E4/E6) MED IDPRC (Q3).                      *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    FILE SECTION                                *              
+*----------------------------------------------------------------*              
+*                                                                               
+FILE W4795QD1                                                                   
+*                                                                               
+%W47986    '86-'                                                                
+   86-DEL1      1  34 A                                                         
+   86-DEL2     35 156 A                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W4795QD2                                                                   
+*                                                                               
+%WDQ301                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+FILE W4795QD3  FB (194 0)                                                       
+*                                                                               
+%W4795Q    '5Q-'                                                                
+   5Q-DEL1      1  34 A                                                         
+   5Q-DEL2     39 156 A                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    WORKING STORAGE                             *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JA                        W   1  A   VALUE 'J'                                
+  NEJ                       W   1  A   VALUE 'N'                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*----------------------------------------------------------------*              
+*                    JOB SECTION                                 *              
+*----------------------------------------------------------------*              
+*                                                                               
+  JOB INPUT (W4795QD2 KEY (ODEL-IDDISTR                          +              
+                           ODEL-IDKUNDNR                         +              
+                           ODEL-IDKUNDRF                         +              
+                           ODEL-IDDC                             +              
+                           ODEL-IDPRODNR                         +              
+                           ODEL-IDPLKLST  )                      +              
+             W4795QD1 KEY (  86-IDDISTR                          +              
+                             86-IDKUNDNR                         +              
+                             86-IDKUNDRF                         +              
+                             86-IDDC                             +              
+                             86-IDPRODNR                         +              
+                             86-IDPLKLST  ))                     +              
+                                                 NAME   STEG01                  
+    IF MATCHED                                                                  
+      5Q-DEL1   = 86-DEL1                                                       
+      5Q-IDPRC  = ODEL-IDPRC                                                    
+      5Q-DEL2   = 86-DEL2                                                       
+      PUT W4795QD3                                                              
+    ELSE                                                                        
+      IF W4795QD1                                                               
+        5Q-DEL1   = 86-DEL1                                                     
+        5Q-IDPRC  = ' '                                                         
+        5Q-DEL2   = 86-DEL2                                                     
+        PUT W4795QD3                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+                                                                                
+NEWPAGE                                                                         

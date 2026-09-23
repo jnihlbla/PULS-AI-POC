@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  NEDLÄSNING AV INLAGDA KVANTITETER BASLAGER, ARTG, ARTA, XXAP               
+//*                                                                             
+//*  FREKVENS:     DAG    RTN W115D1                                            
+//*                                                                             
+//*  ÅTERSTART:    W11520 NORMAL                                                
+//*                       LÄSER WDD2 MED SB                                     
+//*                       LÄSER WDK6 OCH  WDG2 MED DLI                          
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W115P020 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W115..W115D1                                              
+//W11520   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W11520,W11520,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//DFSCTL   DD  DSN=F1IM00.IMS.CONSTANT(SBCOND),DISP=SHR                         
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDD2     INCLUDE MEMBER=WDD2                                                  
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDG2     INCLUDE MEMBER=WDG2                                                  
+//W11520D1 DD  DSN=&INDUT..W11522(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ UTFIL SKAPAD AV ARTG,ARTA,XXAP,                                  
+//             MGMTCLAS=&BACKUPC,SPACE=(23460,(100,50),RLSE)                    
+//*                                                                             
+//W11520D2 DD  DSN=&INDUT..W11521(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************ FEL-FIL SOM INNEHÅLLER MEDDELANDE TILL JOURANSV                  
+//             MGMTCLAS=&BACKUPC,SPACE=(6160,(500,100),RLSE)                    
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

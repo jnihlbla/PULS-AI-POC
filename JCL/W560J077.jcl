@@ -1,0 +1,22 @@
+//W560J077 JOB (640W5600100W560J077,W100),'RTN W560Y4',                         
+//             CLASS=K,USER=?,PASSWORD=?                                        
+//PROC  JCLLIB ORDER=(W.QASE.PROCLIB)                                           
+//ENV   INCLUDE MEMBER=ENVQASE                                                  
+//      INCLUDE MEMBER=SYST5                                                    
+//      INCLUDE MEMBER=SYST0                                                    
+/*JOBPARM FORMS=1800,LINECT=0                                                   
+/*ROUTE   XEQ LOCAL                                                             
+/*ROUTE   PRINT LOCAL                                                           
+//*                                                                             
+//W560    EXEC W560P077                                                         
+//*                                                                             
+//EMPTY1 EXEC WEMPTST,DSIN=W560.W560Y4.W56077(+1)                               
+//   IF (EMPTY1.T.RC = 0) THEN                                                  
+//     EXEC WSOP                                                                
+       ACTIVATE W560JD77                                                        
+//   ELSE                                                                       
+//     EXEC PGM=IEFBR14                                                         
+//DD1  DD DSN=W560.W560Y4.W56077(+1),DISP=(OLD,DELETE)                          
+//   ENDIF                                                                      
+//*                                                                             
+//SOPEND  EXEC WSOPEND,PROCESS=W560J077                                         

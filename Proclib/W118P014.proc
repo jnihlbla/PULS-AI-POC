@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  FORMATS THE CAPTURED ERROR RECORDS FROM PRINS-TCPLM.                       
+//*  THE OUTPUT FILE WILL BE SENT THRU D&P AS MAIL ATTACHMENT.                  
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W118D1                                         
+//*                                                                             
+//*  RESTART:      W1181400    NORMAL                                           
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W118P014 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W118..W118D1,                                             
+//             INDUT=&W118..W118D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*SORT THE FILE BASED ON SPARE PART UNIT & PART NUMBERS                        
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT1    EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W118PD14),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN..W11814(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W11814(-1),DISP=SHR                                  
+//SORTOUT  DD  DSN=&&W11814,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEN                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11814   EXEC PGM=W11814                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W11814D1 DD  DSN=&&W11814,DISP=(OLD,DELETE,DELETE)                            
+//W11814D2 DD  DSN=&INDUT..W11814X(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//             DATACLAS=PSEN                                                    

@@ -1,0 +1,46 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  DISTRIBUTES FILES WITH FEEDBACK DATA TO PULS - ORDER                       
+//*                                                                             
+//*  FREQUENCE:    SEVERAL TIMES A DAY     RTN WF21S1                           
+//*                                                                             
+//*  RESTART:      WF2104    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WF21P004 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//             INDIN=&WF20..WF21S1,                                             
+//             INDUT=&WF21..WF21S1,CKPTID=                                      
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WF2104S  EXEC PGM=SORT                                                        
+//*                                                                             
+//SORTIN   DD  DSN=&INDIN..WF2017,DISP=SHR                                      
+//         DD  DSN=&INDIN..WF2037,DISP=SHR                                      
+//*                                                                             
+//SORTOUT  DD  DSN=&INDUT..WF2104(+1),DISP=(NEW,CATLG,DELETE), -LIM(10)         
+//************ FEEDBACK DATA FILE                                               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(WF21PD04),DISP=SHR                         
+//*                                                                             
+//WF2104   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,WF2104,WF2104,,,N00,,,&CKPTID,,&CPU,,,&IMS')                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//************ FEEDBACK DATA FILE                                               
+//WDS3G    DD  DSN=&INDUT..WF2104(+1),DISP=SHR                                  

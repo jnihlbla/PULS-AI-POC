@@ -1,0 +1,65 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2243400                                              *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER FIL ÖVER DE ARTILAR SOM   NYREGISTRERATS        *        
+*                ELLER FÅTT NY LEVERANTÖR OCH KOMPLETTERAR             *        
+*                                                                      *        
+*  FÖRFATTARE :  MONICA                                                *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W22434D1                                                                   
+*                                                                               
+%W22429  'IN-'                                                                  
+                                                                                
+FILE W22434D2                                                                   
+*                                                                               
+%W91042  'LB-'                                                                  
+                                                                                
+FILE W22434D3  FB (64 0)                                                        
+*                                                                               
+%W22435  'UT-'                                                                  
+                                                                                
+NEWPAGE                                                                         
+************      WORKING STORAGE                                               
+WS-IDARTNR             W  9  N     MASK 'ZZZZZZZZZ'                             
+WS-IDFKNGRP            W  4  N     MASK 'ZZZZ'                                  
+WS-IDLEVNR-OLD         W  5  A                                                  
+WS-IDLEVNR-NEW         W  5  A                                                  
+WS-BEFT                W  3  N     MASK 'ZZZ'                                   
+WS-KDKVAKTL            W  4  A                                                  
+SPAR-IDARTNR           W  5  P     VALUE +0                                     
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+* STEG 1. MATCHAR NYREG/LEVBYTEN MED W91042 OCH SKAPAR UTFIL                    
+*                                                                               
+JOB INPUT (W22434D1 KEY (IN-IDARTNR) W22434D2 KEY (LB-IDARTNR))                 
+                                                                                
+    IF MATCHED                                                                  
+      UT-IDARTNR     =   IN-IDARTNR                                             
+      UT-BEART-SVE   =   IN-BEART-SVE                                           
+      UT-IDFKNGRP    =   IN-IDFKNGRP                                            
+      UT-IDLEVNR-NY  =   IN-IDLEVNR-NY                                          
+      UT-IDLEVNR-GAM =   IN-IDLEVNR-GAM                                         
+      UT-BEFT        =   IN-BEFT                                                
+      UT-TIFINLV     =   IN-TIFINLV                                             
+      UT-IDPROJ      =   IN-IDPROJ                                              
+      UT-NYREG       =   IN-NYREG                                               
+      UT-IDARTNR-MOTSV = LB-IDARTNR-MOTSV                                       
+      UT-KDFORP        = LB-KDFORP                                              
+      UT-KDFARLIG      = LB-KDFARLIG                                            
+      PUT W22434D3                                                              
+    END-IF                                                                      
+                                                                                
+                                                                                

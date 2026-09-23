@@ -1,0 +1,53 @@
+//*********************************************************************         
+//*                                                                   *         
+//*      **   W G O B T S   **                                        *         
+//*                                                                   *         
+//*      THIS PROCEDURE EXECUTES AN IMS APPLICATION PROGRAM           *         
+//*      UNDER THE CONTROL OF BTS (BATCH TERMINAL SIMULATOR).         *         
+//*                                                                   *         
+//*      ADD  //BTS.BTSIN  DD * FOR THE CONTROL CARDS TO BTS.         *         
+//*                                                                   *         
+//*                             MAINTAINED BY DEPT 57051              *         
+//*                                                                   *         
+//*********************************************************************         
+//WGOBTS PROC GROUP=&RTEGRP,FGROUP=&RTEGRP,DBB=DLI,                             
+//             LOAD2=VDUMMY.PROD.LOAD                                           
+//BTS    EXEC  PGM=BTSW5000,PARM=('&DBB,,01,,,,Y'),                             
+//             TIME=1                                                           
+//STEPLIB   DD DSN=&LOAD2,DISP=SHR            LOADLIB XTRA                      
+//          DD DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//          DD DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//          DD DSN=&W..&GROUP..LOAD,DISP=SHR    USER LOADLIB BATCH              
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//          DD DSN=&INDGRND..LOAD,DISP=SHR       USER LOADLIB BATCH             
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS       DD DSN=&W..&GROUP..PSBLIB,DISP=SHR                                  
+//          DD DSN=&W..&GROUP..DBDLIB,DISP=SHR                                  
+//          DD DSN=&W..IGRT.PSBLIB,DISP=SHR                                     
+//          DD DSN=&W..IGRT.DBDLIB,DISP=SHR                                     
+//IMSACB    DD DSN=&W..&GROUP..ACBLIB,DISP=SHR                                  
+//RMLIB     DD DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//IEFRDER   DD DUMMY                                                            
+//IMSMON    DD DSN=&W..BTS.IMSMON(+1),DISP=(NEW,CATLG,CATLG),                   
+//          DCB=(RECFM=VB,LRECL=2044,BLKSIZE=2048),                             
+//          SPACE=(2048,(100,50),RLSE),MGMTCLAS=DEL2                            
+//DFSVSAMP  DD DSN=&INDRTE..CONSTANT(BUFFLAES),DISP=SHR                         
+//SORTWK01  DD DSNAME=&&UT1,SPACE=(CYL,(3),,CONTIG)                             
+//SORTWK02  DD DSNAME=&&UT2,SPACE=(CYL,(3),,CONTIG)                             
+//SORTWK03  DD DSNAME=&&UT3,SPACE=(CYL,(3),,CONTIG)                             
+//SORTMSG   DD SYSOUT=*                                                         
+//BTSOUT    DD SYSOUT=*,DCB=(RECFM=FBA,LRECL=121,BLKSIZE=4598)                  
+//SYSOUT    DD SYSOUT=*,DCB=(RECFM=FBA,LRECL=121,BLKSIZE=121)                   
+//SYSPRINT  DD SYSOUT=*                                                         
+//DATUT     DD SYSOUT=*                                                         
+//DATAUT    DD SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//BTSSNAP   DD SYSOUT=*                                                         
+//SYSUDUMP  DD SYSOUT=*                                                         
+//PLIDUMP   DD SYSOUT=*                                                         
+//FORMAT    DD DSN=&W..&FGROUP..FMTLIB,DISP=SHR                                 
+//QIOPCB    DD SPACE=(CYL,1),DCB=(LRECL=2048,BLKSIZE=3072)                      
+//QALTPCB   DD SPACE=(CYL,(1)),DCB=(LRECL=2048,BLKSIZE=3072)                    
+//QALTRAN   DD SPACE=(CYL,(1,1)),DCB=(BLKSIZE=3092)                             
+//V16247D3  DD SYSOUT=*                      ( POSTSUM )                        

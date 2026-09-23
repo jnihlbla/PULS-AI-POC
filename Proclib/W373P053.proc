@@ -1,0 +1,47 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR BYTES UPPFÖLJNINGSLISTOR FÖR RAPPORTSTATUS 3                        
+//*                                                                             
+//*  FREKVENS:     DAGRUTIN  RTN W371P2                                         
+//*                                                                             
+//*  ÅTERSTART:    W37353    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W373P053 PROC INDIN=&W371..W371P2,                                            
+//             INDUT=&W371..W371P2,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W37353   EXEC PGM=V16459,PARM='W37353/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR                                  
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//EZTVFM   DD  SPACE=(8192,(10000,4000))                                        
+//*                                                                             
+//W37353D1 DD  DSN=&INDIN..W3714C,DISP=SHR                                      
+//************ BYTES RAPPORTER MED STATUS 4                                     
+//*                                                                             
+//TPFIL1   DD  DSN=&&TEMP1,DISP=(NEW,DELETE,DELETE),                            
+//************ TEMPORÄR ÅRSFIL SORTERAD PÅ ARTIKELNR                            
+//             SPACE=(10,(50,10),RLSE),AVGREC=K                                 
+//*                                                                             
+//W37353D2 DD  DSN=&INDUT..W37353(+1),DISP=(NEW,CATLG,DELETE), -LIM(7)          
+//************ BYTES UPPFÖLJNING FÖR STATUS 4 OCH CLASSIC DC'S                  
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             
+//W37353D3 DD  DSN=&INDUT..W37353.WEBDC(+1),                   -LIM(7)          
+//************ BYTES UPPFÖLJNING FÖR STATUS 4 OCH WEB DC'S                      
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

@@ -1,0 +1,41 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  CREATES EXCEL FOR THE STORAGE EVALUATION PER DC                            
+//*  AND PRODUCT GROUP                                                          
+//*                                                                             
+//*  FREQUENCE:    MONTHLY     RTN W512M2                                       
+//*                                                                             
+//*  RESTART:      W51263    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W512P063 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W512..W512M2,                                             
+//             INDUT1=&W512..W512M2                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51263   EXEC PGM=V16459,PARM='W51263/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//EZTVFM   DD  DATACLAS=PSEN                                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W51263D1 DD  DSN=&INDIN..W51261(+0),DISP=SHR                                  
+//************ FILE WITH IDFTG AS 57                                            
+//*                                                                             
+//TPFIL0   DD  DSN=&&TPFIL0,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FÖR SORTERADE ARTIKELSALDO-POSTER                        
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//TPFIL1   DD  DSN=&&TPFIL1,DISP=(NEW,PASS,DELETE),                             
+//************ TEMPFIL FÖR SORTERADE ARTIKELSALDO-POSTER                        
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51263D2 DD  DSN=&INDUT1..W51263(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)         
+//************ .CSV FILE                                                        
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//*                                                                             

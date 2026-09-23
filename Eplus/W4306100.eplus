@@ -1,0 +1,223 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  SYSTEM     :  W430   POSTER FÖR WL0196                              *        
+*                FREKVENS, DAGLIGEN                                    *        
+*                                                                      *        
+*  FUNKTION   :  LÄSER POSTER FRÅN LAGERBAND  SKAPAR POSTER         R  *        
+*                                                                      *        
+*  FÖRFATTARE :  MARKUS ASPFJÄLL                                       *        
+*                                                                      *        
+*  INFILER    :  W011.W01172        (LAGERBAND WDK6      )             *        
+*  INFILER    :  W011.DCXX.W01184   (LAGERBAND LDC       )             *        
+*  INFILER    :  W011.DCXX.W01186   (LAGERBAND LDC       )             *        
+*  INFILER    :  W430.W430D1.W43062 (LAGERBAND WDD3      )             *        
+*                                                                      *        
+*  UTDATA     :  FIL W43061                                            *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W43061D1                                                                   
+* WDK6 INFO                                                                     
+%W011100  'LB1-'                                                                
+                                                                                
+FILE W43061D2                                                                   
+* LDC INFO                                                                      
+%W01184   'L84-'                                                                
+                                                                                
+FILE W43061D3                                                                   
+*                                                                               
+%W01186   'L86-'                                                                
+                                                                                
+FILE TPFIL1   FB(483 0)                                                         
+%W01184   'TP1-'                                                                
+                                                                                
+FILE TPFIL2   FB(2094 0)                                                        
+%W01186   'TP2-'                                                                
+                                                                                
+FILE TPFIL3   FB(60 0)                                                          
+%W43061   'TP3-'                                                                
+                                                                                
+FILE TPFIL4   FB(60 0)                                                          
+%W43061   'TP4-'                                                                
+                                                                                
+FILE TPFIL5   FB(60 0)                                                          
+%W43061   'TP5-'                                                                
+                                                                                
+FILE W43061D4  FB (60 0)                                                        
+%W43061   'UT-'                                                                 
+                                                                                
+FILE W43061D5  FB (33 0)                                                        
+%W43062   'L62-'                                                                
+                                                                                
+* ARBETS-AREOR                                                                  
+*                                                                               
+TRANS-TIAAVV            W   4   N                                               
+TRANS-TIVV TRANS-TIAAVV +2  2   N                                               
+                                                                                
+W-TIMM        W   2  A                                                          
+W-TIVV        W   2  N                                                          
+W-KDMARK      W   3  N                                                          
+W-SUARTFSG    W  11  N  2                                                       
+W-SUBV        W  11  N  2                                                       
+                                                                                
+W-SUARTFSG-E  W  11  N  2                                                       
+W-SUBV-E      W  11  N  2                                                       
+FIRST-POST    W   1  A  VALUE 'J'                                               
+                                                                                
+W-SUARTFSG1                 W   11 N 2                                          
+W-SUARTFSG-HEL W-SUARTFSG1       9 N                                            
+W-SUARTFSG-DEC W-SUARTFSG1  +9   2 N                                            
+                                                                                
+W-SUBV1                     W   11 N 2                                          
+W-SUBV-HEL     W-SUBV1           9 N                                            
+W-SUBV-DEC     W-SUBV1     +9    2 N                                            
+                                                                                
+W-FORSTA-POST  W 1 A                                                            
+                                                                                
+W-PREV-TP4-IDARTNR          W    5 P 0                                          
+W-ELEMENT                   W    2 N                                            
+W-LANG-COUNT                W    2 N     VALUE 7                                
+* CHANGE 'VALUE' BASED ON THE NUMBER OF LANGUAGES SUPPORTED                     
+                                                                                
+W-IDSKYLT-X                 W   21 A                                            
+W-IDSKYLT         W-IDSKYLT-X    3 A      +                                     
+  OCCURS (7)                                                                    
+* CHANGE OCCURS BASED ON THE NUMBER OF LANGUAGES SUPPORTED                      
+                                                                                
+W-BEART-X                   W  175 A                                            
+W-BEART             W-BEART-X   25 A      +                                     
+  OCCURS (7)                                                                    
+* CHANGE OCCURS BASED ON THE NUMBER OF LANGUAGES SUPPORTED                      
+                                                                                
+*--------------------------------------------------*                            
+*  JOB1 SORT W01184 OCH W01186 PÅ DC OCH ARTIKEL                                
+*--------------------------------------------------*                            
+                                                                                
+ SORT W43061D2 TO TPFIL1 USING (L84-SLAG-IDARTNR L84-SLAG-IDDC)                 
+ SORT W43061D3 TO TPFIL2 USING (L86-DC-IDARTNR L86-DC-IDDC)                     
+                                                                                
+*-------------------------------------------------------------*                 
+*  JOB1 MATCHA W01184 MED W01186  OCH SKAPA EN TEMPFIL        *                 
+*  MED IDDC ARTIKEL                                           *                 
+*-------------------------------------------------------------*                 
+*                                                                               
+ JOB INPUT (TPFIL1 KEY (TP1-SLAG-IDARTNR TP1-SLAG-IDDC)      +                  
+           TPFIL2   KEY (TP2-DC-IDARTNR TP2-DC-IDDC))                           
+ IF MATCHED                                                                     
+   TP3-IDDC      = TP1-SLAG-IDDC                                                
+   TP3-ADLAGOMR  = TP1-SLAG-ADLAGOMR                                            
+   TP3-IDARTNR   = TP1-SLAG-IDARTNR                                             
+   TP3-ADLAGOMR  = TP1-SLAG-ADLAGOMR                                            
+   TP3-ADGANG    = TP1-SLAG-ADGANG                                              
+   TP3-ADPLATS   = TP1-SLAG-ADPLATS                                             
+   TP3-KVLS      = TP1-SLAG-KVLS                                                
+   TP3-KVPB-REF  = TP1-SLAG-KVPB-REF                                            
+   TP3-TIREFEFT  = TP2-DC-TIREFEFT                                              
+   TP3-KDERS     = 0                                                            
+   TP3-KDSORT    = ' '                                                          
+   TP3-KDPRODSL  = 0                                                            
+   TP3-IDSKYLT   = ' '                                                          
+   TP3-BEART     = ' '                                                          
+   PUT TPFIL3                                                                   
+ ELSE                                                                           
+  IF TPFIL1                                                                     
+   TP3-IDDC     = TP1-SLAG-IDDC                                                 
+   TP3-ADLAGOMR = TP1-SLAG-ADLAGOMR                                             
+   TP3-IDARTNR  = TP1-SLAG-IDARTNR                                              
+   TP3-ADLAGOMR = TP1-SLAG-ADLAGOMR                                             
+   TP3-ADGANG   = TP1-SLAG-ADGANG                                               
+   TP3-ADPLATS  = TP1-SLAG-ADPLATS                                              
+   TP3-KVLS     = TP1-SLAG-KVLS                                                 
+   TP3-KVPB-REF = TP1-SLAG-KVPB-REF                                             
+   TP3-TIREFEFT = 0                                                             
+   TP3-KDERS     = 0                                                            
+   TP3-KDSORT    = ' '                                                          
+   TP3-KDPRODSL  = 0                                                            
+   TP3-IDSKYLT   = ' '                                                          
+   TP3-BEART     = ' '                                                          
+   PUT TPFIL3                                                                   
+  END-IF                                                                        
+ END-IF                                                                         
+*--------------------------------------------------------------------*          
+*  JOB4 MATCHA WDK6 LAGERBANDET TPFIL3 FÖR ATT HÄMTA LITE INFO                  
+*  SKAPA TPFIL4                                                      *          
+*--------------------------------------------------------------------*          
+*                                                                               
+ JOB INPUT (W43061D1 KEY (LB1-IDARTNR)                 +                        
+           TPFIL3  KEY (TP3-IDARTNR))                                           
+  IF MATCHED                                                                    
+    TP4-W43061   EQ TP3-W43061                                                  
+                                                                                
+   TP4-KDERS     = LB1-KDERS                                                    
+   TP4-KDSORT    = LB1-KDSORT                                                   
+   TP4-KDPRODSL  = LB1-KDPRODSL                                                 
+   PUT TPFIL4                                                                   
+  END-IF                                                                        
+*                                                                               
+*--------------------------------------------------------------------*          
+*  JOB  MATCH  TPFIL4 WITH WDD3 AND GET DESC (BEART) AND LANGUAGE INFO          
+*  WRITE TPFIL5                                                      *          
+*--------------------------------------------------------------------*          
+*                                                                               
+ JOB INPUT NULL                                                                 
+  GET TPFIL4                                                                    
+  GET W43061D5                                                                  
+  DO UNTIL (EOF TPFIL4) OR (EOF W43061D5)                                       
+     IF TP4-IDARTNR = W-PREV-TP4-IDARTNR                                        
+        PERFORM WRITE-TPFIL5                                                    
+     ELSE                                                                       
+        IF L62-IDARTNR EQ TP4-IDARTNR                                           
+           PERFORM READ-W43061D5                                                
+        ELSE-IF L62-IDARTNR LT TP4-IDARTNR                                      
+           DO UNTIL EOF W43061D5 OR L62-IDARTNR GE TP4-IDARTNR                  
+              GET W43061D5                                                      
+           END-DO                                                               
+           IF (NOT EOF W43061D5) AND L62-IDARTNR EQ TP4-IDARTNR                 
+             PERFORM READ-W43061D5                                              
+           END-IF                                                               
+        END-IF                                                                  
+     END-IF                                                                     
+     GET TPFIL4                                                                 
+  END-DO                                                                        
+                                                                                
+  STOP                                                                          
+                                                                                
+ READ-W43061D5. PROC                                                            
+  W-ELEMENT    = 1                                                              
+  W-IDSKYLT-X  = ' '                                                            
+  W-BEART-X    = ' '                                                            
+  DO UNTIL EOF W43061D5 OR L62-IDARTNR GT TP4-IDARTNR                           
+     W-IDSKYLT (W-ELEMENT) = L62-IDSKYLT                                        
+     W-BEART   (W-ELEMENT) = L62-BEART                                          
+     GET W43061D5                                                               
+     W-ELEMENT      = W-ELEMENT + 1                                             
+  END-DO                                                                        
+  PERFORM WRITE-TPFIL5                                                          
+  W-PREV-TP4-IDARTNR = TP4-IDARTNR                                              
+ END-PROC                                                                       
+                                                                                
+ WRITE-TPFIL5. PROC                                                             
+  W-ELEMENT = 1                                                                 
+  DO UNTIL (W-IDSKYLT(W-ELEMENT) EQ ' ') +                                      
+        OR (W-ELEMENT GT W-LANG-COUNT)                                          
+     TP5-W43061   EQ TP4-W43061                                                 
+     TP5-IDSKYLT   = W-IDSKYLT (W-ELEMENT)                                      
+     TP5-BEART     = W-BEART   (W-ELEMENT)                                      
+     PUT TPFIL5                                                                 
+     W-ELEMENT     = W-ELEMENT + 1                                              
+  END-DO                                                                        
+ END-PROC                                                                       
+*                                                                               
+*--------------------------------------------------*                            
+*  JOB  SORT TPFIL5 PÅ DC OCH ARTIKEL                                           
+*--------------------------------------------------*                            
+*                                                                               
+ SORT TPFIL5   TO TPFIL5 USING (TP5-IDDC TP5-IDARTNR TP5-ADLAGOMR +             
+                                TP5-ADGANG)                                     
+*--------------------------------------------------*                            
+*  JOB  SKAPA UTFILEN IFRÅN TPFIL5                                              
+*--------------------------------------------------*                            
+                                                                                
+ JOB INPUT TPFIL5                                                               
+  UT-W43061 EQ TP5-W43061                                                       
+  PUT W43061D4                                                                  

@@ -1,0 +1,50 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  NDC LEVERANSANMÄRKNINGAR                                                   
+//*  UPDATING OF GOODS RECEIVAL FOLLOW-UP AND AK-PAV CDC                        
+//*                                                                             
+//*  FREQUENCE:    DAILY     RTN W476D5                                         
+//*                                                                             
+//*  RESTART:      W47677    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W476P077 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=1,                                                           
+//*                                                                             
+//             INDIN=&W476..W476D5,                                             
+//             INDUT=&W476..W476D5                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47677   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W47677,W47677,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                 -- ABEND            
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W47677D1 DD  DSN=&INDIN..W47677(+0),DISP=SHR                                  
+//         DD  DSN=&INDIN..W476UT(+0),DISP=SHR                                  
+//************ INFORMATION FROM THE INVOICE LINE                                
+//*                                                                             
+//W47677D2 DD  DSN=&INDUT..W476UT(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//************                                                                  
+//************ THE RECORDS FROM THE INCOMING FILE EXCEEDING 750                 
+//************ THIS FILE IS RE-READ THE NEXT TIME THE PROGRAM IS RUN            
+//************                                                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W47677D3 DD  DSN=&INDUT..W4763B(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************                                                                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//************ TO THE DISCREPANCY SYSTEM                                        
+//*                                                                             
+//W47677D4 DD  DSN=&INDUT..W4763C(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ TO THE SAP (PULS ACCOUNTING) INTERFACE SYSTEM                    
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             

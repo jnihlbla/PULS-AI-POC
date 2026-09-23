@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR EN FIL (EXCEL) MED INFO OM ÄNDRADE LAGER-                           
+//*  ADRESSER I SDC 24                                                          
+//*                                                                             
+//*  FREKVENS:     VECKA     RTN WXTRV2                                         
+//*                                                                             
+//*  ÅTERSTART:    WXTR69    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTRP069 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&WXTR..PARTINFO,                                          
+//             INDUT=&WXTR..WXTRV2                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//WXTR69   EXEC PGM=WXTR69                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                    -- ABEND         
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//*                                                                             
+//WXTR69D1 DD  DSN=&INDIN2..WSDCWEEK(-1),DISP=SHR                               
+//************ FÖRRA VECKANS SDCPART-FIL                                        
+//*                                                                             
+//WXTR69D2 DD  DSN=&INDIN2..WSDCWEEK(+0),DISP=SHR                               
+//************ DENNA VECKANS SDCPART-FIL                                        
+//*                                                                             
+//WXTR69D3 DD  DSN=&INDUT..WXTR69(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ ÄNDRADE LAGERPLATSER, TAB-TECKEN-SEPARERADE POSTER               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

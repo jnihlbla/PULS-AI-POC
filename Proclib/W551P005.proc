@@ -1,0 +1,48 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  KALKYLPÅLÄGG  ANALYSLISTOR                                                 
+//*                                                                             
+//*  FREKVENS:     BESTÄLLES    RTN W551B7                                      
+//*                                                                             
+//*  ÅTERSTART:    W55105   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W551P005 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN2=&W551..W551B7,                                            
+//             INDIN=&W551..W551B7,                                             
+//             INDUT=&W551..W551B7                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W55105   EXEC PGM=V16459,PARM='W55105/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//IGZSRTCD DD  DUMMY                                                            
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//W55105D1 DD  DSN=&INDIN..W55105(+0),DISP=SHR                                  
+//************ FILER MED KALKYLPÅLÄGG OCH VTH (R24)                             
+//         DD  DSN=&INDIN..W55114(+0),DISP=SHR                                  
+//*                                                                             
+//W55105D2 DD  DSN=&INDIN2..W55159(+0),DISP=SHR                                 
+//************ ARTIKELINFO SORT                                                 
+//*                                                                             
+//TEMPFIL1 DD  DSN=&&TEMP1,DISP=(NEW,PASS,DELETE)                               
+//************ TEMPFIL                                                          
+//*                                                                             
+//TEMPFIL2 DD  DSN=&&TEMP2,DISP=(NEW,PASS,DELETE)                               
+//************ TEMPFIL                                                          
+//*                                                                             
+//TEMPFIL3 DD  DSN=&&TEMP3,DISP=(NEW,PASS,DELETE)                               
+//************ TEMPFIL                                                          
+//*                                                                             
+//W55105D3 DD  DSN=&INDUT..W55105A(+1),DISP=(NEW,CATLG,DELETE), -LIM(3)         
+//************ W55105-010  AVSTÄMNINGSLISTA KALKYLPÅLÄGG > 40%                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

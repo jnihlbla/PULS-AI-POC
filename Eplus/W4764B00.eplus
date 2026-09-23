@@ -1,0 +1,166 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W4764B00                                              *        
+*                                                                      *        
+*  FUNKTION   :  PROGRAMMET SORTERAR IHOP SAMTLIGA FILER UR PACK-      *        
+*                NINGEN FÖR DHL-MARKNADER OCH SKRIVER EN TOTALLISTA    *        
+*                                                                      *        
+*  FÖRFATTARE :  CAMELIA OLGRENER                                      *        
+*                                                                      *        
+*  ÄNDRING    :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W4764BD1                                                                   
+*                                                                               
+ IN-IDAWB             1  10  N                                                  
+ IN-IDKONTO          11   9  N                                                  
+ IN-IDREF            20  12  A                                                  
+  IN-IDKUNDNR  IN-IDREF     6  N                                                
+  IN-TECKEN    IN-IDREF +6  1  A                                                
+  IN-IDORDER   IN-IDREF +7  5  N                                                
+ IN-IDCITY           32   3  A                                                  
+ IN-ANTAL-KOLLI      35   3  N 0                                                
+ IN-VKORDBTO         38   7  N 1                                                
+ IN-VLORDBTO         45   7  N 3                                                
+ IN-BEGMT            52  35  A                                                  
+                                                                                
+NEWPAGE                                                                         
+FILE W4764BD2  PRINTER                                                          
+                                                                                
+NEWPAGE                                                                         
+*-------------------------------------------------------------*                 
+*                 WORKING STORAGE                             *                 
+*-------------------------------------------------------------*                 
+*                                                                               
+ W01-IDAWB                  W  10  N      MASK 'ZZZZZZZZZ9' VALUE 0             
+ W01-IDKONTO                W   9  N      MASK 'ZZZZZZZZ9'  VALUE 0             
+ W01-IDREF                  W  12  A                                            
+  W01-IDKUNDNR W01-IDREF        6  N                                            
+  W01-IDK-1    W01-IDKUNDNR     1  A                                            
+  W01-IDK-2    W01-IDKUNDNR +1  1  A                                            
+  W01-IDK-3    W01-IDKUNDNR +2  1  A                                            
+  W01-IDK-4    W01-IDKUNDNR +3  1  A                                            
+  W01-IDK-5    W01-IDKUNDNR +4  1  A                                            
+  W01-TECKEN   W01-IDREF   +6   1  A                                            
+  W01-IDORDER  W01-IDREF   +7   5  N                                            
+ W01-IDCITY                 W   3  A                                            
+ W01-ANTAL-KOLLI            W   3  N 0    MASK 'ZZ9'        VALUE 0             
+ W01-VKORDBTO-1             W   7  N 1    MASK 'ZZZZZ9,9'   VALUE 0             
+ W01-VKORDBTO               W   8  N 2    MASK 'ZZZZZ9,99'  VALUE 0             
+ W01-VLORDBTO               W   7  N 3    MASK 'ZZZ9,999'   VALUE 0             
+ W01-CODE                   W   3  A                        VALUE 'ECT'         
+ W01-BEGMT                  W  33  A                                            
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+*-------------------------------------------------------------*                 
+*                 JOB SECTION                                 *                 
+*-------------------------------------------------------------*                 
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. SKAPAR TOTALLISTA W4764B-001                                          
+*                                                                               
+  JOB INPUT W4764BD1                                                   +        
+                                                  NAME STEG02                   
+      W01-IDAWB            = IN-IDAWB                                           
+      W01-IDKONTO          = IN-IDKONTO                                         
+      W01-IDKUNDNR         = IN-IDKUNDNR                                        
+      IF W01-IDK-1 = '0'                                                        
+        W01-IDK-1 = ' '                                                         
+        IF W01-IDK-2 = '0'                                                      
+          W01-IDK-2 = ' '                                                       
+          IF W01-IDK-3 = '0'                                                    
+            W01-IDK-3 = ' '                                                     
+            IF W01-IDK-4 = '0'                                                  
+              W01-IDK-4 = ' '                                                   
+              IF W01-IDK-5 = '0'                                                
+                W01-IDK-5 = ' '                                                 
+              END-IF                                                            
+            END-IF                                                              
+          END-IF                                                                
+        END-IF                                                                  
+      END-IF                                                                    
+      W01-TECKEN           = IN-TECKEN                                          
+      W01-IDORDER          = IN-IDORDER                                         
+      W01-IDCITY           = IN-IDCITY                                          
+      W01-ANTAL-KOLLI      = IN-ANTAL-KOLLI                                     
+      W01-VKORDBTO-1       = IN-VKORDBTO                                        
+      W01-VKORDBTO         = W01-VKORDBTO-1                                     
+      W01-VLORDBTO         = IN-VLORDBTO                                        
+      W01-BEGMT            = IN-BEGMT                                           
+                                                                                
+      PRINT RAPPORT01                                                           
+NEWPAGE                                                                         
+   REPORT RAPPORT01  PRINTER W4764BD2                                  +        
+                     LINESIZE     120                                  +        
+                     PAGESIZE      41                                  +        
+                     NODATE                                            +        
+                     NOADJUST                                          +        
+                     NOSPREAD                                          +        
+                     SUMSPACE       0                                  +        
+                     SPACE          1                                           
+*                                                                               
+   SEQUENCE W01-IDCITY W01-IDAWB                                                
+*                                                                               
+   CONTROL                                                                      
+*                                                                               
+   SUM      W01-ANTAL-KOLLI                                            +        
+            W01-VKORDBTO                                               +        
+            W01-VLORDBTO                                                        
+                                                                                
+ TITLE 01                                                              +        
+   COL 15 '    DHL WORLDWIDE EXPRESS - VOLVO CAR CORPORATION  '                 
+*                                                                               
+*TITLE 02                                                                       
+*  COL 02 'PAGE NO. '                                                           
+*  COL 10 W01-SIDA                                                              
+*                                                                               
+ TITLE 03                                                              +        
+   COL 02 SYSDATE                                                               
+*                                                                               
+ TITLE 06                                                              +        
+   COL 17 '      DHL - DAILY MANIFEST FOR LABEL CUSTOMER      '                 
+*                                                                               
+ TITLE 07                                                              +        
+   COL 17 '      ---------------------------------------      '                 
+*                                                                               
+ HEADING  W01-IDAWB                 'AWB NO.'                                   
+ HEADING  W01-IDKONTO               'SHIPP. ACC.'                               
+ HEADING  W01-IDREF                 'SHIPP. REF.'                               
+ HEADING  W01-IDCITY                'DST'                                       
+ HEADING  W01-ANTAL-KOLLI           'PCE'                                       
+ HEADING  W01-VKORDBTO              'AWB WEIGHT'                                
+ HEADING  W01-VLORDBTO              'DIM. WEIGHT'                               
+ HEADING  W01-CODE                  'TYPE'                                      
+ HEADING  W01-BEGMT                 'CONSIGNEE NAME'                            
+*                                                                               
+ LINE 01                                                               +        
+          W01-IDAWB                                                    +        
+          W01-IDKONTO                                                  +        
+          W01-IDREF                                                    +        
+          W01-IDCITY                                                   +        
+          W01-ANTAL-KOLLI                                              +        
+          W01-VKORDBTO                                                 +        
+          W01-VLORDBTO                                                 +        
+          W01-CODE                                                     +        
+          W01-BEGMT                                                             
+*                                                                               
+  BEFORE-BREAK. PROC                                                            
+    IF LEVEL = 1                                                                
+      DISPLAY    COL 41 '--- ---------- -----------'                            
+      DISPLAY    COL 002 'TOTALS'                                               
+*                  W01-ANTAL-KOLLI         +                                    
+*                  W01-VKORDBTO            +                                    
+*                  W01-VLORDBTO                                                 
+    END-IF                                                                      
+  END-PROC                                                                      

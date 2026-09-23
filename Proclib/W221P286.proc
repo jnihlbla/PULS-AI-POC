@@ -1,0 +1,55 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  TAR FRAM DE LEVNR (MÄRKTA FÖR VECKO-KÖRNING)                               
+//*  SOM SKALL HA LEVPLANER I PERIOD-SVÄNGEN                                    
+//*                                                                             
+//*  FREKVENS:     PERIOD RTN W221V2                                            
+//*                                                                             
+//*                OBS  SKALL KÖRAS EFTER W221D4 (PGA PARAMETRAR)               
+//*                                                                             
+//*  ÅTERSTART:    W22186      NORMAL                                           
+//*                LÄSER  WDR2                                                  
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W221P286 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDUT=&W221..W221V2,                                             
+//             INDUT2=&W221..W221D5                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22186   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W22186,W22186,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR              -- DATKORT          
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR       -- DATKORT          
+//DATUT    DD  SYSOUT=*                                     -- DATKORT          
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDR2     INCLUDE MEMBER=WDR2                                                  
+//*                                                                             
+//W22186D1 DD  DUMMY                                                            
+//************ PARAMETER IN VIA JOB-JCL                                         
+//*                                                                             
+//W22186D2 DD  DSN=&INDUT..W22186(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ LEVNR SOM SKALL GE LEVPLANER                                     
+//             SPACE=(3,(50,150),RLSE),AVGREC=U,                                
+//             MGMTCLAS=&NOBACKUP                                               
+//*                                                                             
+//W22186D3 DD  DSN=&INDUT2..W22100(+1),                         -LIM(1)         
+//************ PARAMETER UT                                                     
+//             DISP=(NEW,CATLG,DELETE),                                         
+//             SPACE=(80,(1,1),RLSE),AVGREC=U,                                  
+//             MGMTCLAS=&DEL2BKPC                                               

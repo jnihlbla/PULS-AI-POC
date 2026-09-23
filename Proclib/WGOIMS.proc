@@ -1,0 +1,38 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*   IMS FIX OCH TEST-PROCEDURE                                                
+//*                                                                             
+//*      PERIODICITET: VID BEHOV                                                
+//*                                                                             
+//*                    FIXAS AV VCAS PROJEKTSTÖD                                
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//WGOIMS   PROC IMSBUFF=BUFFLAES,                                               
+//             DBB=DLI,MBR=SAKNAS,PSB=SAKNAS,                                   
+//             PDS=&INDRTE..LOAD,                                               
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//GO      EXEC PGM=DFSRRC00,                                                    
+//             PARM='&DBB,&MBR,&PSB,,00'                                        
+//*            PARM='&DBB,&MBR,&PSB,,00,,,,,,,,,&DBRC'                          
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&PDS,DISP=SHR                                                
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(&IMSBUFF),DISP=SHR                         
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//PRINTDD  DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                     -- ABEND           
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                     -- ABEND           
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//IDIHIST  DD  DSN=&INDABE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             

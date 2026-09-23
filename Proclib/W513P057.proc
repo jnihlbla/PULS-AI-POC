@@ -1,0 +1,43 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  INVENTERINGEN, LISTA VÄRDEMÄSSIGA JUSTERINGAR > 25000                      
+//*                                                                             
+//*  FREKVENS:     REDOVISNINGSPERIOD                                           
+//*                                                                             
+//*  ÅTERSTART:    W51357   NORMAL                                              
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W513P057 PROC INDIN=&W513..W513R1,                                            
+//             INDUT=&W513..W513R1,                                             
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W51357   EXEC PGM=V16459,PARM='W51357/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATWEEK(+0),DISP=SHR                                
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR                           
+//DATUT    DD  SYSOUT=*                                                         
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//W51357D1 DD  DSN=&INDIN..W51326,DISP=SHR                                      
+//************ INVENTERINGSJUSTERINGAR                                          
+//*                                                                             
+//TEMPFIL1 DD  DSN=&&TEMP,DISP=(NEW,DELETE,DELETE),                             
+//************ TEMP FILE                                                        
+//             DATACLAS=PSEN                                                    
+//*                                                                             
+//W51357D2 DD  DSN=&INDUT..W513O7(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ LISTA W51357-001 INV.JUSTERINGAR > 25000                         
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W51357D3 DD  DSN=&INDUT..W51357(+1),DISP=(NEW,CATLG,DELETE),  -LIM(3)         
+//************ D&P LIST ADJ>25000                                               
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

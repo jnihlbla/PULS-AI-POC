@@ -1,0 +1,38 @@
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W6110900                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCH TWO FILES WITH NETWEIGHT INFO FROM KDP AND      *        
+*                CREATE AN OUTPUT FILE WITH TODAYS CHANGES FOR WDK212. *        
+*                                                                      *        
+*  FÖRFATTARE :  HÅKAN BOHLIN                                          *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+FILE W61109D1                                                                   
+*                                                                               
+%W61106  'IN1-'                                                                 
+                                                                                
+FILE W61109D2                                                                   
+*                                                                               
+%W61106  'IN2-'                                                                 
+                                                                                
+FILE W61109D3 FB(80 0)                                                          
+*                                                                               
+%W61106  'OUT1-'                                                                
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+                                                                                
+JOB INPUT (W61109D1 KEY IN1-IDARTNR W61109D2 KEY IN2-IDARTNR)                   
+IF MATCHED                                                                      
+  IF IN1-VKART-NTO NE IN2-VKART-NTO OR   +                                      
+    IN1-KVANTAL   NE IN2-KVANTAL                                                
+    OUT1-W61106 = IN1-W61106                                                    
+    PUT W61109D3                                                                
+  END-IF                                                                        
+ELSE                                                                            
+  IF W61109D1                                                                   
+    OUT1-W61106 = IN1-W61106                                                    
+    PUT W61109D3                                                                
+  END-IF                                                                        
+END-IF                                                                          

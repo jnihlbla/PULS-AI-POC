@@ -1,0 +1,116 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2150900                                              *        
+*                                                                      *        
+*  FUNKTION   :  ADJUST FILE W21501 FOR SORT IN NEXT JOB               *        
+*                                                                      *        
+*  FÖRFATTARE :  ANDERSSON BERT                                        *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+FILE W21509D1 FB  (125   0)                                                     
+IN1-POST-TYPE       1   2  A                                                    
+IN1-FILLER1         3   1  A                                                    
+IN1-ARTNR-OVER      4   8  A                                                    
+IN1-FILLER2         12  1  A                                                    
+IN1-ARTNR-ING       13  8  A                                                    
+IN1-FILLER3         21  1  A                                                    
+IN1-NO-OF           22  5  A                                                    
+IN1-FILLER4         27  1  A                                                    
+IN1-T-AOINFTID6     28  6  A                                                    
+IN1-FILLER5         34  1  A                                                    
+IN1-U-AOINFTID6     35  6  A                                                    
+IN1-FILLER6         41  1  A                                                    
+IN1-ARTTYP          42  4  A                                                    
+IN1-FILLER7         46  1  A                                                    
+IN1-LEVEL           47  2  A                                                    
+IN1-FILLER8         49  1  A                                                    
+IN1-ARTBEN          50 25  A                                                    
+IN1-FILLER9         75  1  A                                                    
+IN1-RESMARK         76  1  A                                                    
+IN1-FILLER10        77  1  A                                                    
+IN1-FILLER11        78 47  A                                                    
+*                                                                               
+                                                                                
+NEWPAGE                                                                         
+FILE W21509D2 FB(125 0)                                                         
+OUT-POST-TYPE       1   2  A                                                    
+OUT-FILLER1         3   1  A                                                    
+OUT-ARTNR-OVER      4   8  A                                                    
+OUT-FILLER2         12  1  A                                                    
+OUT-ARTNR-ING       13  8  A                                                    
+OUT-FILLER3         21  1  A                                                    
+OUT-NO-OF           22  5  A                                                    
+OUT-FILLER4         27  1  A                                                    
+OUT-T-AOINFTID6     28  6  A                                                    
+OUT-FILLER5         34  1  A                                                    
+OUT-U-AOINFTID6     35  6  A                                                    
+OUT-FILLER6         41  1  A                                                    
+OUT-ARTTYP          42  4  A                                                    
+OUT-FILLER7         46  1  A                                                    
+OUT-LEVEL           47  2  A                                                    
+OUT-FILLER8         49  1  A                                                    
+OUT-ARTBEN          50 25  A                                                    
+OUT-FILLER9         75  1  A                                                    
+OUT-RESMARK         76  1  A                                                    
+OUT-FILLER10        77  1  A                                                    
+OUT-ARTNR-SATS      78  8  A                                                    
+***-FILLER11        87 38  A                                                    
+                                                                                
+  WS-ARTNR-OVER           W   8 A  VALUE '        '                             
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. W21509D1 INFIL                                                        
+*                                                                               
+JOB INPUT (W21509D1 KEY (IN1-ARTNR-OVER))                                       
+                                                                                
+  IF IN1-POST-TYPE = '10'                                                       
+    WS-ARTNR-OVER  =  IN1-ARTNR-OVER                                            
+*IMPORTANT: WS-ARTNR-OVER STEERS THE SORTNING IN NEXT JOB                       
+    PERFORM B-MOVE-TO-W21509D2                                                  
+    PUT W21509D2                                                                
+  ELSE                                                                          
+                                                                                
+    IF IN1-POST-TYPE = '20'                                                     
+      IF IN1-ARTTYP  = 'K'                                                      
+*        K = KOMPLETT SATSART  (WHOLE KITPART)                                  
+      ELSE                                                                      
+        PERFORM B-MOVE-TO-W21509D2                                              
+        PUT W21509D2                                                            
+      END-IF                                                                    
+    END-IF                                                                      
+  END-IF                                                                        
+                                                                                
+NEWPAGE                                                                         
+                                                                                
+  B-MOVE-TO-W21509D2.    PROC                                                   
+      OUT-ARTNR-ING   = IN1-ARTNR-ING                                           
+      OUT-POST-TYPE   = IN1-POST-TYPE                                           
+      OUT-FILLER1     = IN1-FILLER1                                             
+      OUT-ARTNR-SATS  = IN1-ARTNR-OVER                                          
+      OUT-ARTNR-OVER  = WS-ARTNR-OVER                                           
+      OUT-FILLER2     = IN1-FILLER2                                             
+      OUT-ARTNR-ING   = IN1-ARTNR-ING                                           
+      OUT-FILLER3     = IN1-FILLER3                                             
+      OUT-NO-OF       = IN1-NO-OF                                               
+      OUT-FILLER4     = IN1-FILLER4                                             
+      OUT-T-AOINFTID6 = IN1-T-AOINFTID6                                         
+      OUT-FILLER5     = IN1-FILLER5                                             
+      OUT-U-AOINFTID6 = IN1-U-AOINFTID6                                         
+      OUT-FILLER6     = IN1-FILLER6                                             
+      OUT-ARTTYP      = IN1-ARTTYP                                              
+      OUT-FILLER7     = IN1-FILLER7                                             
+      OUT-LEVEL       = IN1-LEVEL                                               
+      OUT-FILLER8     = IN1-FILLER8                                             
+      OUT-ARTBEN      = IN1-ARTBEN                                              
+      OUT-FILLER9     = IN1-FILLER9                                             
+      OUT-RESMARK     = IN1-RESMARK                                             
+      OUT-FILLER10    = IN1-FILLER10                                            
+**    OUT-FILLER11    = '                                      '                
+                                                                                
+  END-PROC.                                                                     
+***                                                                             
+***                                                                             

@@ -1,0 +1,515 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM... :  W5515800                                              *        
+*                                                                      *        
+*  FUNKTION.. :  PROGRAMMET SKAPAR LADDTRANSAR OCH UNDERLAG TILL       *        
+*                ANALYSFIL FÖR SPIS                                    *        
+*                MATCHAR FÖRÄNDRINGS-FIL (W55156) MED FIL FRÅN         *        
+*                SPIS-BASEN (W55147).                                  *        
+*                SKAPAR DESSUTOM FEL & KONTROLL LISTA                  *        
+*                                                                      *        
+* INDATA .... : W551.W551B1.W55156(+0) D1 - PRISFIL                    *        
+*               W551.W551B1.W55147(+0) D2 - FIL FRÅN SPIS-BASEN        *        
+*                                                                      *        
+* UTDATA .... : W551.W551B1.W55158(+1) D3 - LADDTRANSAR TILL SPIS-BASEN*        
+*                                                                      *        
+* RAPPORTER.. : W551.W551B1.W55158R(+1 D4 - TOTAL INFORMATION LISTA    *        
+*                                                                      *        
+* RAPPORTER.. : W55158-002             D5 - FEL OCH KONTROLL LISTA     *        
+*                                                                      *        
+*                                                                      *        
+* FÖRFATTARE  : PER FREDRIKSSON  940825                                *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+                                                                                
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55156  -  PRISFIL                                      *               
+*                                                               *               
+*****************************************************************               
+FILE W55158D1                                                                   
+*                                                                               
+%W55150  'IN-'                                                                  
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* INFIL W55147  -  SPIS-FIL                                     *               
+*                                                               *               
+*****************************************************************               
+FILE W55158D2                                                                   
+*                                                                               
+%W55147  'SPIS-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* UTFIL W55158  - LADDTRANSAR TILL SPIS-BASEN                   *               
+*                                                               *               
+*****************************************************************               
+FILE W55158D3 FB(320 0)                                                         
+*                                                                               
+%W55147  'LADD-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* RAPPORT1      -  W55158-001 FEL & KONTROLLISTA                *               
+*                                                               *               
+*****************************************************************               
+FILE W55158D4 VB(324 0)                                                         
+*                                                                               
+%W55147  'INFO-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* RAPPORT2      -  W55158-001 FEL & KONTROLLISTA                *               
+*                                                               *               
+*****************************************************************               
+FILE W55158D5 VB(324 0)                                                         
+*                                                                               
+%W55158  'FEL-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* ARBETSAREA                                                    *               
+*                                                               *               
+*****************************************************************               
+*                                                                               
+  W-IDLEVNR         W     5 A                                                   
+  W-IDARTNR         W     8 N     MASK 'ZZZZZZZ9'                               
+  W-KDPRBEH         W     1 A                                                   
+  W-KDVALISO        W     3 A                                                   
+  W-PRARTBEL-PR     W    13 N  5  MASK '-------9.99999'                         
+  W-PRKURS          W    11 N  5  MASK '-----9.99999'                           
+  W-RETULF          W     7 N  4  MASK '--9.9999'                               
+  W-TIPRLIST        W     6 N     MASK '99.99.99'                               
+  W-PRINK-KOM       W     9 N  2  MASK '------9.99'                             
+  W-REAENDR         W     5 N  1  MASK '---9.9'                                 
+  W-IDPRANSV        W     4 A                                                   
+  W-FELTYP          W    21 A                                                   
+  W-REAENDR-CHECK   W     9 N  1                                                
+                                                                                
+*    -- CHECKED BY WY2000                                                       
+*                                                                               
+NEWPAGE                                                                         
+*****************************************************************               
+*                                                               *               
+* STEG 1. MATCHAR PRISFIL MOT SPIS-FIL                          *               
+*                                                               *               
+*****************************************************************               
+JOB INPUT (W55158D2 KEY(SPIS-IDARTNR)                           +               
+           W55158D1 KEY( IN-IDARTNR))                           +               
+NAME STEG1-MATCHA-SPIS-IN                                                       
+                                                                                
+IF MATCHED                                                                      
+  IF IN-FLPRFIL = 'N'                                                           
+    IF SPIS-FLPRFIL = 'N'                                                       
+***       INGET NYTT FILPRIS  &  INGET GAMMALT FILPRIS   *******                
+      CASE SPIS-KDPRBEH                                                         
+        WHEN 'F'                                                                
+              PERFORM FLYTTA-FRYST-DATA                                         
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        WHEN 'J'                                                                
+              PERFORM FLYTTA-PRISFIL                                            
+              IF IN-PRINK-KOM NE SPIS-PRINK-KOM                                 
+                LADD-KDPRBEH = 'N'                                              
+                INFO-KDPRBEH = 'N'                                              
+              ELSE                                                              
+                LADD-KDPRBEH = 'J'                                              
+                INFO-KDPRBEH = 'J'                                              
+              END-IF                                                            
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        WHEN 'N'                                                                
+              PERFORM FLYTTA-PRISFIL                                            
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        OTHERWISE                                                               
+              PERFORM FLYTTA-RAPPORT-DATA                                       
+              W-FELTYP        = 'FEL PRISBEH.KOD'                               
+              PUT W55158D5                                                      
+      END-CASE                                                                  
+    ELSE                                                                        
+NEWPAGE                                                                         
+***       INGET NYTT FILPRIS           GAMMALT FILPRIS   *******                
+      CASE SPIS-KDPRBEH                                                         
+        WHEN 'F'                                                                
+              PERFORM FLYTTA-FRYST-DATA                                         
+              LADD-FLPRFIL  = SPIS-FLPRFIL                                      
+              INFO-FLPRFIL  = SPIS-FLPRFIL                                      
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        WHEN 'J' 'N'                                                            
+              IF IN-PRINK-KOM NE SPIS-PRINK-KOM   AND    +                      
+                IN-KVDISP-SPIS > IN-KVBEHOVAR                                   
+                  PERFORM FLYTTA-PRISFIL                                        
+                  LADD-KDPRBEH  =   SPIS-KDPRBEH                                
+                  INFO-KDPRBEH  =   SPIS-KDPRBEH                                
+              ELSE                                                              
+                PERFORM FLYTTA-FRYST-DATA                                       
+              END-IF                                                            
+              LADD-FLPRFIL  = SPIS-FLPRFIL                                      
+              INFO-FLPRFIL  = SPIS-FLPRFIL                                      
+              LADD-FLAPC    = SPIS-FLAPC                                        
+              INFO-FLAPC    = SPIS-FLAPC                                        
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        OTHERWISE                                                               
+              PERFORM FLYTTA-RAPPORT-DATA                                       
+              W-FELTYP        = 'FEL PRISBEH.KOD'                               
+              PUT W55158D5                                                      
+      END-CASE                                                                  
+    END-IF                                                                      
+  ELSE                                                                          
+NEWPAGE                                                                         
+***             NYTT FILPRIS     INGET GAMMALT FILPRIS   *******                
+                                                                                
+    IF SPIS-FLPRFIL = 'N'                                                       
+      CASE SPIS-KDPRBEH                                                         
+        WHEN 'F'                                                                
+              IF IN-KVDISP-SPIS > IN-KVBEHOVAR                                  
+                PERFORM FLYTTA-FRYST-DATA                                       
+              ELSE                                                              
+                PERFORM FLYTTA-PRISFIL                                          
+                LADD-KDPRBEH = 'J'                                              
+                INFO-KDPRBEH = 'J'                                              
+                PERFORM FLYTTA-RAPPORT-DATA                                     
+                W-FELTYP        = 'FRYSTA VÄRDEN ERSATTA'                       
+                PUT W55158D5                                                    
+              END-IF                                                            
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        WHEN 'J'                                                                
+              PERFORM FLYTTA-PRISFIL                                            
+              LADD-KDPRBEH     = 'J'                                            
+              INFO-KDPRBEH     = 'J'                                            
+              IF IN-PRINK-KOM NE SPIS-PRINK-KOM                                 
+                IF IN-KVDISP-SPIS > IN-KVBEHOVAR                                
+                  LADD-KDPRBEH = 'N'                                            
+                  INFO-KDPRBEH = 'N'                                            
+                END-IF                                                          
+              END-IF                                                            
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        WHEN 'N'                                                                
+              PERFORM FLYTTA-PRISFIL                                            
+              IF IN-KVDISP-SPIS > IN-KVBEHOVAR                                  
+                LADD-KDPRBEH = 'N'                                              
+                INFO-KDPRBEH = 'N'                                              
+              ELSE                                                              
+                LADD-KDPRBEH = 'J'                                              
+                INFO-KDPRBEH = 'J'                                              
+              END-IF                                                            
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        OTHERWISE                                                               
+              PERFORM FLYTTA-RAPPORT-DATA                                       
+              W-FELTYP        = 'FEL PRISBEH.KOD'                               
+              PUT W55158D5                                                      
+      END-CASE                                                                  
+    ELSE                                                                        
+NEWPAGE                                                                         
+***             NYTT FILPRIS  &        GAMMALT FILPRIS   *******                
+                                                                                
+      CASE SPIS-KDPRBEH                                                         
+        WHEN 'F'                                                                
+              IF IN-KVDISP-SPIS > IN-KVBEHOVAR                                  
+                PERFORM FLYTTA-FRYST-DATA                                       
+              ELSE                                                              
+                PERFORM FLYTTA-PRISFIL                                          
+                LADD-KDPRBEH = 'J'                                              
+                INFO-KDPRBEH = 'J'                                              
+                                                                                
+                PERFORM FLYTTA-RAPPORT-DATA                                     
+                W-FELTYP     = 'FRYSTA VÄRDEN ERSATTA'                          
+                PUT W55158D5                                                    
+              END-IF                                                            
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        WHEN 'J'                                                                
+              PERFORM FLYTTA-PRISFIL                                            
+              LADD-KDPRBEH     = 'J'                                            
+              INFO-KDPRBEH     = 'J'                                            
+              IF IN-PRINK-KOM NE SPIS-PRINK-KOM                                 
+                IF IN-KVDISP-SPIS > IN-KVBEHOVAR                                
+                  LADD-KDPRBEH = 'N'                                            
+                  INFO-KDPRBEH = 'N'                                            
+                END-IF                                                          
+              END-IF                                                            
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        WHEN 'N'                                                                
+              PERFORM FLYTTA-PRISFIL                                            
+              IF IN-KVDISP-SPIS > IN-KVBEHOVAR                                  
+                LADD-KDPRBEH = 'N'                                              
+                INFO-KDPRBEH = 'N'                                              
+              ELSE                                                              
+                LADD-KDPRBEH = 'J'                                              
+                INFO-KDPRBEH = 'J'                                              
+              END-IF                                                            
+              PUT W55158D3                                                      
+              PUT W55158D4                                                      
+        OTHERWISE                                                               
+              PERFORM FLYTTA-RAPPORT-DATA                                       
+              W-FELTYP        = 'FEL PRISBEH.KOD'                               
+              PUT W55158D5                                                      
+      END-CASE                                                                  
+    END-IF                                                                      
+  END-IF                                                                        
+ELSE                                                                            
+NEWPAGE                                                                         
+****      OMATCHAD                                     ******                   
+                                                                                
+  IF W55158D1                                                                   
+    PERFORM FLYTTA-PRISFIL                                                      
+    PUT W55158D3                                                                
+    PUT W55158D4                                                                
+  ELSE                                                                          
+    PERFORM FLYTTA-RAPPORT-DATA                                                 
+    W-FELTYP        =  'BORTTAGET UR SPIS'                                      
+    PUT W55158D5                                                                
+  END-IF                                                                        
+                                                                                
+END-IF                                                                          
+*                                                                               
+SKIP 3                                                                          
+*                                                                               
+FLYTTA-FRYST-DATA. PROC                                                         
+                                                                                
+************ FRYST DATA *****************                                       
+                                                                                
+     LADD-IDLEVNR         =   SPIS-IDLEVNR                                      
+     LADD-KDPRBEH         =   SPIS-KDPRBEH                                      
+     LADD-KDVALISO        =   SPIS-KDVALISO                                     
+     LADD-PRARTBEL-PR     =   SPIS-PRARTBEL-PR                                  
+     LADD-PRKURS          =   SPIS-PRKURS                                       
+     LADD-RETULF          =   SPIS-RETULF                                       
+     LADD-TEARTNOT        =   SPIS-TEARTNOT                                     
+     LADD-TIPRLIST        =   SPIS-TIPRLIST                                     
+     LADD-PRINK-KOM       =   SPIS-PRINK-KOM                                    
+     LADD-REAENDR         =   SPIS-REAENDR                                      
+     LADD-IDNAMN          =   SPIS-IDNAMN                                       
+     LADD-IDINK           =   SPIS-IDINK                                        
+     LADD-IDMAIL          =   SPIS-IDMAIL                                       
+                                                                                
+     INFO-IDLEVNR         =   SPIS-IDLEVNR                                      
+     INFO-KDPRBEH         =   SPIS-KDPRBEH                                      
+     INFO-KDVALISO        =   SPIS-KDVALISO                                     
+     INFO-PRARTBEL-PR     =   SPIS-PRARTBEL-PR                                  
+     INFO-PRKURS          =   SPIS-PRKURS                                       
+     INFO-RETULF          =   SPIS-RETULF                                       
+     INFO-TEARTNOT        =   SPIS-TEARTNOT                                     
+     INFO-TIPRLIST        =   SPIS-TIPRLIST                                     
+     INFO-PRINK-KOM       =   SPIS-PRINK-KOM                                    
+     INFO-REAENDR         =   SPIS-REAENDR                                      
+     INFO-IDNAMN          =   SPIS-IDNAMN                                       
+     INFO-IDINK           =   SPIS-IDINK                                        
+     INFO-IDMAIL          =   SPIS-IDMAIL                                       
+                                                                                
+************ ÖVRIGT DATA ****************                                       
+                                                                                
+     LADD-IDARTNR         =   IN-IDARTNR                                        
+     LADD-FLAPC           =   IN-FLAPC                                          
+     LADD-FLIART          =   IN-FLIART                                         
+     LADD-FLPRFIL         =   IN-FLPRFIL                                        
+     LADD-IDFKNGRP        =   IN-IDFKNGRP                                       
+     LADD-IDLEVNR-HUV     =   IN-IDLEVNR-HUV                                    
+     LADD-IDPRANSV        =   IN-IDPRANSV                                       
+     LADD-KDHF            =   IN-KDHF                                           
+     LADD-KDPRODSL        =   IN-KDPRODSL                                       
+     LADD-KDSTASPIS       =   IN-KDSTASPIS                                      
+     LADD-KVBEHOVAR       =   IN-KVBEHOVAR                                      
+     LADD-KVDISP-SPIS     =   IN-KVDISP-SPIS                                    
+     LADD-PRARTBES        =   IN-PRARTBES                                       
+     LADD-PRARTSJK        =   IN-PRARTSJK                                       
+     LADD-PRDIRLON-AKT    =   IN-PRDIRLON-AKT                                   
+     LADD-PRDIRLON-KOM    =   IN-PRDIRLON-KOM                                   
+     LADD-PRDMTRL-AKT     =   IN-PRDMTRL-AKT                                    
+     LADD-PRDMTRL-KOM     =   IN-PRDMTRL-KOM                                    
+     LADD-PRINK-AKT       =   IN-PRINK-AKT                                      
+     LADD-PROVRPAL-AKT    =   IN-PROVRPAL-AKT                                   
+     LADD-PROVRPAL-KOM    =   IN-PROVRPAL-KOM                                   
+     LADD-REDIRLEV        =   IN-REDIRLEV                                       
+     LADD-INLEV-TIPRLIST    = IN-INLEV-TIPRLIST                                 
+     LADD-INLEV-IDLEVNR-PR  = IN-INLEV-IDLEVNR-PR                               
+     LADD-INLEV-PRARTBEL-PR = IN-INLEV-PRARTBEL-PR                              
+     LADD-GODK-TIPRLIST     = IN-GODK-TIPRLIST                                  
+     LADD-GODK-IDLEVNR-PR   = IN-GODK-IDLEVNR-PR                                
+     LADD-GODK-PRARTBEL-PR  = IN-GODK-PRARTBEL-PR                               
+     LADD-LOCAL-TIPRLIST    = IN-LOCAL-TIPRLIST                                 
+     LADD-LOCAL-IDLEVNR-PR  = IN-LOCAL-IDLEVNR-PR                               
+     LADD-LOCAL-PRARTBEL-PR = IN-LOCAL-PRARTBEL-PR                              
+                                                                                
+     INFO-IDARTNR         =   IN-IDARTNR                                        
+     INFO-FLAPC           =   IN-FLAPC                                          
+     INFO-FLIART          =   IN-FLIART                                         
+     INFO-FLPRFIL         =   IN-FLPRFIL                                        
+     INFO-IDFKNGRP        =   IN-IDFKNGRP                                       
+     INFO-IDLEVNR-HUV     =   IN-IDLEVNR-HUV                                    
+     INFO-IDPRANSV        =   IN-IDPRANSV                                       
+     INFO-KDHF            =   IN-KDHF                                           
+     INFO-KDPRODSL        =   IN-KDPRODSL                                       
+     INFO-KDSTASPIS       =   IN-KDSTASPIS                                      
+     INFO-KVBEHOVAR       =   IN-KVBEHOVAR                                      
+     INFO-KVDISP-SPIS     =   IN-KVDISP-SPIS                                    
+     INFO-PRARTBES        =   IN-PRARTBES                                       
+     INFO-PRARTSJK        =   IN-PRARTSJK                                       
+     INFO-PRDIRLON-AKT    =   IN-PRDIRLON-AKT                                   
+     INFO-PRDIRLON-KOM    =   IN-PRDIRLON-KOM                                   
+     INFO-PRDMTRL-AKT     =   IN-PRDMTRL-AKT                                    
+     INFO-PRDMTRL-KOM     =   IN-PRDMTRL-KOM                                    
+     INFO-PRINK-AKT       =   IN-PRINK-AKT                                      
+     INFO-PROVRPAL-AKT    =   IN-PROVRPAL-AKT                                   
+     INFO-PROVRPAL-KOM    =   IN-PROVRPAL-KOM                                   
+     INFO-REDIRLEV        =   IN-REDIRLEV                                       
+     INFO-INLEV-TIPRLIST    = IN-INLEV-TIPRLIST                                 
+     INFO-INLEV-IDLEVNR-PR  = IN-INLEV-IDLEVNR-PR                               
+     INFO-INLEV-PRARTBEL-PR = IN-INLEV-PRARTBEL-PR                              
+     INFO-GODK-TIPRLIST     = IN-GODK-TIPRLIST                                  
+     INFO-GODK-IDLEVNR-PR   = IN-GODK-IDLEVNR-PR                                
+     INFO-GODK-PRARTBEL-PR  = IN-GODK-PRARTBEL-PR                               
+     INFO-LOCAL-TIPRLIST    = IN-LOCAL-TIPRLIST                                 
+     INFO-LOCAL-IDLEVNR-PR  = IN-LOCAL-IDLEVNR-PR                               
+     INFO-LOCAL-PRARTBEL-PR = IN-LOCAL-PRARTBEL-PR                              
+                                                                                
+END-PROC                                                                        
+NEWPAGE                                                                         
+*                                                                               
+FLYTTA-PRISFIL. PROC                                                            
+                                                                                
+     LADD-IDARTNR         =   IN-IDARTNR                                        
+     LADD-FLAPC           =   IN-FLAPC                                          
+     LADD-FLIART          =   IN-FLIART                                         
+     LADD-FLPRFIL         =   IN-FLPRFIL                                        
+     LADD-IDFKNGRP        =   IN-IDFKNGRP                                       
+     LADD-IDLEVNR         =   IN-IDLEVNR                                        
+     LADD-IDLEVNR-HUV     =   IN-IDLEVNR-HUV                                    
+     LADD-IDPRANSV        =   IN-IDPRANSV                                       
+     LADD-KDHF            =   IN-KDHF                                           
+     LADD-KDPRBEH         =   IN-KDPRBEH                                        
+     LADD-KDPRODSL        =   IN-KDPRODSL                                       
+     LADD-KDSTASPIS       =   IN-KDSTASPIS                                      
+     LADD-KDVALISO        =   IN-KDVALISO                                       
+     LADD-KVBEHOVAR       =   IN-KVBEHOVAR                                      
+     LADD-KVDISP-SPIS     =   IN-KVDISP-SPIS                                    
+     LADD-PRARTBEL-PR     =   IN-PRARTBEL-PR                                    
+     LADD-PRARTBES        =   IN-PRARTBES                                       
+     LADD-PRARTSJK        =   IN-PRARTSJK                                       
+     LADD-PRDIRLON-AKT    =   IN-PRDIRLON-AKT                                   
+     LADD-PRDIRLON-KOM    =   IN-PRDIRLON-KOM                                   
+     LADD-PRDMTRL-AKT     =   IN-PRDMTRL-AKT                                    
+     LADD-PRDMTRL-KOM     =   IN-PRDMTRL-KOM                                    
+     LADD-PRINK-AKT       =   IN-PRINK-AKT                                      
+     LADD-PRINK-KOM       =   IN-PRINK-KOM                                      
+     LADD-PRKURS          =   IN-PRKURS                                         
+     LADD-PROVRPAL-AKT    =   IN-PROVRPAL-AKT                                   
+     LADD-PROVRPAL-KOM    =   IN-PROVRPAL-KOM                                   
+     LADD-IDNAMN          =   IN-IDNAMN                                         
+     LADD-IDINK           =   IN-IDINK                                          
+     LADD-IDMAIL          =   IN-IDMAIL                                         
+     LADD-INLEV-TIPRLIST    = IN-INLEV-TIPRLIST                                 
+     LADD-INLEV-IDLEVNR-PR  = IN-INLEV-IDLEVNR-PR                               
+     LADD-INLEV-PRARTBEL-PR = IN-INLEV-PRARTBEL-PR                              
+     LADD-GODK-TIPRLIST     = IN-GODK-TIPRLIST                                  
+     LADD-GODK-IDLEVNR-PR   = IN-GODK-IDLEVNR-PR                                
+     LADD-GODK-PRARTBEL-PR  = IN-GODK-PRARTBEL-PR                               
+     LADD-LOCAL-TIPRLIST    = IN-LOCAL-TIPRLIST                                 
+     LADD-LOCAL-IDLEVNR-PR  = IN-LOCAL-IDLEVNR-PR                               
+     LADD-LOCAL-PRARTBEL-PR = IN-LOCAL-PRARTBEL-PR                              
+                                                                                
+     INFO-IDARTNR         =   IN-IDARTNR                                        
+     INFO-FLAPC           =   IN-FLAPC                                          
+     INFO-FLIART          =   IN-FLIART                                         
+     INFO-FLPRFIL         =   IN-FLPRFIL                                        
+     INFO-IDFKNGRP        =   IN-IDFKNGRP                                       
+     INFO-IDLEVNR         =   IN-IDLEVNR                                        
+     INFO-IDLEVNR-HUV     =   IN-IDLEVNR-HUV                                    
+     INFO-IDPRANSV        =   IN-IDPRANSV                                       
+     INFO-KDHF            =   IN-KDHF                                           
+     INFO-KDPRBEH         =   IN-KDPRBEH                                        
+     INFO-KDPRODSL        =   IN-KDPRODSL                                       
+     INFO-KDSTASPIS       =   IN-KDSTASPIS                                      
+     INFO-KDVALISO        =   IN-KDVALISO                                       
+     INFO-KVBEHOVAR       =   IN-KVBEHOVAR                                      
+     INFO-KVDISP-SPIS     =   IN-KVDISP-SPIS                                    
+     INFO-PRARTBEL-PR     =   IN-PRARTBEL-PR                                    
+     INFO-PRARTBES        =   IN-PRARTBES                                       
+     INFO-PRARTSJK        =   IN-PRARTSJK                                       
+     INFO-PRDIRLON-AKT    =   IN-PRDIRLON-AKT                                   
+     INFO-PRDIRLON-KOM    =   IN-PRDIRLON-KOM                                   
+     INFO-PRDMTRL-AKT     =   IN-PRDMTRL-AKT                                    
+     INFO-PRDMTRL-KOM     =   IN-PRDMTRL-KOM                                    
+     INFO-PRINK-AKT       =   IN-PRINK-AKT                                      
+     INFO-PRINK-KOM       =   IN-PRINK-KOM                                      
+     INFO-PRKURS          =   IN-PRKURS                                         
+     INFO-PROVRPAL-AKT    =   IN-PROVRPAL-AKT                                   
+     INFO-PROVRPAL-KOM    =   IN-PROVRPAL-KOM                                   
+     INFO-IDNAMN          =   IN-IDNAMN                                         
+     INFO-IDINK           =   IN-IDINK                                          
+     INFO-IDMAIL          =   IN-IDMAIL                                         
+     INFO-INLEV-TIPRLIST    = IN-INLEV-TIPRLIST                                 
+     INFO-INLEV-IDLEVNR-PR  = IN-INLEV-IDLEVNR-PR                               
+     INFO-INLEV-PRARTBEL-PR = IN-INLEV-PRARTBEL-PR                              
+     INFO-GODK-TIPRLIST     = IN-GODK-TIPRLIST                                  
+     INFO-GODK-IDLEVNR-PR   = IN-GODK-IDLEVNR-PR                                
+     INFO-GODK-PRARTBEL-PR  = IN-GODK-PRARTBEL-PR                               
+     INFO-LOCAL-TIPRLIST    = IN-LOCAL-TIPRLIST                                 
+     INFO-LOCAL-IDLEVNR-PR  = IN-LOCAL-IDLEVNR-PR                               
+     INFO-LOCAL-PRARTBEL-PR = IN-LOCAL-PRARTBEL-PR                              
+                                                                                
+     W-REAENDR-CHECK ROUNDED = (IN-PRINK-KOM * 100 / IN-PRINK-AKT) - 100        
+                                                                                
+     IF W-REAENDR-CHECK GT +9999.9                                              
+       LADD-REAENDR       =   +9999.9                                           
+       INFO-REAENDR       =   +9999.9                                           
+     ELSE                                                                       
+       LADD-REAENDR       =   W-REAENDR-CHECK                                   
+       INFO-REAENDR       =   W-REAENDR-CHECK                                   
+     END-IF                                                                     
+                                                                                
+     LADD-REDIRLEV        =   IN-REDIRLEV                                       
+     INFO-REDIRLEV        =   IN-REDIRLEV                                       
+     LADD-RETULF          =   IN-RETULF                                         
+     INFO-RETULF          =   IN-RETULF                                         
+                                                                                
+     IF W55158D2                                                                
+       LADD-TEARTNOT      = SPIS-TEARTNOT                                       
+       INFO-TEARTNOT      = SPIS-TEARTNOT                                       
+     ELSE                                                                       
+       LADD-TEARTNOT      =   ' '                                               
+       INFO-TEARTNOT      =   ' '                                               
+     END-IF                                                                     
+                                                                                
+     LADD-TIPRLIST        =   IN-TIPRLIST                                       
+     INFO-TIPRLIST        =   IN-TIPRLIST                                       
+                                                                                
+END-PROC                                                                        
+                                                                                
+                                                                                
+FLYTTA-RAPPORT-DATA. PROC                                                       
+                                                                                
+    FEL-IDLEVNR       =  SPIS-IDLEVNR                                           
+    FEL-IDARTNR       =  SPIS-IDARTNR                                           
+    FEL-KDPRBEH       =  SPIS-KDPRBEH                                           
+    FEL-KDVALISO      =  SPIS-KDVALISO                                          
+    FEL-PRARTBEL-PR   =  SPIS-PRARTBEL-PR                                       
+    FEL-PRKURS        =  SPIS-PRKURS                                            
+    FEL-RETULF-1      =  SPIS-RETULF                                            
+    FEL-RETULF-2      =  0                                                      
+    FEL-TITULF        =  0                                                      
+    FEL-TIPRLIST      =  SPIS-TIPRLIST                                          
+    FEL-PRINK-KOM     =  SPIS-PRINK-KOM                                         
+    FEL-PRDIRLON-KOM  =  0                                                      
+    FEL-PRMATRL-KOM   =  0                                                      
+    FEL-PROVRPAL-KOM  =  0                                                      
+    FEL-REAENDR       =  SPIS-REAENDR                                           
+    FEL-IDPRANSV      =  SPIS-IDPRANSV                                          
+    FEL-FELTYP        =  W-FELTYP                                               
+END-PROC                                                                        
+*                                                                               

@@ -1,0 +1,62 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  BYTER PRISER TILL MARKNADSBOLAGSVALUTA                                     
+//*  SJÄLVKOST MED BESTÄLLNINGSPRIS(SEK)/SJÄLVKOST SOM ÄR                       
+//*  OMRÄKNAR MED MÅNADSVALUTA.                                                 
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W116D3/D5/D6                                     
+//*                                                                             
+//*  ÅTERSTART:    W11682      NORMAL                                           
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W116P082 PROC STPLIB=&INDRTE..LOAD,                                           
+//             DSIN=NULLFILE,                                                   
+//             DSUT=NULLFILE                                                    
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT    EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&DSIN,DISP=SHR                                               
+//SORTOUT  DD  DSN=&&W11624,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PD82),DISP=SHR                         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W11682   EXEC PGM=DFSRRC00,                                                   
+//             PARM=('&DBB,W11682,W11682,,00')                                  
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY,DCB=(RECFM=VB,BLKSIZE=1408,BUFNO=1)                        
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM8K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//WDB1     INCLUDE MEMBER=WDB1                                                  
+//WDB1BK   DD   DSN=&INDBAS..WDB1BK,DISP=SHR                                    
+//*                                                                             
+//W11682D1 DD  DSN=&&W11624,DISP=(OLD,DELETE,DELETE)                            
+//************ FIL FRÅN W116P024 SORT                                           
+//*                                                                             
+//W11682D2 DD  DSN=&DSUT,DISP=(NEW,CATLG,DELETE),               -LIM(3)         
+//************ SAMMA SOM D2, PRIS OMRÄKNAT - MARKNADSBOLAG                      
+//             DATACLAS=PSEN,                                                   
+//             MGMTCLAS=&BACKUPC                                                
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//* TO REPLACE ¤MQMPROP HEADERS BY ¤DAP HEADERS                                 
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT2   EXEC PGM=SORT                                                         
+//SORTIN   DD  DSN=&DSUT,DISP=SHR                                               
+//SORTOUT  DD  DSN=&&W11682,DISP=(NEW,PASS,DELETE),                             
+//             DATACLAS=PSEB                                                    
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W116PE82),DISP=SHR                         

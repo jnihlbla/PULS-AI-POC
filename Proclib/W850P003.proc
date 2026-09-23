@@ -1,0 +1,57 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  VSOP STORING DECISION PROGRAM                                              
+//*                                                                             
+//*  FREKVENS:     STARTAS AV ANV.     RTN WVSOP                                
+//*                                                                             
+//*  ÅTERSTART:             NORMAL                                              
+//*                .                                                            
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W850P003 PROC STPLIB=&INDRTE..LOAD                                            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//D85009   EXEC PGM=D85009,COND=(15,LT)                                         
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//D85009D1 DD  DDNAME=KTNN4                                                     
+//*                                                                             
+//D85009D2 DD  DSN=&&W85010,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//D85009D3 DD  SYSOUT=*,DCB=(RECFM=VBA,LRECL=125,BLKSIZE=129)                   
+//*                                                                             
+//D85009D4 DD  DSN=&&W85012,DISP=(NEW,PASS,DELETE),                             
+//************ PASSFIL TILL D85012                                              
+//             DCB=(RECFM=FB,LRECL=160,BLKSIZE=6400),                           
+//             VOL=(,,,2),SPACE=(6400,(1000,250),RLSE)                          
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//D85012   EXEC PGM=D85012,COND=(15,LT)                                         
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//D85012D1 DD  DSN=&&W85012,DISP=(OLD,PASS,DELETE)                              
+//*                                                                             
+//D85012D2 DD  SYSOUT=*,DCB=(RECFM=VBA,LRECL=125,BLKSIZE=129),COPIES=2          
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//D85010   EXEC PGM=D85010,COND=(15,LT)                                         
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//D85010D1 DD  DDNAME=KTNN5                                                     
+//*                                                                             
+//D85010D2 DD  DSN=&&W85012,DISP=(OLD,PASS,DELETE)                              
+//*                                                                             
+//D85010D3 DD  SYSOUT=*,DCB=(RECFM=VBA,LRECL=125,BLKSIZE=129),COPIES=2          
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

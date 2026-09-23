@@ -1,0 +1,58 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  LADDAR NYA PRISER PER MARKNAD (PRIS,RABATTKOD,KAMPANJKOD)                  
+//*                                                                             
+//*  FREKVENS:     DAG      RTN W335D1                                          
+//*                                                                             
+//*  ÅTERSTART:    W33501    NORMAL  (BMP)                                      
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W335P001 PROC STPLIB=&INDRTE..LOAD,                                           
+//             CPU=5,                                                           
+//             INDIN0=&W335..W335D1M0,                                          
+//             INDIN1=&W335..W335D1M1,                                          
+//             INDIN2=&W335..W335D1M2,                                          
+//             INDIN3=&W335..W335D1M3,                                          
+//             INDIN4=&W335..W335D1M5,                                          
+//             INDIN5=&W335..W335D1XY                                           
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//SORT     EXEC PGM=SORT                                                        
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSIN    DD  DSN=&INDRTE..CONSTANT(W335PD05),DISP=SHR                         
+//SORTIN   DD  DSN=&INDIN0..W33505,DISP=SHR                                     
+//************ FIL FRÅN VCAS ARTIKELINFO                                        
+//         DD  DSN=&INDIN1..W33505,DISP=SHR                                     
+//************ FIL FRÅN MARKNADSBOLAG(SVERIGE) ARTIKELINFO                      
+//         DD  DSN=&INDIN2..W33505,DISP=SHR                                     
+//************ FIL FRÅN MARKNADSBOLAG(VCEM) ARTIKELINFO                         
+//         DD  DSN=&INDIN3..W33505,DISP=SHR                                     
+//************ FIL FRÅN MARKNADSBOLAG(ASIA PACFIC) ARTIKELINFO                  
+//         DD  DSN=&INDIN4..W33505,DISP=SHR                                     
+//************ FIL FRÅN MARKNADSBOLAG(VCNA) ARTIKELINFO                         
+//         DD  DSN=&INDIN5..W33505,DISP=SHR                                     
+//************ FIL FRÅN W33502 SJK OCH STD FÖRÄNDRINGAR                         
+//************ PRISFIL MED TID                                                  
+//*                                                                             
+//SORTOUT  DD  DSN=&&W335SORT,DISP=(NEW,PASS,DELETE),                           
+//************ PRISFIL MED TID                                                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEB                                  
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33501   EXEC PGM=DFSRRC00,                                                   
+//  PARM=('BMP,W33501,W33501,,,N00,,,,,&CPU,,,&IMS')                            
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=NJORS1,HOLD=YES     -- ABEND               
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//W33501D1 DD  DSN=&&W335SORT,DISP=(OLD,DELETE,DELETE)                          
+//************ FIL FRÅN MARKNADSBOLAG                                           
+//*                                                                             

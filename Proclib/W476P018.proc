@@ -1,0 +1,254 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*  SKAPAR FILER TILL RESPEKTIVE IMPORTÖR                            *         
+//*                                                                   *         
+//*  FREKVENS:         DAG    VECKA  BESTÄLLNING                      *         
+//*                RTN W476D7 W461V1 W461B1                           *         
+//*                                                                   *         
+//*  ÅTERSTART:    W47618     NORMAL                                  *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W476P018 PROC STPLIB=&INDRTE..LOAD,                                           
+//             DSIN=&W476..W476D7.W47653(+0),                                   
+//             INDUT=&W476..W476D7                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W47618   EXEC PGM=W47618                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                      -- DISPLAY         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//SORTMSG  DD  SYSOUT=*                                                         
+//OSDAT    DD  DSN=&INDRTE..DATUM(0),DISP=SHR                -- DATKORT         
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR        -- DATKORT         
+//DATUT    DD  SYSOUT=*                                      -- DATKORT         
+//V16247D3 DD  SYSOUT=*                                      -- POSTSUM         
+//W47618D1 DD  DSN=&DSIN,DISP=SHR                                               
+//************                                                                  
+//W47618D3 DD  DSN=&INDUT..W476IT1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL ITALIEN KORTFORMAT (27)                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618D4 DD  DSN=&INDUT..W476FI1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL FINLAND KORTFORMAT (29)                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618D5 DD  DSN=&INDUT..W476BE1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL BELGIEN KORTFORMAT (30)                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618D6 DD  DSN=&INDUT..W476CH1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL SCHWEIZ DISTR 2078 KORTFORMAT (72)                      
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618D7 DD  DSN=&INDUT..W476BR1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL BRASIL DISTR ????  (2L)                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618D8 DD  DSN=&INDUT..W476US1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL USA     KORTFORMAT. (38)                                
+//************ SKAPAS ENBART I VECKORUTIN W461J120.                             
+//************ I DAGLIGT JOBB W461J020 LIGGER DUMMY                             
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618D9 DD  DSN=&INDUT..W476DE1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL TYSKLAND KORTFORMAT (71)                                
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DA DD  DSN=&INDUT..W476NL1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL HOLLAND KORTFORMAT (61)                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DB DD  DSN=&INDUT..W476ES1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL SPANIEN KORTFORMAT (79)                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DC DD  DSN=&INDUT..W476AT1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL ÖSTERRIKE    KORTFORMAT (68)                            
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DD DD  DSN=&INDUT..W476SA1(+1),                        -LIM(99)         
+//            DISP=(NEW,CATLG,DELETE),                                          
+//************ FIL TILL SAUDI KORTFORMAT  (78)                                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DE DD  DSN=&INDUT..W476PE1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL PERU KORTFORMAT (76)                                    
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DF DD  DSN=&INDUT..W476FR1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL FRANKRIKE KORTFORMAT (73)                               
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DG DD  DSN=&INDUT..W476SE1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL VSBAB KORTFORMAT (70)                                   
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DH DD  DSN=&INDUT..W476DK1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL DANMARK KORTFORMAT  (40)                                
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DI DD  DSN=&INDUT..W476NO1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL NORGE KORTFORMAT (39)                                   
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DJ DD  DSN=&INDUT..W476CH2(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL SCHWEIZ KORTFORMAT (74)                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DK DD  DSN=&INDUT..W476BR2(+1),                        -LIM(99)         
+//            DISP=(NEW,CATLG,DELETE),                                          
+//************ FIL TILL BRASILIEN KORTFORMAT(75)                                
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DL DD  DSN=&INDUT..W476AU1(+1),                        -LIM(99)         
+//            DISP=(NEW,CATLG,DELETE),                                          
+//************ FIL TILL AUSTRALIEN    KORTFORMAT DIST 7836 (31)                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DM DD  DSN=&INDUT..W476AU2(+1),                        -LIM(99)         
+//            DISP=(NEW,CATLG,DELETE),                                          
+//************ FIL TILL AUSTRALIEN    KORTFORMAT DIST 7838 (80)                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DN DD  DSN=&INDUT..W476FI2(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL FINLAND-1091 KORTFORMAT (2Z)                            
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DO DD  DSN=&INDUT..W476TW1(+1),                        -LIM(99)         
+//            DISP=(NEW,CATLG,DELETE),                                          
+//************ FIL TILL TAIWAN    KORTFORMAT DIST 6221 (34)                     
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  
+//*                                                                             
+//W47618DP DD  DSN=&INDUT..W476JP1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL JAPAN     KORTFORMAT DIST 5222 (2H)                     
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DQ DD  DSN=&INDUT..W476TW2(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL TAIWAN2   KORTFORMAT DIST 6222 (2A)                     
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DS DD  DSN=&INDUT..W476JP2(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL JAPAN  KORTFORMAT DIST 5220 (28)                        
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DT DD  DSN=&INDUT..W476UK1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL ENGLAND NC KORTFORMAT DISTR 1378  (2B)                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DU DD  DSN=&INDUT..W476PL1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL POLEN   NC KORTFORMAT DISTR 2870 2878 (2C)              
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DV DD  DSN=&INDUT..W476CA1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL CANADA  NC KORTFORMAT DISTR 7674 8751 (2D)              
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DW DD  DSN=&INDUT..W476US2(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL USA  NC KORTFORMAT DISTR 7574 8741 8742 8743(2E)        
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DX DD  DSN=&INDUT..W476KR1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL KOREA  NC KORTFORMAT DISTR 6121 6124  (2F)              
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DY DD  DSN=&INDUT..W476PT1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL PORTUGAL NC KORTFORMAT DISTR 1978 (2G)                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618DZ DD  DSN=&INDUT..W476MX1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL MEXICO DISTR ???? (2M)                                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618E1 DD  DSN=&INDUT..W476MY1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL MALAYSIA NC KORTFORMAT DISTR 6251 (2I)                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618E2 DD  DSN=&INDUT..W476TH1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL THAILAND NC KORTFORMAT DISTR 5619 (2J)                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618E3 DD  DSN=&INDUT..W476IR1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL IRLAND DISTR 1778 (2K)                                  
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618E4 DD  DSN=&INDUT..W476TR1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL TURKIET DISTR 5811 (2N)                                 
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618E5 DD  DSN=&INDUT..W476RU1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL RYSSLAND DISTR 2640                                     
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618E6 DD  DSN=&INDUT..W476CN1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL KINA DISTR 6214                                         
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618E7 DD  DSN=&INDUT..W476ZA1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL SYDAFRIKA DISTR                                         
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618E8 DD  DSN=&INDUT..W476PT2(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL PORTUGAL  DISTR 1958                                    
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618E9 DD  DSN=&INDUT..W476CN2(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL KINA DISTR 6270, 6271                                   
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618EA DD  DSN=&INDUT..W476IN1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL INDIEN DISTR 6010                                       
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618EB DD  DSN=&INDUT..W476CZ1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL TJECKIEN DISTR 2365                                     
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//W47618EC DD  DSN=&INDUT..W476HU1(+1),                        -LIM(99)         
+//             DISP=(NEW,CATLG,DELETE),                                         
+//************ FIL TILL UNGERN DISTR 2364                                       
+//             MGMTCLAS=&NOBACKUP,DATACLAS=PSEN                                 
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         

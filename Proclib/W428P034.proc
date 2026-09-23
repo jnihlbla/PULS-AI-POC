@@ -1,0 +1,32 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  SKAPAR LISTA PÅ STANDARDVÄRDET AV DAGENS NA-RETURER                        
+//*  I STATUS 4=PAV, 5/6=R31 OCH 7=INL+SKR                                      
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W428D1                                           
+//*                                                                             
+//*  ÅTERSTART:    W42834    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W428P034 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W428..W428D1,                                             
+//             INDUT=&W428..W428D1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W42834   EXEC PGM=V16459,PARM='W42834/8/'                                     
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSPRINT DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),DEST=NJORS2,HOLD=YES                            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//EZTVFM   DD  SPACE=(4096,(100,100))                                           
+//SORTMSG  DD  SYSOUT=*                                                         
+//W42834D1 DD  DSN=&INDIN..W42834(+0),DISP=SHR                                  
+//************ DAGENS RETURER DISTRIKT 8111 OCH 8211                            
+//*                                                                             
+//W42834D2 DD  DSN=&INDUT..W42834PR(+1),DISP=(NEW,CATLG,DELETE), -LIM(1)        
+//             MGMTCLAS=NOBACKUP,DATACLAS=PSEN                                  
+//************ W42834-001  UPPFÖLJNINGSLISTA - GODS FRÅN USA/CAN                
+//*                                                                             

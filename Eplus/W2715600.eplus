@@ -1,0 +1,615 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*                                                                      *        
+*  PROGRAM    :  W2715600                                              *        
+*                                                                      *        
+*  FUNKTION   :  SKAPAR FIL MED ARTIKLAR SOM HAFT HÖG ORDERINGÅNG      *        
+*                UNDER DEN GÅNGNA VECKAN                               *        
+*                                                                      *        
+*                ÄNDRAT SEPTEMBER 2006 SÅ ENBART EN FIL W27110 SKAPAS  *        
+*                FÖR SAMTLIGA SDC, OCH EN FIL W27111 SKAPAS FÖR        *        
+*                SAMTLIGA NDC.                                         *        
+*                                                                      *        
+*  FÖRFATTARE :  STEFAN KIHLBERG                                       *        
+*                                                                      *        
+*             :                                                        *        
+*                                                                      *        
+*     DATUM       NAMN                     AVDELNING                   *        
+*     ......      ..................       ......                      *        
+*     ......      ..................       ......                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+NEWPAGE                                                                         
+FILE W27156D1                                                                   
+%W01160                                                                         
+                                                                                
+NEWPAGE                                                                         
+FILE W27156D2                                                                   
+%W01184                                                                         
+                                                                                
+NEWPAGE                                                                         
+FILE W27156D3                                                                   
+%W01186                                                                         
+                                                                                
+NEWPAGE                                                                         
+FILE TEMP VIRTUAL RETAIN FB(105 0)                                              
+%W27156 'TEMP-'                                                                 
+                                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W27156D4 FB(35 0)                                                          
+%W27103 'UTSDC-'                                                                
+                                                                                
+NEWPAGE                                                                         
+FILE W27156D5 FB(43 0)                                                          
+%W27104 'UTNDC-'                                                                
+                                                                                
+*--------------------------*                                                    
+* DATAREA                  *                                                    
+*--------------------------*                                                    
+                                                                                
+                                                                                
+%WDATAREA                                                                       
+                                                                                
+*--------------------------*                                                    
+* DAGAREA                  *                                                    
+*--------------------------*                                                    
+                                                                                
+                                                                                
+%WDAGAREA                                                                       
+                                                                                
+*--------------------------*                                                    
+* DATUMKORT*                                                                    
+*--------------------------*                                                    
+                                                                                
+                                                                                
+%WDATKORT 'DATKORT-'                                                            
+                                                                                
+*--------------------------*                                                    
+* ARBAREA*                                                                      
+*--------------------------*                                                    
+                                                                                
+                                                                                
+%WORKAREA                                                                       
+                                                                                
+*    --- VALID IDDC CODES                                                       
+*                                                                               
+%WWDC99                                                                         
+*                                                                               
+*    --- VALID KDPRODSL                                                         
+%WWPRODSL  'CLAG-' WORK ''                                                      
+*                                                                               
+                                                                                
+  PROGRAM-NAMN          W  6 A   VALUE 'W27156'                                 
+  DATUMKORT-ID          W  6 A   VALUE 'WDATUM'                                 
+  WDATKONV              W  8 A   VALUE 'WDATKONV'                               
+  IDARTNR               W  9 N   VALUE 0                                        
+  BYT03-OBJEKT          W  1 A   VALUE 'N'                                      
+  VECKO-IX              W  2 N   VALUE 0                                        
+  WS-KVVIPER            W  1 N   VALUE 0                                        
+  WS-INNEV-TIVV         W  2 N   VALUE 0                                        
+  WS-FIRST-TIVV-IPER    W  2 N   VALUE 0                                        
+  WS-VECKA-TIVV         W  2 N   VALUE 0                                        
+  WS-INNEV-TIAARP       W  4 N   VALUE 0                                        
+  WS-INNEV-TIRP         W  2 N   VALUE 0                                        
+  WS-INDEX-VECKA        W  1 N   VALUE 0                                        
+  WS-SUPERWEEK          W  5 N   VALUE 0                                        
+  WS-PRIS               W  5 P 2 VALUE 0                                        
+  WS-KVOI-INNEV         W  4 P 0 VALUE 0                                        
+                                                                                
+  WS-LARMGRANS          W  4 N   VALUE 0                                        
+  WS-LARMORSAK          W  2 A   VALUE '  '                                     
+                                                                                
+  WS-GRANS-TEST         W                   6   N 1                             
+  WS-GRANS-TEST-HELTAL  WS-GRANS-TEST       5   N                               
+  WS-GRANS-TEST-DECTAL  WS-GRANS-TEST    +5 1   N 1                             
+                                                                                
+  DAGENS-DATUM-DK     W                     6   N                               
+  DAGENS-DATUM-DK-AA     DAGENS-DATUM-DK    2   N                               
+  DAGENS-DATUM-DK-MM     DAGENS-DATUM-DK +2 2   N                               
+  DAGENS-DATUM-DK-DD     DAGENS-DATUM-DK +4 2   N                               
+                                                                                
+  DAGENS-DATUM-SD     W                     6   N                               
+  DAGENS-DATUM-SD-AA     DAGENS-DATUM-SD    2   N                               
+  DAGENS-DATUM-SD-MM     DAGENS-DATUM-SD +2 2   N                               
+  DAGENS-DATUM-SD-DD     DAGENS-DATUM-SD +4 2   N                               
+                                                                                
+  DAGENS-SYSDATE                       W   8  A                                 
+  SYSDATE-TIAA        DAGENS-SYSDATE       2  N                                 
+  SYSDATE-LINE1       DAGENS-SYSDATE   +2  1  A                                 
+  SYSDATE-TIMM        DAGENS-SYSDATE   +3  2  N                                 
+  SYSDATE-LINE2       DAGENS-SYSDATE   +5  1  A                                 
+  SYSDATE-TIDD        DAGENS-SYSDATE   +6  2  N                                 
+                                                                                
+  NEXT-WORKDAY        W   6 N                                                   
+                                                                                
+  DAGENS-VECKA-VV     W   2 N                                                   
+                                                                                
+  WS-IDDC               W  2 A   VALUE '  '                                     
+  W2-IDDC               W  2 A   VALUE '  '                                     
+                                                                                
+  IX                  W   2 N                                                   
+                                                                                
+NEWPAGE                                                                         
+*                                                                               
+* STEG 1. MATCHAR W01160 MED W01184, SKRIVER TEMPFIL                            
+*         MED VISSA ARTIKELUPPGIFTER                                            
+*                                                                               
+                                                                                
+JOB INPUT (W27156D1 KEY (CLAG-IDARTNR)     +                                    
+           W27156D2 KEY (SLAG-IDARTNR)) +                                       
+START(A-INIT)                                                                   
+                                                                                
+    IF MATCHED                                                                  
+       IF CLAG-KDERS LT 20                                                      
+          IDARTNR = SLAG-IDARTNR                                                
+          IF SLAG-IDDC = SDC-NL                                                 
+             PERFORM S25-CHECK-CLAG-KDPRODSL                                    
+             IF CLAG-KDPRODSL = KDPRODSL-VOLVO-EMB                              
+             ELSE                                                               
+                PERFORM WWBYT03                                                 
+                IF BYT03-OBJEKT EQ 'N'                                          
+                   PERFORM SKAPA-TEMP                                           
+                   PUT TEMP                                                     
+                END-IF                                                          
+             END-IF                                                             
+          ELSE                                                                  
+             PERFORM WWBYT03                                                    
+             IF BYT03-OBJEKT EQ 'N'                                             
+                PERFORM SKAPA-TEMP                                              
+                PUT TEMP                                                        
+             END-IF                                                             
+          END-IF                                                                
+       END-IF                                                                   
+    END-IF                                                                      
+                                                                                
+%WWBYT03                                                                        
+%WWPRODSL 'CLAG-' PROC ''                                                       
+SKAPA-TEMP. PROC                                                                
+                                                                                
+      TEMP-IDARTNR            = SLAG-IDARTNR                                    
+      TEMP-IDDC               = SLAG-IDDC                                       
+      TEMP-KVPB-REF           = (SLAG-KVPB-REF +                                
+                                * SLAG-RESEASON (WS-INNEV-TIRP)) + 0.05         
+      TEMP-KVQPACK-1          = CLAG-KVQPACK-1                                  
+      TEMP-ADLAGOMR-CLAG      = CLAG-ADLAGOMR                                   
+      TEMP-ADGANG-CLAG        = CLAG-ADGANG                                     
+      TEMP-ADPLATS-CLAG       = CLAG-ADPLATS                                    
+      TEMP-ADLAGOMR-SLAG      = SLAG-ADLAGOMR                                   
+      TEMP-ADGANG-SLAG        = SLAG-ADGANG                                     
+      TEMP-ADPLATS-SLAG       = SLAG-ADPLATS                                    
+      TEMP-IDLEVNR-SLAG       = SLAG-IDLEVNR                                    
+      TEMP-IDDC-REF           = SLAG-IDDC-REF                                   
+      TEMP-KVLS               = SLAG-KVLS                                       
+      TEMP-KVBEART            = SLAG-KVBEART                                    
+      TEMP-KVAKS-PAV          = SLAG-KVAKS-PAV                                  
+      TEMP-KVAKS-SDC          = SLAG-KVAKS-SDC                                  
+      TEMP-KVOKS-DAG          = SLAG-KVOKS-DAG                                  
+      TEMP-KVOKS-BULK         = SLAG-KVOKS-BULK                                 
+      TEMP-KVROS-DAG          = SLAG-KVROS-DAG                                  
+      TEMP-KVROS-BULK         = SLAG-KVROS-BULK                                 
+      TEMP-RESEASON (1)       = SLAG-RESEASON (1)                               
+      TEMP-RESEASON (2)       = SLAG-RESEASON (2)                               
+      TEMP-RESEASON (3)       = SLAG-RESEASON (3)                               
+      TEMP-RESEASON (4)       = SLAG-RESEASON (4)                               
+      TEMP-RESEASON (5)       = SLAG-RESEASON (5)                               
+      TEMP-RESEASON (6)       = SLAG-RESEASON (6)                               
+      TEMP-RESEASON (7)       = SLAG-RESEASON (7)                               
+      TEMP-RESEASON (8)       = SLAG-RESEASON (8)                               
+      TEMP-RESEASON (9)       = SLAG-RESEASON (9)                               
+      TEMP-RESEASON (10)      = SLAG-RESEASON (10)                              
+      TEMP-RESEASON (11)      = SLAG-RESEASON (11)                              
+      TEMP-RESEASON (12)      = SLAG-RESEASON (12)                              
+      W2-IDDC                 = SLAG-IDDC                                       
+      PERFORM S23-CHECK-W2-IDDC                                                 
+      IF W2-IDDC = NDC-CN                     +                                 
+      OR W2-IDDC = LDC-CN                                                       
+        TEMP-PRMATRL          = SLAG-PRMATRL                                    
+        WS-PRIS               = SLAG-PRMATRL                                    
+        TEMP-PRARTSTD         = 0                                               
+      ELSE                                                                      
+        TEMP-PRARTSTD         = CLAG-PRARTSTD                                   
+        WS-PRIS               = CLAG-PRARTSTD                                   
+        TEMP-PRMATRL          = 0                                               
+      END-IF                                                                    
+      TEMP-IDPERSON-BUY       = SLAG-IDPERSON-BUY                               
+ END-PROC                                                                       
+*    --- S23-CHECK-W2-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'W2-'                                                                   
+                                                                                
+A-INIT. PROC                                                                    
+                                                                                
+* HÄMTA AKTUELL VECKA                                                           
+                                                                                
+                                                                                
+*  HÄMTA DATUM FRÅN DATKORT                                                     
+                                                                                
+   CALL DATKORT USING (PROGRAM-NAMN +                                           
+                       DATUMKORT-ID +                                           
+                       DATKORT-DATUMKORT)                                       
+                                                                                
+   MOVE DATKORT-D-AAR    TO DAGENS-DATUM-DK-AA                                  
+   MOVE DATKORT-D-MAANAD TO DAGENS-DATUM-DK-MM                                  
+   MOVE DATKORT-D-DAG    TO DAGENS-DATUM-DK-DD                                  
+                                                                                
+                                                                                
+* HÄMTA MASKINDATUM                                                             
+                                                                                
+  DAGENS-SYSDATE         = SYSDATE                                              
+  DAGENS-DATUM-SD-AA     = SYSDATE-TIAA                                         
+  DAGENS-DATUM-SD-MM     = SYSDATE-TIMM                                         
+  DAGENS-DATUM-SD-DD     = SYSDATE-TIDD                                         
+                                                                                
+                                                                                
+*  HÄMTA INNEVARANDE R-PERIOD, AKTUELL VECKA                                    
+*                    ANTAL VECKOR I PERIODEN                                    
+                                                                                
+   DAT-I-TIDATUM = DAGENS-DATUM-DK                                              
+   DAT-KDDATFORM = 'AAMMDD'                                                     
+   CALL WDATKONV USING (DAT-KDDATFORM, +                                        
+                        DAT-I-TIDATUM, +                                        
+                        DAT-O-TIDATUM, +                                        
+                        DAT-KDSVAR)                                             
+   IF DAT-KDSVAR = ' '                                                          
+      WS-KVVIPER            = DAT-KVVIPER                                       
+      WS-INNEV-TIVV         = DAT-TIVV                                          
+      WS-INNEV-TIAARP       = DAT-TIAARP                                        
+      WS-INNEV-TIRP         = DAT-TIRP                                          
+   ELSE                                                                         
+      DISPLAY 'FEL FRÅN DATKONV 1 I A-INIT'                                     
+      STOP EXECUTE                                                              
+   END-IF                                                                       
+                                                                                
+                                                                                
+*  HÄMTA FÖRSTA VECKAN I INNEVARANDE PERIOD                                     
+                                                                                
+   DAT-I-TIDATUM = WS-INNEV-TIAARP                                              
+   DAT-KDDATFORM = 'AARP'                                                       
+   CALL WDATKONV        USING (DAT-KDDATFORM, +                                 
+                             DAT-I-TIDATUM, +                                   
+                             DAT-O-TIDATUM, +                                   
+                             DAT-KDSVAR)                                        
+   IF DAT-KDSVAR = ' '                                                          
+      WS-FIRST-TIVV-IPER      = DAT-TIVV                                        
+   ELSE                                                                         
+      DISPLAY 'FEL FRÅN DATKONV 2 I A-INIT'                                     
+      STOP EXECUTE                                                              
+   END-IF                                                                       
+                                                                                
+                                                                                
+*  LETA UPP INNEVARANDE VECKAS RELATIVA PLACERING I INNEVARANDE                 
+*  PERIOD                                                                       
+                                                                                
+   WS-VECKA-TIVV  = WS-FIRST-TIVV-IPER                                          
+   VECKO-IX       = 1                                                           
+   DO WHILE (VECKO-IX LE WS-KVVIPER)                                            
+      IF WS-VECKA-TIVV    EQ  WS-INNEV-TIVV                                     
+         WS-INDEX-VECKA = VECKO-IX                                              
+      END-IF                                                                    
+      VECKO-IX = VECKO-IX + 1                                                   
+      WS-VECKA-TIVV = WS-VECKA-TIVV + 1                                         
+   END-DO                                                                       
+                                                                                
+                                                                                
+*    BERÄKNA NÄSTA ARBETSDAG                                                    
+                                                                                
+  WORK-TIAAMMDD-FOM    = DAGENS-DATUM-SD                                        
+  WORK-TIAAMMDD-TOM    = DAGENS-DATUM-SD                                        
+  WORK-KDCALL          = 003                                                    
+  WORK-KVWORKD         = 0                                                      
+  WORK-IDDC            = CDC-SE                                                 
+                                                                                
+  CALL WORKDAY             USING (WORK-KDCALL     +                             
+                                  WORK-DATE-AREA  +                             
+                                  WORK-KDSVAR)                                  
+  IF WORK-KDSVAR EQ ' '                                                         
+     NEXT-WORKDAY      = WORK-TIAAMMDD-NEXT-WORKDAY                             
+  ELSE                                                                          
+     NEXT-WORKDAY      = DAGENS-DATUM-SD                                        
+  END-IF                                                                        
+  DISPLAY 'NEXT WORKDAY' NEXT-WORKDAY                                           
+                                                                                
+END-PROC                                                                        
+                                                                                
+                                                                                
+                                                                                
+*                                                                               
+* STEG 2. MATCHAR ORDERINGÅNGSUPPGIFTER MED ARTIKEL-                            
+*         UPPGIFTER, SKRIVER UTFILER PER SDC                                    
+*                                                                               
+JOB INPUT (W27156D3 KEY (DC-IDARTNR, DC-IDDC) +                                 
+           TEMP KEY (TEMP-IDARTNR, TEMP-IDDC))                                  
+                                                                                
+    IF MATCHED                                                                  
+       WS-IDDC               = TEMP-IDDC                                        
+       PERFORM S23-CHECK-WS-IDDC                                                
+       WS-SUPERWEEK = ((TEMP-KVLS + TEMP-KVBEART +                              
+                      + TEMP-KVAKS-PAV + TEMP-KVAKS-SDC)     +                  
+                     - (TEMP-KVOKS-DAG + TEMP-KVOKS-BULK     +                  
+                      + TEMP-KVROS-DAG + TEMP-KVROS-BULK))   +                  
+                     / (TEMP-KVPB-REF / 4.33)                                   
+                                                                                
+       WS-KVOI-INNEV = DC-KVOI-INNEV   (WS-INDEX-VECKA) +    +                  
+                       DC-KVOI-PP-INNEV(WS-INDEX-VECKA)                         
+       IF (TEMP-IDDC = SDC-NL OR +                                              
+           TEMP-IDDC = LDC-GB-3A) AND  +                                        
+           WS-SUPERWEEK < 20 AND +                                              
+           TEMP-KVPB-REF GE 0.1                                                 
+          IF TEMP-KVPB-REF LT 5.0                                               
+             WS-LARMGRANS = 12                                                  
+             IF WS-KVOI-INNEV GT WS-LARMGRANS                                   
+                WS-LARMORSAK = 'PB'                                             
+                PERFORM SKAPA-LARM                                              
+             END-IF                                                             
+          ELSE                                                                  
+             IF TEMP-KVPB-REF LE 10.0                                           
+                WS-LARMGRANS = 18                                               
+                IF WS-KVOI-INNEV GT WS-LARMGRANS                                
+                   WS-LARMORSAK = 'PB'                                          
+                   PERFORM SKAPA-LARM                                           
+                END-IF                                                          
+             ELSE                                                               
+                IF TEMP-KVPB-REF LE 30.0                                        
+                   WS-LARMGRANS = 30                                            
+                   IF WS-KVOI-INNEV GT WS-LARMGRANS                             
+                      WS-LARMORSAK = 'PB'                                       
+                      PERFORM SKAPA-LARM                                        
+                   END-IF                                                       
+                ELSE                                                            
+                   WS-GRANS-TEST = TEMP-KVPB-REF / 1.2                          
+                   IF WS-GRANS-TEST-DECTAL GT  0                                
+                      WS-GRANS-TEST-HELTAL =    +                               
+                               WS-GRANS-TEST-HELTAL + 1                         
+                   END-IF                                                       
+                   WS-LARMGRANS = WS-GRANS-TEST-HELTAL                          
+                   IF WS-KVOI-INNEV GT WS-LARMGRANS                             
+                      WS-LARMORSAK = 'PB'                                       
+                      PERFORM SKAPA-LARM                                        
+                   END-IF                                                       
+                END-IF                                                          
+             END-IF                                                             
+          END-IF                                                                
+       END-IF                                                                   
+                                                                                
+       IF (WS-IDDC = SDC-ES SDC-IT SDC-AT LDC) AND +                            
+           WS-SUPERWEEK < 20 AND TEMP-KVPB-REF GE 0.1                           
+          IF TEMP-KVPB-REF LT 5.0                                               
+             WS-LARMGRANS = 10                                                  
+             IF WS-KVOI-INNEV GT WS-LARMGRANS                                   
+                WS-LARMORSAK = 'PB'                                             
+                PERFORM SKAPA-LARM                                              
+             END-IF                                                             
+          ELSE                                                                  
+             IF TEMP-KVPB-REF LE 10.0                                           
+                WS-LARMGRANS = 15                                               
+                IF WS-KVOI-INNEV GT WS-LARMGRANS                                
+                   WS-LARMORSAK = 'PB'                                          
+                   PERFORM SKAPA-LARM                                           
+                END-IF                                                          
+             ELSE                                                               
+                IF TEMP-KVPB-REF LE 30.0                                        
+                   WS-LARMGRANS = 30                                            
+                   IF WS-KVOI-INNEV GT WS-LARMGRANS                             
+                      WS-LARMORSAK = 'PB'                                       
+                      PERFORM SKAPA-LARM                                        
+                   END-IF                                                       
+                ELSE                                                            
+                   WS-GRANS-TEST = TEMP-KVPB-REF / 1.5                          
+                   IF WS-GRANS-TEST-DECTAL GT  0                                
+                      WS-GRANS-TEST-HELTAL =    +                               
+                               WS-GRANS-TEST-HELTAL + 1                         
+                   END-IF                                                       
+                   WS-LARMGRANS = WS-GRANS-TEST-HELTAL                          
+                   IF WS-KVOI-INNEV GT WS-LARMGRANS                             
+                      WS-LARMORSAK = 'PB'                                       
+                      PERFORM SKAPA-LARM                                        
+                   END-IF                                                       
+                END-IF                                                          
+             END-IF                                                             
+          END-IF                                                                
+       END-IF                                                                   
+                                                                                
+       IF (WS-IDDC = NDC) AND TEMP-KVPB-REF GE 1.0                              
+          IF WS-KVOI-INNEV GT TEMP-KVQPACK-1                                    
+             IF WS-PRIS LE 20.0                                                 
+                                                                                
+               IF (WS-PRIS > 7.99 +                                             
+               OR (WS-PRIS < 8.00 +                                             
+               AND WS-SUPERWEEK < 20))                                          
+                                                                                
+                IF TEMP-KVPB-REF LT 3.0                                         
+                                                                                
+                 WS-LARMGRANS = 6                                               
+                 IF WS-KVOI-INNEV GT WS-LARMGRANS +                             
+                    AND WS-SUPERWEEK < 30                                       
+                  WS-LARMORSAK = 'PB'                                           
+                  PERFORM SKAPA-LARM                                            
+                 END-IF                                                         
+                ELSE                                                            
+                 IF TEMP-KVPB-REF LE 10.0                                       
+                  WS-GRANS-TEST = TEMP-KVPB-REF * 1                             
+                  IF WS-GRANS-TEST-DECTAL GT 0                                  
+                   WS-GRANS-TEST-HELTAL = +                                     
+                                WS-GRANS-TEST-HELTAL + 1                        
+                  END-IF                                                        
+                  WS-LARMGRANS = WS-GRANS-TEST-HELTAL                           
+                  IF WS-KVOI-INNEV GT WS-LARMGRANS                              
+                     WS-LARMORSAK = 'PB'                                        
+                   PERFORM SKAPA-LARM                                           
+                  END-IF                                                        
+                 ELSE                                                           
+                  IF TEMP-KVPB-REF LE 30.0                                      
+                   WS-GRANS-TEST = TEMP-KVPB-REF * 0.8                          
+                   IF WS-GRANS-TEST-DECTAL GT 0                                 
+                      WS-GRANS-TEST-HELTAL = +                                  
+                                  WS-GRANS-TEST-HELTAL + 1                      
+                   END-IF                                                       
+                   WS-LARMGRANS = WS-GRANS-TEST-HELTAL                          
+                   IF WS-KVOI-INNEV GT WS-LARMGRANS                             
+                    WS-LARMORSAK = 'PB'                                         
+                    PERFORM SKAPA-LARM                                          
+                   END-IF                                                       
+                  ELSE                                                          
+                   IF TEMP-KVPB-REF LE 50.0                                     
+                    WS-GRANS-TEST = TEMP-KVPB-REF * 0.6                         
+                    IF WS-GRANS-TEST-DECTAL GT 0                                
+                     WS-GRANS-TEST-HELTAL = +                                   
+                                 WS-GRANS-TEST-HELTAL + 1                       
+                    END-IF                                                      
+                    WS-LARMGRANS = WS-GRANS-TEST-HELTAL                         
+                    IF WS-KVOI-INNEV GT WS-LARMGRANS                            
+                     WS-LARMORSAK = 'PB'                                        
+                     PERFORM SKAPA-LARM                                         
+                    END-IF                                                      
+                   ELSE                                                         
+                    WS-GRANS-TEST = TEMP-KVPB-REF * 0.5                         
+                    IF WS-GRANS-TEST-DECTAL GT 0                                
+                     WS-GRANS-TEST-HELTAL = +                                   
+                                  WS-GRANS-TEST-HELTAL + 1                      
+                    END-IF                                                      
+                    WS-LARMGRANS = WS-GRANS-TEST-HELTAL                         
+                    IF WS-KVOI-INNEV GT WS-LARMGRANS                            
+                     WS-LARMORSAK = 'PB'                                        
+                     PERFORM SKAPA-LARM                                         
+                    END-IF                                                      
+                   END-IF                                                       
+                  END-IF                                                        
+                 END-IF                                                         
+                END-IF                                                          
+                                                                                
+               END-IF                                                           
+             ELSE                                                               
+               IF TEMP-KVPB-REF LT 3.0                                          
+                                                                                
+                WS-LARMGRANS = 4                                                
+                IF WS-KVOI-INNEV GT WS-LARMGRANS                                
+                   WS-LARMORSAK = 'PB'                                          
+                   PERFORM SKAPA-LARM                                           
+                END-IF                                                          
+               ELSE                                                             
+                IF TEMP-KVPB-REF LE 10.0                                        
+                  WS-GRANS-TEST = TEMP-KVPB-REF * 0.8                           
+                  IF WS-GRANS-TEST-DECTAL GT 0                                  
+                     WS-GRANS-TEST-HELTAL = +                                   
+                              WS-GRANS-TEST-HELTAL + 1                          
+                  END-IF                                                        
+                  WS-LARMGRANS = WS-GRANS-TEST-HELTAL                           
+                  IF WS-KVOI-INNEV GT WS-LARMGRANS                              
+                     WS-LARMORSAK = 'PB'                                        
+                     PERFORM SKAPA-LARM                                         
+                  END-IF                                                        
+                ELSE                                                            
+                  IF TEMP-KVPB-REF LE 30.0                                      
+                    WS-GRANS-TEST = TEMP-KVPB-REF * 0.6                         
+                    IF WS-GRANS-TEST-DECTAL GT 0                                
+                       WS-GRANS-TEST-HELTAL = +                                 
+                                WS-GRANS-TEST-HELTAL + 1                        
+                    END-IF                                                      
+                    WS-LARMGRANS = WS-GRANS-TEST-HELTAL                         
+                    IF WS-KVOI-INNEV GT WS-LARMGRANS                            
+                       WS-LARMORSAK = 'PB'                                      
+                       PERFORM SKAPA-LARM                                       
+                    END-IF                                                      
+                  ELSE                                                          
+                   IF TEMP-KVPB-REF LE 60.0                                     
+                      WS-GRANS-TEST = TEMP-KVPB-REF * 0.5                       
+                      IF WS-GRANS-TEST-DECTAL GT 0                              
+                         WS-GRANS-TEST-HELTAL = +                               
+                                  WS-GRANS-TEST-HELTAL + 1                      
+                      END-IF                                                    
+                      WS-LARMGRANS = WS-GRANS-TEST-HELTAL                       
+                      IF WS-KVOI-INNEV GT WS-LARMGRANS                          
+                         WS-LARMORSAK = 'PB'                                    
+                         PERFORM SKAPA-LARM                                     
+                      END-IF                                                    
+                   ELSE                                                         
+                      WS-GRANS-TEST = TEMP-KVPB-REF * 0.4                       
+                      IF WS-GRANS-TEST-DECTAL GT 0                              
+                         WS-GRANS-TEST-HELTAL = +                               
+                                  WS-GRANS-TEST-HELTAL + 1                      
+                      END-IF                                                    
+                      WS-LARMGRANS = WS-GRANS-TEST-HELTAL                       
+                      IF WS-KVOI-INNEV GT WS-LARMGRANS                          
+                         WS-LARMORSAK = 'PB'                                    
+                         PERFORM SKAPA-LARM                                     
+                      END-IF                                                    
+                   END-IF                                                       
+                  END-IF                                                        
+                END-IF                                                          
+               END-IF                                                           
+             END-IF                                                             
+          END-IF                                                                
+       END-IF                                                                   
+                                                                                
+                                                                                
+    END-IF                                                                      
+                                                                                
+SKAPA-LARM.  PROC                                                               
+                                                                                
+    IF WS-IDDC = NDC-NA                                                         
+      PERFORM LARM-NDC                                                          
+      PUT W27156D5                                                              
+    ELSE-IF WS-IDDC = NDC-PACIFIC                                               
+      PERFORM LARM-NDC                                                          
+      PUT W27156D5                                                              
+    ELSE-IF WS-IDDC = NDC-NX, NDC-NS                                            
+      PERFORM LARM-NDC                                                          
+      PUT W27156D5                                                              
+    ELSE                                                                        
+      PERFORM LARM-SDC                                                          
+      PUT W27156D4                                                              
+    END-IF                                                                      
+END-PROC                                                                        
+                                                                                
+LARM-SDC. PROC                                                                  
+                                                                                
+      UTSDC-IDARTNR     = DC-IDARTNR                                            
+      UTSDC-IDDC        = DC-IDDC                                               
+      UTSDC-KVPB-REF    = TEMP-KVPB-REF                                         
+      UTSDC-KVOI        = WS-KVOI-INNEV                                         
+      UTSDC-KVLS        = TEMP-KVLS                                             
+      UTSDC-PRARTSTD    = TEMP-PRARTSTD                                         
+      UTSDC-PRMATRL     = TEMP-PRMATRL                                          
+      UTSDC-LARMGRANS   = WS-LARMGRANS                                          
+      UTSDC-LARMORSAK   = WS-LARMORSAK                                          
+                                                                                
+END-PROC                                                                        
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+LARM-NDC. PROC                                                                  
+                                                                                
+      IF TEMP-IDDC-REF      = '11' +                                            
+      OR TEMP-IDDC-REF      = '71' +                                            
+      OR TEMP-IDDC-REF      = '72' +                                            
+      OR TEMP-IDDC-REF      = '73' +                                            
+      OR TEMP-IDDC-REF      = '74' +                                            
+      OR TEMP-IDDC-REF      = '41' +                                            
+      OR TEMP-IDDC-REF      = '43' +                                            
+      OR TEMP-IDDC-REF      = '44' +                                            
+      OR TEMP-IDDC-REF      = '45' +                                            
+      OR TEMP-IDDC-REF      = '46' +                                            
+      OR TEMP-IDDC-REF      = '47' +                                            
+      OR TEMP-IDDC-REF      = '51' +                                            
+      OR TEMP-IDDC-REF      = '52' +                                            
+      OR TEMP-IDDC-REF      = '53' +                                            
+      OR TEMP-IDDC-REF      = '87'                                              
+         UTNDC-KDREFTYP     = 'B'                                               
+      ELSE                                                                      
+         UTNDC-KDREFTYP     = 'L'                                               
+      END-IF                                                                    
+      UTNDC-IDPERSON-BUY = TEMP-IDPERSON-BUY                                    
+      UTNDC-IDARTNR      = DC-IDARTNR                                           
+      UTNDC-IDDC         = DC-IDDC                                              
+      UTNDC-KVPB-REF     = TEMP-KVPB-REF                                        
+      UTNDC-KVOI         = WS-KVOI-INNEV                                        
+      UTNDC-KVLS         = TEMP-KVLS                                            
+      UTNDC-PRARTSTD     = TEMP-PRARTSTD                                        
+      UTNDC-PRMATRL      = TEMP-PRMATRL                                         
+      UTNDC-LARMGRANS    = WS-LARMGRANS                                         
+      UTNDC-LARMORSAK    = WS-LARMORSAK                                         
+      UTNDC-LARMTYP      = 'WEEK '                                              
+END-PROC                                                                        
+*    --- S23-CHECK-WS-IDDC (MACRO PROCEDURE)                                    
+%WWDC02 'WS-'                                                                   

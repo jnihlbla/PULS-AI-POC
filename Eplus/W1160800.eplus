@@ -1,0 +1,445 @@
+                                                                                
+*----------------------------------------------------------------------*        
+*  PROGRAM    :  W1160800                                              *        
+*                                                                      *        
+*  FUNKTION   :  MATCHAR ARTIKELDATA, BENÄMNINGSFIL, BUY-BACK-FIL      *        
+*                OCH FIL GEMENSAM ARTINFO VCC-KDP OCH FORD.            *        
+*                SKAPAR FIL FÖR UNDERLAG TILL VIPSÖVERFÖRING           *        
+*                                                                      *        
+*  FÖRFATTARE :  BODIL LINDAHL                                         *        
+*                                                                      *        
+*  DATUM      :  NOVEMBER 2004                                         *        
+*                                                                      *        
+*                                                                      *        
+*----------------------------------------------------------------------*        
+*    -- CHECKED BY WY2000                                                       
+*--------------------------------------*                                        
+*   ARTIKELDATA                        *                                        
+* -------------------------------------*                                        
+FILE W11608D1                                                                   
+%W01160                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  BENÄMNINGAR                         *                                        
+* -------------------------------------*                                        
+FILE W11608D2                                                                   
+%W01174   'BEN-'                                                                
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  BUY-BACKFIL                         *                                        
+* -------------------------------------*                                        
+FILE W11608D3                                                                   
+%W11604   'BB-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  UTFIL                               *                                        
+* -------------------------------------*                                        
+FILE W11608D4 FB (393 0)                                                        
+%W11614   'UT-'                                                                 
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  CROSSFIL                            *                                        
+* -------------------------------------*                                        
+FILE W11608D5                                                                   
+%W11685   'CROSS-'                                                              
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  GEMENSAM INFO VCC-KDP OCH FORD      *                                        
+* -------------------------------------*                                        
+FILE W11608D6                                                                   
+%W01169                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  TEMPFIL1                            *                                        
+* -------------------------------------*                                        
+FILE TPFIL1 FB(393 0) VIRTUAL                                                   
+%W11614   'TEMP1-'                                                              
+*--------------------------------------*                                        
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  TEMPFIL2                            *                                        
+* -------------------------------------*                                        
+FILE TPFIL2 FB(393 0) VIRTUAL                                                   
+%W11614   'TEMP2-'                                                              
+*--------------------------------------*                                        
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  TEMPFIL3                            *                                        
+* -------------------------------------*                                        
+FILE TPFIL3 FB(393 0) VIRTUAL                                                   
+%W11614   'TEMP3-'                                                              
+*--------------------------------------*                                        
+*--------------------------------------*                                        
+*  PARAMETRAR TILL WDATKONV            *                                        
+* -------------------------------------*                                        
+%WDATAREA                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*--------------------------------------*                                        
+*  ARBETSFÄLT                          *                                        
+* -------------------------------------*                                        
+*                                                                               
+ W-ORDERING               W  5 P 0 OCCURS 8                                     
+ W-SUORDERTRAFF           W  5 P 0 VALUE 0                                      
+ W-SUORDERING             W  5 P 0 VALUE 0                                      
+ W-DISP-TOT               W  4 P   VALUE 0                                      
+ W-KVLS-TOT               W  4 P   VALUE 0                                      
+ W-KVAKS-TOT              W  4 P   VALUE 0                                      
+ W-KVOKS-TOT              W  5 P   VALUE 0                                      
+ W-KDBBCL                 W  1 N                                                
+ JA                       W  1 A   VALUE 'J'                                    
+ NEJ                      W  1 A   VALUE 'N'                                    
+ IX1                      W  2 N   VALUE 0                                      
+ IX2                      W  1 N   VALUE 0                                      
+                                                                                
+ W-TIERSDAT                    W  7 N                                           
+ W-TIERSDAT-SEKEL  W-TIERSDAT     2 N                                           
+ W-TIERSDAT-AAVVDD W-TIERSDAT +2  5 N                                           
+                                                                                
+ DATUM-10AR                   W  7 N                                            
+ SEKEL-10        DATUM-10AR      2 N                                            
+ DATUM-10-AAVVD  DATUM-10AR +2   5 N                                            
+                                                                                
+ DAGENS-DATUM             W  5 N                                                
+ DD-YY     DAGENS-DATUM      2 N                                                
+ DD-WW     DAGENS-DATUM +2   2 N                                                
+ DD-DAY    DAGENS-DATUM +4   1 N                                                
+                                                                                
+ DATUM1                   W  8 A                                                
+ AA1     DATUM1              2 A                                                
+ MM1     DATUM1 +3           2 A                                                
+ DD1     DATUM1 +6           2 A                                                
+                                                                                
+ DATUM2                   W  6 A                                                
+ AA2     DATUM2              2 A                                                
+ MM2     DATUM2 +2           2 A                                                
+ DD2     DATUM2 +4           2 A                                                
+ DATUM   DATUM2              6 N                                                
+                                                                                
+ HELP-DATE                W  5 N                                                
+ HELP-YY   HELP-DATE         2 N                                                
+ HELP-WW   HELP-DATE +2      2 N                                                
+ HELP-DAY  HELP-DATE +4      1 N                                                
+                                                                                
+ WS-TIFINLV               W  5 N                                                
+ WS-YY     WS-TIFINLV        2 N                                                
+ WS-WW     WS-TIFINLV  +2    2 N                                                
+ WS-DAY    WS-TIFINLV  +4    1 N                                                
+                                                                                
+ KOLL-TIFINLV             W  5 N                                                
+ KOLL-YY   KOLL-TIFINLV      2 N                                                
+ KOLL-WW   WS-TIFINLV  +2    2 N                                                
+ KOLL-DAY  WS-TIFINLV  +4    1 N                                                
+                                                                                
+ FKNGRP-BUYBACK           W  1 A   VALUE 'N'                                    
+ PRODSLAG-BUYBACK1        W  1 A   VALUE 'N'                                    
+ PRODSLAG-BUYBACK2        W  1 A   VALUE 'N'                                    
+ PRODSLAG-BUYBACK3        W  1 A   VALUE 'N'                                    
+ WDATKONV                 W  8 A   VALUE 'WDATKONV'                             
+ W-IDFKNGRP               W  4 N                                                
+ W-IDFKNGRP-SERIE W-IDFKNGRP 2 N                                                
+ WS-VECKOR-TILL-TIFINLV   W  2 P                                                
+                                                                                
+%WY2000W2                                                                       
+%WWPRODSL  'TEMP1-' WORK ''                                                     
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+*                                                                               
+*------------------------------------------------------------------*            
+* STEG 1. MATCHAR ARTIKELDATA OCH BENÄMNINGAR SKRIVER TEMP-FIL     *            
+* -----------------------------------------------------------------*            
+*                                                                               
+JOB INPUT (W11608D1 KEY (CLAG-IDARTNR)                   +                      
+           W11608D2 KEY (BEN-IDARTNR))                                          
+                                                                                
+ IF MATCHED                                                                     
+    IF CLAG-FLLSRDEL = JA AND CLAG-PRARTSTD > 0 +                               
+    AND CLAG-PRARTSJK > 0                                                       
+       PERFORM AA-ARTIKELDATA                                                   
+       PERFORM AB-BENAMNINGAR                                                   
+       PUT TPFIL1                                                               
+    END-IF                                                                      
+ ELSE                                                                           
+    IF W11608D1                                                                 
+       IF CLAG-FLLSRDEL = JA AND CLAG-PRARTSTD > 0 +                            
+       AND CLAG-PRARTSJK > 0                                                    
+          PERFORM AA-ARTIKELDATA                                                
+          PERFORM AC-BLANK-BEN                                                  
+          PUT TPFIL1                                                            
+       END-IF                                                                   
+    END-IF                                                                      
+ END-IF                                                                         
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ AA-ARTIKELDATA. PROC                                                           
+                                                                                
+    TEMP1-FLOVRLAG    = '0'                                                     
+    TEMP1-IDARTNR     = CLAG-IDARTNR                                            
+    TEMP1-KDSRA       = CLAG-KDSRA                                              
+    TEMP1-KVQPACK-0   = CLAG-KVQPACK-0                                          
+    TEMP1-KDARTURS    = CLAG-KDARTURS                                           
+    TEMP1-KDPRODSL    = CLAG-KDPRODSL                                           
+    TEMP1-VLARTNTO    = CLAG-VLARTNTO                                           
+    TEMP1-VKART       = CLAG-VKART                                              
+    TEMP1-KDVSOP      = CLAG-KDVSOP                                             
+    TEMP1-IDSTATNR    = CLAG-IDSTATNR(3)                                        
+    TEMP1-KDSORT      = CLAG-KDSORT                                             
+    TEMP1-KDERS       = CLAG-KDERS                                              
+    TEMP1-KDERS-UTG   = CLAG-KDERS-UTG                                          
+    TEMP1-KDBPSR      = CLAG-KDBPSR                                             
+    TEMP1-KDUART      = CLAG-KDUART                                             
+    TEMP1-KDBBCL      = 0                                                       
+    TEMP1-IDLEVNR     = CLAG-IDLEVNR                                            
+    TEMP1-IDLEVNR-LOC = ' '                                                     
+    TEMP1-KDAGE       = CLAG-KDAGE                                              
+    TEMP1-IDPROJ      = CLAG-IDPROJ                                             
+    TEMP1-IDFKNGRP    = CLAG-IDFKNGRP                                           
+    TEMP1-PRARTSJK    = CLAG-PRARTSJK                                           
+    TEMP1-PRARTSTD    = CLAG-PRARTSTD                                           
+    TEMP1-BEART(1)    = BEN-BEART(1)                                            
+    TEMP1-BEART(2)    = BEN-BEART(2)                                            
+    TEMP1-BEART(3)    = BEN-BEART(3)                                            
+    TEMP1-BEART(4)    = BEN-BEART(4)                                            
+    TEMP1-BEART(5)    = BEN-BEART(5)                                            
+    TEMP1-BEART(6)    = BEN-BEART(6)                                            
+    TEMP1-BEART(7)    = BEN-BEART(7)                                            
+    TEMP1-BEART(8)    = BEN-BEART(8)                                            
+    TEMP1-BEART(9)    = BEN-BEART(9)                                            
+    TEMP1-BEART(10)   = BEN-BEART(10)                                           
+    TEMP1-KDPSLLOC    = CLAG-KDPSLLOC                                           
+    TEMP1-TIFINLV     = CLAG-TIFINLV                                            
+    TEMP1-KDSTANAUTG  = ' '                                                     
+    TEMP1-FLSOFTWARE  = 'N'                                                     
+    TEMP1-KDTIPPR     = CLAG-KDTIPPR                                            
+    TEMP1-IDKAT(1)    = CLAG-IDKAT(1)                                           
+    TEMP1-IDKAT(2)    = CLAG-IDKAT(2)                                           
+    TEMP1-IDKAT(3)    = CLAG-IDKAT(3)                                           
+    TEMP1-BELEVART    = ' '                                                     
+    TEMP1-FLGEMFMC    = ' '                                                     
+    TEMP1-IDPROJUP    = CLAG-IDPROJUP                                           
+    TEMP1-TIERSDAT    = CLAG-TIERSDAT                                           
+    TEMP1-TIURPROD    = CLAG-TIURPROD                                           
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ AB-BENAMNINGAR. PROC                                                           
+       IX1 = 1                                                                  
+       DO WHILE IX1 < 11                                                        
+         TEMP1-BEART (IX1) = BEN-BEART (IX1)                                    
+         IX1 = IX1 + 1                                                          
+       END-DO                                                                   
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ AC-BLANK-BEN. PROC                                                             
+       IX1 = 1                                                                  
+       DO WHILE IX1 < 11                                                        
+         TEMP1-BEART (IX1) = ' '                                                
+         IX1 = IX1 + 1                                                          
+       END-DO                                                                   
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*------------------------------------------------------------------*            
+* STEG 2. MATCHAR TEMPFIL1 OCH BUY-BACK FIL TILL TEMPFIL2          *            
+* -----------------------------------------------------------------*            
+*                                                                               
+JOB INPUT (W11608D3 KEY(BB-IDARTNR) TPFIL1 KEY(TEMP1-IDARTNR))      +           
+                                    START  A-INIT                               
+                                                                                
+    IF MATCHED                                                                  
+       W-KDBBCL = BB-KDBBCL                                                     
+       PERFORM S01-SOLLA-SKRIV-POST                                             
+    ELSE                                                                        
+      IF TPFIL1                                                                 
+         W-KDBBCL = 0                                                           
+         PERFORM S01-SOLLA-SKRIV-POST                                           
+      END-IF                                                                    
+    END-IF                                                                      
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ A-INIT.  PROC                                                                  
+                                                                                
+ DATUM1 = SYSDATE                                                               
+ AA2 = AA1                                                                      
+ MM2 = MM1                                                                      
+ DD2 = DD1                                                                      
+ DAT-I-TIDATUM = DATUM                                                          
+ DAT-KDDATFORM = 'AAMMDD'                                                       
+ CALL WDATKONV USING (DAT-KDDATFORM, DAT-I-TIDATUM, DAT-O-TIDATUM,  +           
+                      DAT-KDSVAR)                                               
+                                                                                
+*** HELP-DATE ANVÄNDS VID UTRÄKNING AV RETUR-STATUSKOD                          
+ HELP-DATE = DAT-TIAAVVD                                                        
+ HELP-DAY  = 1                                                                  
+                                                                                
+ SEKEL-10  EQ 20                                                                
+                                                                                
+ DATUM-10-AAVVD  = DAT-TIAAVVD                                                  
+ DISPLAY ' DATUM-10AR  INNAN OMRÄKNING ' DATUM-10AR                             
+ DATUM-10AR      = DATUM-10AR   - 10000                                         
+                                                                                
+ DISPLAY ' DATUM-10AR ' DATUM-10AR                                              
+ DISPLAY ' HELPDATE   ' HELP-DATE                                               
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ S01-SOLLA-SKRIV-POST.  PROC                                                    
+                                                                                
+ WS-TIFINLV = TEMP1-TIFINLV                                                     
+                                                                                
+ TMP1-YYWWD = HELP-DATE                                                         
+ TMP2-YYWWD = WS-TIFINLV                                                        
+ PERFORM WY2000P2                                                               
+ DAGENS-DATUM = TMP1-YYWWD                                                      
+ KOLL-TIFINLV = TMP2-YYWWD                                                      
+                                                                                
+ IF KOLL-YY > DD-YY                                                             
+    WS-VECKOR-TILL-TIFINLV = WS-WW + 53 - HELP-WW                               
+ ELSE                                                                           
+   IF HELP-YY = WS-YY                                                           
+     IF WS-WW > HELP-WW                                                         
+        WS-VECKOR-TILL-TIFINLV = WS-WW - HELP-WW                                
+     ELSE                                                                       
+        WS-VECKOR-TILL-TIFINLV = 0                                              
+     END-IF                                                                     
+   ELSE                                                                         
+     WS-VECKOR-TILL-TIFINLV = 0                                                 
+   END-IF                                                                       
+ END-IF                                                                         
+                                                                                
+ IF TEMP1-TIERSDAT > 0                                                          
+   IF TEMP1-TIERSDAT > 50000                                                    
+     W-TIERSDAT-SEKEL EQ 19                                                     
+   ELSE                                                                         
+     W-TIERSDAT-SEKEL EQ 20                                                     
+   END-IF                                                                       
+   W-TIERSDAT-AAVVDD = TEMP1-TIERSDAT                                           
+ ELSE                                                                           
+   W-TIERSDAT = 99999999                                                        
+ END-IF                                                                         
+                                                                                
+ PERFORM S25-CHECK-TEMP1-KDPRODSL                                               
+ IF WS-VECKOR-TILL-TIFINLV > 30          +                                      
+ OR W-TIERSDAT          < DATUM-10AR     +                                      
+ OR TEMP1-KDERS-UTG     > 0              +                                      
+ OR TEMP1-KDERS         = 52             +                                      
+ OR TEMP1-IDFKNGRP      = 0              +                                      
+ OR TEMP1-KDPRODSL      = 0              +                                      
+ OR TEMP1-KDPRODSL      = KDPRODSL-LOCAL                                        
+    CONTINUE                                                                    
+ ELSE                                                                           
+    PERFORM S02-SKRIV-POST                                                      
+ END-IF                                                                         
+                                                                                
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ S02-SKRIV-POST.  PROC                                                          
+                                                                                
+    PERFORM S03-RED-SKRIV-UTPOST                                                
+    PUT TPFIL2                                                                  
+                                                                                
+ END-PROC                                                                       
+*                                                                               
+NEWPAGE                                                                         
+*                                                                               
+ S03-RED-SKRIV-UTPOST.  PROC                                                    
+                                                                                
+    TEMP2-FLOVRLAG  = '0'                                                       
+    TEMP2-IDARTNR   = TEMP1-IDARTNR                                             
+    TEMP2-KDSRA     = TEMP1-KDSRA                                               
+    TEMP2-KVQPACK-0 = TEMP1-KVQPACK-0                                           
+    TEMP2-KDARTURS  = TEMP1-KDARTURS                                            
+    TEMP2-KDPRODSL  = TEMP1-KDPRODSL                                            
+    TEMP2-VLARTNTO  = TEMP1-VLARTNTO                                            
+    TEMP2-VKART     = TEMP1-VKART                                               
+    TEMP2-KDVSOP    = TEMP1-KDVSOP                                              
+    TEMP2-IDSTATNR  = TEMP1-IDSTATNR                                            
+    TEMP2-KDSORT    = TEMP1-KDSORT                                              
+    TEMP2-KDERS     = TEMP1-KDERS                                               
+    TEMP2-KDERS-UTG = TEMP1-KDERS-UTG                                           
+    TEMP2-KDBPSR    = TEMP1-KDBPSR                                              
+    TEMP2-KDUART    = TEMP1-KDUART                                              
+    TEMP2-KDBBCL    = W-KDBBCL                                                  
+    TEMP2-IDLEVNR   = TEMP1-IDLEVNR                                             
+    TEMP2-IDLEVNR-LOC = ' '                                                     
+    TEMP2-KDAGE     = TEMP1-KDAGE                                               
+    TEMP2-IDPROJ    = TEMP1-IDPROJ                                              
+    TEMP2-IDFKNGRP  = TEMP1-IDFKNGRP                                            
+    TEMP2-PRARTSJK  = TEMP1-PRARTSJK                                            
+    TEMP2-PRARTSTD  = TEMP1-PRARTSTD                                            
+    TEMP2-BEART(1)  = TEMP1-BEART(1)                                            
+    TEMP2-BEART(2)  = TEMP1-BEART(2)                                            
+    TEMP2-BEART(3)  = TEMP1-BEART(3)                                            
+    TEMP2-BEART(4)  = TEMP1-BEART(4)                                            
+    TEMP2-BEART(5)  = TEMP1-BEART(5)                                            
+    TEMP2-BEART(6)  = TEMP1-BEART(6)                                            
+    TEMP2-BEART(7)  = TEMP1-BEART(7)                                            
+    TEMP2-BEART(8)  = TEMP1-BEART(8)                                            
+    TEMP2-BEART(9)  = TEMP1-BEART(9)                                            
+    TEMP2-BEART(10) = TEMP1-BEART(10)                                           
+    TEMP2-KDPSLLOC  = TEMP1-KDPSLLOC                                            
+    TEMP2-TIFINLV   = TEMP1-TIFINLV                                             
+    TEMP2-KDSTANAUTG = ' '                                                      
+    TEMP2-FLSOFTWARE = 'N'                                                      
+    TEMP2-KDTIPPR   = TEMP1-KDTIPPR                                             
+    TEMP2-IDKAT(1)  = TEMP1-IDKAT(1)                                            
+    TEMP2-IDKAT(2)  = TEMP1-IDKAT(2)                                            
+    TEMP2-IDKAT(3)  = TEMP1-IDKAT(3)                                            
+    TEMP2-BELEVART  = TEMP1-BELEVART                                            
+    TEMP2-FLGEMFMC  = TEMP1-FLGEMFMC                                            
+    TEMP2-IDPROJUP  = TEMP1-IDPROJUP                                            
+    TEMP2-TIERSDAT  = TEMP1-TIERSDAT                                            
+    TEMP2-TIURPROD  = TEMP1-TIURPROD                                            
+ END-PROC                                                                       
+*                                                                               
+%WY2000P2                                                                       
+*                                                                               
+%WWPRODSL 'TEMP1-' PROC ''                                                      
+*                                                                               
+NEWPAGE                                                                         
+*------------------------------------------------------------------*            
+* STEG 3. MATCHAR TEMPFIL2 OCH CROSSFIL TILL TEMPFIL3              *            
+* -----------------------------------------------------------------*            
+*                                                                               
+JOB INPUT (TPFIL2 KEY(TEMP2-IDARTNR) W11608D5 KEY(CROSS-IDARTNR))               
+                                                                                
+    IF MATCHED                                                                  
+        TEMP2-BELEVART = CROSS-BELEVART                                         
+        PUT TPFIL3 FROM TPFIL2                                                  
+    ELSE                                                                        
+        IF TPFIL2                                                               
+           PUT TPFIL3 FROM TPFIL2                                               
+        END-IF                                                                  
+    END-IF                                                                      
+*                                                                               
+NEWPAGE                                                                         
+*------------------------------------------------------------------*            
+* STEG 4. MATCHAR TEMPFIL3 OCH GEMENSAM ARTINFO VCC-KDP OCH FORD   *            
+* -----------------------------------------------------------------*            
+*                                                                               
+JOB INPUT (TPFIL3 KEY(TEMP3-IDARTNR) W11608D6 KEY(MPNR-IDARTNR))                
+                                                                                
+    IF MATCHED                                                                  
+        TEMP3-FLGEMFMC = MPNR-FLGEMFMC                                          
+        PUT W11608D4 FROM TPFIL3                                                
+    ELSE                                                                        
+        IF TPFIL3                                                               
+           PUT W11608D4 FROM TPFIL3                                             
+        END-IF                                                                  
+    END-IF                                                                      
+*                                                                               

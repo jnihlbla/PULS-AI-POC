@@ -1,0 +1,31 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//*  PLOCKAR IN BETÄLLNINGSIDENTITET FRÅN SENDERTAG I VCOM                      
+//*  OCH SKICKAR VIDARE DETTA I BESTÄLLNING AV STATISTIK                        
+//*                                                                             
+//*  FREKVENS:     DAG     RTN W330X1                                           
+//*                                                                             
+//*  ÅTERSTART:    W33033    NORMAL                                             
+//*                                                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W330P033 PROC STPLIB=&INDRTE..LOAD,                                           
+//             INDIN=&W330..W330X1,                                             
+//             INDUT=&W330..W330X1                                              
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W33033   EXEC PGM=W33033                                                      
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//SYSOUT   DD  SYSOUT=*                                     -- DISPLAY          
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//V16247D3 DD  SYSOUT=*                                     -- POSTSUM          
+//W33033D1 DD  DSN=&INDIN..W33033,DISP=(OLD,DELETE,KEEP)                        
+//************ BESTÄLLNINGSFIL MED SENDERTAG                                    
+//*                                                                             
+//W33033D2 DD  DSN=&INDUT..W33036(+1),DISP=(NEW,CATLG,DELETE), -LIM(99)         
+//************ BESTÄLLNINGSFIL FRÅN IDENTIFIERAT MARKNADSBOLAG                  
+//             MGMTCLAS=&BACKUPC,DATACLAS=PSEN                                  

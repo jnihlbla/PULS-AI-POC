@@ -1,0 +1,120 @@
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                   *         
+//*          RS-SERVICEGRAD                                           *         
+//*                                                                   *         
+//*          PERIODICITET: VECKA                                      *         
+//*                                                                   *         
+//*          ÅTERSTART:    NORMAL                                     *         
+//*                        W22510 LÄSER WDD3 WDK6 WDD9                *         
+//*                                                                   *         
+//*    INNEHÅLLER I SLUTET ETT SORTSTEG SOM SKAPAR KOPIA AV FIL       *         
+//*    W22513 FAST BARA MED LEVERANTÖR 1002, DETTA ÄR EN FIX          *         
+//*    FÖR ATT SKAPA EN TILLFÄLLIG FIL TILL ILVERED, 940819 SK        *         
+//*                                                                   *         
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//*                                                                             
+//W225P003 PROC INDIN=&W225..W225V1,INDUT=&W225..W225V1,                        
+//             INDREG=&W225,                                                    
+//             STPLIB=&INDRTE..LOAD                                             
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22508  EXEC PGM=W22508                                                       
+//STEPLIB  DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//DFSRESLB DD  DSN=&INDRESL..RESLIB,DISP=SHR                                    
+//SORTMSG  DD  SYSOUT=*                                                         
+//W22508D1 DD  DSN=&INDIN..W22505(+0),DISP=SHR                                  
+//**************                                                    ***         
+//*                                                                             
+//W22508D2 DD  DSN=&INDREG..W22509(+0),DISP=SHR                                 
+//**************                                                    ***         
+//*                                                                             
+//W22508D3 DD  DSN=&&W22511,DISP=(NEW,PASS,DELETE),                             
+//**************   KOMBINATION AV OVANSTÅENDE                       ***         
+//             SPACE=(323,(16,5),RLSE),                                         
+//             AVGREC=K                                                         
+//*                                                                             
+//V16247D3 DD  SYSOUT=*                                                         
+//SYSOUT   DD  SYSOUT=*                                                         
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+//W22510  EXEC PGM=DFSRRC00,                                                    
+//             PARM='&DBB,W22510,W22510,,00'                                    
+//STEPLIB  DD  DSN=&INDUSRL..USERLIB,DISP=SHR                                   
+//         DD  DSN=&STPLIB,DISP=SHR                                             
+//         DD  DSN=&INDLIB2..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDLIB3..LOAD,DISP=SHR                                      
+//         DD  DSN=&INDGRND..LOAD,DISP=SHR                                      
+//IMS      DD  DSN=&INDRTE..PSBLIB,DISP=SHR                                     
+//         DD  DSN=&INDRTE..DBDLIB,DISP=SHR                                     
+//IMSACB   DD  DSN=&INDRTE..ACBLIB,DISP=SHR                                     
+//IEFRDER  DD  DUMMY                                                            
+//DFSVSAMP DD  DSN=&INDRTE..CONSTANT(OSAM2K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(OSAM4K),DISP=SHR                           
+//         DD  DSN=&INDRTE..CONSTANT(VSAM),DISP=SHR                             
+//*                                                                             
+//WDK6     INCLUDE MEMBER=WDK6                                                  
+//WDD9     INCLUDE MEMBER=WDD9                                                  
+//WDD3     INCLUDE MEMBER=WDD3                                                  
+//WDK9     INCLUDE MEMBER=WDK9                                                  
+//*                                                                             
+//W22510D1 DD  DSN=&&W22511,DISP=(OLD,DELETE,DELETE)                            
+//*                                                                             
+//W22510D2 DD  DSN=&INDUT..W22513(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************                                                    ***         
+//             SPACE=(336,(60,6),RLSE),                                         
+//             AVGREC=K,                                                        
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W22510D3 DD  DSN=&INDUT..W22515(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************                                                    ***         
+//             SPACE=(47,(8,4),RLSE),                                           
+//             AVGREC=K,                                                        
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W22510D5 DD  DSN=&INDUT..W22519(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************                                                    ***         
+//             SPACE=(164,(76,16),RLSE),                                        
+//             AVGREC=K,                                                        
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W22510D6 DD  DSN=&INDUT..W22524(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************                                                    ***         
+//             SPACE=(65,(8,4),RLSE),                                           
+//             AVGREC=K,                                                        
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//W22510D7 DD  DSN=&INDUT..W22523(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************                                                    ***         
+//             SPACE=(37,(51,3),RLSE),                                          
+//             AVGREC=K,                                                        
+//             MGMTCLAS=&DEL2BKPC                                               
+//*                                                                             
+//OSDAT    DD  DSN=&INDRTE..DATUM(+0),DISP=SHR             (DATKORT)            
+//DATIN    DD  DSN=&INDRTE..CONSTANT(NORMAL),DISP=SHR      (DATKORT)            
+//DATUT    DD  SYSOUT=*                                    (DATKORT)            
+//V16247D3 DD  SYSOUT=*                                    (POSTSUM)            
+//SYSOUT   DD  SYSOUT=*                                                         
+//CEEDUMP  DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//SYSUDUMP DD  SYSOUT=(D,,DUMP),HOLD=YES                    -- ABEND            
+//IDIHIST  DD  DSN=&INDRTE..FADUMP,DISP=SHR                                     
+//IDIREPRT DD  SYSOUT=(D,,DUMP),HOLD=YES                                        
+//*                                                                             
+//*SORTFR  EXEC PGM=SORT                                                        
+//*SYSOUT   DD  SYSOUT=*                                                        
+//*SYSIN    DD  DSN=&INDGRND..CONSTANT(W225PDX3),DISP=SHR                       
+//*SORTIN   DD DSN=&INDUT..W22513(+1),DISP=SHR                                  
+//*                                                                             
+//*SORTOUT  DD DSN=&INDUT..W225X3(+1),DISP=(NEW,CATLG,DELETE),  -LIM(1)         
+//**************                                                    ***         
+//*             SPACE=(336,(20,6),RLSE),                                        
+//*             AVGREC=K,                                                       
+//*             MGMTCLAS=&DEL2BKPC                                              
+//*                                                                             
