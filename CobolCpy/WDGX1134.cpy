@@ -1,8 +1,0 @@
-000100 01  1134-WDGX1134-CTX.                                                   
-000200*                                 ARTIKLAR MED SPEC. ERS.REGLER           
-000300*                                 FÖR AK-SALDO                            
-000400*                                 FYSISK NYCKEL: IDARTNR                  
-000500     03 1134-IDARTNR         PIC S9(9)           COMP-3.                  
-000600*                                 ARTIKELNUMMER                           
-000700*                                 PART NUMBER                             
-000800*** END OF VILMAII-COPY LENGTH= 5 BYTES                                   
