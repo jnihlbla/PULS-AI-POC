@@ -1,9 +1,0 @@
-000100 01  W440051.                                                             
-000200*                                 RO-INFO, ORAD (WDQ4)                    
-000300     03 IDARTNR              PIC S9(9)           COMP-3.                  
-000400*                                 ARTIKELNUMMER                           
-000500     03 IDDC                 PIC X(2).                                    
-000600*                                 IDENTIFIERARE LAGER                     
-000700     03 KVBEART-Q            PIC S9(7)           COMP-3.                  
-000800*                                 BESTÄLLT KVANTANPASSAT ANTAL            
-000900*** END OF VILMAII-COPY LENGTH= 11 BYTES                                  
